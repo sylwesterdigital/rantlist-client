@@ -12,6 +12,17 @@
   <script>
     try {
       const root = document.documentElement;
+      const nativeIosApp = String(navigator.userAgent || '').includes('Rantlist-iOS');
+      root.dataset.nativeIosApp = nativeIosApp ? 'true' : 'false';
+      if (nativeIosApp) {
+        const viewportMeta = document.querySelector('meta[name="viewport"]');
+        if (viewportMeta) {
+          viewportMeta.content = viewportMeta.content
+            .replace(/,?\s*interactive-widget=resizes-content/gi, '')
+            .replace(/\s*,\s*,/g, ',')
+            .trim();
+        }
+      }
       const defaultsRevision = 'r8';
       let storedTheme = localStorage.getItem('chat.ui.theme');
       let storedButtonMode = localStorage.getItem('chat.ui.buttonMode');
@@ -4463,6 +4474,17 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+
+    /* Native iOS keyboard presentation must not animate web layout independently
+       from the operating-system keyboard. WKWebView itself is the only moving surface. */
+    :root[data-native-ios-app="true"][data-keyboard-open="true"] *,
+    :root[data-native-ios-app="true"][data-keyboard-open="true"] *::before,
+    :root[data-native-ios-app="true"][data-keyboard-open="true"] *::after {
+      scroll-behavior: auto !important;
+      transition: none !important;
+      animation-duration: 0s !important;
+      animation-delay: 0s !important;
     }
 
     /* v8 moderation, lazy media, disappearing messages and calls */
@@ -14337,23 +14359,22 @@
       });
 
       const syncViewport = () => syncViewportHeight(false);
-      window.addEventListener('resize', syncViewport, { passive: true });
-      window.addEventListener('orientationchange', () => setTimeout(() => syncViewportHeight(true), 80), { passive: true });
-      window.addEventListener('focus', () => setTimeout(() => syncViewportHeight(true), 0), { passive: true });
+      if (!isRantlistIOSApp()) {
+        window.addEventListener('resize', syncViewport, { passive: true });
+        window.addEventListener('focus', () => setTimeout(() => syncViewportHeight(true), 0), { passive: true });
+        if (window.visualViewport) {
+          window.visualViewport.addEventListener('resize', syncViewport, { passive: true });
+        }
+      }
+      window.addEventListener('orientationchange', () => setTimeout(() => syncViewportHeight(true), 120), { passive: true });
       window.addEventListener('pageshow', (event) => {
         syncViewportHeight(true);
-        if (event.persisted) {
+        if (event.persisted && !isRantlistIOSApp()) {
           setTimeout(() => syncViewportHeight(true), 80);
           setTimeout(() => syncViewportHeight(true), 350);
         }
         checkServerVersion(true).catch(() => {});
       });
-      if (window.visualViewport && !isRantlistIOSApp()) {
-        // Browser Safari needs visual-viewport resize tracking. The native iOS
-        // wrapper resizes WKWebView itself, so listening to visualViewport there
-        // would apply the keyboard size a second time.
-        window.visualViewport.addEventListener('resize', syncViewport, { passive: true });
-      }
 
       const unlock = () => ensureAudio();
       window.addEventListener('pointerdown', unlock, { once: true, passive: true });
@@ -14800,6 +14821,7 @@
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
         if (isRantlistIOSApp()) {
+          setNativeIOSKeyboardState(true);
           keepFocusedControlVisible(event.target);
           return;
         }
@@ -14813,7 +14835,12 @@
       document.addEventListener('focusout', (event) => {
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
-        if (isRantlistIOSApp()) return;
+        if (isRantlistIOSApp()) {
+          requestAnimationFrame(() => {
+            if (!isKeyboardInput(document.activeElement)) setNativeIOSKeyboardState(false);
+          });
+          return;
+        }
         state.viewportFocusTimer = setTimeout(() => {
           state.viewportFocusTimer = null;
           syncViewportHeight(true);
@@ -34744,31 +34771,44 @@
       }
     }
 
+    function setNativeIOSKeyboardState(open) {
+      const root = document.documentElement;
+      const keyboardOpen = Boolean(open);
+      state.keyboardOpen = keyboardOpen;
+      root.dataset.keyboardOpen = keyboardOpen ? 'true' : 'false';
+      root.style.setProperty('--app-height', '100dvh');
+      root.style.setProperty('--app-width', '100vw');
+      root.style.setProperty('--app-top', '0px');
+      root.style.setProperty('--app-left', '0px');
+      root.style.setProperty('--keyboard-inset', '0px');
+    }
+
     function syncViewportHeight(resetScroll = false) {
+      if (isRantlistIOSApp()) {
+        // Native iOS owns keyboard geometry. Do not echo WKWebView resize frames
+        // back into CSS pixel heights: that feedback loop was the remaining
+        // spring/jitter. Dynamic viewport units follow the final WebView frame.
+        setNativeIOSKeyboardState(isKeyboardInput());
+        if (resetScroll && !isKeyboardInput()) {
+          const scrollingElement = document.scrollingElement || document.documentElement;
+          if (scrollingElement) scrollingElement.scrollTop = 0;
+          window.scrollTo(0, 0);
+        }
+        return;
+      }
+
       cancelAnimationFrame(state.viewportSyncRaf);
       state.viewportSyncRaf = requestAnimationFrame(() => {
         const viewport = window.visualViewport;
-        const nativeIosApp = isRantlistIOSApp();
-        // In the native wrapper iOS already resizes WKWebView above the keyboard.
-        // Use that resized window as the one source of truth. visualViewport is
-        // smaller again during keyboard presentation and caused the giant blank
-        // area by effectively subtracting the keyboard twice.
         const viewportHeight = Math.max(180, Math.round(
-          nativeIosApp
-            ? (window.innerHeight || document.documentElement.clientHeight)
-            : (viewport?.height || window.innerHeight || document.documentElement.clientHeight)
+          viewport?.height || window.innerHeight || document.documentElement.clientHeight
         ));
         const viewportWidth = Math.max(240, Math.round(
-          nativeIosApp
-            ? (window.innerWidth || document.documentElement.clientWidth)
-            : (viewport?.width || window.innerWidth || document.documentElement.clientWidth)
+          viewport?.width || window.innerWidth || document.documentElement.clientWidth
         ));
         const focusedInput = isKeyboardInput();
-        // Do not move the fixed app surface while iOS is automatically panning
-        // the visual viewport around a focused input. That pan is transient and
-        // feeding it back into body top/left produces the spring-like shaking.
-        const viewportTop = nativeIosApp || focusedInput ? 0 : Math.max(0, Math.round(viewport?.offsetTop || 0));
-        const viewportLeft = nativeIosApp || focusedInput ? 0 : Math.max(0, Math.round(viewport?.offsetLeft || 0));
+        const viewportTop = focusedInput ? 0 : Math.max(0, Math.round(viewport?.offsetTop || 0));
+        const viewportLeft = focusedInput ? 0 : Math.max(0, Math.round(viewport?.offsetLeft || 0));
 
         if (!focusedInput) {
           state.viewportBaselineHeight = Math.max(state.viewportBaselineHeight, viewportHeight);

@@ -24,8 +24,13 @@ grep -q '!targetFrame.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift"
 grep -q 'navigationAction.navigationType == .linkActivated' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client may launch external pages without a user click" >&2; exit 1; }
 grep -q 'NSLocalNetworkUsageDescription' "$ROOT/mobile/ios/Rantlist/Info.plist" || { echo "iOS local-network call permission description missing" >&2; exit 1; }
 ! grep -q 'ignoresSafeArea(.keyboard, edges: .bottom)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS wrapper still forces full-height layout behind the keyboard" >&2; exit 1; }
+grep -q 'webView.scrollView.bounces = false' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WKWebView bounce is not disabled" >&2; exit 1; }
+grep -q 'webView.scrollView.alwaysBounceVertical = false' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WKWebView vertical overscroll is not disabled" >&2; exit 1; }
+grep -q 'webView.scrollView.alwaysBounceHorizontal = false' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WKWebView horizontal overscroll is not disabled" >&2; exit 1; }
 grep -q 'function isRantlistIOSApp()' "$ROOT/web/index.html" || { echo "iOS native viewport detection missing from web UI" >&2; exit 1; }
-grep -q 'const nativeIosApp = isRantlistIOSApp();' "$ROOT/web/index.html" || { echo "iOS native single-source viewport handling missing" >&2; exit 1; }
+grep -q 'function setNativeIOSKeyboardState(open)' "$ROOT/web/index.html" || { echo "iOS native keyboard state isolation missing" >&2; exit 1; }
+grep -q "root.style.setProperty('--app-height', '100dvh')" "$ROOT/web/index.html" || { echo "iOS native viewport still depends on animated pixel heights" >&2; exit 1; }
+grep -q 'data-native-ios-app="true"' "$ROOT/web/index.html" || { echo "iOS keyboard motion suppression missing" >&2; exit 1; }
 grep -q 'syncRemoteCallTrackState' "$ROOT/web/index.html" || { echo "WebRTC remote video track synchronization missing" >&2; exit 1; }
 grep -q "video.setAttribute('webkit-playsinline', '')" "$ROOT/web/index.html" || { echo "WebKit inline remote video playback safeguard missing" >&2; exit 1; }
 REPO_VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION.txt")"

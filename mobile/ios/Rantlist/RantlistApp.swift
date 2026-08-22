@@ -79,6 +79,10 @@ struct RantlistWebView: UIViewRepresentable {
         }
         webView.scrollView.contentInset = .zero
         webView.scrollView.scrollIndicatorInsets = .zero
+        webView.scrollView.bounces = false
+        webView.scrollView.alwaysBounceVertical = false
+        webView.scrollView.alwaysBounceHorizontal = false
+        webView.scrollView.isDirectionalLockEnabled = true
         webView.load(URLRequest(url: appURL, cachePolicy: .useProtocolCachePolicy))
         return webView
     }

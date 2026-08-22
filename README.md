@@ -91,3 +91,8 @@ The iOS wrapper ignores SwiftUI keyboard safe-area resizing and leaves keyboard 
 ## v0.1.20 keyboard
 
 The iOS wrapper uses normal native keyboard resizing; the web UI treats the resized WKWebView window as the single viewport source to avoid both bounce and blank keyboard space.
+
+
+## v0.1.21 native iOS keyboard stability
+
+The native iOS wrapper disables WKWebView bounce. While the keyboard is active, the web client does not mirror animated WebView resize frames back into CSS geometry; WKWebView is the single layout authority.

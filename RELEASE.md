@@ -1,3 +1,10 @@
+## Changes in v0.1.21
+
+- Removed the remaining iOS keyboard spring/jitter by preventing native WKWebView resize frames from feeding back into web layout geometry.
+- Disabled WKWebView scroll bounce and directional overscroll in the native iOS wrapper.
+- Native iOS keyboard mode now disables competing web transitions and uses dynamic viewport units instead of animated pixel height rewrites.
+- Synced browser client to rantlist-deploy-r89.
+
 ## Changes in v0.1.20
 
 - Fixed the large white gap above the software keyboard in the iOS app.
