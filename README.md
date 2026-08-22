@@ -86,3 +86,8 @@ The iOS wrapper disables automatic WKWebView safe-area content insets to avoid d
 ## iOS keyboard stability
 
 The iOS wrapper ignores SwiftUI keyboard safe-area resizing and leaves keyboard viewport handling to the web application, preventing double-resize bounce.
+
+
+## v0.1.20 keyboard
+
+The iOS wrapper uses normal native keyboard resizing; the web UI treats the resized WKWebView window as the single viewport source to avoid both bounce and blank keyboard space.

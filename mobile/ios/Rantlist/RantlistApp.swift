@@ -54,7 +54,6 @@ struct RantlistMobileApp: App {
         WindowGroup {
             RantlistWebView()
                 .ignoresSafeArea(.container, edges: .bottom)
-                .ignoresSafeArea(.keyboard, edges: .bottom)
         }
     }
 }

@@ -23,7 +23,9 @@ grep -q 'requestCaptureAuthorization(type)' "$ROOT/mobile/ios/Rantlist/RantlistA
 grep -q '!targetFrame.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client does not preserve embedded HTTPS frames in-app" >&2; exit 1; }
 grep -q 'navigationAction.navigationType == .linkActivated' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client may launch external pages without a user click" >&2; exit 1; }
 grep -q 'NSLocalNetworkUsageDescription' "$ROOT/mobile/ios/Rantlist/Info.plist" || { echo "iOS local-network call permission description missing" >&2; exit 1; }
-grep -q 'ignoresSafeArea(.keyboard, edges: .bottom)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS wrapper can resize a second time with the keyboard and cause layout shaking" >&2; exit 1; }
+! grep -q 'ignoresSafeArea(.keyboard, edges: .bottom)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS wrapper still forces full-height layout behind the keyboard" >&2; exit 1; }
+grep -q 'function isRantlistIOSApp()' "$ROOT/web/index.html" || { echo "iOS native viewport detection missing from web UI" >&2; exit 1; }
+grep -q 'const nativeIosApp = isRantlistIOSApp();' "$ROOT/web/index.html" || { echo "iOS native single-source viewport handling missing" >&2; exit 1; }
 grep -q 'syncRemoteCallTrackState' "$ROOT/web/index.html" || { echo "WebRTC remote video track synchronization missing" >&2; exit 1; }
 grep -q "video.setAttribute('webkit-playsinline', '')" "$ROOT/web/index.html" || { echo "WebKit inline remote video playback safeguard missing" >&2; exit 1; }
 REPO_VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION.txt")"

@@ -1,3 +1,9 @@
+## Changes in v0.1.20
+
+- Fixed the large white gap above the software keyboard in the iOS app.
+- Restored normal native WKWebView keyboard resizing and paired it with the r88 single-source viewport handling.
+- Preserves the smoother r87 keyboard transition without double-applying keyboard height.
+
 ## Changes in v0.1.19
 
 - iOS WKWebView now ignores SwiftUI keyboard safe-area resizing so the native wrapper and the web viewport do not both resize the UI during keyboard animation.
