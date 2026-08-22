@@ -18,6 +18,11 @@ for script in "$ROOT"/scripts/*.sh "$ROOT"/scripts/*.js; do
 done
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
+grep -q 'import AVFoundation' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client lacks AVFoundation permission handling" >&2; exit 1; }
+grep -q 'requestCaptureAuthorization(type)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WebKit media capture is not gated by native camera/microphone permission" >&2; exit 1; }
+grep -q 'NSLocalNetworkUsageDescription' "$ROOT/mobile/ios/Rantlist/Info.plist" || { echo "iOS local-network call permission description missing" >&2; exit 1; }
+grep -q 'syncRemoteCallTrackState' "$ROOT/web/index.html" || { echo "WebRTC remote video track synchronization missing" >&2; exit 1; }
+grep -q "video.setAttribute('webkit-playsinline', '')" "$ROOT/web/index.html" || { echo "WebKit inline remote video playback safeguard missing" >&2; exit 1; }
 REPO_VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION.txt")"
 SOURCE_VERSION="$(node -e 'const p=require(process.argv[1]); process.stdout.write(String(p.sourceVersion||""))' "$ROOT/web/client-source.json")"
 [[ "$REPO_VERSION" == "$SOURCE_VERSION" ]] || { echo "VERSION.txt ($REPO_VERSION) does not match synchronized source version ($SOURCE_VERSION). Run scripts/sync_from_stage.sh." >&2; exit 1; }

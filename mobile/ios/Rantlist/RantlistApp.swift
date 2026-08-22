@@ -1,3 +1,4 @@
+import AVFoundation
 import SwiftUI
 @preconcurrency import WebKit
 
@@ -9,6 +10,42 @@ private func trusted(_ url: URL?) -> Bool {
           url.scheme?.lowercased() == "https",
           let host = url.host?.lowercased() else { return false }
     return allowedHosts.contains(host)
+}
+
+private func requestCaptureAuthorization(_ mediaType: AVMediaType,
+                                         completion: @escaping (Bool) -> Void) {
+    switch AVCaptureDevice.authorizationStatus(for: mediaType) {
+    case .authorized:
+        completion(true)
+    case .notDetermined:
+        AVCaptureDevice.requestAccess(for: mediaType) { granted in
+            DispatchQueue.main.async { completion(granted) }
+        }
+    case .denied, .restricted:
+        completion(false)
+    @unknown default:
+        completion(false)
+    }
+}
+
+private func requestCaptureAuthorization(_ type: WKMediaCaptureType,
+                                         completion: @escaping (Bool) -> Void) {
+    switch type {
+    case .camera:
+        requestCaptureAuthorization(.video, completion: completion)
+    case .microphone:
+        requestCaptureAuthorization(.audio, completion: completion)
+    case .cameraAndMicrophone:
+        requestCaptureAuthorization(.video) { cameraGranted in
+            guard cameraGranted else {
+                completion(false)
+                return
+            }
+            requestCaptureAuthorization(.audio, completion: completion)
+        }
+    @unknown default:
+        completion(false)
+    }
 }
 
 @main
@@ -30,6 +67,7 @@ struct RantlistWebView: UIViewRepresentable {
         config.allowsInlineMediaPlayback = true
         config.mediaTypesRequiringUserActionForPlayback = []
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
+        config.applicationNameForUserAgent = "Rantlist-iOS"
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -80,8 +118,16 @@ struct RantlistWebView: UIViewRepresentable {
                      initiatedByFrame frame: WKFrameInfo,
                      type: WKMediaCaptureType,
                      decisionHandler: @escaping (WKPermissionDecision) -> Void) {
-            let trustedOrigin = origin.protocol.lowercased() == "https" && allowedHosts.contains(origin.host.lowercased())
-            decisionHandler(trustedOrigin ? .grant : .deny)
+            let trustedOrigin = origin.protocol.lowercased() == "https"
+                && allowedHosts.contains(origin.host.lowercased())
+            guard trustedOrigin else {
+                decisionHandler(.deny)
+                return
+            }
+
+            requestCaptureAuthorization(type) { granted in
+                decisionHandler(granted ? .grant : .deny)
+            }
         }
     }
 }

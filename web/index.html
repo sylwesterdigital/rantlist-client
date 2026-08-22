@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.56">
+  <meta name="chat-ui-version" content="9.6.57">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -11834,7 +11834,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.56</small>
+          <small id="serverBrandVersion">v9.6.57</small>
         </span>
       </button>
     </div>
@@ -11877,7 +11877,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.56</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.57</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12681,8 +12681,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.56</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.56</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.57</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.57</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -26677,19 +26677,19 @@
       const name = String(error?.name || errors.at(-1)?.name || 'MediaError');
 
       if (names.has('NotAllowedError') || names.has('SecurityError') || name === 'NotAllowedError' || name === 'SecurityError') {
-        return 'Camera or microphone access is blocked. Allow this HTTPS site in Firefox, then enable Firefox under the operating system Camera and Microphone privacy settings.';
+        return 'Camera or microphone access is blocked. Allow camera and microphone access for Rantlist in the browser or device privacy settings, then retry.';
       }
       if (names.has('NotReadableError') || names.has('TrackStartError') || names.has('AbortError') || name === 'NotReadableError') {
-        return 'A camera or microphone exists but Firefox could not open it. Close other apps or tabs using the device, then retry.';
+        return 'A camera or microphone exists but could not be opened. Close other apps or tabs using the device, then retry.';
       }
       if (requestedMedia === 'video' && cameraFailed && microphoneFailed) {
-        return 'Firefox could not open either a camera or a microphone. Check both browser permissions and operating-system privacy settings.';
+        return 'Rantlist could not open either the camera or microphone. Check browser/app permissions and device privacy settings.';
       }
       if (requestedMedia === 'video' && cameraFailed) {
-        return 'Firefox could not find or open a usable camera. Check Firefox camera permission, the operating-system camera permission, and whether another app is using the camera.';
+        return 'Rantlist could not find or open a usable camera. Check camera permission and whether another app is using the camera.';
       }
       if (microphoneFailed) {
-        return 'Firefox could not find or open a usable microphone. Check Firefox microphone permission and the operating-system microphone settings.';
+        return 'Rantlist could not find or open a usable microphone. Check microphone permission and device privacy settings.';
       }
       if (name === 'NotFoundError' || name === 'DevicesNotFoundError') {
         return requestedMedia === 'video'
@@ -26806,7 +26806,7 @@
           stream: combined,
           effectiveMedia: 'video',
           fallback: 'separate-device-capture',
-          notice: 'Firefox could not open the camera and microphone together, so they were opened separately.',
+          notice: 'The camera and microphone could not be opened together, so they were opened separately.',
           diagnostic,
         };
       }
@@ -26824,7 +26824,7 @@
           stream: audioStream,
           effectiveMedia: 'audio',
           fallback: 'camera-unavailable',
-          notice: 'Firefox could not open a camera. The call was started with microphone audio only.',
+          notice: 'The camera could not be opened. The call was started with microphone audio only.',
           diagnostic,
         };
       }
@@ -26842,7 +26842,7 @@
           stream: videoStream,
           effectiveMedia: 'video',
           fallback: 'microphone-unavailable',
-          notice: 'Firefox could not open a microphone. The call was started with video only.',
+          notice: 'The microphone could not be opened. The call was started with video only.',
           diagnostic,
         };
       }
@@ -27383,16 +27383,25 @@
         }
       });
 
+      const syncRemoteCallTrackState = (track) => {
+        const current = normalizeCallParticipantState(state.callParticipantStates.get(peerId));
+        if (track.kind === 'video') current.videoEnabled = track.readyState === 'live' && !track.muted;
+        if (track.kind === 'audio') current.audioEnabled = track.readyState === 'live' && !track.muted;
+        state.callParticipantStates.set(peerId, current);
+        updateCallTileState(peerId);
+      };
+
       peer.addEventListener('track', (event) => {
         const stream = event.streams[0] || state.remoteStreams.get(peerId) || new MediaStream();
         if (!event.streams[0] && !stream.getTracks().some((track) => track.id === event.track.id)) {
           stream.addTrack(event.track);
         }
         state.remoteStreams.set(peerId, stream);
+        syncRemoteCallTrackState(event.track);
         addRemoteCallTile(peerId, user, stream);
-        event.track.addEventListener('mute', () => updateCallTileState(peerId));
-        event.track.addEventListener('unmute', () => updateCallTileState(peerId));
-        event.track.addEventListener('ended', () => updateCallTileState(peerId));
+        event.track.addEventListener('mute', () => syncRemoteCallTrackState(event.track));
+        event.track.addEventListener('unmute', () => syncRemoteCallTrackState(event.track));
+        event.track.addEventListener('ended', () => syncRemoteCallTrackState(event.track));
       });
 
       peer.addEventListener('connectionstatechange', () => {
@@ -27435,6 +27444,9 @@
       const video = document.createElement('video');
       video.autoplay = true;
       video.playsInline = true;
+      video.setAttribute('autoplay', '');
+      video.setAttribute('playsinline', '');
+      video.setAttribute('webkit-playsinline', '');
       video.muted = local;
 
       const fallback = document.createElement('div');
@@ -27543,8 +27555,12 @@
         : ensureCallTile(peerId, state.callParticipants.get(peerId), false);
       if (!tile) return;
       const video = tile.querySelector('video');
-      if (video) video.srcObject = stream;
-      if (video) video.muted = state.locallyMutedCallPeers.has(peerId);
+      if (video) {
+        video.srcObject = stream;
+        video.muted = state.locallyMutedCallPeers.has(peerId);
+        const playback = video.play?.();
+        playback?.catch?.((error) => debugLog('debug', 'webrtc.media', 'remote-playback-waiting', { peerId, error: callMediaErrorSnapshot(error) }));
+      }
       startCallAudioMonitor(peerId, stream);
       updateCallTileState(peerId);
     }
@@ -27622,11 +27638,15 @@
       const stream = local
         ? (state.presentationStream || state.localCallStream)
         : state.remoteStreams.get(peerKey);
+      const storedRemoteState = local ? null : state.callParticipantStates.get(userId);
       const callState = local
         ? getLocalCallParticipantState()
-        : normalizeCallParticipantState(state.callParticipantStates.get(userId));
+        : normalizeCallParticipantState(storedRemoteState);
       const videoTrack = stream?.getVideoTracks().find((track) => track.readyState === 'live');
-      const videoVisible = Boolean(callState.presenting || (callState.videoEnabled && videoTrack && !videoTrack.muted));
+      const videoEnabled = local
+        ? callState.videoEnabled
+        : (storedRemoteState ? callState.videoEnabled : Boolean(videoTrack));
+      const videoVisible = Boolean(callState.presenting || (videoEnabled && videoTrack && !videoTrack.muted));
 
       const fallback = tile.querySelector('.call-avatar-fallback');
       const video = tile.querySelector('video');

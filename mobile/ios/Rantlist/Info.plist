@@ -13,6 +13,7 @@
     <key>LSRequiresIPhoneOS</key><true/>
     <key>NSCameraUsageDescription</key><string>Rantlist uses the camera when you choose video calls or camera capture.</string>
     <key>NSMicrophoneUsageDescription</key><string>Rantlist uses the microphone when you choose calls, voice messages or recording.</string>
+    <key>NSLocalNetworkUsageDescription</key><string>Rantlist uses the local network to improve real-time call connectivity.</string>
     <key>UILaunchScreen</key><dict/>
     <key>UISupportedInterfaceOrientations</key>
     <array>
