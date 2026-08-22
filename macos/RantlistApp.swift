@@ -70,12 +70,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
             return
         }
 
-        if isRantlistURL(url) || url.scheme == "about" || url.scheme == "blob" || url.scheme == "data" {
+        let scheme = url.scheme?.lowercased() ?? ""
+        if isRantlistURL(url) || ["about", "blob", "data"].contains(scheme) {
             decisionHandler(.allow)
             return
         }
 
-        if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? "") {
+        // Embedded HTTPS content stays in WKWebView. External pages open only
+        // after an explicit user click, so widgets cannot launch a browser on load.
+        if let targetFrame = navigationAction.targetFrame,
+           !targetFrame.isMainFrame,
+           scheme == "https" {
+            decisionHandler(.allow)
+            return
+        }
+
+        if ["https", "mailto", "tel"].contains(scheme),
+           navigationAction.navigationType == .linkActivated {
             NSWorkspace.shared.open(url)
         }
         decisionHandler(.cancel)
@@ -99,7 +110,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
               let url = navigationAction.request.url else { return nil }
         if isRantlistURL(url) {
             webView.load(URLRequest(url: url))
-        } else if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? "") {
+        } else if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? ""),
+                  navigationAction.navigationType == .linkActivated {
             NSWorkspace.shared.open(url)
         }
         return nil

@@ -73,7 +73,12 @@ struct RantlistWebView: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
         webView.allowsBackForwardNavigationGestures = true
-        webView.scrollView.contentInsetAdjustmentBehavior = .automatic
+        webView.scrollView.contentInsetAdjustmentBehavior = .never
+        if #available(iOS 13.0, *) {
+            webView.scrollView.automaticallyAdjustsScrollIndicatorInsets = false
+        }
+        webView.scrollView.contentInset = .zero
+        webView.scrollView.scrollIndicatorInsets = .zero
         webView.load(URLRequest(url: appURL, cachePolicy: .useProtocolCachePolicy))
         return webView
     }
@@ -88,11 +93,24 @@ struct RantlistWebView: UIViewRepresentable {
                 decisionHandler(.cancel)
                 return
             }
-            if trusted(url) || ["about", "blob", "data"].contains(url.scheme?.lowercased() ?? "") {
+            let scheme = url.scheme?.lowercased() ?? ""
+            if trusted(url) || ["about", "blob", "data"].contains(scheme) {
                 decisionHandler(.allow)
                 return
             }
-            if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? "") {
+
+            // Keep embedded HTTPS content (for example Stripe Buy Button frames)
+            // inside the app. Only explicit user-activated external links are
+            // handed to the system browser.
+            if let targetFrame = navigationAction.targetFrame,
+               !targetFrame.isMainFrame,
+               scheme == "https" {
+                decisionHandler(.allow)
+                return
+            }
+
+            if ["https", "mailto", "tel"].contains(scheme),
+               navigationAction.navigationType == .linkActivated {
                 UIApplication.shared.open(url)
             }
             decisionHandler(.cancel)
@@ -106,7 +124,8 @@ struct RantlistWebView: UIViewRepresentable {
                   let url = navigationAction.request.url else { return nil }
             if trusted(url) {
                 webView.load(URLRequest(url: url))
-            } else if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? "") {
+            } else if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? ""),
+                      navigationAction.navigationType == .linkActivated {
                 UIApplication.shared.open(url)
             }
             return nil

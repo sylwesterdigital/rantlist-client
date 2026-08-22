@@ -1,3 +1,14 @@
+## Changes in v0.1.18
+
+- iOS app no longer adds an extra bottom inset below the mobile navigation.
+- Removed the dead empty space below mobileNav in the iOS wrapper.
+
+## Changes in v0.1.17
+
+- Fixed iOS/macOS native wrappers so embedded HTTPS content such as the Stripe Buy Button remains inside the About popup.
+- External browser pages now open only after an explicit user click.
+- Added verification for embedded-frame and user-activated external-navigation handling.
+
 ## Changes in v0.1.16
 
 - macOS app icon now uses the same icon artwork as the iOS app.

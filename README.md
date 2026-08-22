@@ -76,3 +76,8 @@ The repository security scan rejects server/deployment files, payment/API token 
 ## macOS icon
 
 The macOS app now uses the same icon artwork as the iOS app by default.
+
+
+## iOS wrapper note
+
+The iOS wrapper disables automatic WKWebView safe-area content insets to avoid duplicate bottom spacing under the mobile navigation.
