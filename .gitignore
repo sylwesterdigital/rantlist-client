@@ -8,6 +8,7 @@ release/
 *.key
 *.pem
 *.pfx
+*.keystore
 .env
 .env.*
 !.env.example
@@ -22,3 +23,13 @@ __pycache__/
 homepage/.deploy_build/
 
 # Release workflow state/artifacts are local and ignored via release/
+
+# Mobile build output
+.android-build/
+.ios-build/
+mobile/android/.gradle/
+mobile/android/**/build/
+*.xcarchive
+*.ipa
+*.apk
+*.aab

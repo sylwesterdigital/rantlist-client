@@ -1,6 +1,6 @@
 # Rantlist Client
 
-Public client-side source and native desktop packaging for **Rantlist**.
+Public client-side source and native macOS, Android and iOS packaging for **Rantlist**.
 
 - Rantlist: https://rantlist.me
 - Project page: https://mojoworks.xyz/labs/rantlist/
@@ -26,25 +26,47 @@ This creates an ad-hoc local tester build.
 
 ## Full signed release + GitHub + homepage
 
+macOS remains the backwards-compatible default:
+
 ```bash
 ./scripts/release_and_deploy_homepage.sh
 ```
 
-No version argument is required. The workflow uses the current verified Rantlist version from `stage/chat`, allocates the next macOS build number, signs/notarizes the universal macOS app with the existing WORKWORK.FUN Apple credentials, pushes the public client source, creates the GitHub Release, uploads the DMG/ZIP/checksum files, and updates the Rantlist homepage at `https://mojoworks.xyz/labs/rantlist/` from the exact release tag.
-
-The older entry point remains an alias to the same complete workflow:
+Choose one or more release targets:
 
 ```bash
-./scripts/publish_macos_release.sh
+./scripts/release_and_deploy_homepage.sh --platform macos
+./scripts/release_and_deploy_homepage.sh --platform android
+./scripts/release_and_deploy_homepage.sh --platform ios
+./scripts/release_and_deploy_homepage.sh --platform macos,android
+./scripts/release_and_deploy_homepage.sh --platform all
 ```
+
+Shorthand flags `--macos`, `--android`, `--ios` and `--all` are also supported. No version argument is accepted: every platform uses the current verified Rantlist version from `stage/chat`, and one build number/tag covers the selected platform set. The workflow is resumable per platform, pushes the public source, creates one GitHub Release with the selected artifacts, and updates `https://mojoworks.xyz/labs/rantlist/`.
+
+Artifacts:
+
+- macOS: universal2 `.dmg` + `.zip`
+- Android: signed `.apk` + `.aab`
+- iOS/iPadOS: signed App Store-distribution `.ipa`
+
+The supplied `assets/rantlist-logo.svg` is the source app logo; derived macOS/iOS/Android icon assets are included in the repository.
+
+Android release signing requires a one-time local setup:
+
+```bash
+./scripts/setup_android_release.sh
+```
+
+The Android keystore stays under `~/.config/workwork/` and its password stays in macOS Keychain. iOS uses Xcode automatic signing for Apple team `5P9V78UZAC`; App Store/TestFlight publishing still requires the corresponding iOS/App Store configuration in Xcode/App Store Connect.
 
 Preflight only:
 
 ```bash
-./scripts/release_and_deploy_homepage.sh --preflight-only
+./scripts/release_and_deploy_homepage.sh --platform all --preflight-only
 ```
 
-Resume after a network/GitHub/SSH failure by running the normal command again. See [RELEASE.md](RELEASE.md).
+Resume after a build/network/GitHub/SSH failure by running the same command again. See [RELEASE.md](RELEASE.md).
 
 ## Security model
 

@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(process.argv[2] || '.');
-const ignoredDirs = new Set(['.git', '.macos-build', 'release', 'node_modules', '__pycache__']);
+const ignoredDirs = new Set(['.git', '.macos-build', '.android-build', '.ios-build', '.gradle', 'build', 'release', 'node_modules', '__pycache__']);
 const forbiddenBasenames = new Set([
   'server.js', 'deploy.sh', 'request-security.js', '.env',
   'id_rsa', 'id_ed25519', 'authorized_keys'
@@ -17,7 +17,7 @@ const forbiddenFilePatterns = [
 ];
 const textExtensions = new Set([
   '.html','.htm','.js','.mjs','.cjs','.json','.css','.svg','.md','.txt','.sh',
-  '.swift','.plist','.yml','.yaml','.xml','.toml','.ini','.conf','.py','.rb'
+  '.swift','.java','.kt','.gradle','.properties','.pbxproj','.xcconfig','.plist','.yml','.yaml','.xml','.toml','.ini','.conf','.py','.rb'
 ]);
 
 const checks = [

@@ -1,71 +1,78 @@
-# Rantlist macOS release workflow
+# Rantlist multi-platform release workflow
 
-The normal release command is:
+The release version is always mirrored from `/Users/smielniczuk/Documents/works/stage/chat`; no manual version argument is accepted.
+
+## Platform selection
 
 ```bash
-./scripts/release_and_deploy_homepage.sh
+./scripts/release_and_deploy_homepage.sh                 # macOS only (default)
+./scripts/release_and_deploy_homepage.sh --platform macos
+./scripts/release_and_deploy_homepage.sh --platform android
+./scripts/release_and_deploy_homepage.sh --platform ios
+./scripts/release_and_deploy_homepage.sh --platform macos,android
+./scripts/release_and_deploy_homepage.sh --platform all
 ```
 
-It mirrors the verified Rantlist application version from `/Users/smielniczuk/Documents/works/stage/chat`; no release version is entered manually.
+`--macos`, `--android`, `--ios` and `--all` are shorthand equivalents.
 
-The workflow:
+A selected release shares one Rantlist source version, one monotonically increasing build number and one Git tag/GitHub Release. The state file records selected and already-built platforms, so a failure after one platform finishes can resume without rebuilding that platform.
 
-1. Preflights GitHub, Git transport, WORKWORK.FUN Developer ID, Apple notarization, SSH homepage deployment, source version metadata, required tools and disk space.
-2. Synchronizes only the allow-listed/sanitized browser client into `web/`.
-3. Plans the next macOS build number without writing it yet.
-4. Builds a universal `arm64 + x86_64` Rantlist.app.
-5. Signs with the existing WORKWORK.FUN Developer ID certificate and hardened runtime.
-6. Notarizes and staples both app and DMG using the existing `workwork-caption-notary` Keychain profile.
-7. Verifies Gatekeeper and SHA-256 assets.
-8. Writes `BUILD_NUMBER.txt` only after the signed/notarized artifacts are complete.
-9. Commits and pushes the public client source.
-10. Creates an annotated tag `v<rantlist-version>-b<build>`.
-11. Creates a draft GitHub release, uploads DMG/ZIP/SHA assets with retries, then publishes it.
-12. Deploys `homepage/` from that exact pinned release tag to `https://mojoworks.xyz/labs/rantlist/` and verifies the public page.
+## Outputs
+
+macOS produces a Developer ID signed/notarized universal2 DMG, application ZIP and checksum file. Android produces a signed APK, Google Play AAB and checksum file. iOS/iPadOS produces an Xcode-signed App Store-distribution IPA and checksum file.
+
+The common app logo source is `assets/rantlist-logo.svg`; platform icon assets are derived from that SVG.
+
+## Android signing
+
+Run once before the first Android release:
+
+```bash
+./scripts/setup_android_release.sh
+```
+
+The permanent release keystore is stored outside Git at `~/.config/workwork/rantlist-android-release.keystore`. Its password is stored in macOS Keychain. Back up the keystore securely because future Android upgrades must use the same signing key.
+
+The Android builder expects Android SDK Platform 35 at `~/Library/Android/sdk` (or `ANDROID_SDK_ROOT`/`ANDROID_HOME`). Gradle is downloaded into the ignored `.android-build/` cache.
+
+## iOS signing
+
+The iOS project uses Xcode automatic signing with Apple team `5P9V78UZAC` by default. Override with `RANTLIST_APPLE_TEAM_ID` or `RANTLIST_IOS_BUNDLE_ID` if required. Xcode must have an Apple account/team capable of iOS App Store distribution. The generated IPA is suitable as an App Store distribution artifact; normal public iPhone/iPad installation should be through TestFlight or the App Store rather than direct GitHub sideloading.
 
 ## macOS media permissions
 
-The native macOS client is signed with the Hardened Runtime camera and audio-input entitlements required for WebRTC audio/video calls. The app also includes `NSCameraUsageDescription` and `NSMicrophoneUsageDescription`, and its WKWebView grants media capture only to HTTPS pages on `rantlist.me`. macOS still asks the user for Camera and Microphone permission on first use.
+The macOS app has Hardened Runtime camera/audio-input entitlements plus camera/microphone usage descriptions. macOS still prompts the user on first media use. iOS and Android likewise use native camera/microphone permission handling for WebRTC calls.
 
+## GitHub and homepage
+
+After all selected platform builds pass checksums, the workflow commits/pushes the public client, creates an annotated tag `v<version>-b<build>`, creates a draft GitHub Release, uploads only the selected platform artifacts, and publishes it. The homepage deployment is pinned to that new release. If a platform is not present in the new release, the homepage keeps a download button for the newest earlier verified release that contains that platform.
 
 ## Resuming
 
-The state file is `release/.release-workflow-state.env`.
+The active state file is:
 
-If GitHub, SSH or the network fails after a build, run the same command again. Built artifacts and the planned build number are reused.
-
-```bash
-./scripts/release_and_deploy_homepage.sh
+```text
+release/.release-workflow-state.env
 ```
 
-Inspect state:
+Run the same release command again after a failure. Inspect state with:
 
 ```bash
 ./scripts/release_and_deploy_homepage.sh --status
 ```
 
-Preflight without building/publishing:
+Preflight without building:
 
 ```bash
-./scripts/release_and_deploy_homepage.sh --preflight-only
+./scripts/release_and_deploy_homepage.sh --platform all --preflight-only
 ```
 
-Deliberately abandon an incomplete workflow:
+Abandon an incomplete workflow and allocate a new build number only when deliberately requested:
 
 ```bash
 ./scripts/release_and_deploy_homepage.sh --restart
 ```
 
-## Local website deployment profile
+## Website deployment profile
 
-SSH host/port values are not committed to this public repository. On the existing WORKWORK.FUN Mac the script automatically imports the transport settings from the local Cut deployment script into:
-
-```text
-~/.config/workwork/rantlist-release.env
-```
-
-The Rantlist target is then derived as the sibling `/labs/rantlist` deployment. The local profile is mode `0600` and remains outside Git.
-
-## Apple credentials
-
-The workflow uses the same installed WORKWORK.FUN Developer ID certificate and Keychain notarization profile used by Cut. Credential secrets remain in macOS Keychain and are never copied into the repository or release artifacts.
+SSH host/port values remain outside the public repository in `~/.config/workwork/rantlist-release.env`, imported from the existing WORKWORK.FUN Cut deployment setup. The Rantlist homepage target is `https://mojoworks.xyz/labs/rantlist/`.

@@ -2,10 +2,13 @@
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 for path in \
-  web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html \
+  web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html assets/rantlist-logo.svg \
+  mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
+  mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
   scripts/release_signed.sh scripts/publish_github_release.sh scripts/deploy_homepage.sh \
-  scripts/check_macos_release_credentials.sh; do
+  scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
+  scripts/build_android_release.sh scripts/build_ios_release.sh; do
   [[ -e "$ROOT/$path" ]] || { echo "Missing $path" >&2; exit 1; }
 done
 [[ -d "$ROOT/web/assets" ]] || { echo "Missing web/assets" >&2; exit 1; }

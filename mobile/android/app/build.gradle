@@ -1,0 +1,38 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'fun.workwork.rantlist'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'fun.workwork.rantlist'
+        minSdk 26
+        targetSdk 35
+        versionCode Integer.parseInt(System.getenv('RANTLIST_BUILD_NUMBER') ?: '1')
+        versionName System.getenv('RANTLIST_VERSION') ?: '0.0.0'
+    }
+
+    signingConfigs {
+        release {
+            storeFile file(System.getenv('RANTLIST_ANDROID_KEYSTORE'))
+            storePassword System.getenv('RANTLIST_ANDROID_STORE_PASSWORD')
+            keyAlias System.getenv('RANTLIST_ANDROID_KEY_ALIAS') ?: 'rantlist'
+            keyPassword System.getenv('RANTLIST_ANDROID_KEY_PASSWORD') ?: System.getenv('RANTLIST_ANDROID_STORE_PASSWORD')
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}

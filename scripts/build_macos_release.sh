@@ -12,7 +12,7 @@ BUNDLE_ID="${BUNDLE_ID:-fun.workwork.rantlist}"
 MIN_MACOS="${MIN_MACOS:-12.0}"
 MACOS_SIGN_IDENTITY="${MACOS_SIGN_IDENTITY:-}"
 NOTARY_PROFILE="${NOTARY_PROFILE:-}"
-APP_ICON_SOURCE="${APP_ICON_SOURCE:-}"
+APP_ICON_SOURCE="${APP_ICON_SOURCE:-$ROOT/assets/rantlist-logo.svg}"
 BUILD_ARCHS="${BUILD_ARCHS:-arm64 x86_64}"
 BUILD_NUMBER_OVERRIDE="${BUILD_NUMBER_OVERRIDE:-}"
 PERSIST_BUILD_NUMBER="${PERSIST_BUILD_NUMBER:-1}"
@@ -32,7 +32,7 @@ die()  { printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 retry_cmd(){ local attempts="$1" delay="$2"; shift 2; local n=1; until "$@"; do local c=$?; (( n >= attempts )) && return "$c"; warn "Command failed ($n/$attempts); retrying in ${delay}s: $*"; sleep "$delay"; n=$((n+1)); done; }
 
 [[ "$(uname -s)" == "Darwin" ]] || die "This release builder must run on macOS."
-for tool in xcrun swiftc hdiutil ditto codesign plutil lipo shasum; do
+for tool in xcrun swiftc hdiutil ditto codesign plutil lipo shasum sips iconutil; do
   command -v "$tool" >/dev/null 2>&1 || die "Missing required macOS tool: $tool"
 done
 [[ -f "$ROOT/macos/RantlistApp.swift" ]] || die "Missing macos/RantlistApp.swift"
@@ -91,13 +91,41 @@ ICON_PLIST=""
 if [[ -n "$APP_ICON_SOURCE" ]]; then
   SOURCE="${APP_ICON_SOURCE/#\~/$HOME}"
   [[ -f "$SOURCE" ]] || die "APP_ICON_SOURCE does not exist: $SOURCE"
+  ICON_OUT="$RESOURCES_DIR/Rantlist.icns"
   case "${SOURCE##*.}" in
     icns|ICNS)
-      cp "$SOURCE" "$RESOURCES_DIR/Rantlist.icns"
-      ICON_PLIST='<key>CFBundleIconFile</key><string>Rantlist.icns</string>'
+      cp "$SOURCE" "$ICON_OUT"
       ;;
-    *) warn "APP_ICON_SOURCE currently accepts .icns. Build continues with the generic app icon." ;;
+    svg|SVG)
+      log "Generating macOS app icon from $(basename "$SOURCE")"
+      ICONSET="$BUILD_ROOT/Rantlist.iconset"
+      rm -rf "$ICONSET"
+      if [[ "$SOURCE" == "$ROOT/assets/rantlist-logo.svg" && -d "$ROOT/assets/Rantlist.iconset" ]]; then
+        cp -R "$ROOT/assets/Rantlist.iconset" "$ICONSET"
+      else
+        mkdir -p "$ICONSET"
+        BASE_PNG="$BUILD_ROOT/Rantlist-icon-1024.png"
+        if command -v qlmanage >/dev/null 2>&1; then
+          PREVIEW_DIR="$BUILD_ROOT/icon-preview"; rm -rf "$PREVIEW_DIR"; mkdir -p "$PREVIEW_DIR"
+          qlmanage -t -s 1024 -o "$PREVIEW_DIR" "$SOURCE" >/dev/null 2>&1 || true
+          PREVIEW_PNG="$(find "$PREVIEW_DIR" -maxdepth 1 -type f -name '*.png' -print -quit)"
+          [[ -n "$PREVIEW_PNG" ]] && cp "$PREVIEW_PNG" "$BASE_PNG"
+        fi
+        [[ -s "$BASE_PNG" ]] || die "Could not render SVG app icon."
+        for size in 16 32 128 256 512; do
+          sips -z "$size" "$size" "$BASE_PNG" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
+          double=$((size * 2))
+          sips -z "$double" "$double" "$BASE_PNG" --out "$ICONSET/icon_${size}x${size}@2x.png" >/dev/null
+        done
+      fi
+      iconutil -c icns "$ICONSET" -o "$ICON_OUT"
+      ;;
+    *)
+      die "Unsupported APP_ICON_SOURCE: $SOURCE (use SVG or ICNS)."
+      ;;
   esac
+  [[ -s "$ICON_OUT" ]] || die "macOS app icon was not created."
+  ICON_PLIST='<key>CFBundleIconFile</key><string>Rantlist.icns</string>'
 fi
 
 cat > "$CONTENTS/Info.plist" <<PLIST
