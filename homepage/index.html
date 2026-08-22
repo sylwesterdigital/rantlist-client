@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#090b12">
+  <meta name="description" content="Rantlist is a browser-based real-time social space for chat, media, calls, scheduling and multiplayer experiences.">
+  <meta name="rantlist-release-tag" content="__LATEST_RELEASE_TAG__">
+  <title>Rantlist — real-time social space</title>
+  <style>
+    :root{color-scheme:dark;--bg:#070910;--panel:#10131d;--text:#f8f8fb;--muted:#a8afc1;--line:#252a39;--hot:#ff426f;--violet:#8d73ff;--cyan:#60e5ff}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+    body{overflow-x:hidden}.glow{position:fixed;inset:-20vh -15vw auto;z-index:0;height:70vh;background:radial-gradient(circle at 25% 45%,rgba(255,66,111,.25),transparent 32%),radial-gradient(circle at 67% 20%,rgba(141,115,255,.24),transparent 35%),radial-gradient(circle at 78% 70%,rgba(96,229,255,.12),transparent 30%);filter:blur(36px);pointer-events:none}
+    main{position:relative;z-index:1;width:min(1120px,calc(100% - 32px));margin:auto;padding:34px 0 60px}.nav{display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:11px;font-weight:900;letter-spacing:-.02em}.mark{width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:linear-gradient(135deg,var(--hot),var(--violet));box-shadow:0 10px 36px rgba(255,66,111,.25)}.navlinks{display:flex;gap:9px;flex-wrap:wrap}.nav a,.buttons a{color:inherit;text-decoration:none}.pill{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:999px;background:rgba(16,19,29,.62);backdrop-filter:blur(18px);font-size:14px;font-weight:750}.pill:hover{border-color:#4a536d}
+    .hero{padding:100px 0 72px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);gap:54px;align-items:center}.eyebrow{font-size:13px;font-weight:850;text-transform:uppercase;letter-spacing:.14em;color:#c2c8d8}.hero h1{font-size:clamp(54px,9vw,116px);line-height:.86;letter-spacing:-.07em;margin:17px 0 25px;max-width:8ch}.gradient{background:linear-gradient(100deg,#fff 10%,#ffb1c5 42%,#aa98ff 68%,#8ceaff);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:650px;color:var(--muted);font-size:clamp(18px,2.3vw,24px);line-height:1.45;margin:0}.buttons{display:flex;gap:10px;flex-wrap:wrap;margin-top:30px}.primary{background:#fff;color:#090b12!important;border-color:#fff}.primary:hover{background:#e9e9ef}.release-note{margin-top:14px;color:#7f879c;font-size:12px}.visual{min-height:450px;position:relative}.orb{position:absolute;border-radius:50%;filter:saturate(120%)}.orb.a{width:300px;height:300px;right:10px;top:0;background:radial-gradient(circle at 35% 30%,#ff99b5,#ff3d6b 36%,#7e2eff 72%,#171024 73%);box-shadow:0 35px 120px rgba(126,46,255,.34)}.orb.b{width:190px;height:190px;left:10px;bottom:10px;background:radial-gradient(circle at 38% 30%,#b8f6ff,#54dff4 31%,#266fe7 68%,#101426 69%);box-shadow:0 30px 90px rgba(38,111,231,.28)}.bubble{position:absolute;right:0;bottom:30px;width:min(330px,80%);padding:20px 22px;border:1px solid rgba(255,255,255,.1);border-radius:25px 25px 6px 25px;background:rgba(14,17,27,.73);backdrop-filter:blur(30px);box-shadow:0 25px 80px rgba(0,0,0,.28)}.bubble strong{display:block;margin-bottom:7px}.bubble span{color:#c1c6d4;line-height:1.45;font-size:14px}
+    .section{padding:70px 0;border-top:1px solid var(--line)}.section h2{font-size:clamp(34px,5vw,62px);line-height:1;letter-spacing:-.045em;margin:0 0 20px}.lead{color:var(--muted);font-size:18px;line-height:1.6;max-width:780px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:34px}.card{min-height:180px;padding:23px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(155deg,rgba(21,25,37,.9),rgba(10,12,18,.75));box-shadow:inset 0 1px rgba(255,255,255,.035)}.card .num{font-size:11px;color:#747d93;font-weight:900;letter-spacing:.12em}.card h3{font-size:20px;margin:40px 0 8px}.card p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}.compare{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}.quote{font-size:clamp(30px,4vw,52px);line-height:1.06;letter-spacing:-.04em;margin:0}.small{color:var(--muted);line-height:1.65}.footer{display:flex;justify-content:space-between;gap:20px;align-items:end;padding-top:48px;color:#858da1;font-size:12px}.footer strong{color:#fff}.footer a{color:inherit}
+    @media(max-width:820px){main{width:min(100% - 22px,680px)}.navlinks .secondary{display:none}.hero{grid-template-columns:1fr;padding:68px 0 58px;gap:30px}.hero h1{font-size:clamp(58px,18vw,96px)}.visual{min-height:330px}.orb.a{width:230px;height:230px}.orb.b{width:150px;height:150px}.grid{grid-template-columns:1fr}.compare{grid-template-columns:1fr}.footer{align-items:start;flex-direction:column}}
+  </style>
+</head>
+<body>
+<div class="glow"></div>
+<main>
+  <nav class="nav">
+    <div class="brand"><span class="mark">R</span><span>Rantlist</span></div>
+    <div class="navlinks">
+      <a class="pill secondary" href="https://github.com/sylwesterdigital/rantlist-client">GitHub</a>
+      <a class="pill" href="https://rantlist.me">Open Rantlist</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">A real-time social space by WORKWORK.FUN</div>
+      <h1><span class="gradient">Talk.</span><br>Share.<br>Play.</h1>
+      <p>Rantlist brings channels, private conversations, media, calls, scheduling and multiplayer experiences into one browser-based place.</p>
+      <div class="buttons">
+        <a class="pill primary" data-rantlist-download href="__LATEST_DOWNLOAD_URL__">Download for macOS</a>
+        <a class="pill" href="https://rantlist.me">Use in browser</a>
+        <a class="pill" data-rantlist-release href="__LATEST_RELEASE_URL__">View release</a>
+      </div>
+      <div class="release-note">Latest macOS release: <strong>__LATEST_RELEASE_TAG__</strong> · <span>__LATEST_ASSET_NAME__</span></div>
+    </div>
+    <div class="visual" aria-hidden="true">
+      <div class="orb a"></div><div class="orb b"></div>
+      <div class="bubble"><strong>One space, many modes.</strong><span>A conversation can become a media feed, a multiplayer quiz or a scheduled video call without leaving the system.</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>More than a chat window.</h2>
+    <p class="lead">Rantlist starts with real-time channels and direct conversations, then layers visual media, browser-based calling, a native calendar and multiplayer interaction into the same environment.</p>
+    <div class="grid">
+      <article class="card"><span class="num">01 / CHAT</span><h3>Channels & private spaces</h3><p>Persistent WebSocket chat, direct conversations, grouped speech bubbles and live presence.</p></article>
+      <article class="card"><span class="num">02 / MEDIA</span><h3>Stories-style media</h3><p>Images, GIFs, audio and video can move from the conversation into an immersive vertical viewer.</p></article>
+      <article class="card"><span class="num">03 / CALLS</span><h3>Audio & video</h3><p>Browser-based real-time calls live beside the conversation instead of in a separate service.</p></article>
+      <article class="card"><span class="num">04 / CALENDAR</span><h3>Schedule inside Rantlist</h3><p>Plan calls, invite Rantlist users or external guests, manage reminders and join from the same system.</p></article>
+      <article class="card"><span class="num">05 / PLAY</span><h3>Multiplayer built in</h3><p>Quizzes, drawing games, chess and checkers turn a channel into a shared interactive space.</p></article>
+      <article class="card"><span class="num">06 / APPEARANCE</span><h3>Make it yours</h3><p>Interface scaling, saved themes and expressive message styling let the same room feel very different.</p></article>
+    </div>
+  </section>
+
+  <section class="section compare">
+    <div><p class="quote">Think Discord or Slack meeting Stories and lightweight multiplayer — but as one web-native space.</p></div>
+    <div class="small"><p>Rantlist is not built around an algorithmic infinite feed. It is closer to a digital room: people arrive, talk, share something, play, call and leave.</p><p>The macOS client is a signed native WebKit shell for the same Rantlist service. The public client repository contains sanitized client-side code and desktop packaging — not the production server, database or private infrastructure.</p></div>
+  </section>
+
+  <footer class="footer"><div><strong>Rantlist</strong><br>Created by <a href="https://workwork.fun">WORKWORK.FUN</a></div><div><a href="https://github.com/sylwesterdigital/rantlist-client">Open source client</a> · <a href="https://rantlist.me">rantlist.me</a> · <a href="https://mojoworks.xyz/labs/rantlist/">Project page</a></div></footer>
+</main>
+</body>
+</html>

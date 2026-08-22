@@ -1,0 +1,24 @@
+.DS_Store
+.macos-build/
+release/
+*.dmg
+*.p12
+*.cer
+*.mobileprovision
+*.key
+*.pem
+*.pfx
+.env
+.env.*
+!.env.example
+node_modules/
+__pycache__/
+*.pyc
+
+# Local macOS release credential profile name (credential itself remains in Keychain)
+.macos-notary-profile
+
+# Homepage isolated deployment output
+homepage/.deploy_build/
+
+# Release workflow state/artifacts are local and ignored via release/

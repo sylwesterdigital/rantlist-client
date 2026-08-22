@@ -1,0 +1,35 @@
+# Built-in nickname moderation terms. One term or phrase per line.
+# Administrators can add server-specific terms in Server administration → Access.
+ass
+asshole
+bastard
+bitch
+bullshit
+cunt
+dick
+fuck
+fucker
+fucking
+motherfucker
+nigger
+nigga
+piss
+prick
+pussy
+shit
+slut
+whore
+wanker
+retard
+retarded
+faggot
+fag
+kike
+spic
+chink
+tranny
+nazi
+heil hitler
+white power
+kill yourself
+kys
