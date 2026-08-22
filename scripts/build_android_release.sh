@@ -3,6 +3,8 @@
 set -Eeuo pipefail
 IFS=$'\n\t'
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
+# shellcheck source=android_sdk.sh
+source "$ROOT/scripts/android_sdk.sh"
 ANDROID_DIR="$ROOT/mobile/android"
 RELEASE_DIR="$ROOT/release"
 BUILD_ROOT="$ROOT/.android-build"
@@ -26,7 +28,7 @@ APP_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
 PREVIOUS_BUILD="$(tr -cd '0-9' < "$BUILD_NUMBER_FILE")"; PREVIOUS_BUILD="${PREVIOUS_BUILD:-0}"
 if [[ -n "$BUILD_NUMBER_OVERRIDE" ]]; then BUILD_NUMBER="$BUILD_NUMBER_OVERRIDE"; else BUILD_NUMBER="$((10#$PREVIOUS_BUILD + 1))"; fi
 [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || die "Invalid build number: $BUILD_NUMBER"
-SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Library/Android/sdk}}"
+ensure_android_sdk
 export ANDROID_SDK_ROOT="$SDK_ROOT" ANDROID_HOME="$SDK_ROOT"
 PASSWORD="$(security find-generic-password -w -a "$KEYCHAIN_ACCOUNT" -s "$KEYCHAIN_SERVICE")"
 export RANTLIST_VERSION="$APP_VERSION" RANTLIST_BUILD_NUMBER="$BUILD_NUMBER"

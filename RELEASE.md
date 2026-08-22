@@ -76,3 +76,10 @@ Abandon an incomplete workflow and allocate a new build number only when deliber
 ## Website deployment profile
 
 SSH host/port values remain outside the public repository in `~/.config/workwork/rantlist-release.env`, imported from the existing WORKWORK.FUN Cut deployment setup. The Rantlist homepage target is `https://mojoworks.xyz/labs/rantlist/`.
+
+## Android SDK provisioning
+
+Android releases target API 35. The release preflight now uses `sdkmanager` to install
+`platforms;android-35`, `build-tools;35.0.0`, and `platform-tools` automatically when
+those components are missing. Existing Android SDK licenses are respected; the script
+does not silently accept new Android SDK license terms.
