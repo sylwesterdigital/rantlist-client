@@ -12,7 +12,8 @@ BUNDLE_ID="${BUNDLE_ID:-fun.workwork.rantlist}"
 MIN_MACOS="${MIN_MACOS:-12.0}"
 MACOS_SIGN_IDENTITY="${MACOS_SIGN_IDENTITY:-}"
 NOTARY_PROFILE="${NOTARY_PROFILE:-}"
-APP_ICON_SOURCE="${APP_ICON_SOURCE:-$ROOT/assets/rantlist-logo.svg}"
+IOS_APP_ICON_1024="$ROOT/mobile/ios/Rantlist/Assets.xcassets/AppIcon.appiconset/Icon-1024.png"
+APP_ICON_SOURCE="${APP_ICON_SOURCE:-$IOS_APP_ICON_1024}"
 BUILD_ARCHS="${BUILD_ARCHS:-arm64 x86_64}"
 BUILD_NUMBER_OVERRIDE="${BUILD_NUMBER_OVERRIDE:-}"
 PERSIST_BUILD_NUMBER="${PERSIST_BUILD_NUMBER:-1}"
@@ -96,22 +97,34 @@ if [[ -n "$APP_ICON_SOURCE" ]]; then
     icns|ICNS)
       cp "$SOURCE" "$ICON_OUT"
       ;;
-    svg|SVG)
+    svg|SVG|png|PNG|jpg|JPG|jpeg|JPEG)
       log "Generating macOS app icon from $(basename "$SOURCE")"
       ICONSET="$BUILD_ROOT/Rantlist.iconset"
       rm -rf "$ICONSET"
-      if [[ "$SOURCE" == "$ROOT/assets/rantlist-logo.svg" && -d "$ROOT/assets/Rantlist.iconset" ]]; then
+      if [[ "$SOURCE" == "$ROOT/mobile/ios/Rantlist/Assets.xcassets/AppIcon.appiconset/Icon-1024.png" ]]; then
+        mkdir -p "$ICONSET"
+        BASE_PNG="$SOURCE"
+      elif [[ "$SOURCE" == "$ROOT/assets/rantlist-logo.svg" && -d "$ROOT/assets/Rantlist.iconset" ]]; then
         cp -R "$ROOT/assets/Rantlist.iconset" "$ICONSET"
       else
         mkdir -p "$ICONSET"
         BASE_PNG="$BUILD_ROOT/Rantlist-icon-1024.png"
-        if command -v qlmanage >/dev/null 2>&1; then
-          PREVIEW_DIR="$BUILD_ROOT/icon-preview"; rm -rf "$PREVIEW_DIR"; mkdir -p "$PREVIEW_DIR"
-          qlmanage -t -s 1024 -o "$PREVIEW_DIR" "$SOURCE" >/dev/null 2>&1 || true
-          PREVIEW_PNG="$(find "$PREVIEW_DIR" -maxdepth 1 -type f -name '*.png' -print -quit)"
-          [[ -n "$PREVIEW_PNG" ]] && cp "$PREVIEW_PNG" "$BASE_PNG"
-        fi
-        [[ -s "$BASE_PNG" ]] || die "Could not render SVG app icon."
+        case "${SOURCE##*.}" in
+          svg|SVG)
+            if command -v qlmanage >/dev/null 2>&1; then
+              PREVIEW_DIR="$BUILD_ROOT/icon-preview"; rm -rf "$PREVIEW_DIR"; mkdir -p "$PREVIEW_DIR"
+              qlmanage -t -s 1024 -o "$PREVIEW_DIR" "$SOURCE" >/dev/null 2>&1 || true
+              PREVIEW_PNG="$(find "$PREVIEW_DIR" -maxdepth 1 -type f -name '*.png' -print -quit)"
+              [[ -n "$PREVIEW_PNG" ]] && cp "$PREVIEW_PNG" "$BASE_PNG"
+            fi
+            [[ -s "$BASE_PNG" ]] || die "Could not render SVG app icon."
+            ;;
+          *)
+            cp "$SOURCE" "$BASE_PNG"
+            ;;
+        esac
+      fi
+      if [[ ! -d "$ICONSET" || -z "$(find "$ICONSET" -maxdepth 1 -type f -name 'icon_*.png' -print -quit 2>/dev/null)" ]]; then
         for size in 16 32 128 256 512; do
           sips -z "$size" "$size" "$BASE_PNG" --out "$ICONSET/icon_${size}x${size}.png" >/dev/null
           double=$((size * 2))
@@ -121,7 +134,7 @@ if [[ -n "$APP_ICON_SOURCE" ]]; then
       iconutil -c icns "$ICONSET" -o "$ICON_OUT"
       ;;
     *)
-      die "Unsupported APP_ICON_SOURCE: $SOURCE (use SVG or ICNS)."
+      die "Unsupported APP_ICON_SOURCE: $SOURCE (use PNG, JPG, SVG or ICNS)."
       ;;
   esac
   [[ -s "$ICON_OUT" ]] || die "macOS app icon was not created."

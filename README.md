@@ -71,3 +71,8 @@ Resume after a build/network/GitHub/SSH failure by running the same command agai
 ## Security model
 
 The repository security scan rejects server/deployment files, payment/API token patterns, private keys, private IP addresses and explicit local service ports. Website SSH transport values are stored outside the repository in `~/.config/workwork/rantlist-release.env`; on the existing build Mac they are imported automatically from the local Cut release setup.
+
+
+## macOS icon
+
+The macOS app now uses the same icon artwork as the iOS app by default.

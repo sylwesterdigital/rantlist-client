@@ -1,3 +1,8 @@
+## Changes in v0.1.16
+
+- macOS app icon now uses the same icon artwork as the iOS app.
+- macOS release builder now defaults to the iOS 1024 AppIcon asset for consistent branding.
+
 # Rantlist multi-platform release workflow
 
 The release version is always mirrored from `/Users/smielniczuk/Documents/works/stage/chat`; no manual version argument is accepted.
