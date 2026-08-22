@@ -13825,6 +13825,7 @@
       protocolVersion: Number(document.querySelector('meta[name="chat-protocol-version"]')?.content || 0),
       uiHash: document.querySelector('meta[name="chat-ui-hash"]')?.content || 'unknown',
     });
+    const UPDATE_NOTICE_MIN_VISIBLE_MS = 1600;
 
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
 
@@ -14038,6 +14039,7 @@
       reloadTargetHash: null,
       versionPollTimer: null,
       viewportSyncRaf: 0,
+      viewportFocusTimer: null,
       viewportBaselineHeight: 0,
       keyboardOpen: false,
       uiTheme: readStorage('chat.ui.theme') || 'white-contrast',
@@ -14347,9 +14349,10 @@
         checkServerVersion(true).catch(() => {});
       });
       if (window.visualViewport) {
+        // Keyboard animation already emits resize events. Tracking visual-viewport
+        // scroll/pan as well makes iOS/WKWebView chase Safari's automatic input
+        // panning and causes the whole UI to bounce. Resize is sufficient.
         window.visualViewport.addEventListener('resize', syncViewport, { passive: true });
-        window.visualViewport.addEventListener('scroll', syncViewport, { passive: true });
-        window.visualViewport.addEventListener('scrollend', syncViewport, { passive: true });
       }
 
       const unlock = () => ensureAudio();
@@ -14796,17 +14799,20 @@
       document.addEventListener('focusin', (event) => {
         if (!isKeyboardInput(event.target)) return;
         syncViewportHeight(false);
-        setTimeout(() => syncViewportHeight(false), 80);
-        setTimeout(() => {
+        clearTimeout(state.viewportFocusTimer);
+        state.viewportFocusTimer = setTimeout(() => {
+          state.viewportFocusTimer = null;
           syncViewportHeight(false);
           keepFocusedControlVisible(event.target);
-        }, 240);
-        setTimeout(() => syncViewportHeight(false), 420);
+        }, 280);
       });
       document.addEventListener('focusout', (event) => {
         if (!isKeyboardInput(event.target)) return;
-        setTimeout(() => syncViewportHeight(true), 120);
-        setTimeout(() => syncViewportHeight(true), 360);
+        clearTimeout(state.viewportFocusTimer);
+        state.viewportFocusTimer = setTimeout(() => {
+          state.viewportFocusTimer = null;
+          syncViewportHeight(true);
+        }, 220);
       });
 
       elements.soundButton.addEventListener('click', async () => {
@@ -34733,9 +34739,12 @@
         const viewport = window.visualViewport;
         const viewportHeight = Math.max(180, Math.round(viewport?.height || window.innerHeight || document.documentElement.clientHeight));
         const viewportWidth = Math.max(240, Math.round(viewport?.width || window.innerWidth || document.documentElement.clientWidth));
-        const viewportTop = Math.max(0, Math.round(viewport?.offsetTop || 0));
-        const viewportLeft = Math.max(0, Math.round(viewport?.offsetLeft || 0));
         const focusedInput = isKeyboardInput();
+        // Do not move the fixed app surface while iOS is automatically panning
+        // the visual viewport around a focused input. That pan is transient and
+        // feeding it back into body top/left produces the spring-like shaking.
+        const viewportTop = focusedInput ? 0 : Math.max(0, Math.round(viewport?.offsetTop || 0));
+        const viewportLeft = focusedInput ? 0 : Math.max(0, Math.round(viewport?.offsetLeft || 0));
 
         if (!focusedInput) {
           state.viewportBaselineHeight = Math.max(state.viewportBaselineHeight, viewportHeight);
@@ -34764,7 +34773,6 @@
           if (elements.workspace.classList.contains('floating') && window.innerWidth > 850) {
             clampAllPanels();
           }
-          if (keyboardOpen) keepFocusedControlVisible();
           if (state.activeMobilePanel === 'chat') refreshReadCandidates();
         });
       });
@@ -34860,7 +34868,13 @@
       );
 
       try { state.socket?.close(4001, 'Client update required'); } catch {}
-      if (autoReload) setTimeout(reloadClientNow, 900);
+      if (autoReload) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            setTimeout(reloadClientNow, UPDATE_NOTICE_MIN_VISIBLE_MS);
+          });
+        });
+      }
     }
 
     function reloadClientNow() {

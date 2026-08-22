@@ -1,3 +1,8 @@
+## Changes in v0.1.19
+
+- iOS WKWebView now ignores SwiftUI keyboard safe-area resizing so the native wrapper and the web viewport do not both resize the UI during keyboard animation.
+- Added a client regression check for the keyboard-safe-area behavior.
+
 ## Changes in v0.1.18
 
 - iOS app no longer adds an extra bottom inset below the mobile navigation.

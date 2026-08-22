@@ -81,3 +81,8 @@ The macOS app now uses the same icon artwork as the iOS app by default.
 ## iOS wrapper note
 
 The iOS wrapper disables automatic WKWebView safe-area content insets to avoid duplicate bottom spacing under the mobile navigation.
+
+
+## iOS keyboard stability
+
+The iOS wrapper ignores SwiftUI keyboard safe-area resizing and leaves keyboard viewport handling to the web application, preventing double-resize bounce.
