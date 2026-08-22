@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.63">
+  <meta name="chat-ui-version" content="9.6.64">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -14,6 +14,8 @@
       const root = document.documentElement;
       const nativeIosApp = String(navigator.userAgent || '').includes('Rantlist-iOS');
       root.dataset.nativeIosApp = nativeIosApp ? 'true' : 'false';
+      root.dataset.mobileTypingFocus = localStorage.getItem('chat.mobile.maximizeTyping') === 'on' ? 'on' : 'off';
+      root.dataset.composeTyping = 'false';
       if (nativeIosApp) {
         const viewportMeta = document.querySelector('meta[name="viewport"]');
         if (viewportMeta) {
@@ -4499,6 +4501,16 @@
       transition: none !important;
       animation-duration: 0s !important;
       animation-delay: 0s !important;
+    }
+
+    /* Optional mobile focus mode: once the keyboard is fully settled, hide
+       non-essential chrome while composing. Native iOS keeps the previous
+       layout throughout UIKit keyboard animation and switches only at didShow/didHide. */
+    @media (max-width: 850px) {
+      :root[data-mobile-typing-focus="on"][data-compose-typing="true"] .topbar,
+      :root[data-mobile-typing-focus="on"][data-compose-typing="true"] #chatPanel > .chat-panel-header {
+        display: none !important;
+      }
     }
 
     /* v8 moderation, lazy media, disappearing messages and calls */
@@ -11870,7 +11882,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.63</small>
+          <small id="serverBrandVersion">v9.6.64</small>
         </span>
       </button>
     </div>
@@ -11913,7 +11925,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.63</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.64</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12038,6 +12050,11 @@
               <option value="comfortable">Comfortable</option>
             </select>
           </div>
+          <label class="config-check-row" for="mobileTypingFocusInput">
+            <input id="mobileTypingFocusInput" type="checkbox">
+            <span>More chat space while typing on mobile</span>
+          </label>
+          <p class="hint">When the mobile keyboard is open in the message composer, hide the top bar and chat header until typing finishes.</p>
           <div class="config-row">
             <label for="messagePaddingInput">Message padding</label>
             <span class="config-inline-range"><input id="messagePaddingInput" type="range" min="0" max="16" step="1" value="5" aria-label="Message padding"><output id="messagePaddingValue">5 px</output></span>
@@ -12717,8 +12734,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.63</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.63</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.64</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.64</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -13870,7 +13887,7 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'messagePaddingInput', 'messagePaddingValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'mobileTypingFocusInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14090,6 +14107,7 @@
       localFontFaceCount: 0,
       uiButtonMode: readStorage('chat.ui.buttonMode') || 'icons',
       uiDensity: readStorage('chat.ui.density') || 'compact',
+      mobileTypingFocus: readStorage('chat.mobile.maximizeTyping') === 'on',
       bubbleMood: ['solid', 'soft', 'aurora', 'organic'].includes(readStorage('chat.ui.bubbleMood')) ? readStorage('chat.ui.bubbleMood') : 'soft',
       bubbleOutlineOpacity: Math.max(0, Math.min(100, Number(readStorage('chat.ui.bubbleOutlineOpacity') || 0))),
       messagePadding: Math.max(0, Math.min(16, Number(readStorage('chat.messages.padding') || 5))),
@@ -14632,6 +14650,10 @@
         applyUiPresentation();
         syncViewportHeight(true);
       });
+      elements.mobileTypingFocusInput.addEventListener('change', () => {
+        state.mobileTypingFocus = elements.mobileTypingFocusInput.checked;
+        applyMobileTypingFocusPreference();
+      });
       elements.messagePaddingInput.addEventListener('input', () => {
         state.messagePadding = Math.max(0, Math.min(16, Number(elements.messagePaddingInput.value) || 0));
         writeStorage('chat.messages.padding', String(state.messagePadding));
@@ -14842,6 +14864,7 @@
       document.addEventListener('focusin', (event) => {
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
+        syncMobileTypingFocusState();
         if (isRantlistIOSApp()) {
           keepFocusedControlVisible(event.target);
           return;
@@ -14859,6 +14882,7 @@
         if (isRantlistIOSApp()) {
           return;
         }
+        queueMicrotask(syncMobileTypingFocusState);
         state.viewportFocusTimer = setTimeout(() => {
           state.viewportFocusTimer = null;
           syncViewportHeight(true);
@@ -32215,6 +32239,7 @@
       applyUiFont();
       renderLocalFontAccessState();
       applyUiPresentation();
+      applyMobileTypingFocusPreference({ persist: false });
       applyBubbleMoodPreference({ persist: false });
       applyBubbleOutlinePreference({ persist: false });
       if (elements.mediaDisplaySelect) elements.mediaDisplaySelect.value = state.mediaDisplayMode;
@@ -32468,6 +32493,25 @@
       if (elements.mediaControlSizeValue) elements.mediaControlSizeValue.textContent = `${size} px`;
       if (elements.mediaControlOpacityInput) elements.mediaControlOpacityInput.value = String(opacity);
       if (elements.mediaControlOpacityValue) elements.mediaControlOpacityValue.textContent = `${opacity}%`;
+    }
+
+    function syncMobileTypingFocusState() {
+      const root = document.documentElement;
+      root.dataset.mobileTypingFocus = state.mobileTypingFocus ? 'on' : 'off';
+      if (isRantlistIOSApp() && state.nativeKeyboardTransitionActive) return;
+      const active = Boolean(
+        state.mobileTypingFocus
+        && state.keyboardOpen
+        && document.activeElement === elements.messageInput
+      );
+      root.dataset.composeTyping = active ? 'true' : 'false';
+    }
+
+    function applyMobileTypingFocusPreference(options = {}) {
+      if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
+      document.documentElement.dataset.mobileTypingFocus = state.mobileTypingFocus ? 'on' : 'off';
+      if (options.persist !== false) writeStorage('chat.mobile.maximizeTyping', state.mobileTypingFocus ? 'on' : 'off');
+      syncMobileTypingFocusState();
     }
 
     function applyUiPresentation() {
@@ -32859,6 +32903,7 @@
       if (elements.bubbleOutlineOpacityInput) elements.bubbleOutlineOpacityInput.value = String(state.bubbleOutlineOpacity);
       if (elements.bubbleOutlineOpacityValue) elements.bubbleOutlineOpacityValue.textContent = `${state.bubbleOutlineOpacity}%`;
       elements.densitySelect.value = state.uiDensity;
+      if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
       elements.mediaDisplaySelect.value = state.mediaDisplayMode;
       elements.mediaViewerModeSelect.value = state.mediaStoryMode;
       elements.channelMemberPositionSelect.value = state.channelMemberPosition;
@@ -34799,6 +34844,7 @@
       root.style.setProperty('--app-top', '0px');
       root.style.setProperty('--app-left', '0px');
       root.style.setProperty('--keyboard-inset', '0px');
+      syncMobileTypingFocusState();
     }
 
     function stabilizeNativeIOSMessageScroll() {
@@ -34815,9 +34861,9 @@
     function beginNativeIOSKeyboardTransition(open) {
       if (!isRantlistIOSApp()) return;
       const list = elements.messageList;
+      state.nativeKeyboardTransitionActive = true;
       setNativeIOSKeyboardState(open);
       if (!list) return;
-      state.nativeKeyboardTransitionActive = true;
       state.nativeKeyboardTransitionOpen = Boolean(open);
       state.nativeKeyboardPinnedToBottom = isMessageListNearBottom(120);
       state.nativeKeyboardScrollAnchor = captureMessageScrollAnchor();
@@ -34829,8 +34875,8 @@
     function finishNativeIOSKeyboardTransition(open) {
       if (!isRantlistIOSApp()) return;
       const list = elements.messageList;
-      setNativeIOSKeyboardState(open);
       state.nativeKeyboardTransitionActive = false;
+      setNativeIOSKeyboardState(open);
       cancelAnimationFrame(state.nativeKeyboardScrollRaf);
       if (!list) return;
       list.classList.remove('native-ios-keyboard-transition');
@@ -34902,6 +34948,7 @@
         document.documentElement.style.setProperty('--app-left', `${viewportLeft}px`);
         document.documentElement.style.setProperty('--keyboard-inset', `${keyboardOpen ? hiddenHeight : 0}px`);
         document.documentElement.dataset.keyboardOpen = keyboardOpen ? 'true' : 'false';
+        syncMobileTypingFocusState();
 
         if (resetScroll && !focusedInput) {
           const scrollingElement = document.scrollingElement || document.documentElement;

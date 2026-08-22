@@ -1,3 +1,10 @@
+## Changes in v0.1.25
+
+- Synchronized application version to **9.6.64 / rantlist-deploy-r92**.
+- Added the optional **More chat space while typing on mobile** setting under Config → Controls.
+- When enabled, the top bar and chat header hide only while composing with the mobile keyboard open.
+- Native iOS waits until keyboard animation has completed before switching this focused layout.
+
 ## Changes in v0.1.24
 
 - Added a native macOS menu bar with About Rantlist, Rantlist Website, Edit commands, Reload, Help, Hide and Quit.

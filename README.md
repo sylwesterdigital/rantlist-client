@@ -101,3 +101,8 @@ The native iOS wrapper disables WKWebView bounce. While the keyboard is active, 
 ## macOS menu
 
 The native macOS client includes a standard menu bar with About, website/help access, editing shortcuts, reload, hide and quit actions.
+
+
+## Mobile typing space
+
+Config → Controls includes an optional **More chat space while typing on mobile** setting. It hides the top bar and chat header only while the mobile message keyboard is open.

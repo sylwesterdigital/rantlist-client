@@ -36,6 +36,7 @@ grep -q "root.style.setProperty('--app-height', '100dvh')" "$ROOT/web/index.html
 grep -q 'data-native-ios-app="true"' "$ROOT/web/index.html" || { echo "iOS keyboard motion suppression missing" >&2; exit 1; }
 grep -q 'overflow-anchor: none' "$ROOT/web/index.html" || { echo "iOS message timeline scroll anchoring is not disabled" >&2; exit 1; }
 grep -q 'native-ios-keyboard-transition' "$ROOT/web/index.html" || { echo "iOS message timeline keyboard freeze is missing" >&2; exit 1; }
+grep -q 'mobileTypingFocusInput' "$ROOT/web/index.html" || { echo "Mobile typing-focus config toggle is missing" >&2; exit 1; }
 grep -q 'syncRemoteCallTrackState' "$ROOT/web/index.html" || { echo "WebRTC remote video track synchronization missing" >&2; exit 1; }
 grep -q "video.setAttribute('webkit-playsinline', '')" "$ROOT/web/index.html" || { echo "WebKit inline remote video playback safeguard missing" >&2; exit 1; }
 REPO_VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION.txt")"
