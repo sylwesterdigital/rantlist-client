@@ -1,3 +1,16 @@
+## Changes in v0.1.23
+
+- Synchronized application version to **9.6.63 / rantlist-deploy-r91**.
+- Native iOS now reports UIKit keyboard will/did show/hide lifecycle events to the web UI.
+- Message bubbles are stabilized during keyboard animation by freezing timeline scrolling, disabling scroll anchoring and restoring the visible/bottom anchor once after completion.
+- Native iOS keeps the mobile navigation layout stable during keyboard presentation to avoid a second reflow.
+
+## Changes in v0.1.22
+
+- Synchronized application version to **9.6.62 / rantlist-deploy-r90**.
+- Restores one semantic patch increment for every delivered server deployment revision.
+- Paired with the r90 version-progression verification guard.
+
 ## Changes in v0.1.21
 
 - Removed the remaining iOS keyboard spring/jitter by preventing native WKWebView resize frames from feeding back into web layout geometry.

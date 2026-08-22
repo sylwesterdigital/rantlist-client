@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.57">
+  <meta name="chat-ui-version" content="9.6.63">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -4012,22 +4012,25 @@
     }
 
     @media (max-width: 850px) {
-      :root[data-keyboard-open="true"] {
+      /* Browser Safari can collapse the mobile navigation when the keyboard is
+         open. The native iOS wrapper keeps the layout structure unchanged while
+         UIKit animates the keyboard, preventing a second simultaneous reflow. */
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] {
         --safe-bottom: 0px;
         --mobile-nav-height: 0px;
       }
-      :root[data-keyboard-open="true"] .mobile-nav {
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] .mobile-nav {
         display: none !important;
       }
-      :root[data-keyboard-open="true"] #workspace,
-      :root[data-keyboard-open="true"] #workspace.docked,
-      :root[data-keyboard-open="true"] #workspace.floating {
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] #workspace,
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] #workspace.docked,
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] #workspace.floating {
         padding-bottom: 0;
       }
-      :root[data-keyboard-open="true"] .composer {
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] .composer {
         padding-bottom: 4px;
       }
-      :root[data-keyboard-open="true"] #messageInput {
+      :root:not([data-native-ios-app="true"])[data-keyboard-open="true"] #messageInput {
         min-height: 40px;
         max-height: 72px;
       }
@@ -4476,8 +4479,19 @@
       *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
     }
 
-    /* Native iOS keyboard presentation must not animate web layout independently
-       from the operating-system keyboard. WKWebView itself is the only moving surface. */
+    /* The native iOS wrapper owns keyboard motion. Keep the chat timeline inert
+       throughout the native app session so focus/blur timing cannot re-enable
+       smooth scrolling or message transitions in the middle of UIKit animation. */
+    :root[data-native-ios-app="true"] #messageList {
+      scroll-behavior: auto !important;
+      overflow-anchor: none;
+    }
+    :root[data-native-ios-app="true"] #messageList.native-ios-keyboard-transition {
+      overflow-y: hidden !important;
+    }
+    :root[data-native-ios-app="true"] .message {
+      transition: none !important;
+    }
     :root[data-native-ios-app="true"][data-keyboard-open="true"] *,
     :root[data-native-ios-app="true"][data-keyboard-open="true"] *::before,
     :root[data-native-ios-app="true"][data-keyboard-open="true"] *::after {
@@ -11856,7 +11870,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.57</small>
+          <small id="serverBrandVersion">v9.6.63</small>
         </span>
       </button>
     </div>
@@ -11899,7 +11913,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.57</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.63</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12703,8 +12717,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.57</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.57</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.63</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.63</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -14064,6 +14078,12 @@
       viewportFocusTimer: null,
       viewportBaselineHeight: 0,
       keyboardOpen: false,
+      nativeKeyboardTransitionActive: false,
+      nativeKeyboardTransitionOpen: false,
+      nativeKeyboardScrollTop: 0,
+      nativeKeyboardScrollAnchor: null,
+      nativeKeyboardPinnedToBottom: false,
+      nativeKeyboardScrollRaf: 0,
       uiTheme: readStorage('chat.ui.theme') || 'white-contrast',
       uiFont: readStorage('chat.ui.font') || 'system',
       localFontFamilies: [],
@@ -14365,6 +14385,8 @@
         if (window.visualViewport) {
           window.visualViewport.addEventListener('resize', syncViewport, { passive: true });
         }
+      } else {
+        window.addEventListener('resize', stabilizeNativeIOSMessageScroll, { passive: true });
       }
       window.addEventListener('orientationchange', () => setTimeout(() => syncViewportHeight(true), 120), { passive: true });
       window.addEventListener('pageshow', (event) => {
@@ -14821,7 +14843,6 @@
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
         if (isRantlistIOSApp()) {
-          setNativeIOSKeyboardState(true);
           keepFocusedControlVisible(event.target);
           return;
         }
@@ -14836,9 +14857,6 @@
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
         if (isRantlistIOSApp()) {
-          requestAnimationFrame(() => {
-            if (!isKeyboardInput(document.activeElement)) setNativeIOSKeyboardState(false);
-          });
           return;
         }
         state.viewportFocusTimer = setTimeout(() => {
@@ -34783,12 +34801,70 @@
       root.style.setProperty('--keyboard-inset', '0px');
     }
 
+    function stabilizeNativeIOSMessageScroll() {
+      if (!isRantlistIOSApp() || !state.nativeKeyboardTransitionActive) return;
+      const list = elements.messageList;
+      if (!list) return;
+      cancelAnimationFrame(state.nativeKeyboardScrollRaf);
+      state.nativeKeyboardScrollRaf = requestAnimationFrame(() => {
+        if (!state.nativeKeyboardTransitionActive) return;
+        list.scrollTop = Math.max(0, Number(state.nativeKeyboardScrollTop || 0));
+      });
+    }
+
+    function beginNativeIOSKeyboardTransition(open) {
+      if (!isRantlistIOSApp()) return;
+      const list = elements.messageList;
+      setNativeIOSKeyboardState(open);
+      if (!list) return;
+      state.nativeKeyboardTransitionActive = true;
+      state.nativeKeyboardTransitionOpen = Boolean(open);
+      state.nativeKeyboardPinnedToBottom = isMessageListNearBottom(120);
+      state.nativeKeyboardScrollAnchor = captureMessageScrollAnchor();
+      state.nativeKeyboardScrollTop = list.scrollTop;
+      list.classList.add('native-ios-keyboard-transition');
+      stabilizeNativeIOSMessageScroll();
+    }
+
+    function finishNativeIOSKeyboardTransition(open) {
+      if (!isRantlistIOSApp()) return;
+      const list = elements.messageList;
+      setNativeIOSKeyboardState(open);
+      state.nativeKeyboardTransitionActive = false;
+      cancelAnimationFrame(state.nativeKeyboardScrollRaf);
+      if (!list) return;
+      list.classList.remove('native-ios-keyboard-transition');
+      requestAnimationFrame(() => {
+        if (state.nativeKeyboardPinnedToBottom) {
+          list.scrollTop = list.scrollHeight;
+          state.messageScrollAnchor = { bottom: true };
+          state.messageListPinnedToBottom = true;
+        } else if (state.nativeKeyboardScrollAnchor) {
+          restoreMessageScrollAnchor(state.nativeKeyboardScrollAnchor);
+        }
+        state.nativeKeyboardScrollAnchor = null;
+        updateMessageToBottomButton();
+      });
+    }
+
+    window.rantlistNativeKeyboardPhase = (phase) => {
+      if (!isRantlistIOSApp()) return;
+      if (phase === 'willShow') beginNativeIOSKeyboardTransition(true);
+      else if (phase === 'didShow') finishNativeIOSKeyboardTransition(true);
+      else if (phase === 'willHide') beginNativeIOSKeyboardTransition(false);
+      else if (phase === 'didHide') finishNativeIOSKeyboardTransition(false);
+    };
+
     function syncViewportHeight(resetScroll = false) {
       if (isRantlistIOSApp()) {
-        // Native iOS owns keyboard geometry. Do not echo WKWebView resize frames
-        // back into CSS pixel heights: that feedback loop was the remaining
-        // spring/jitter. Dynamic viewport units follow the final WebView frame.
-        setNativeIOSKeyboardState(isKeyboardInput());
+        // Native keyboard notifications drive keyboard state. This function only
+        // restores invariant CSS viewport defaults and never follows resize frames.
+        const root = document.documentElement;
+        root.style.setProperty('--app-height', '100dvh');
+        root.style.setProperty('--app-width', '100vw');
+        root.style.setProperty('--app-top', '0px');
+        root.style.setProperty('--app-left', '0px');
+        root.style.setProperty('--keyboard-inset', '0px');
         if (resetScroll && !isKeyboardInput()) {
           const scrollingElement = document.scrollingElement || document.documentElement;
           if (scrollingElement) scrollingElement.scrollTop = 0;

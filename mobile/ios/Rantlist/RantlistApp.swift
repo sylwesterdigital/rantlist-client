@@ -72,6 +72,7 @@ struct RantlistWebView: UIViewRepresentable {
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
         webView.uiDelegate = context.coordinator
+        context.coordinator.attach(to: webView)
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
         if #available(iOS 13.0, *) {
@@ -90,6 +91,39 @@ struct RantlistWebView: UIViewRepresentable {
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+        private weak var webView: WKWebView?
+
+        override init() {
+            super.init()
+            let center = NotificationCenter.default
+            center.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+            center.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
+            center.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+            center.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
+        }
+
+        deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+
+        func attach(to webView: WKWebView) {
+            self.webView = webView
+        }
+
+        private func sendKeyboardPhase(_ phase: String) {
+            DispatchQueue.main.async { [weak self] in
+                self?.webView?.evaluateJavaScript(
+                    "window.rantlistNativeKeyboardPhase && window.rantlistNativeKeyboardPhase('\(phase)');",
+                    completionHandler: nil
+                )
+            }
+        }
+
+        @objc private func keyboardWillShow(_ notification: Notification) { sendKeyboardPhase("willShow") }
+        @objc private func keyboardDidShow(_ notification: Notification) { sendKeyboardPhase("didShow") }
+        @objc private func keyboardWillHide(_ notification: Notification) { sendKeyboardPhase("willHide") }
+        @objc private func keyboardDidHide(_ notification: Notification) { sendKeyboardPhase("didHide") }
+
         func webView(_ webView: WKWebView,
                      decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
