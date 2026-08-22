@@ -29,6 +29,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     private let appURL = configuredAppURL()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        installMainMenu()
+
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
@@ -56,6 +58,106 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
+
+    private func installMainMenu() {
+        let mainMenu = NSMenu()
+
+        let appMenuItem = NSMenuItem()
+        mainMenu.addItem(appMenuItem)
+        let appMenu = NSMenu(title: "Rantlist")
+        appMenuItem.submenu = appMenu
+
+        let aboutItem = NSMenuItem(
+            title: "About Rantlist",
+            action: #selector(showAbout),
+            keyEquivalent: ""
+        )
+        aboutItem.target = self
+        appMenu.addItem(aboutItem)
+
+        let websiteItem = NSMenuItem(
+            title: "Rantlist Website",
+            action: #selector(openWebsite),
+            keyEquivalent: ""
+        )
+        websiteItem.target = self
+        appMenu.addItem(websiteItem)
+
+        appMenu.addItem(.separator())
+
+        let hideItem = NSMenuItem(
+            title: "Hide Rantlist",
+            action: #selector(NSApplication.hide(_:)),
+            keyEquivalent: "h"
+        )
+        hideItem.target = NSApp
+        appMenu.addItem(hideItem)
+
+        let quitItem = NSMenuItem(
+            title: "Quit Rantlist",
+            action: #selector(NSApplication.terminate(_:)),
+            keyEquivalent: "q"
+        )
+        quitItem.target = NSApp
+        appMenu.addItem(quitItem)
+
+        let editMenuItem = NSMenuItem()
+        mainMenu.addItem(editMenuItem)
+        let editMenu = NSMenu(title: "Edit")
+        editMenuItem.submenu = editMenu
+        editMenu.addItem(withTitle: "Undo", action: Selector(("undo:")), keyEquivalent: "z")
+        let redoItem = editMenu.addItem(withTitle: "Redo", action: Selector(("redo:")), keyEquivalent: "Z")
+        redoItem.keyEquivalentModifierMask = [.command, .shift]
+        editMenu.addItem(.separator())
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+
+        let viewMenuItem = NSMenuItem()
+        mainMenu.addItem(viewMenuItem)
+        let viewMenu = NSMenu(title: "View")
+        viewMenuItem.submenu = viewMenu
+        let reloadItem = NSMenuItem(
+            title: "Reload",
+            action: #selector(reloadPage),
+            keyEquivalent: "r"
+        )
+        reloadItem.target = self
+        viewMenu.addItem(reloadItem)
+
+        let helpMenuItem = NSMenuItem()
+        mainMenu.addItem(helpMenuItem)
+        let helpMenu = NSMenu(title: "Help")
+        helpMenuItem.submenu = helpMenu
+        let helpItem = NSMenuItem(
+            title: "Rantlist Help",
+            action: #selector(openHelp),
+            keyEquivalent: "?"
+        )
+        helpItem.target = self
+        helpMenu.addItem(helpItem)
+
+        NSApp.mainMenu = mainMenu
+        NSApp.helpMenu = helpMenu
+    }
+
+    @objc private func showAbout() {
+        NSApp.orderFrontStandardAboutPanel(nil)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc private func openWebsite() {
+        NSWorkspace.shared.open(appURL)
+    }
+
+    @objc private func openHelp() {
+        NSWorkspace.shared.open(appURL)
+    }
+
+    @objc private func reloadPage() {
+        webView?.reload()
+    }
 
     func webView(_ webView: WKWebView,
                  decidePolicyFor navigationAction: WKNavigationAction,

@@ -1,3 +1,8 @@
+## Changes in v0.1.24
+
+- Added a native macOS menu bar with About Rantlist, Rantlist Website, Edit commands, Reload, Help, Hide and Quit.
+- About Rantlist uses the standard macOS About panel and release metadata.
+
 ## Changes in v0.1.23
 
 - Synchronized application version to **9.6.63 / rantlist-deploy-r91**.

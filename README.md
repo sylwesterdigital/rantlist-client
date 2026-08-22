@@ -96,3 +96,8 @@ The iOS wrapper uses normal native keyboard resizing; the web UI treats the resi
 ## v0.1.21 native iOS keyboard stability
 
 The native iOS wrapper disables WKWebView bounce. While the keyboard is active, the web client does not mirror animated WebView resize frames back into CSS geometry; WKWebView is the single layout authority.
+
+
+## macOS menu
+
+The native macOS client includes a standard menu bar with About, website/help access, editing shortcuts, reload, hide and quit actions.
