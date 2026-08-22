@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.64">
+  <meta name="chat-ui-version" content="9.6.65">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -11882,7 +11882,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.64</small>
+          <small id="serverBrandVersion">v9.6.65</small>
         </span>
       </button>
     </div>
@@ -11925,7 +11925,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.64</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.65</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12734,8 +12734,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.64</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.64</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.65</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.65</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -13991,6 +13991,9 @@
       messageScrollAnchor: null,
       messageBottomUnreadCount: 0,
       messageScrollRestoreRaf: 0,
+      messageListUserScrollRevision: 0,
+      timelineMediaFollowRaf: 0,
+      timelineMediaFollowTimers: new Set(),
       presenceEventBursts: new Map(),
       websocketCloseBlockedReason: '',
       userSearch: '',
@@ -15392,6 +15395,12 @@
         reflowMessageGroups();
         scheduleMessageScrollAnchorRestore();
       }, { passive: true });
+      const noteMessageListUserScrollIntent = () => {
+        state.messageListUserScrollRevision = Number(state.messageListUserScrollRevision || 0) + 1;
+      };
+      elements.messageList.addEventListener('touchstart', noteMessageListUserScrollIntent, { passive: true });
+      elements.messageList.addEventListener('wheel', noteMessageListUserScrollIntent, { passive: true });
+      elements.messageList.addEventListener('pointerdown', noteMessageListUserScrollIntent, { passive: true });
       elements.messageList.addEventListener('scroll', () => {
         closeReactionPickers();
         state.messageListPinnedToBottom = isMessageListNearBottom();
@@ -20761,10 +20770,12 @@
       const card = document.createElement('section');
       card.className = 'drawing-artwork-card';
       const preview = document.createElement('img');
+      const timelineFollowIntent = captureTimelineMediaFollowIntent();
       preview.className = `drawing-artwork-preview${sticker ? ' sticker-preview' : ''}`;
       preview.src = absoluteMediaUrl(file.url);
       preview.alt = artwork.caption ? `${sticker ? 'Sticker' : 'Drawing preview'}: ${artwork.caption}` : (sticker ? 'Sticker' : 'Drawing preview');
       preview.loading = 'lazy';
+      preview.addEventListener('load', () => settleTimelineMediaAtBottom(timelineFollowIntent));
       preview.addEventListener('click', () => window.open(absoluteMediaUrl(file.url), '_blank', 'noopener'));
       card.append(preview);
 
@@ -21133,18 +21144,22 @@
       refitTimelineImages();
     }
 
-    function primeTimelineVideoAspectFromPoster(video, posterUrl) {
+    function primeTimelineVideoAspectFromPoster(video, posterUrl, followIntent = null) {
       const src = String(posterUrl || '').trim();
       if (!src) return;
       const poster = new Image();
       poster.decoding = 'async';
-      poster.onload = () => fitTimelineVideoAspect(video, poster.naturalWidth, poster.naturalHeight);
+      poster.onload = () => {
+        fitTimelineVideoAspect(video, poster.naturalWidth, poster.naturalHeight);
+        settleTimelineMediaAtBottom(followIntent);
+      };
       poster.src = src;
     }
 
     function appendFileContent(messageNode, file, options = {}) {
       const content = messageNode.querySelector('[data-file-content], .media-preview');
       if (!content) return null;
+      const timelineFollowIntent = captureTimelineMediaFollowIntent();
       content.textContent = '';
       const isVoice = file.kind === 'voice';
       const isAudio = isVoice || String(file.mime || '').startsWith('audio/');
@@ -21231,11 +21246,12 @@
           if (event.key !== 'Enter' && event.key !== ' ') return;
           openStoryVideo(event);
         });
-        if (video.poster) primeTimelineVideoAspectFromPoster(video, video.poster);
+        if (video.poster) primeTimelineVideoAspectFromPoster(video, video.poster, timelineFollowIntent);
         const source = preferredTimelineVideoSource(file, video);
         if (source) observeTimelineMedia(video, source);
         video.addEventListener('loadedmetadata', () => {
           fitTimelineVideoAspect(video, video.videoWidth, video.videoHeight);
+          settleTimelineMediaAtBottom(timelineFollowIntent);
         });
         video.addEventListener('error', () => {
           if (file.streamUrl && video.dataset.timelineMediaSrc === absoluteMediaUrl(file.streamUrl) && file.url) {
@@ -21291,6 +21307,7 @@
         });
         image.addEventListener('load', () => {
           fitTimelineImageAspect(image, image.naturalWidth, image.naturalHeight);
+          settleTimelineMediaAtBottom(timelineFollowIntent);
         });
         image.addEventListener('error', () => {
           debugLog('error', 'media.image', isAnimatedGifFile(file) ? 'animated-gif-error' : 'optimized-preview-error', { file, src: image.currentSrc || image.src });
@@ -30733,6 +30750,58 @@
         state.messageBottomUnreadCount = 0;
         updateMessageToBottomButton();
       });
+    }
+
+    function captureTimelineMediaFollowIntent() {
+      return {
+        follow: Boolean(state.messageListPinnedToBottom || isMessageListNearBottom(120)),
+        userScrollRevision: Number(state.messageListUserScrollRevision || 0),
+      };
+    }
+
+    function settleTimelineMediaAtBottom(intent) {
+      if (!intent?.follow) return;
+      const expectedRevision = Number(intent.userScrollRevision || 0);
+      const follow = () => {
+        state.timelineMediaFollowTimers.delete(timer);
+        if (expectedRevision !== Number(state.messageListUserScrollRevision || 0)) return;
+        if (state.nativeKeyboardTransitionActive) {
+          const retry = setTimeout(() => {
+            state.timelineMediaFollowTimers.delete(retry);
+            settleTimelineMediaAtBottom(intent);
+          }, 140);
+          state.timelineMediaFollowTimers.add(retry);
+          return;
+        }
+        cancelAnimationFrame(state.timelineMediaFollowRaf);
+        state.timelineMediaFollowRaf = requestAnimationFrame(() => {
+          if (expectedRevision !== Number(state.messageListUserScrollRevision || 0)) return;
+          const list = elements.messageList;
+          if (!list) return;
+          list.scrollTop = list.scrollHeight;
+          state.messageScrollAnchor = { bottom: true };
+          state.messageListPinnedToBottom = true;
+          state.messageBottomUnreadCount = 0;
+          updateMessageToBottomButton();
+        });
+      };
+      const timer = setTimeout(follow, 0);
+      state.timelineMediaFollowTimers.add(timer);
+      for (const delay of [80, 240]) {
+        const settleTimer = setTimeout(() => {
+          state.timelineMediaFollowTimers.delete(settleTimer);
+          if (expectedRevision !== Number(state.messageListUserScrollRevision || 0)) return;
+          if (state.nativeKeyboardTransitionActive) return;
+          const list = elements.messageList;
+          if (!list) return;
+          list.scrollTop = list.scrollHeight;
+          state.messageScrollAnchor = { bottom: true };
+          state.messageListPinnedToBottom = true;
+          state.messageBottomUnreadCount = 0;
+          updateMessageToBottomButton();
+        }, delay);
+        state.timelineMediaFollowTimers.add(settleTimer);
+      }
     }
 
     async function waitForSendBuffer() {

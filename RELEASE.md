@@ -1,3 +1,10 @@
+## Changes in v0.1.26
+
+- Synchronized application version to **9.6.65 / rantlist-deploy-r93**.
+- Newly posted images/videos now remain visible when their preview grows after processing or decoding.
+- Bottom-follow is preserved only when the timeline was already at the newest message; deliberate scrolling cancels it.
+- Native iOS defers media-follow while the keyboard itself is animating, avoiding another source of timeline shaking.
+
 ## Changes in v0.1.25
 
 - Synchronized application version to **9.6.64 / rantlist-deploy-r92**.
