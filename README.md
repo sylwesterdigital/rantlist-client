@@ -1,3 +1,7 @@
+## v0.1.27 / 9.6.66
+
+Uploaded photo-gallery deletion now targets every message in the media batch and keeps the timeline consistent while those server deletions arrive.
+
 # Rantlist Client
 
 Public client-side source and native macOS, Android and iOS packaging for **Rantlist**.

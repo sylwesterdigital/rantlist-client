@@ -1,3 +1,9 @@
+## Changes in v0.1.27
+
+- Synchronized application version to **9.6.66 / rantlist-deploy-r94**.
+- Fixed **Delete all** for uploaded photo/media batches so every underlying server message is deleted instead of only the gallery's first item.
+- Batch media now keeps per-item message metadata and removes one tile at a time as server deletion events arrive, preventing deleted galleries from reappearing after reload.
+
 ## Changes in v0.1.26
 
 - Synchronized application version to **9.6.65 / rantlist-deploy-r93**.
