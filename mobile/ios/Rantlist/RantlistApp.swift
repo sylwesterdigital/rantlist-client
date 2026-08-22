@@ -169,6 +169,46 @@ struct RantlistWebView: UIViewRepresentable {
             return nil
         }
 
+        private func topViewController(from root: UIViewController?) -> UIViewController? {
+            if let presented = root?.presentedViewController {
+                return topViewController(from: presented)
+            }
+            if let navigation = root as? UINavigationController {
+                return topViewController(from: navigation.visibleViewController)
+            }
+            if let tabs = root as? UITabBarController {
+                return topViewController(from: tabs.selectedViewController)
+            }
+            return root
+        }
+
+        func webView(_ webView: WKWebView,
+                     runJavaScriptAlertPanelWithMessage message: String,
+                     initiatedByFrame frame: WKFrameInfo,
+                     completionHandler: @escaping () -> Void) {
+            guard let presenter = topViewController(from: webView.window?.rootViewController) else {
+                completionHandler()
+                return
+            }
+            let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in completionHandler() })
+            presenter.present(alert, animated: true)
+        }
+
+        func webView(_ webView: WKWebView,
+                     runJavaScriptConfirmPanelWithMessage message: String,
+                     initiatedByFrame frame: WKFrameInfo,
+                     completionHandler: @escaping (Bool) -> Void) {
+            guard let presenter = topViewController(from: webView.window?.rootViewController) else {
+                completionHandler(false)
+                return
+            }
+            let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { _ in completionHandler(false) })
+            alert.addAction(UIAlertAction(title: "OK", style: .default) { _ in completionHandler(true) })
+            presenter.present(alert, animated: true)
+        }
+
         @available(iOS 15.0, *)
         func webView(_ webView: WKWebView,
                      requestMediaCapturePermissionFor origin: WKSecurityOrigin,

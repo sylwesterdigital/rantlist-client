@@ -1,3 +1,9 @@
+## Changes in v0.1.28
+
+- Synchronized application version to **9.6.67 / rantlist-deploy-r95**.
+- Fixed native iOS/macOS JavaScript confirmation dialogs, which prevented **Delete all** and other confirmed actions from proceeding in WKWebView.
+- Multi-media **Delete all** now sends one validated batch deletion request instead of several independent requests.
+
 ## Changes in v0.1.27
 
 - Synchronized application version to **9.6.66 / rantlist-deploy-r94**.

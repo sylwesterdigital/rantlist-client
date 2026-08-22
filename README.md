@@ -1,3 +1,7 @@
+## v0.1.28 / 9.6.67
+
+Native WKWebView confirmation dialogs are supported and media **Delete all** uses the r95 batch deletion flow.
+
 ## v0.1.27 / 9.6.66
 
 Uploaded photo-gallery deletion now targets every message in the media batch and keeps the timeline consistent while those server deletions arrive.
