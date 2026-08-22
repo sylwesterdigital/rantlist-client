@@ -16,6 +16,7 @@ PREVIEW_ONLY=0
 SHOW_STATUS=0
 RESTART=0
 RELEASE_MODE="published"
+WORKFLOW_BUILD_SCHEMA="2-media-capture-entitlements"
 
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 ok(){ printf '\033[1;32mOK\033[0m %s\n' "$*"; }
@@ -61,6 +62,7 @@ write_state(){
     printf 'RELEASE_TAG=%q\n' "${RELEASE_TAG:-}"
     printf 'RELEASE_MODE=%q\n' "${RELEASE_MODE:-published}"
     printf 'RELEASE_COMMIT=%q\n' "${RELEASE_COMMIT:-}"
+    printf 'BUILD_SCHEMA=%q\n' "$WORKFLOW_BUILD_SCHEMA"
   } > "$STATE_FILE"
 }
 load_state(){
@@ -122,6 +124,17 @@ if [[ -f "$STATE_FILE" ]]; then
     git merge-base --is-ancestor "$RELEASE_COMMIT" HEAD || die "Current Git history diverged from published release commit; refusing homepage resume."
   elif [[ "$PHASE" != published ]]; then
     [[ -f VERSION.txt && "$(tr -d '[:space:]' < VERSION.txt)" == "$SOURCE_VERSION" ]] || die "Release source changed since workflow started; use --restart deliberately."
+  fi
+
+  # A built artifact can only be resumed when it was produced by the current
+  # release build rules. v0.1.10 and earlier signed Rantlist.app without the
+  # hardened-runtime camera/audio-input entitlements, so automatically rebuild
+  # that unpublished artifact with the same planned build number.
+  if [[ "$PHASE" == built && "${BUILD_SCHEMA:-}" != "$WORKFLOW_BUILD_SCHEMA" ]]; then
+    warn "Saved macOS artifact predates the current media-capture signing rules; rebuilding $RELEASE_TAG before publishing."
+    PHASE="planned"
+    RELEASE_COMMIT=""
+    write_state planned
   fi
 else
   log "Synchronizing verified Rantlist client core from $SOURCE_PROJECT"

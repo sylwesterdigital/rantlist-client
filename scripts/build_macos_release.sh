@@ -129,16 +129,29 @@ ENTITLEMENTS="$BUILD_ROOT/entitlements.plist"
 cat > "$ENTITLEMENTS" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict></dict></plist>
+<plist version="1.0"><dict>
+<key>com.apple.security.device.camera</key><true/>
+<key>com.apple.security.device.audio-input</key><true/>
+</dict></plist>
 PLIST
 
 log "Signing application"
 if [[ -n "$MACOS_SIGN_IDENTITY" ]]; then
   codesign --force --options runtime --timestamp --entitlements "$ENTITLEMENTS" --sign "$MACOS_SIGN_IDENTITY" "$APP_ROOT"
 else
-  codesign --force --sign - "$APP_ROOT"
+  codesign --force --entitlements "$ENTITLEMENTS" --sign - "$APP_ROOT"
 fi
 codesign --verify --deep --strict --verbose=2 "$APP_ROOT"
+
+log "Verifying camera and microphone entitlements"
+SIGNED_ENTITLEMENTS="$BUILD_ROOT/signed-entitlements.plist"
+codesign -d --entitlements :- "$APP_ROOT" > "$SIGNED_ENTITLEMENTS" 2>/dev/null \
+  || die "Could not read entitlements from signed Rantlist.app"
+[[ -x /usr/libexec/PlistBuddy ]] || die "/usr/libexec/PlistBuddy is required to verify signed entitlements."
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.security.device.camera' "$SIGNED_ENTITLEMENTS" 2>/dev/null || true)" == "true" ]] \
+  || die "Signed app is missing com.apple.security.device.camera entitlement."
+[[ "$(/usr/libexec/PlistBuddy -c 'Print :com.apple.security.device.audio-input' "$SIGNED_ENTITLEMENTS" 2>/dev/null || true)" == "true" ]] \
+  || die "Signed app is missing com.apple.security.device.audio-input entitlement."
 
 log "Running packaged smoke test"
 "$MACOS_DIR/$APP_NAME" --smoke-test

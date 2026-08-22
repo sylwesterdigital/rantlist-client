@@ -23,6 +23,11 @@ The workflow:
 11. Creates a draft GitHub release, uploads DMG/ZIP/SHA assets with retries, then publishes it.
 12. Deploys `homepage/` from that exact pinned release tag to `https://mojoworks.xyz/labs/rantlist/` and verifies the public page.
 
+## macOS media permissions
+
+The native macOS client is signed with the Hardened Runtime camera and audio-input entitlements required for WebRTC audio/video calls. The app also includes `NSCameraUsageDescription` and `NSMicrophoneUsageDescription`, and its WKWebView grants media capture only to HTTPS pages on `rantlist.me`. macOS still asks the user for Camera and Microphone permission on first use.
+
+
 ## Resuming
 
 The state file is `release/.release-workflow-state.env`.
