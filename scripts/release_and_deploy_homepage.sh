@@ -180,6 +180,9 @@ preflight(){
   [[ -d "$ROOT/.git" ]] || die "$ROOT is not a Git repository."
   [[ "$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)" == "$RELEASE_BRANCH" ]] || die "Release must run on $RELEASE_BRANCH."
   [[ -z "$(git diff --name-only --diff-filter=U)" ]] || die "Resolve Git conflicts first."
+  if ! git diff --check -- . ':(exclude)web/**'; then
+    die "Fix source whitespace errors before building the release."
+  fi
   gh auth status -h github.com >/dev/null 2>&1 || die "GitHub CLI is not authenticated."
   [[ "$(gh repo view --json nameWithOwner --jq '.nameWithOwner' 2>/dev/null || true)" == "$GH_REPO" ]] || die "This checkout is not $GH_REPO."
   git remote get-url origin >/dev/null 2>&1 || die "origin is missing."

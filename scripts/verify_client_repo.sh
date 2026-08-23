@@ -31,6 +31,17 @@ grep -q 'webView.scrollView.alwaysBounceHorizontal = false' "$ROOT/mobile/ios/Ra
 grep -q 'UIResponder.keyboardWillShowNotification' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native keyboard will-show bridge missing" >&2; exit 1; }
 grep -q 'UIResponder.keyboardDidHideNotification' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native keyboard did-hide bridge missing" >&2; exit 1; }
 grep -q 'rantlistNativeKeyboardPhase' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS UIKit keyboard lifecycle is not forwarded to the web UI" >&2; exit 1; }
+grep -q 'import Network' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native connectivity monitoring is missing" >&2; exit 1; }
+grep -q 'NWPathMonitor' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native offline recovery monitor is missing" >&2; exit 1; }
+grep -q 'No internet connection' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native offline screen is missing" >&2; exit 1; }
+grep -q 'SplashLogo' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS startup splash logo is missing" >&2; exit 1; }
+[[ -f "$ROOT/mobile/ios/Rantlist/Assets.xcassets/SplashLogo.imageset/SplashLogo.png" ]] || { echo "iOS splash logo asset missing" >&2; exit 1; }
+grep -q 'import Network' "$ROOT/macos/RantlistApp.swift" || { echo "macOS native connectivity monitoring is missing" >&2; exit 1; }
+grep -q 'NWPathMonitor' "$ROOT/macos/RantlistApp.swift" || { echo "macOS native offline recovery monitor is missing" >&2; exit 1; }
+grep -q 'No internet connection' "$ROOT/macos/RantlistApp.swift" || { echo "macOS native offline screen is missing" >&2; exit 1; }
+grep -q 'android.permission.ACCESS_NETWORK_STATE' "$ROOT/mobile/android/app/src/main/AndroidManifest.xml" || { echo "Android network-state permission is missing" >&2; exit 1; }
+grep -q 'registerDefaultNetworkCallback' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android native connectivity watcher is missing" >&2; exit 1; }
+grep -q 'No internet connection' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android native offline screen is missing" >&2; exit 1; }
 grep -q 'function isRantlistIOSApp()' "$ROOT/web/index.html" || { echo "iOS native viewport detection missing from web UI" >&2; exit 1; }
 grep -q 'function setNativeIOSKeyboardState(open)' "$ROOT/web/index.html" || { echo "iOS native keyboard state isolation missing" >&2; exit 1; }
 grep -q "root.style.setProperty('--app-height', '100dvh')" "$ROOT/web/index.html" || { echo "iOS native viewport still depends on animated pixel heights" >&2; exit 1; }

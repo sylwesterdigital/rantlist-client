@@ -1,3 +1,15 @@
+## Changes in v0.1.38
+
+- Fixed the release-source whitespace error that could stop the client release after macOS/iOS builds completed.
+- Release preflight now checks tracked source whitespace before starting expensive signing/notarization/archive work.
+
+## Changes in v0.1.37
+
+- Added native startup splash screens for iOS, macOS and Android while the server-hosted UI is loading.
+- Added a native **No internet connection** state with a clear request to reconnect and a manual **Try again** action.
+- Native clients now watch connectivity and automatically reload `https://rantlist.me/` when internet access returns if the UI never finished loading, preventing a permanently blank/white WebView after an offline launch.
+- Returning to the app also retries the initial UI load when needed, while an already-loaded UI is preserved across temporary network loss.
+
 ## Changes in v0.1.36
 
 - Synchronized browser client to **9.6.74 / rantlist-deploy-r102**.

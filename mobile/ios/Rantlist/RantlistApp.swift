@@ -1,4 +1,5 @@
 import AVFoundation
+import Network
 import SwiftUI
 @preconcurrency import WebKit
 
@@ -48,18 +49,115 @@ private func requestCaptureAuthorization(_ type: WKMediaCaptureType,
     }
 }
 
+private enum NativeShellPhase: Equatable {
+    case loading
+    case offline
+    case failed
+    case ready
+}
+
+private final class NativeShellState: ObservableObject {
+    @Published var phase: NativeShellPhase = .loading
+    @Published var detail = "Connecting to rantlist.me…"
+    var hasLoadedUI = false
+    var retryAction: (() -> Void)?
+
+    func retry() { retryAction?() }
+}
+
 @main
 struct RantlistMobileApp: App {
     var body: some Scene {
         WindowGroup {
-            RantlistWebView()
+            RantlistRootView()
                 .ignoresSafeArea(.container, edges: .bottom)
         }
     }
 }
 
-struct RantlistWebView: UIViewRepresentable {
-    func makeCoordinator() -> Coordinator { Coordinator() }
+private struct RantlistRootView: View {
+    @StateObject private var shellState = NativeShellState()
+
+    var body: some View {
+        ZStack {
+            RantlistWebView(shellState: shellState)
+                .opacity(shellState.hasLoadedUI ? 1 : 0)
+
+            if shellState.phase != .ready {
+                NativeShellOverlay(shellState: shellState)
+                    .transition(.opacity)
+            }
+        }
+        .background(Color(red: 0.025, green: 0.035, blue: 0.05))
+    }
+}
+
+private struct NativeShellOverlay: View {
+    @ObservedObject var shellState: NativeShellState
+
+    private var title: String {
+        switch shellState.phase {
+        case .loading: return "Rantlist"
+        case .offline: return "No internet connection"
+        case .failed: return "Rantlist couldn’t load"
+        case .ready: return "Rantlist"
+        }
+    }
+
+    private var message: String {
+        switch shellState.phase {
+        case .loading:
+            return shellState.detail
+        case .offline:
+            return "Connect to Wi‑Fi or cellular data. Rantlist will retry automatically when you’re online."
+        case .failed:
+            return shellState.detail
+        case .ready:
+            return ""
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 18) {
+            Image("SplashLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 92, height: 92)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .accessibilityHidden(true)
+
+            Text(title)
+                .font(.system(size: 25, weight: .bold))
+                .foregroundStyle(.white)
+
+            Text(message)
+                .font(.system(size: 15))
+                .foregroundStyle(Color.white.opacity(0.72))
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 320)
+
+            if shellState.phase == .loading {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                    .tint(.white)
+                    .padding(.top, 2)
+            } else if shellState.phase == .offline || shellState.phase == .failed {
+                Button("Try again") { shellState.retry() }
+                    .buttonStyle(.borderedProminent)
+                    .controlSize(.large)
+            }
+        }
+        .padding(32)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 0.025, green: 0.035, blue: 0.05).ignoresSafeArea())
+        .accessibilityElement(children: .contain)
+    }
+}
+
+private struct RantlistWebView: UIViewRepresentable {
+    @ObservedObject var shellState: NativeShellState
+
+    func makeCoordinator() -> Coordinator { Coordinator(shellState: shellState) }
 
     func makeUIView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -84,7 +182,7 @@ struct RantlistWebView: UIViewRepresentable {
         webView.scrollView.alwaysBounceVertical = false
         webView.scrollView.alwaysBounceHorizontal = false
         webView.scrollView.isDirectionalLockEnabled = true
-        webView.load(URLRequest(url: appURL, cachePolicy: .useProtocolCachePolicy))
+        context.coordinator.beginInitialLoad()
         return webView
     }
 
@@ -92,28 +190,138 @@ struct RantlistWebView: UIViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
         private weak var webView: WKWebView?
+        private let shellState: NativeShellState
+        private let pathMonitor = NWPathMonitor()
+        private let pathQueue = DispatchQueue(label: "fun.workwork.rantlist.network")
+        private var monitoringStarted = false
 
-        override init() {
+        init(shellState: NativeShellState) {
+            self.shellState = shellState
             super.init()
             let center = NotificationCenter.default
             center.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
             center.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
             center.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
             center.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
+            center.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
         }
 
         deinit {
+            pathMonitor.cancel()
             NotificationCenter.default.removeObserver(self)
         }
 
         func attach(to webView: WKWebView) {
             self.webView = webView
+            shellState.retryAction = { [weak self] in self?.retryInitialLoad() }
+            startNetworkMonitoring()
+        }
+
+        func beginInitialLoad() {
+            guard let webView else { return }
+            shellState.phase = .loading
+            shellState.detail = "Connecting to rantlist.me…"
+            webView.load(URLRequest(url: appURL, cachePolicy: .reloadRevalidatingCacheData, timeoutInterval: 30))
+        }
+
+        private func startNetworkMonitoring() {
+            guard !monitoringStarted else { return }
+            monitoringStarted = true
+            pathMonitor.pathUpdateHandler = { [weak self] path in
+                DispatchQueue.main.async {
+                    self?.handleNetworkPath(path)
+                }
+            }
+            pathMonitor.start(queue: pathQueue)
+        }
+
+        private func handleNetworkPath(_ path: NWPath) {
+            if path.status == .satisfied {
+                if shellState.hasLoadedUI {
+                    shellState.phase = .ready
+                } else {
+                    retryInitialLoad()
+                }
+            } else {
+                shellState.phase = .offline
+                shellState.detail = "No network connection is available."
+            }
+        }
+
+        private func retryInitialLoad() {
+            guard let webView else { return }
+            guard pathMonitor.currentPath.status == .satisfied else {
+                shellState.phase = .offline
+                shellState.detail = "No network connection is available."
+                return
+            }
+            if shellState.hasLoadedUI {
+                shellState.phase = .ready
+                return
+            }
+            shellState.phase = .loading
+            shellState.detail = "Connecting to rantlist.me…"
+            webView.stopLoading()
+            webView.load(URLRequest(url: appURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30))
+        }
+
+        @objc private func applicationDidBecomeActive() {
+            guard !shellState.hasLoadedUI else { return }
+            DispatchQueue.main.async { [weak self] in self?.retryInitialLoad() }
+        }
+
+        private func isConnectivityError(_ error: Error) -> Bool {
+            let nsError = error as NSError
+            guard nsError.domain == NSURLErrorDomain else { return false }
+            return [
+                NSURLErrorNotConnectedToInternet,
+                NSURLErrorNetworkConnectionLost,
+                NSURLErrorCannotFindHost,
+                NSURLErrorCannotConnectToHost,
+                NSURLErrorDNSLookupFailed,
+                NSURLErrorTimedOut,
+            ].contains(nsError.code)
+        }
+
+        private func handleLoadFailure(_ error: Error) {
+            guard !shellState.hasLoadedUI else {
+                if pathMonitor.currentPath.status != .satisfied { shellState.phase = .offline }
+                return
+            }
+            if isConnectivityError(error) || pathMonitor.currentPath.status != .satisfied {
+                shellState.phase = .offline
+                shellState.detail = "No network connection is available."
+            } else {
+                shellState.phase = .failed
+                shellState.detail = "The Rantlist interface could not be downloaded. Check your connection and try again."
+            }
+        }
+
+        func webView(_ webView: WKWebView, didStartProvisionalNavigation navigation: WKNavigation!) {
+            if !shellState.hasLoadedUI {
+                shellState.phase = .loading
+                shellState.detail = "Loading Rantlist…"
+            }
+        }
+
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            guard trusted(webView.url) else { return }
+            shellState.hasLoadedUI = true
+            shellState.phase = .ready
+        }
+
+        func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+            handleLoadFailure(error)
+        }
+
+        func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+            handleLoadFailure(error)
         }
 
         private func sendKeyboardPhase(_ phase: String) {
             DispatchQueue.main.async { [weak self] in
                 self?.webView?.evaluateJavaScript(
-                    "window.rantlistNativeKeyboardPhase && window.rantlistNativeKeyboardPhase('\(phase)');",
+                    "window.rantlistNativeKeyboardPhase && window.rantlistNativeKeyboardPhase('\\(phase)');",
                     completionHandler: nil
                 )
             }
@@ -137,9 +345,6 @@ struct RantlistWebView: UIViewRepresentable {
                 return
             }
 
-            // Keep embedded HTTPS content (for example Stripe Buy Button frames)
-            // inside the app. Only explicit user-activated external links are
-            // handed to the system browser.
             if let targetFrame = navigationAction.targetFrame,
                !targetFrame.isMainFrame,
                scheme == "https" {

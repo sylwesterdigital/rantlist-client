@@ -134,3 +134,7 @@ The native macOS client includes a standard menu bar with About, website/help ac
 ## Mobile typing space
 
 Config → Controls includes an optional **More chat space while typing on mobile** setting. It hides the top bar and chat header only while the mobile message keyboard is open.
+
+## Native startup and offline shell
+
+The iOS, macOS and Android wrappers display a native Rantlist splash screen before the remote UI is available. If no validated internet connection is available, the wrapper displays a native offline message instead of an empty WebView. Connectivity is watched at the OS level; when the connection returns, the initial Rantlist URL is loaded again automatically if the browser UI had not yet completed its first successful load.
