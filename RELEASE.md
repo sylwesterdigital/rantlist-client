@@ -1,3 +1,9 @@
+## Changes in v0.1.35
+
+- Synchronized browser client to **9.6.73 / rantlist-deploy-r101**.
+- The active channel badge in the room rail is disabled so it cannot reload the current channel history.
+- Added optional **Channel rail button in mobile controls** placement: first in `mobileNav`, with a left-of-composer fallback when that nav is hidden while composing.
+
 ## Changes in v0.1.34
 
 - Synchronized browser client to **9.6.72 / rantlist-deploy-r100**.

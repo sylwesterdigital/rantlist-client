@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.72">
+  <meta name="chat-ui-version" content="9.6.73">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15,6 +15,7 @@
       const nativeIosApp = String(navigator.userAgent || '').includes('Rantlist-iOS');
       root.dataset.nativeIosApp = nativeIosApp ? 'true' : 'false';
       root.dataset.mobileTypingFocus = localStorage.getItem('chat.mobile.maximizeTyping') === 'on' ? 'on' : 'off';
+      root.dataset.mobileRoomRailToggle = localStorage.getItem('chat.mobile.roomRailToggle') === 'on' ? 'on' : 'off';
       root.dataset.composeTyping = 'false';
       if (nativeIosApp) {
         const viewportMeta = document.querySelector('meta[name="viewport"]');
@@ -11959,14 +11960,16 @@
 <body>
   <header class="topbar">
     <div class="server-brand-cluster" role="group" aria-label="Server and channel navigation">
+      <span id="roomRailToggleHome" hidden></span>
       <button id="roomRailToggleButton" class="room-rail-toggle" type="button" aria-label="Hide channel rail" title="Hide channel rail" aria-pressed="false" data-button-presentation-ignore>
         <span id="roomRailToggleGlyph" class="icon icon-rail-toggle room-rail-toggle-glyph" aria-hidden="true"></span>
+        <span class="room-rail-toggle-label" aria-hidden="true">Rooms</span>
       </button>
       <button id="serverBrandButton" class="server-brand-button" type="button" aria-disabled="true" title="Server">
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.72</small>
+          <small id="serverBrandVersion">v9.6.73</small>
         </span>
       </button>
     </div>
@@ -12021,7 +12024,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.72</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.73</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12160,6 +12163,11 @@
             <span>More chat space while typing on mobile</span>
           </label>
           <p class="hint">When the mobile keyboard is open in the message composer, hide the top bar and chat header until typing finishes.</p>
+          <label class="config-check-row" for="mobileRoomRailToggleInput">
+            <input id="mobileRoomRailToggleInput" type="checkbox">
+            <span>Channel rail button in mobile controls</span>
+          </label>
+          <p class="hint">On small screens, put the channel-rail toggle before Chat in the bottom navigation. If that navigation is hidden while composing, keep the toggle immediately left of the message box.</p>
           <div class="config-row">
             <label for="messagePaddingInput">Message padding</label>
             <span class="config-inline-range"><input id="messagePaddingInput" type="range" min="0" max="16" step="1" value="5" aria-label="Message padding"><output id="messagePaddingValue">5 px</output></span>
@@ -12844,8 +12852,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.72</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.72</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.73</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.73</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -13997,7 +14005,7 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14011,7 +14019,7 @@
         'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
-        'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
+        'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
         'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'messageForm', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
@@ -14223,6 +14231,9 @@
       toolbarBorders: readStorage('chat.ui.toolbarBorders') !== 'off',
       interfaceBorders: readStorage('chat.ui.interfaceBorders') !== 'off',
       mobileTypingFocus: readStorage('chat.mobile.maximizeTyping') === 'on',
+      mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') === 'on',
+      mobileRoomRailObserver: null,
+      mobileRoomRailResizeBound: false,
       bubbleMood: ['solid', 'soft', 'aurora', 'organic'].includes(readStorage('chat.ui.bubbleMood')) ? readStorage('chat.ui.bubbleMood') : 'soft',
       bubbleOutlineOpacity: Math.max(0, Math.min(100, Number(readStorage('chat.ui.bubbleOutlineOpacity') || 0))),
       messagePadding: Math.max(0, Math.min(16, Number(readStorage('chat.messages.padding') || 5))),
@@ -14788,6 +14799,10 @@
       elements.mobileTypingFocusInput.addEventListener('change', () => {
         state.mobileTypingFocus = elements.mobileTypingFocusInput.checked;
         applyMobileTypingFocusPreference();
+      });
+      elements.mobileRoomRailToggleInput.addEventListener('change', () => {
+        state.mobileRoomRailToggle = elements.mobileRoomRailToggleInput.checked;
+        applyMobileRoomRailTogglePreference();
       });
       elements.messagePaddingInput.addEventListener('input', () => {
         state.messagePadding = Math.max(0, Math.min(16, Number(elements.messagePaddingInput.value) || 0));
@@ -17516,6 +17531,7 @@
       const kind = activeSessionKind();
       const minimized = Boolean(kind && state.sessionStageMinimized === kind);
       document.body.classList.toggle('session-stage-open', stageVisible);
+      syncMobileRoomRailTogglePlacement();
       if (!minimized) {
         discardSessionResumeButton();
         return;
@@ -19578,6 +19594,80 @@
     async function drawingPortableSvgText(){
       const svg=drawingOwnLayerSvgText(drawingOwnObjects(),drawingOwnBackground());if(typeof window.queryLocalFonts!=='function')return svg;
       try{const fonts=await window.queryLocalFonts(),used=[...new Set(drawingOwnObjects().filter(o=>o.type==='text').map(o=>String(o.fontFamily||'').replace(/^['"]|['"]$/g,'').split(',')[0].trim()).filter(Boolean))],rules=[];for(const family of used){const font=fonts.find(item=>item.family===family||item.fullName===family||item.postscriptName===family);if(!font?.blob)continue;const data=await blobToBase64DataUrl(await font.blob());rules.push(`@font-face{font-family:${JSON.stringify(family)};src:url(${JSON.stringify(data)})}`);}return rules.length?svg.replace('<svg ','<svg ').replace('><rect',`><defs><style>${rules.join('')}
+
+
+    /* r101: active-room rail safety and optional mobile room-rail control placement. */
+    .room-badge-button.active:disabled {
+      opacity: 1;
+      cursor: default;
+      transform: none;
+    }
+    .room-rail-toggle-label { display: none; }
+
+    @media (max-width: 850px) {
+      :root[data-mobile-room-rail-toggle="on"] .mobile-nav {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+
+      .mobile-nav #roomRailToggleButton.mobile-nav-room-toggle {
+        width: auto;
+        min-width: 0;
+        height: auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        padding: 4px 3px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        box-shadow: none;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .mobile-nav #roomRailToggleButton.mobile-nav-room-toggle .room-rail-toggle-glyph {
+        width: 20px;
+        height: 20px;
+      }
+      .mobile-nav #roomRailToggleButton.mobile-nav-room-toggle .room-rail-toggle-label {
+        display: block;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      :root[data-room-rail-hidden="true"] .mobile-nav #roomRailToggleButton.mobile-nav-room-toggle {
+        color: var(--success);
+      }
+
+      .composer.mobile-room-toggle-mounted {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr);
+        align-items: center;
+        column-gap: 4px;
+      }
+      .composer.mobile-room-toggle-mounted > #roomRailToggleButton.mobile-composer-room-toggle {
+        grid-column: 1;
+        grid-row: 1;
+        width: 40px;
+        min-width: 40px;
+        height: 40px;
+        min-height: 40px;
+        align-self: center;
+        box-shadow: none;
+      }
+      .composer.mobile-room-toggle-mounted > .composer-shell {
+        grid-column: 2;
+        grid-row: 1;
+        width: 100%;
+      }
+      .composer.mobile-room-toggle-mounted > :not(#roomRailToggleButton):not(.composer-shell) {
+        grid-column: 1 / -1;
+      }
+    }
 </style></defs><rect`):svg;}catch{return svg;}
     }
 
@@ -28887,12 +28977,70 @@
       elements.channelTopicBar.hidden = !state.currentRoom || !topic;
     }
 
+    function mobileRoomRailNavIsAvailable() {
+      if (window.innerWidth > 850 || !elements.mobileNav) return false;
+      return window.getComputedStyle(elements.mobileNav).display !== 'none';
+    }
+
+    function syncMobileRoomRailTogglePlacement() {
+      const button = elements.roomRailToggleButton;
+      const home = elements.roomRailToggleHome;
+      const nav = elements.mobileNav;
+      const form = elements.messageForm;
+      if (!button || !home || !nav || !form) return;
+
+      button.classList.remove('mobile-nav-room-toggle', 'mobile-composer-room-toggle');
+      form.classList.remove('mobile-room-toggle-mounted');
+
+      if (!state.mobileRoomRailToggle || window.innerWidth > 850) {
+        if (button.previousElementSibling !== home) home.after(button);
+        return;
+      }
+
+      if (mobileRoomRailNavIsAvailable()) {
+        if (nav.firstElementChild !== button) nav.prepend(button);
+        button.classList.add('mobile-nav-room-toggle');
+        return;
+      }
+
+      if (!form.hidden) {
+        if (button.parentElement !== form || button.nextElementSibling !== elements.composerShell) {
+          form.insertBefore(button, elements.composerShell);
+        }
+        button.classList.add('mobile-composer-room-toggle');
+        form.classList.add('mobile-room-toggle-mounted');
+        return;
+      }
+
+      if (button.previousElementSibling !== home) home.after(button);
+    }
+
+    function installMobileRoomRailTogglePlacementObserver() {
+      if (!state.mobileRoomRailObserver && typeof MutationObserver === 'function') {
+        state.mobileRoomRailObserver = new MutationObserver(() => syncMobileRoomRailTogglePlacement());
+        state.mobileRoomRailObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      }
+      if (!state.mobileRoomRailResizeBound) {
+        state.mobileRoomRailResizeBound = true;
+        window.addEventListener('resize', syncMobileRoomRailTogglePlacement, { passive: true });
+      }
+    }
+
+    function applyMobileRoomRailTogglePreference(options = {}) {
+      document.documentElement.dataset.mobileRoomRailToggle = state.mobileRoomRailToggle ? 'on' : 'off';
+      if (elements.mobileRoomRailToggleInput) elements.mobileRoomRailToggleInput.checked = state.mobileRoomRailToggle;
+      if (options.persist !== false) writeStorage('chat.mobile.roomRailToggle', state.mobileRoomRailToggle ? 'on' : 'off');
+      installMobileRoomRailTogglePlacementObserver();
+      syncMobileRoomRailTogglePlacement();
+    }
+
     function applyRoomRailVisibility() {
       document.documentElement.dataset.roomRailHidden = state.roomRailHidden ? 'true' : 'false';
       const label = state.roomRailHidden ? 'Show channel rail' : 'Hide channel rail';
       elements.roomRailToggleButton.title = label;
       elements.roomRailToggleButton.setAttribute('aria-label', label);
       elements.roomRailToggleButton.setAttribute('aria-pressed', String(state.roomRailHidden));
+      syncMobileRoomRailTogglePlacement();
       syncViewportHeight(false);
     }
 
@@ -29014,8 +29162,13 @@
           : `#${room.name} · owner ${ownerHandle} · ${Number(room.users) || 0} online${roomState ? ` · ${roomState}` : ''}`;
         button.setAttribute('aria-label', description);
         button.dataset.roomOwner = ownerHandle;
-        if (sameRoom(room.name, state.currentRoom)) button.classList.add('active');
-        button.disabled = !state.registered;
+        const isCurrentRoom = sameRoom(room.name, state.currentRoom);
+        if (isCurrentRoom) {
+          button.classList.add('active');
+          button.setAttribute('aria-current', 'page');
+          button.title = `${roomLabel} · current channel`;
+        }
+        button.disabled = !state.registered || isCurrentRoom;
 
         button.append(createRoomBadgeNode(room));
 
@@ -29692,6 +29845,7 @@
         : 'This channel is read only.';
       elements.readOnlyChannelNotice.hidden = !state.currentRoomReadOnly;
       elements.messageForm.hidden = state.currentRoomReadOnly;
+      syncMobileRoomRailTogglePlacement();
       elements.messageInput.placeholder = state.currentRoomReadOnly
         ? `${state.currentRoom || 'Channel'} · read only`
         : (state.currentRoomArchived
@@ -32623,6 +32777,7 @@
       applyUiPresentation();
       applyBorderPreferences({ persist: false });
       applyMobileTypingFocusPreference({ persist: false });
+      applyMobileRoomRailTogglePreference({ persist: false });
       applyBubbleMoodPreference({ persist: false });
       applyBubbleOutlinePreference({ persist: false });
       if (elements.mediaDisplaySelect) elements.mediaDisplaySelect.value = state.mediaDisplayMode;
@@ -33309,6 +33464,7 @@
       if (elements.toolbarBordersInput) elements.toolbarBordersInput.checked = state.toolbarBorders;
       if (elements.interfaceBordersInput) elements.interfaceBordersInput.checked = state.interfaceBorders;
       if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
+      if (elements.mobileRoomRailToggleInput) elements.mobileRoomRailToggleInput.checked = state.mobileRoomRailToggle;
       elements.mediaDisplaySelect.value = state.mediaDisplayMode;
       elements.mediaViewerModeSelect.value = state.mediaStoryMode;
       elements.channelMemberPositionSelect.value = state.channelMemberPosition;
@@ -35252,6 +35408,7 @@
       root.style.setProperty('--app-left', '0px');
       root.style.setProperty('--keyboard-inset', '0px');
       syncMobileTypingFocusState();
+      syncMobileRoomRailTogglePlacement();
     }
 
     function stabilizeNativeIOSMessageScroll() {
@@ -35356,6 +35513,7 @@
         document.documentElement.style.setProperty('--keyboard-inset', `${keyboardOpen ? hiddenHeight : 0}px`);
         document.documentElement.dataset.keyboardOpen = keyboardOpen ? 'true' : 'false';
         syncMobileTypingFocusState();
+        syncMobileRoomRailTogglePlacement();
 
         if (resetScroll && !focusedInput) {
           const scrollingElement = document.scrollingElement || document.documentElement;
