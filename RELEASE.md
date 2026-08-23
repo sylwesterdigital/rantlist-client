@@ -1,3 +1,10 @@
+## Changes in v0.1.46
+
+- Synchronized browser client to **9.6.81 / rantlist-deploy-r109**.
+- Fixed **More chat space while typing on mobile** in the native iOS app when WKWebView does not deliver the expected keyboard lifecycle callback sequence.
+- Composer focus now has a native-only settled fallback, while normal UIKit `didShow`/`didHide` events still control the stable keyboard-transition path.
+- Native iOS top-bar/chat-header hiding no longer depends on the browser responsive breakpoint.
+
 ## Changes in v0.1.45
 
 - Native iOS media downloads no longer navigate the Rantlist WKWebView away from the chat UI.

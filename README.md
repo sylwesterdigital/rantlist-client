@@ -1,3 +1,8 @@
+## v0.1.46 / 9.6.81
+
+- Fixes native iOS **More chat space while typing on mobile** with a resilient composer-focus fallback and native-specific chrome-hiding selector.
+- Browser source synchronized to rantlist-deploy-r109.
+
 ## v0.1.45 / 9.6.80
 
 - Fixes iOS media Download so it stays in Rantlist and opens the native Files save-destination picker instead of replacing the chat UI with the raw media asset.

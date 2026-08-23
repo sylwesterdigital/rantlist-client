@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.80">
+  <meta name="chat-ui-version" content="9.6.81">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -4549,9 +4549,13 @@
     /* Optional mobile focus mode: once the keyboard is fully settled, hide
        non-essential chrome while composing. Native iOS keeps the previous
        layout throughout UIKit keyboard animation and switches only at didShow/didHide. */
+    :root[data-native-ios-app="true"][data-mobile-typing-focus="on"][data-compose-typing="true"] .topbar,
+    :root[data-native-ios-app="true"][data-mobile-typing-focus="on"][data-compose-typing="true"] #chatPanel > .chat-panel-header {
+      display: none !important;
+    }
     @media (max-width: 850px) {
-      :root[data-mobile-typing-focus="on"][data-compose-typing="true"] .topbar,
-      :root[data-mobile-typing-focus="on"][data-compose-typing="true"] #chatPanel > .chat-panel-header {
+      :root:not([data-native-ios-app="true"])[data-mobile-typing-focus="on"][data-compose-typing="true"] .topbar,
+      :root:not([data-native-ios-app="true"])[data-mobile-typing-focus="on"][data-compose-typing="true"] #chatPanel > .chat-panel-header {
         display: none !important;
       }
     }
@@ -12030,7 +12034,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.80</small>
+          <small id="serverBrandVersion">v9.6.81</small>
         </span>
       </button>
     </div>
@@ -14284,6 +14288,8 @@
       nativeKeyboardPinnedToBottom: false,
       nativeKeyboardScrollRaf: 0,
       nativeComposerKeyboardIntent: false,
+      nativeTypingFocusFallbackActive: false,
+      nativeTypingFocusFallbackTimer: null,
       uiTheme: readStorage('chat.ui.theme') || 'white-contrast',
       uiFont: readStorage('chat.ui.font') || 'system',
       localFontFamilies: [],
@@ -15082,6 +15088,8 @@
         clearTimeout(state.viewportFocusTimer);
         if (isRantlistIOSApp()) {
           state.nativeComposerKeyboardIntent = event.target === elements.messageInput;
+          if (state.nativeComposerKeyboardIntent) scheduleNativeIOSTypingFocusFallback();
+          else clearNativeIOSTypingFocusFallback();
         }
         syncMobileTypingFocusState();
         if (isRantlistIOSApp()) {
@@ -15101,6 +15109,7 @@
         if (isRantlistIOSApp()) {
           if (event.target === elements.messageInput && !state.keyboardOpen && !state.nativeKeyboardTransitionActive) {
             state.nativeComposerKeyboardIntent = false;
+            clearNativeIOSTypingFocusFallback();
             syncMobileTypingFocusState();
           }
           return;
@@ -33087,15 +33096,37 @@
     function syncMobileTypingFocusState() {
       const root = document.documentElement;
       root.dataset.mobileTypingFocus = state.mobileTypingFocus ? 'on' : 'off';
-      if (isRantlistIOSApp() && state.nativeKeyboardTransitionActive) return;
+      const nativeIOS = isRantlistIOSApp();
+      if (nativeIOS && state.nativeKeyboardTransitionActive && !state.nativeTypingFocusFallbackActive) return;
       const composerFocused = document.activeElement === elements.messageInput
-        || (isRantlistIOSApp() && state.nativeComposerKeyboardIntent);
+        || (nativeIOS && state.nativeComposerKeyboardIntent);
+      const keyboardReady = state.keyboardOpen
+        || (nativeIOS && state.nativeTypingFocusFallbackActive);
       const active = Boolean(
         state.mobileTypingFocus
-        && state.keyboardOpen
+        && keyboardReady
         && composerFocused
       );
       root.dataset.composeTyping = active ? 'true' : 'false';
+    }
+
+    function scheduleNativeIOSTypingFocusFallback() {
+      if (!isRantlistIOSApp()) return;
+      clearTimeout(state.nativeTypingFocusFallbackTimer);
+      state.nativeTypingFocusFallbackTimer = setTimeout(() => {
+        state.nativeTypingFocusFallbackTimer = null;
+        if (!state.nativeComposerKeyboardIntent) return;
+        const composerStillFocused = document.activeElement === elements.messageInput;
+        if (!composerStillFocused && !state.keyboardOpen && !state.nativeKeyboardTransitionActive) return;
+        state.nativeTypingFocusFallbackActive = true;
+        syncMobileTypingFocusState();
+      }, 420);
+    }
+
+    function clearNativeIOSTypingFocusFallback() {
+      clearTimeout(state.nativeTypingFocusFallbackTimer);
+      state.nativeTypingFocusFallbackTimer = null;
+      state.nativeTypingFocusFallbackActive = false;
     }
 
     function applyMobileTypingFocusPreference(options = {}) {
@@ -35489,6 +35520,7 @@
       } else if (!open) {
         state.nativeComposerKeyboardIntent = false;
       }
+      clearNativeIOSTypingFocusFallback();
       setNativeIOSKeyboardState(open);
       cancelAnimationFrame(state.nativeKeyboardScrollRaf);
       if (!list) return;
