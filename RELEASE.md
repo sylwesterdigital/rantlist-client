@@ -1,3 +1,9 @@
+## Changes in v0.1.42
+
+- Synchronized browser client to **9.6.78 / rantlist-deploy-r106**.
+- Media messages now use the existing speech-bubble Message actions button as the single More control.
+- Share, Download and voice Transcribe moved into that menu; redundant image/video preview overlay buttons are removed.
+
 ## Changes in v0.1.41
 
 - Synchronized browser client to **9.6.77 / rantlist-deploy-r105**.

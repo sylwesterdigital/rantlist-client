@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.77">
+  <meta name="chat-ui-version" content="9.6.78">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -4703,7 +4703,7 @@
       z-index: 5;
       top: 6px;
       left: 44px;
-      right: 88px;
+      right: 6px;
       min-width: 0;
       gap: 1px;
       padding: 4px 7px;
@@ -4720,93 +4720,7 @@
       top: 5px;
       left: 5px;
     }
-    .media-placeholder-actions {
-      position: absolute;
-      z-index: 7;
-      top: 5px;
-      right: 5px;
-    }
-    .media-placeholder-main-action,
-    .media-placeholder-more-button {
-      width: var(--media-control-size);
-      height: var(--media-control-size);
-      min-width: var(--media-control-size);
-      min-height: var(--media-control-size);
-      display: grid;
-      place-items: center;
-      padding: 0;
-      border: 1px solid rgba(255,255,255,.24);
-      border-radius: calc(var(--media-control-size) * .28);
-      color: #fff;
-      background: rgba(0,0,0,var(--media-control-opacity));
-      text-decoration: none;
-      box-shadow: 0 1px 5px rgba(0,0,0,.16);
-      backdrop-filter: blur(5px);
-      -webkit-backdrop-filter: blur(5px);
-      opacity: .88;
-    }
-    .media-placeholder-main-action:hover,
-    .media-placeholder-main-action.active,
-    .media-placeholder-more-button:hover,
-    .media-placeholder-more-button[aria-expanded="true"] {
-      color: #fff;
-      background: rgba(0,0,0,var(--media-control-opacity));
-      border-color: rgba(255,255,255,.46);
-      opacity: 1;
-    }
-    .media-placeholder-main-action .icon,
-    .media-placeholder-more-button .icon {
-      width: calc(var(--media-control-size) * .52);
-      height: calc(var(--media-control-size) * .52);
-    }
-    .media-placeholder-more-menu {
-      position: absolute;
-      top: calc(var(--media-control-size) + 5px);
-      right: 0;
-      min-width: 132px;
-      display: grid;
-      gap: 2px;
-      padding: 4px;
-      border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
-      border-radius: 10px;
-      background: color-mix(in srgb, var(--panel-2) 96%, transparent);
-      box-shadow: 0 8px 24px rgba(0,0,0,.24);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-    }
-    .media-placeholder-more-menu[hidden] { display: none !important; }
-    .media-placeholder-more-menu button,
-    .media-placeholder-more-menu a {
-      width: 100%;
-      min-width: 0;
-      min-height: 34px;
-      height: auto;
-      display: flex;
-      align-items: center;
-      justify-content: flex-start;
-      gap: 8px;
-      padding: 6px 9px;
-      border: 0;
-      border-radius: 8px;
-      color: var(--text);
-      background: transparent;
-      text-decoration: none;
-      box-shadow: none;
-      opacity: 1;
-      white-space: nowrap;
-    }
-    .media-placeholder-more-menu button:hover,
-    .media-placeholder-more-menu a:hover,
-    .media-placeholder-more-menu button:focus-visible,
-    .media-placeholder-more-menu a:focus-visible {
-      color: var(--text);
-      background: color-mix(in srgb, var(--accent) 12%, var(--panel-2));
-    }
-    .media-placeholder-more-menu .icon {
-      width: 16px;
-      height: 16px;
-      flex: 0 0 16px;
-    }
+    .message:has(.media-placeholder) .message-menu-button { opacity: 1; }
     .media-placeholder:has(.media-preview[hidden]) {
       min-height: 44px;
       border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
@@ -12088,7 +12002,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.77</small>
+          <small id="serverBrandVersion">v9.6.78</small>
         </span>
       </button>
     </div>
@@ -15706,7 +15620,6 @@
 
       document.addEventListener('pointerdown', (event) => {
         if (!event.target.closest('.context-popover, .message-menu-button, .user-menu-button')) closeContextMenus();
-        if (!event.target.closest('.media-placeholder-actions')) closeMediaPlaceholderActionMenus();
         if (event.target.closest('.reaction-popover, .reaction-button')) return;
         closeReactionPickers();
         if (!event.target.closest('.composer')) { closeAttachmentTray(); closeGamesTray(); }
@@ -20770,6 +20683,21 @@
       throw new Error('Native share is unavailable and no shareable media page link could be copied.');
     }
 
+
+    function downloadMediaAttachment(file) {
+      const href = String(file?.downloadUrl || file?.url || '').trim();
+      if (!href) throw new Error('This media file has no download URL.');
+      const anchor = document.createElement('a');
+      anchor.href = new URL(href, location.href).href;
+      anchor.download = String(file?.name || 'file').trim() || 'file';
+      anchor.rel = 'noopener';
+      anchor.hidden = true;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      return true;
+    }
+
     function hasPendingSharedMediaLink() {
       return /^[A-Fa-f0-9-]{36}$/.test(String(state.pendingSharedMediaId || '').trim());
     }
@@ -20934,32 +20862,25 @@
       }
     }
 
-    function closeMediaPlaceholderActionMenus(except = null) {
-      const scope = elements.messageList || document;
-      for (const actions of scope.querySelectorAll('.media-placeholder-actions')) {
-        if (actions === except) continue;
-        const menu = actions.querySelector('.media-placeholder-more-menu');
-        const button = actions.querySelector('.media-placeholder-more-button');
-        if (menu) menu.hidden = true;
-        if (button) button.setAttribute('aria-expanded', 'false');
-      }
-    }
-
     function appendMediaPlaceholder(article, file, options = {}) {
       const messageId = options.messageId || file.messageId || null;
       const isAudio = file.kind === 'voice' || String(file.mime || '').startsWith('audio/');
       const isImage = state.capabilities.safeImageMimes.includes(file.mime);
       const isVideo = state.capabilities.safeVideoMimes.includes(file.mime);
+      const needsMainAction = isAudio || (!isImage && !isVideo);
       const placeholder = document.createElement('div');
       placeholder.className = 'media-placeholder';
       placeholder.classList.toggle('is-audio', isAudio);
 
-      const mainAction = document.createElement('button');
-      mainAction.type = 'button';
-      mainAction.className = 'media-placeholder-main-action';
-      mainAction.title = isAudio ? 'Play voice message' : (isImage ? 'Preview image' : (isVideo ? 'Play video' : 'Open file preview'));
-      mainAction.setAttribute('aria-label', mainAction.title);
-      mainAction.innerHTML = `<span class="icon ${isAudio ? 'icon-play' : (isImage ? 'icon-photo' : (isVideo ? 'icon-photo' : 'icon-file'))}"></span>`;
+      let mainAction = null;
+      if (needsMainAction) {
+        mainAction = document.createElement('button');
+        mainAction.type = 'button';
+        mainAction.className = 'media-placeholder-main-action';
+        mainAction.title = isAudio ? 'Play voice message' : 'Open file preview';
+        mainAction.setAttribute('aria-label', mainAction.title);
+        mainAction.innerHTML = `<span class="icon ${isAudio ? 'icon-play' : 'icon-file'}"></span>`;
+      }
 
       const info = document.createElement('div');
       info.className = 'media-placeholder-info';
@@ -20972,77 +20893,6 @@
         ? `${formatDuration(file.durationMs)} · ${formatBytes(Number(file.size) || 0)}`
         : `${formatBytes(Number(file.size) || 0)}${file.mime ? ` · ${file.mime}` : ''}`;
       info.append(name, meta);
-
-      const actions = document.createElement('div');
-      actions.className = 'media-placeholder-actions';
-
-      const moreButton = document.createElement('button');
-      moreButton.type = 'button';
-      moreButton.className = 'media-placeholder-more-button';
-      moreButton.title = 'More media actions';
-      moreButton.setAttribute('aria-label', 'More media actions');
-      moreButton.setAttribute('aria-haspopup', 'menu');
-      moreButton.setAttribute('aria-expanded', 'false');
-      moreButton.innerHTML = '<span class="icon icon-more"></span>';
-
-      const moreMenu = document.createElement('div');
-      moreMenu.className = 'media-placeholder-more-menu';
-      moreMenu.setAttribute('role', 'menu');
-      moreMenu.hidden = true;
-
-      moreButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const opening = moreMenu.hidden;
-        closeMediaPlaceholderActionMenus(opening ? actions : null);
-        moreMenu.hidden = !opening;
-        moreButton.setAttribute('aria-expanded', String(opening));
-        if (opening) requestAnimationFrame(() => moreMenu.querySelector('button, a')?.focus({ preventScroll: true }));
-      });
-      moreMenu.addEventListener('click', (event) => event.stopPropagation());
-
-      if (file.kind === 'voice' && messageId) {
-        const transcribe = document.createElement('button');
-        transcribe.type = 'button';
-        transcribe.className = 'transcribe-button';
-        transcribe.dataset.transcribeButton = '';
-        transcribe.title = 'Transcribe';
-        transcribe.setAttribute('aria-label', 'Transcribe voice message');
-        transcribe.setAttribute('role', 'menuitem');
-        transcribe.innerHTML = '<span class="icon icon-transcript"></span><span>Transcribe</span>';
-        transcribe.disabled = !state.capabilities.voiceTranscription;
-        transcribe.addEventListener('click', () => {
-          closeMediaPlaceholderActionMenus();
-          requestVoiceTranscript(messageId, true);
-        });
-        moreMenu.append(transcribe);
-      }
-
-      const share = document.createElement('button');
-      share.type = 'button';
-      share.title = 'Share';
-      share.setAttribute('aria-label', 'Share file');
-      share.setAttribute('role', 'menuitem');
-      share.innerHTML = '<span class="icon icon-share"></span><span>Share</span>';
-      share.addEventListener('click', async () => {
-        closeMediaPlaceholderActionMenus();
-        try {
-          await shareMediaAttachment(file);
-        } catch (error) {
-          addSystemMessage(error?.message || 'File could not be shared.', true);
-        }
-      });
-      moreMenu.append(share);
-
-      const download = document.createElement('a');
-      download.href = file.downloadUrl || file.url || '#';
-      download.download = file.name || 'file';
-      download.title = 'Download';
-      download.setAttribute('aria-label', 'Download file');
-      download.setAttribute('role', 'menuitem');
-      download.innerHTML = '<span class="icon icon-download"></span><span>Download</span>';
-      download.addEventListener('click', () => closeMediaPlaceholderActionMenus());
-      moreMenu.append(download);
-      actions.append(moreButton, moreMenu);
 
       const preview = document.createElement('div');
       preview.className = 'media-preview';
@@ -21060,16 +20910,15 @@
 
       const binding = { preview, file, button: mainAction, isAudio };
       placeholder.mediaPreviewBinding = binding;
-      mainAction.addEventListener('click', () => {
-        if (state.mediaStoryMode === 'stories' && (isImage || isVideo)) {
-          openChannelMediaStoryViewer(file, { requestNativeFullscreen: true });
-          return;
-        }
-        toggleMediaPreview(preview, file, mainAction, { autoplay: isAudio });
-      });
+      if (mainAction) {
+        mainAction.addEventListener('click', () => {
+          toggleMediaPreview(preview, file, mainAction, { autoplay: isAudio });
+        });
+      }
 
-      if (isAudio) placeholder.append(info, actions, preview, mainAction, caption, transcript);
-      else placeholder.append(mainAction, info, actions, preview, caption, transcript);
+      if (isAudio && mainAction) placeholder.append(info, preview, mainAction, caption, transcript);
+      else if (mainAction) placeholder.append(mainAction, info, preview, caption, transcript);
+      else placeholder.append(info, preview, caption, transcript);
       article.append(placeholder);
       if (state.mediaDisplayMode === 'immediate' && canInlinePreviewFile(file)) {
         showMediaPreview(preview, file, mainAction, { autoplay: false });
@@ -24962,8 +24811,10 @@
       if (!canInlinePreviewFile(file)) return false;
       debugLog('info', 'media.ui', 'preview-open', { messageId: file.messageId, mime: file.mime, size: file.size });
       preview.hidden = false;
-      button.classList.add('active');
-      button.setAttribute('aria-label', isAudio ? 'Pause voice message' : 'Hide preview');
+      if (button) {
+        button.classList.add('active');
+        button.setAttribute('aria-label', isAudio ? 'Pause voice message' : 'Hide preview');
+      }
       if (!preview.childNodes.length) {
         appendFileContent(preview.closest('.message'), file, { autoplay: options.autoplay === true });
       } else if (options.autoplay === true) {
@@ -24975,8 +24826,10 @@
     function hideMediaPreview(preview, file, button) {
       const isAudio = file.kind === 'voice' || String(file.mime || '').startsWith('audio/');
       preview.hidden = true;
-      button.classList.remove('active');
-      button.setAttribute('aria-label', isAudio ? 'Play voice message' : 'Preview media');
+      if (button) {
+        button.classList.remove('active');
+        button.setAttribute('aria-label', isAudio ? 'Play voice message' : 'Preview media');
+      }
       for (const media of preview.querySelectorAll('audio, video')) media.pause?.();
     }
 
@@ -26535,6 +26388,51 @@
       }
       if (state.speechReadingActive || window.speechSynthesis?.speaking || window.speechSynthesis?.pending) {
         actions.push({ label: 'Stop', title: 'Stop reading aloud', icon: 'icon-stop', run: cancelSpeechReading });
+      }
+      if (message.messageType === 'file' && message.file) {
+        const file = message.file;
+        const article = state.messageNodes.get(messageId);
+        const binding = article?.querySelector('.media-placeholder')?.mediaPreviewBinding || null;
+        const isAudioFile = file.kind === 'voice' || String(file.mime || '').startsWith('audio/');
+        const canPreview = Boolean(binding?.preview && canInlinePreviewFile(file));
+        if (canPreview && binding.preview.hidden) {
+          actions.push({
+            label: isAudioFile ? 'Play' : 'Preview',
+            title: isAudioFile ? 'Play voice message' : 'Show media preview',
+            icon: isAudioFile ? 'icon-play' : 'icon-photo',
+            separator: actions.length > 0,
+            run: () => showMediaPreview(binding.preview, file, binding.button, { autoplay: isAudioFile }),
+          });
+        }
+        if (file.kind === 'voice' && messageId) {
+          actions.push({
+            label: 'Transcribe',
+            title: 'Transcribe voice message',
+            icon: 'icon-transcript',
+            separator: !canPreview && actions.length > 0,
+            disabled: !state.capabilities.voiceTranscription,
+            run: () => requestVoiceTranscript(messageId, true),
+          });
+        }
+        actions.push({
+          label: 'Share',
+          title: 'Share media',
+          icon: 'icon-share',
+          separator: !canPreview && file.kind !== 'voice' && actions.length > 0,
+          run: async () => {
+            try { await shareMediaAttachment(file); }
+            catch (error) { addSystemMessage(error?.message || 'File could not be shared.', true); }
+          },
+        });
+        actions.push({
+          label: 'Download',
+          title: 'Download media',
+          icon: 'icon-download',
+          run: () => {
+            try { downloadMediaAttachment(file); }
+            catch (error) { addSystemMessage(error?.message || 'File could not be downloaded.', true); }
+          },
+        });
       }
       const visualEditIds = visualMessageGroupIds(messageId);
       const visualEditCount = visualEditIds.length;
