@@ -1,3 +1,7 @@
+## v0.1.29 / 9.6.68
+
+Composer chrome cleanup: controls are vertically centered, while the outer message-form border/background is removed for a cleaner rounded input surface.
+
 ## v0.1.28 / 9.6.67
 
 Native WKWebView confirmation dialogs are supported and media **Delete all** uses the r95 batch deletion flow.

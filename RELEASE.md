@@ -1,3 +1,9 @@
+## Changes in v0.1.29
+
+- Synchronized application version to **9.6.68 / rantlist-deploy-r96**.
+- Vertically centered controls inside `composerShell`.
+- Removed the `messageForm` top border and outer `.composer` background for cleaner composer chrome.
+
 ## Changes in v0.1.28
 
 - Synchronized application version to **9.6.67 / rantlist-deploy-r95**.
