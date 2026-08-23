@@ -1,3 +1,8 @@
+## Changes in v0.1.30
+
+- macOS native WKWebView now presents an `NSOpenPanel` for HTML file inputs.
+- Profile picture selection and the other web file pickers now open the macOS file chooser inside the desktop app.
+
 ## Changes in v0.1.29
 
 - Synchronized application version to **9.6.68 / rantlist-deploy-r96**.
