@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.71">
+  <meta name="chat-ui-version" content="9.6.72">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -5547,8 +5547,12 @@
       border-radius: 999px;
     }
     .media-editor-date-sticker-swatch {
-      min-width: 148px;
+      min-width: 164px;
+      min-height: 52px;
       font-size: 12px;
+      line-height: 1.15;
+      white-space: pre-line;
+      text-align: center;
     }
     .media-editor-object[data-sticker-style="time-label"] .media-editor-object-core,
     .media-editor-object[data-sticker-style="date-label"] .media-editor-object-core {
@@ -5563,19 +5567,26 @@
       -webkit-backdrop-filter: blur(8px);
     }
     .media-editor-object[data-sticker-style="date-label"] .media-editor-object-core {
-      min-width: 164px;
-      padding-inline: 18px;
+      min-width: 190px;
+      min-height: 58px;
+      padding: 10px 18px;
+      border-radius: 20px;
     }
     .media-editor-object[data-sticker-style="time-label"] .media-editor-object-label,
     .media-editor-object[data-sticker-style="date-label"] .media-editor-object-label {
       color: #fff !important;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
       font-weight: 800 !important;
-      white-space: nowrap;
       text-shadow: none;
     }
+    .media-editor-object[data-sticker-style="time-label"] .media-editor-object-label {
+      white-space: nowrap;
+    }
     .media-editor-object[data-sticker-style="date-label"] .media-editor-object-label {
-      font-size: .84em;
+      font-size: .82em;
+      line-height: 1.12;
+      white-space: pre-line;
+      text-align: center;
     }
     .media-editor-widths { justify-content: center; }
     .media-editor-widths button::before {
@@ -5610,6 +5621,12 @@
       padding: 10px 12px;
       font: inherit;
       background: #fff;
+      color: #111111;
+      caret-color: #111111;
+    }
+    .media-editor-caption::placeholder {
+      color: #6b7280;
+      opacity: 1;
     }
     @media (max-width: 720px) {
       .media-editor { gap: 5px; }
@@ -11949,7 +11966,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.71</small>
+          <small id="serverBrandVersion">v9.6.72</small>
         </span>
       </button>
     </div>
@@ -12004,7 +12021,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.71</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.72</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12827,8 +12844,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.71</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.71</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.72</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.72</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -23103,6 +23120,17 @@
       return object?.type === 'text' ? object : null;
     }
 
+    function selectedMediaEditorLabelStickerObject() {
+      const object = selectedMediaEditorObject();
+      return object?.type === 'sticker' && (object.stickerStyle === 'time-label' || object.stickerStyle === 'date-label')
+        ? object
+        : null;
+    }
+
+    function selectedMediaEditorStylableObject() {
+      return selectedMediaEditorTextObject() || selectedMediaEditorLabelStickerObject();
+    }
+
     function mediaEditorCurrentTimeLabel(date = new Date()) {
       try {
         return new Intl.DateTimeFormat(undefined, {
@@ -23117,14 +23145,17 @@
 
     function mediaEditorCurrentDateLabel(date = new Date()) {
       try {
-        return new Intl.DateTimeFormat(undefined, {
-          weekday: 'long',
+        const firstLine = new Intl.DateTimeFormat(undefined, {
+          weekday: 'short',
           day: 'numeric',
           month: 'short',
+        }).format(date);
+        const secondLine = new Intl.DateTimeFormat(undefined, {
           year: 'numeric',
         }).format(date);
+        return `${firstLine}\n${secondLine}`;
       } catch {
-        return date.toDateString();
+        return `${date.toLocaleDateString()}\n${date.getFullYear()}`;
       }
     }
 
@@ -23713,11 +23744,14 @@
           core.style.background = object.backgroundColor || 'transparent';
           core.style.placeItems = object.textAlign === 'left' ? 'center start' : (object.textAlign === 'right' ? 'center end' : 'center');
         } else if (object.stickerStyle === 'time-label' || object.stickerStyle === 'date-label') {
-          const defaultWidth = object.stickerStyle === 'date-label' ? 0.46 : 0.28;
-          const minWidth = object.stickerStyle === 'date-label' ? 164 : 92;
+          const isDateLabel = object.stickerStyle === 'date-label';
+          const defaultWidth = isDateLabel ? 0.58 : 0.28;
+          const defaultHeight = isDateLabel ? 0.14 : 0.1;
+          const minWidth = isDateLabel ? 190 : 92;
+          const minHeight = isDateLabel ? 58 : 42;
           core.style.width = Math.max(minWidth, (object.width || defaultWidth) * overlayWidth) + 'px';
-          core.style.height = Math.max(42, (object.height || 0.1) * overlayHeight) + 'px';
-          core.style.background = 'rgba(0,0,0,.78)';
+          core.style.height = Math.max(minHeight, (object.height || defaultHeight) * overlayHeight) + 'px';
+          core.style.background = object.backgroundColor || 'rgba(0,0,0,.78)';
           core.style.placeItems = 'center';
         } else {
           core.style.width = 'auto';
@@ -23738,8 +23772,10 @@
           : (object.fontFamily || editor.textDefaults.fontFamily);
         label.style.textAlign = object.textAlign || 'center';
         if (object.stickerStyle === 'time-label' || object.stickerStyle === 'date-label') {
-          label.style.color = '#ffffff';
-          label.style.whiteSpace = 'nowrap';
+          label.style.color = object.color || '#ffffff';
+          label.style.whiteSpace = object.stickerStyle === 'date-label' ? 'pre-line' : 'nowrap';
+          label.style.textAlign = 'center';
+          label.style.lineHeight = object.stickerStyle === 'date-label' ? '1.12' : '1';
           label.style.textShadow = 'none';
         }
       }
@@ -23916,8 +23952,9 @@
         button.classList.toggle('active', active);
       }
       editor.canvas.style.touchAction = mode === 'draw' ? 'none' : 'auto';
+      const stickerLabelSelected = mode === 'sticker' && Boolean(selectedMediaEditorLabelStickerObject());
       editor.palette.hidden = mode !== 'draw';
-      editor.textPalette.hidden = mode !== 'text';
+      editor.textPalette.hidden = !(mode === 'text' || stickerLabelSelected);
       editor.widths.hidden = mode !== 'draw';
       editor.stickers.hidden = mode !== 'sticker';
       editor.textControls.hidden = mode !== 'text';
@@ -23930,7 +23967,7 @@
 
     function refreshMediaEditorTextControls() {
       const editor = ensureMediaEditor();
-      const selected = selectedMediaEditorTextObject();
+      const selected = selectedMediaEditorStylableObject();
       const textColor = selected?.color || editor.textDefaults.color;
       const backgroundColor = selected?.backgroundColor ?? editor.textDefaults.backgroundColor;
       const fontFamily = selected?.fontFamily || editor.textDefaults.fontFamily;
@@ -23956,7 +23993,7 @@
     function setMediaEditorTextColor(color) {
       const editor = ensureMediaEditor();
       editor.textDefaults.color = color;
-      const selected = selectedMediaEditorTextObject();
+      const selected = selectedMediaEditorStylableObject();
       if (selected) selected.color = color;
       if (selected) syncMediaEditorObjectElement(editor.objectElements.get(selected.id), selected, true);
       refreshMediaEditorTextControls();
@@ -23965,7 +24002,7 @@
     function setMediaEditorTextBackgroundColor(color) {
       const editor = ensureMediaEditor();
       editor.textDefaults.backgroundColor = color;
-      const selected = selectedMediaEditorTextObject();
+      const selected = selectedMediaEditorStylableObject();
       if (selected) selected.backgroundColor = color;
       if (selected) syncMediaEditorObjectElement(editor.objectElements.get(selected.id), selected, true);
       refreshMediaEditorTextControls();
@@ -24224,6 +24261,49 @@
       }
     }
 
+    function mediaEditorStickerLabelBackgroundColor(object) {
+      return object.backgroundColor ?? 'rgba(0,0,0,.78)';
+    }
+
+    function mediaEditorStickerLabelTextColor(object) {
+      return object.color || '#ffffff';
+    }
+
+    function drawMediaEditorLabelStickerObject(ctx, object, outputWidth, outputHeight) {
+      const isDateLabel = object.stickerStyle === 'date-label';
+      const boxWidth = Math.max(isDateLabel ? 190 : 110, (object.width || (isDateLabel ? 0.58 : 0.28)) * outputWidth);
+      const boxHeight = Math.max(isDateLabel ? 66 : 54, (object.height || (isDateLabel ? 0.14 : 0.1)) * outputHeight);
+      const radius = isDateLabel ? Math.min(20, boxHeight * 0.26) : boxHeight / 2;
+      ctx.fillStyle = mediaEditorStickerLabelBackgroundColor(object);
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') ctx.roundRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight, radius);
+      else ctx.rect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
+      ctx.fill();
+      ctx.fillStyle = mediaEditorStickerLabelTextColor(object);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const fontSize = Math.max(isDateLabel ? 18 : 24, boxHeight * (isDateLabel ? 0.24 : 0.46));
+      ctx.font = '800 ' + fontSize + 'px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      const maxTextWidth = Math.max(40, boxWidth * 0.84);
+      const rawText = String(object.text || (isDateLabel ? mediaEditorCurrentDateLabel() : mediaEditorCurrentTimeLabel())).replace(/\r\n?/g, '\n');
+      let lines = [];
+      if (isDateLabel) {
+        for (const part of rawText.split('\n')) {
+          const wrapped = wrapMediaEditorText(ctx, part, maxTextWidth);
+          if (wrapped.length) lines.push(...wrapped);
+        }
+        lines = lines.slice(0, 3);
+      } else {
+        lines = [rawText.replace(/\s+/g, ' ').trim()];
+      }
+      const lineHeight = fontSize * (isDateLabel ? 1.08 : 1);
+      let y = -((lines.length - 1) * lineHeight) / 2;
+      for (const line of lines) {
+        ctx.fillText(line, 0, y, maxTextWidth);
+        y += lineHeight;
+      }
+    }
+
     async function renderMediaEditorComposite() {
       const editor = ensureMediaEditor();
       const output = document.createElement('canvas');
@@ -24242,20 +24322,8 @@
         ctx.rotate((object.rotation || 0) * Math.PI / 180);
         ctx.scale(object.scale || 1, object.scale || 1);
         if (object.type === 'text') drawMediaEditorTextObject(ctx, object, output.width, output.height);
-        else if (object.stickerStyle === 'time-label') {
-          const boxWidth = Math.max(110, (object.width || 0.22) * output.width);
-          const boxHeight = Math.max(54, (object.height || 0.1) * output.height);
-          const radius = boxHeight / 2;
-          ctx.fillStyle = 'rgba(0,0,0,.78)';
-          ctx.beginPath();
-          if (typeof ctx.roundRect === 'function') ctx.roundRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight, radius);
-          else ctx.rect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
-          ctx.fill();
-          ctx.fillStyle = '#ffffff';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.font = '800 ' + Math.max(24, boxHeight * 0.46) + 'px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-          ctx.fillText(object.text || mediaEditorCurrentTimeLabel(), 0, 0, boxWidth * 0.86);
+        else if (object.stickerStyle === 'time-label' || object.stickerStyle === 'date-label') {
+          drawMediaEditorLabelStickerObject(ctx, object, output.width, output.height);
         } else if (object.imageSrc || object.previewSrc) {
           const stickerImage = await loadImageForMediaEditor(object.imageSrc || object.previewSrc);
           const drawWidth = Math.max(56, (object.width || 0.18) * output.width);

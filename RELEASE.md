@@ -1,3 +1,10 @@
+## Changes in v0.1.34
+
+- Synchronized browser client to **9.6.72 / rantlist-deploy-r100**.
+- Improved the media-editor Date sticker so localized dates do not crop on mobile.
+- Time/Date label stickers now use the existing text/background colour palette.
+- Fixed caption input contrast on light themes.
+
 ## Changes in v0.1.33
 
 - Synchronized browser client to **9.6.71 / rantlist-deploy-r99**.
