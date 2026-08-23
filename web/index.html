@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.75">
+  <meta name="chat-ui-version" content="9.6.76">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -12042,7 +12042,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.75</small>
+          <small id="serverBrandVersion">v9.6.76</small>
         </span>
       </button>
     </div>
@@ -14295,6 +14295,7 @@
       nativeKeyboardScrollAnchor: null,
       nativeKeyboardPinnedToBottom: false,
       nativeKeyboardScrollRaf: 0,
+      nativeComposerKeyboardIntent: false,
       uiTheme: readStorage('chat.ui.theme') || 'white-contrast',
       uiFont: readStorage('chat.ui.font') || 'system',
       localFontFamilies: [],
@@ -15091,6 +15092,9 @@
       document.addEventListener('focusin', (event) => {
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
+        if (isRantlistIOSApp()) {
+          state.nativeComposerKeyboardIntent = event.target === elements.messageInput;
+        }
         syncMobileTypingFocusState();
         if (isRantlistIOSApp()) {
           keepFocusedControlVisible(event.target);
@@ -15107,6 +15111,10 @@
         if (!isKeyboardInput(event.target)) return;
         clearTimeout(state.viewportFocusTimer);
         if (isRantlistIOSApp()) {
+          if (event.target === elements.messageInput && !state.keyboardOpen && !state.nativeKeyboardTransitionActive) {
+            state.nativeComposerKeyboardIntent = false;
+            syncMobileTypingFocusState();
+          }
           return;
         }
         queueMicrotask(syncMobileTypingFocusState);
@@ -33051,10 +33059,12 @@
       const root = document.documentElement;
       root.dataset.mobileTypingFocus = state.mobileTypingFocus ? 'on' : 'off';
       if (isRantlistIOSApp() && state.nativeKeyboardTransitionActive) return;
+      const composerFocused = document.activeElement === elements.messageInput
+        || (isRantlistIOSApp() && state.nativeComposerKeyboardIntent);
       const active = Boolean(
         state.mobileTypingFocus
         && state.keyboardOpen
-        && document.activeElement === elements.messageInput
+        && composerFocused
       );
       root.dataset.composeTyping = active ? 'true' : 'false';
     }
@@ -35427,6 +35437,9 @@
     function beginNativeIOSKeyboardTransition(open) {
       if (!isRantlistIOSApp()) return;
       const list = elements.messageList;
+      if (open && document.activeElement === elements.messageInput) {
+        state.nativeComposerKeyboardIntent = true;
+      }
       state.nativeKeyboardTransitionActive = true;
       setNativeIOSKeyboardState(open);
       if (!list) return;
@@ -35442,6 +35455,11 @@
       if (!isRantlistIOSApp()) return;
       const list = elements.messageList;
       state.nativeKeyboardTransitionActive = false;
+      if (open && document.activeElement === elements.messageInput) {
+        state.nativeComposerKeyboardIntent = true;
+      } else if (!open) {
+        state.nativeComposerKeyboardIntent = false;
+      }
       setNativeIOSKeyboardState(open);
       cancelAnimationFrame(state.nativeKeyboardScrollRaf);
       if (!list) return;

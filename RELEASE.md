@@ -1,3 +1,9 @@
+## Changes in v0.1.40
+
+- Synchronized browser client to **9.6.76 / rantlist-deploy-r104**.
+- Fixed **More chat space while typing on mobile** in the native iOS client by retaining message-composer keyboard ownership across UIKit keyboard transitions.
+- The top bar/chat header are hidden only after the native keyboard settles and are restored when it closes; other text fields do not trigger the mode.
+
 ## Changes in v0.1.39
 
 - Synchronized browser client to **9.6.75 / rantlist-deploy-r103**.
