@@ -1,3 +1,8 @@
+## v0.1.45 / 9.6.80
+
+- Fixes iOS media Download so it stays in Rantlist and opens the native Files save-destination picker instead of replacing the chat UI with the raw media asset.
+- Browser source remains synchronized to rantlist-deploy-r108.
+
 ## v0.1.33 / 9.6.71
 
 - Fixes iOS image-editor Text mode keyboard dismissal during viewport resizing.

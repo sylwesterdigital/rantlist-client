@@ -188,12 +188,15 @@ private struct RantlistWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate {
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, UIDocumentPickerDelegate {
         private weak var webView: WKWebView?
         private let shellState: NativeShellState
         private let pathMonitor = NWPathMonitor()
         private let pathQueue = DispatchQueue(label: "fun.workwork.rantlist.network")
         private var monitoringStarted = false
+        private var downloads: [WKDownload] = []
+        private var downloadDestinations: [ObjectIdentifier: URL] = [:]
+        private var exportTemporaryDirectories: [ObjectIdentifier: URL] = [:]
 
         init(shellState: NativeShellState) {
             self.shellState = shellState
@@ -332,11 +335,22 @@ private struct RantlistWebView: UIViewRepresentable {
         @objc private func keyboardWillHide(_ notification: Notification) { sendKeyboardPhase("willHide") }
         @objc private func keyboardDidHide(_ notification: Notification) { sendKeyboardPhase("didHide") }
 
+        private func isDownloadURL(_ url: URL) -> Bool {
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return false }
+            return components.queryItems?.contains { item in
+                item.name.lowercased() == "download" && ["1", "true", "yes"].contains((item.value ?? "").lowercased())
+            } ?? false
+        }
+
         func webView(_ webView: WKWebView,
                      decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = navigationAction.request.url else {
                 decisionHandler(.cancel)
+                return
+            }
+            if navigationAction.shouldPerformDownload || isDownloadURL(url) {
+                decisionHandler(.download)
                 return
             }
             let scheme = url.scheme?.lowercased() ?? ""
@@ -357,6 +371,104 @@ private struct RantlistWebView: UIViewRepresentable {
                 UIApplication.shared.open(url)
             }
             decisionHandler(.cancel)
+        }
+
+
+        func webView(_ webView: WKWebView,
+                     decidePolicyFor navigationResponse: WKNavigationResponse,
+                     decisionHandler: @escaping (WKNavigationResponsePolicy) -> Void) {
+            let disposition = (navigationResponse.response as? HTTPURLResponse)?
+                .value(forHTTPHeaderField: "Content-Disposition")?
+                .lowercased() ?? ""
+            if disposition.contains("attachment") || !navigationResponse.canShowMIMEType {
+                decisionHandler(.download)
+            } else {
+                decisionHandler(.allow)
+            }
+        }
+
+        private func downloadDestination(for suggestedFilename: String) throws -> URL {
+            let fileManager = FileManager.default
+            let directory = fileManager.temporaryDirectory
+                .appendingPathComponent("RantlistDownloads", isDirectory: true)
+                .appendingPathComponent(UUID().uuidString, isDirectory: true)
+            try fileManager.createDirectory(at: directory, withIntermediateDirectories: true)
+            let filename = URL(fileURLWithPath: suggestedFilename).lastPathComponent
+            let safeFilename = filename.isEmpty ? "Rantlist-download" : filename
+            return directory.appendingPathComponent(safeFilename, isDirectory: false)
+        }
+
+        private func presentDownloadExporter(for fileURL: URL) {
+            guard let webView,
+                  let presenter = topViewController(from: webView.window?.rootViewController) else { return }
+            let picker = UIDocumentPickerViewController(forExporting: [fileURL], asCopy: true)
+            picker.shouldShowFileExtensions = true
+            picker.delegate = self
+            exportTemporaryDirectories[ObjectIdentifier(picker)] = fileURL.deletingLastPathComponent()
+            presenter.present(picker, animated: true)
+        }
+
+        private func cleanUpExport(for picker: UIDocumentPickerViewController) {
+            guard let directory = exportTemporaryDirectories.removeValue(forKey: ObjectIdentifier(picker)) else { return }
+            try? FileManager.default.removeItem(at: directory)
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            cleanUpExport(for: controller)
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
+            cleanUpExport(for: controller)
+        }
+
+        private func showDownloadFailure(_ error: Error) {
+            guard let webView,
+                  let presenter = topViewController(from: webView.window?.rootViewController) else { return }
+            let alert = UIAlertController(title: "Download failed", message: error.localizedDescription, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "OK", style: .default))
+            presenter.present(alert, animated: true)
+        }
+
+        func webView(_ webView: WKWebView,
+                     navigationAction: WKNavigationAction,
+                     didBecome download: WKDownload) {
+            downloads.append(download)
+            download.delegate = self
+        }
+
+        func webView(_ webView: WKWebView,
+                     navigationResponse: WKNavigationResponse,
+                     didBecome download: WKDownload) {
+            downloads.append(download)
+            download.delegate = self
+        }
+
+        func download(_ download: WKDownload,
+                      decideDestinationUsing response: URLResponse,
+                      suggestedFilename: String,
+                      completionHandler: @escaping (URL?) -> Void) {
+            do {
+                let destination = try downloadDestination(for: suggestedFilename)
+                downloadDestinations[ObjectIdentifier(download)] = destination
+                completionHandler(destination)
+            } catch {
+                completionHandler(nil)
+                DispatchQueue.main.async { [weak self] in self?.showDownloadFailure(error) }
+            }
+        }
+
+        func downloadDidFinish(_ download: WKDownload) {
+            downloads.removeAll { $0 === download }
+            guard let destination = downloadDestinations.removeValue(forKey: ObjectIdentifier(download)) else { return }
+            DispatchQueue.main.async { [weak self] in self?.presentDownloadExporter(for: destination) }
+        }
+
+        func download(_ download: WKDownload, didFailWithError error: Error, resumeData: Data?) {
+            downloads.removeAll { $0 === download }
+            if let destination = downloadDestinations.removeValue(forKey: ObjectIdentifier(download)) {
+                try? FileManager.default.removeItem(at: destination.deletingLastPathComponent())
+            }
+            DispatchQueue.main.async { [weak self] in self?.showDownloadFailure(error) }
         }
 
         func webView(_ webView: WKWebView,

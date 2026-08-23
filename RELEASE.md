@@ -1,3 +1,9 @@
+## Changes in v0.1.45
+
+- Native iOS media downloads no longer navigate the Rantlist WKWebView away from the chat UI.
+- Download actions are handled by `WKDownload` and then open the iOS Files destination picker so the user can save the media to Downloads, iCloud Drive, On My iPhone/iPad, or another Files location.
+- Server `?download=1` responses and attachment responses are forced into the native download path even for image/video MIME types that WebKit could otherwise display inline.
+
 ## Changes in v0.1.44
 
 - Synchronized browser client to **9.6.80 / rantlist-deploy-r108**.

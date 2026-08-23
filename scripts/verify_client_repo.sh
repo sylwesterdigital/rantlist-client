@@ -23,6 +23,10 @@ grep -q 'requestCaptureAuthorization(type)' "$ROOT/mobile/ios/Rantlist/RantlistA
 grep -q '!targetFrame.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client does not preserve embedded HTTPS frames in-app" >&2; exit 1; }
 grep -q 'runOpenPanelWith parameters: WKOpenPanelParameters' "$ROOT/macos/RantlistApp.swift" || { echo "macOS native file chooser bridge missing" >&2; exit 1; }
 grep -q 'navigationAction.navigationType == .linkActivated' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client may launch external pages without a user click" >&2; exit 1; }
+grep -q 'WKDownloadDelegate' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native download delegate missing" >&2; exit 1; }
+grep -q 'navigationAction.shouldPerformDownload' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS download navigation is not intercepted" >&2; exit 1; }
+grep -q 'UIDocumentPickerViewController(forExporting:' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS download destination picker missing" >&2; exit 1; }
+grep -q 'Content-Disposition' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS attachment responses are not routed to native downloads" >&2; exit 1; }
 grep -q 'NSLocalNetworkUsageDescription' "$ROOT/mobile/ios/Rantlist/Info.plist" || { echo "iOS local-network call permission description missing" >&2; exit 1; }
 ! grep -q 'ignoresSafeArea(.keyboard, edges: .bottom)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS wrapper still forces full-height layout behind the keyboard" >&2; exit 1; }
 grep -q 'webView.scrollView.bounces = false' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WKWebView bounce is not disabled" >&2; exit 1; }
