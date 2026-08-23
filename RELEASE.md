@@ -1,3 +1,10 @@
+## Changes in v0.1.36
+
+- Synchronized browser client to **9.6.74 / rantlist-deploy-r102**.
+- Removed the unrequested visible “Rooms” text from `roomRailToggleButton`.
+- The optional room-rail control now matches the standard mobile navigation button sizing, spacing and active-state styling.
+- Kept the composer fallback immediately left of `composerShell`.
+
 ## Changes in v0.1.35
 
 - Synchronized browser client to **9.6.73 / rantlist-deploy-r101**.
