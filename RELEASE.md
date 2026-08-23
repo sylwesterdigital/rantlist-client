@@ -1,3 +1,9 @@
+## Changes in v0.1.41
+
+- Synchronized browser client to **9.6.77 / rantlist-deploy-r105**.
+- System messages are smaller, left-aligned and use zero outer spacing.
+- Timeline media keeps preview/play visible while Share, Download and voice Transcribe move into a compact More menu.
+
 ## Changes in v0.1.40
 
 - Synchronized browser client to **9.6.76 / rantlist-deploy-r104**.
