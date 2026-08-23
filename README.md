@@ -1,3 +1,14 @@
+## v0.1.33 / 9.6.71
+
+- Fixes iOS image-editor Text mode keyboard dismissal during viewport resizing.
+- Source synchronized to rantlist-deploy-r99.
+
+## v0.1.32 / 9.6.70
+
+- Adds a dedicated Rooms panel colour to Appearance themes.
+- Adds an independent 60–140% media preview size control without changing text/control scale.
+- Source synchronized to rantlist-deploy-r98.
+
 ## v0.1.31 / 9.6.69
 
 - Adds optional borderless toolbar buttons and a separate general interface-border visibility toggle.

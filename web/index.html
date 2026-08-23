@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.69">
+  <meta name="chat-ui-version" content="9.6.71">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -44,6 +44,16 @@
       root.dataset.density = localStorage.getItem('chat.ui.density') || 'compact';
       root.dataset.toolbarBorders = localStorage.getItem('chat.ui.toolbarBorders') === 'off' ? 'off' : 'on';
       root.dataset.interfaceBorders = localStorage.getItem('chat.ui.interfaceBorders') === 'off' ? 'off' : 'on';
+      const storedMediaPreviewScale = Math.max(60, Math.min(140, Number(localStorage.getItem('chat.media.previewScale') || 100)));
+      const mediaPreviewScale = storedMediaPreviewScale / 100;
+      root.dataset.mediaPreviewScale = String(storedMediaPreviewScale);
+      root.style.setProperty('--media-preview-gallery-width', `${Math.round(720 * mediaPreviewScale)}px`);
+      root.style.setProperty('--media-preview-gallery-vw', `${Math.min(98, 92 * mediaPreviewScale).toFixed(1)}vw`);
+      root.style.setProperty('--media-preview-image-max-height', `${Math.round(540 * mediaPreviewScale)}px`);
+      root.style.setProperty('--media-preview-image-max-vh', `${Math.min(82, 58 * mediaPreviewScale).toFixed(1)}vh`);
+      root.style.setProperty('--media-preview-video-width', `${Math.round(720 * mediaPreviewScale)}px`);
+      root.style.setProperty('--media-preview-video-max-height', `${Math.round(520 * mediaPreviewScale)}px`);
+      root.style.setProperty('--media-preview-video-max-vh', `${Math.min(82, 62 * mediaPreviewScale).toFixed(1)}vh`);
       const storedBubbleMood = localStorage.getItem('chat.ui.bubbleMood');
       root.dataset.bubbleMood = ['solid', 'soft', 'aurora', 'organic'].includes(storedBubbleMood) ? storedBubbleMood : 'soft';
       const storedBubbleOutlineOpacity = Math.max(0, Math.min(100, Number(localStorage.getItem('chat.ui.bubbleOutlineOpacity') || 0)));
@@ -87,6 +97,7 @@
       color-scheme: light;
       --bg: #fafafa;
       --panel: #fffefa;
+      --rooms-panel-bg: #f5f4f0;
       --panel-2: #ffffff;
       --panel-3: #fffaeb;
       --line: #002e7a;
@@ -115,6 +126,13 @@
       --message-padding: 5px;
       --media-control-size: 24px;
       --media-control-opacity: .68;
+      --media-preview-gallery-width: 720px;
+      --media-preview-gallery-vw: 92vw;
+      --media-preview-image-max-height: 540px;
+      --media-preview-image-max-vh: 58vh;
+      --media-preview-video-width: 720px;
+      --media-preview-video-max-height: 520px;
+      --media-preview-video-max-vh: 62vh;
       --ui-font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       --app-height: 100dvh;
       --app-width: 100vw;
@@ -4753,9 +4771,9 @@
     }
     .media-preview-video {
       display: block;
-      width: min(100%, 720px);
+      width: min(100%, var(--media-preview-video-width, 720px));
       max-width: 100%;
-      max-height: min(62vh, 520px);
+      max-height: min(var(--media-preview-video-max-vh, 62vh), var(--media-preview-video-max-height, 520px));
       background: transparent;
       object-fit: contain;
       border-radius: var(--radius-sm);
@@ -4804,11 +4822,11 @@
     }
     .media-preview { display: grid; gap: 6px; width: 100%; }
     .media-preview[hidden] { display: none; }
-    .media-preview img { display: block; width: auto; max-width: 100%; max-height: min(58vh, 540px); height: auto; object-fit: contain; border-radius: var(--radius-sm); cursor: zoom-in; }
+    .media-preview img { display: block; width: auto; max-width: 100%; max-height: min(var(--media-preview-image-max-vh, 58vh), var(--media-preview-image-max-height, 540px)); height: auto; object-fit: contain; border-radius: var(--radius-sm); cursor: zoom-in; }
     .media-preview audio { width: min(340px, 100%); }
     .media-gallery-placeholder {
       position: relative;
-      width: min(720px, 92vw);
+      width: min(var(--media-preview-gallery-width, 720px), var(--media-preview-gallery-vw, 92vw));
       max-width: 100%;
       overflow: hidden;
       border-radius: var(--radius-sm);
@@ -6208,7 +6226,7 @@
       overflow: hidden;
       border-radius: var(--radius-md);
       resize: none !important;
-      background: color-mix(in srgb, var(--panel) 96%, black);
+      background: var(--rooms-panel-bg, color-mix(in srgb, var(--panel) 96%, black));
     }
 
     .room-rail-top {
@@ -11596,6 +11614,7 @@
     }
     .quick-ui-scale-card {
       --quick-scale-progress: 0%;
+      --quick-media-progress: 50%;
       position: relative;
       z-index: 1;
       width: min(560px, calc(100vw - 36px));
@@ -11647,7 +11666,8 @@
     }
     .quick-ui-scale-a.small { font-size: 18px; }
     .quick-ui-scale-a.large { font-size: 31px; }
-    #quickUiScaleInput {
+    #quickUiScaleInput,
+    #quickMediaScaleInput {
       width: 100%;
       height: 38px;
       margin: 0;
@@ -11660,14 +11680,21 @@
       cursor: pointer;
       touch-action: pan-x;
     }
-    #quickUiScaleInput::-webkit-slider-runnable-track {
+    #quickUiScaleInput::-webkit-slider-runnable-track,
+    #quickMediaScaleInput::-webkit-slider-runnable-track {
       height: 12px;
       border-radius: 999px;
       border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
-      background: linear-gradient(90deg, var(--accent) 0 var(--quick-scale-progress), color-mix(in srgb, var(--panel-2) 72%, var(--line)) var(--quick-scale-progress) 100%);
       box-shadow: inset 0 1px 2px rgba(0,0,0,.15);
     }
-    #quickUiScaleInput::-webkit-slider-thumb {
+    #quickUiScaleInput::-webkit-slider-runnable-track {
+      background: linear-gradient(90deg, var(--accent) 0 var(--quick-scale-progress), color-mix(in srgb, var(--panel-2) 72%, var(--line)) var(--quick-scale-progress) 100%);
+    }
+    #quickMediaScaleInput::-webkit-slider-runnable-track {
+      background: linear-gradient(90deg, var(--accent) 0 var(--quick-media-progress), color-mix(in srgb, var(--panel-2) 72%, var(--line)) var(--quick-media-progress) 100%);
+    }
+    #quickUiScaleInput::-webkit-slider-thumb,
+    #quickMediaScaleInput::-webkit-slider-thumb {
       appearance: none;
       -webkit-appearance: none;
       width: 30px;
@@ -11678,14 +11705,17 @@
       background: var(--accent);
       box-shadow: 0 3px 12px rgba(0,0,0,.28), 0 0 0 1px color-mix(in srgb, var(--accent) 70%, #000);
     }
-    #quickUiScaleInput::-moz-range-track {
+    #quickUiScaleInput::-moz-range-track,
+    #quickMediaScaleInput::-moz-range-track {
       height: 12px;
       border: 1px solid color-mix(in srgb, var(--accent) 22%, var(--line));
       border-radius: 999px;
       background: color-mix(in srgb, var(--panel-2) 72%, var(--line));
     }
-    #quickUiScaleInput::-moz-range-progress { height: 12px; border-radius: 999px; background: var(--accent); }
-    #quickUiScaleInput::-moz-range-thumb {
+    #quickUiScaleInput::-moz-range-progress,
+    #quickMediaScaleInput::-moz-range-progress { height: 12px; border-radius: 999px; background: var(--accent); }
+    #quickUiScaleInput::-moz-range-thumb,
+    #quickMediaScaleInput::-moz-range-thumb {
       width: 24px;
       height: 24px;
       border: 4px solid var(--panel);
@@ -11693,7 +11723,31 @@
       background: var(--accent);
       box-shadow: 0 3px 12px rgba(0,0,0,.28);
     }
-    #quickUiScaleInput:focus-visible::-webkit-slider-thumb { outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 3px; }
+    #quickUiScaleInput:focus-visible::-webkit-slider-thumb,
+    #quickMediaScaleInput:focus-visible::-webkit-slider-thumb { outline: 3px solid color-mix(in srgb, var(--accent) 40%, transparent); outline-offset: 3px; }
+    .quick-ui-scale-media-section {
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid color-mix(in srgb, var(--line) 58%, transparent);
+    }
+    .quick-ui-scale-subhead {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .quick-ui-scale-media-glyph {
+      display: grid;
+      place-items: center;
+      color: color-mix(in srgb, var(--text) 82%, var(--muted));
+      line-height: 1;
+      user-select: none;
+    }
+    .quick-ui-scale-media-glyph.small { font-size: 17px; }
+    .quick-ui-scale-media-glyph.large { font-size: 28px; }
     .quick-ui-scale-scale {
       display: flex;
       justify-content: space-between;
@@ -11895,7 +11949,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.69</small>
+          <small id="serverBrandVersion">v9.6.71</small>
         </span>
       </button>
     </div>
@@ -11924,6 +11978,18 @@
         <span class="quick-ui-scale-a large" aria-hidden="true">A</span>
       </div>
       <div class="quick-ui-scale-scale" aria-hidden="true"><span>75%</span><span>200%</span></div>
+      <div class="quick-ui-scale-media-section">
+        <div class="quick-ui-scale-subhead">
+          <span>Media preview size</span>
+          <output id="quickMediaScaleValue" class="quick-ui-scale-value" for="quickMediaScaleInput">100%</output>
+        </div>
+        <div class="quick-ui-scale-slider-row">
+          <span class="quick-ui-scale-media-glyph small" aria-hidden="true">▧</span>
+          <input id="quickMediaScaleInput" type="range" min="60" max="140" step="5" value="100" aria-label="Media preview size">
+          <span class="quick-ui-scale-media-glyph large" aria-hidden="true">▧</span>
+        </div>
+        <div class="quick-ui-scale-scale" aria-hidden="true"><span>60%</span><span>140%</span></div>
+      </div>
     </div>
   </section>
 
@@ -11938,7 +12004,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.69</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.71</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12081,6 +12147,11 @@
             <label for="messagePaddingInput">Message padding</label>
             <span class="config-inline-range"><input id="messagePaddingInput" type="range" min="0" max="16" step="1" value="5" aria-label="Message padding"><output id="messagePaddingValue">5 px</output></span>
           </div>
+          <div class="config-row">
+            <label for="mediaPreviewScaleInput">Media preview size</label>
+            <span class="config-inline-range"><input id="mediaPreviewScaleInput" type="range" min="60" max="140" step="5" value="100" aria-label="Media preview size"><output id="mediaPreviewScaleValue">100%</output></span>
+          </div>
+          <p class="hint">Resize inline image, video and media-gallery previews independently from text and control sizing.</p>
           <div class="config-row">
             <label for="mediaControlSizeInput">Media overlay size</label>
             <span class="config-inline-range"><input id="mediaControlSizeInput" type="range" min="20" max="34" step="1" value="24" aria-label="Media overlay control size"><output id="mediaControlSizeValue">24 px</output></span>
@@ -12756,8 +12827,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.69</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.69</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.71</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.71</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -13906,10 +13977,10 @@
 
     const elements = Object.fromEntries(
       [
-        'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
+        'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14140,6 +14211,7 @@
       messagePadding: Math.max(0, Math.min(16, Number(readStorage('chat.messages.padding') || 5))),
       mediaControlSize: Math.max(20, Math.min(34, Number(readStorage('chat.media.controlSize') || 24))),
       mediaControlOpacity: Math.max(35, Math.min(100, Number(readStorage('chat.media.controlOpacity') || 68))),
+      mediaPreviewScale: Math.max(60, Math.min(140, Number(readStorage('chat.media.previewScale') || 100))),
       mediaDisplayMode: readStorage('chat.media.display') === 'immediate' ? 'immediate' : 'reveal',
       mediaStoryMode: readStorage('chat.media.viewerMode') === 'classic' ? 'classic' : 'stories',
       mediaViewer: null,
@@ -14318,18 +14390,18 @@
       graphite: 'linear-gradient(145deg, #111315, #272c32)',
     });
 
-    const UI_THEME_KEYS = Object.freeze(['bg', 'panel', 'panel2', 'panel3', 'typingBg', 'typingBubble', 'line', 'text', 'muted', 'accent', 'accent2', 'danger', 'success']);
+    const UI_THEME_KEYS = Object.freeze(['bg', 'panel', 'roomsPanel', 'panel2', 'panel3', 'typingBg', 'typingBubble', 'line', 'text', 'muted', 'accent', 'accent2', 'danger', 'success']);
     const UI_THEME_LABELS = Object.freeze({
-      bg: 'Background', panel: 'Panel', panel2: 'Raised panel', panel3: 'Input/message',
+      bg: 'Background', panel: 'Panel', roomsPanel: 'Rooms panel', panel2: 'Raised panel', panel3: 'Input/message',
       typingBg: 'Typing bar', typingBubble: 'Typing bubble', line: 'Border colour',
       text: 'Text', muted: 'Muted text', accent: 'Accent', accent2: 'Accent 2', danger: 'Danger', success: 'Success'
     });
     const UI_THEMES = Object.freeze({
-      midnight: Object.freeze({ scheme: 'dark', bg: '#0a0f1e', panel: '#11192a', panel2: '#17223a', panel3: '#080e1c', typingBg: '#11192a', typingBubble: '#17223a', line: '#2a3854', text: '#eef3ff', muted: '#97a6c4', accent: '#6ea8fe', accent2: '#8b5cf6', danger: '#ff6b7a', success: '#49d17d' }),
-      graphite: Object.freeze({ scheme: 'dark', bg: '#111315', panel: '#191c1f', panel2: '#22262a', panel3: '#0e1012', typingBg: '#191c1f', typingBubble: '#22262a', line: '#3a4046', text: '#f3f4f5', muted: '#a3a9b0', accent: '#8ab4f8', accent2: '#b493ff', danger: '#ff737f', success: '#58cf86' }),
-      paper: Object.freeze({ scheme: 'light', bg: '#eef1f5', panel: '#ffffff', panel2: '#f6f8fb', panel3: '#e9edf3', typingBg: '#ffffff', typingBubble: '#f6f8fb', line: '#c7cfdb', text: '#172033', muted: '#647087', accent: '#245fda', accent2: '#7246c7', danger: '#c93648', success: '#16824b' }),
-      'white-contrast': Object.freeze({ scheme: 'light', bg: '#fafafa', panel: '#fffefa', panel2: '#ffffff', panel3: '#fffaeb', typingBg: '#fffefa', typingBubble: '#ffffff', line: '#002e7a', text: '#21452c', muted: '#a2a8b4', accent: '#245fda', accent2: '#8142ff', danger: '#f83a50', success: '#0aff81' }),
-      oled: Object.freeze({ scheme: 'dark', bg: '#000000', panel: '#07090d', panel2: '#10141b', panel3: '#000000', typingBg: '#07090d', typingBubble: '#10141b', line: '#293142', text: '#f4f7ff', muted: '#929db4', accent: '#45a3ff', accent2: '#a56cff', danger: '#ff5969', success: '#39d477' }),
+      midnight: Object.freeze({ scheme: 'dark', bg: '#0a0f1e', panel: '#11192a', roomsPanel: '#101828', panel2: '#17223a', panel3: '#080e1c', typingBg: '#11192a', typingBubble: '#17223a', line: '#2a3854', text: '#eef3ff', muted: '#97a6c4', accent: '#6ea8fe', accent2: '#8b5cf6', danger: '#ff6b7a', success: '#49d17d' }),
+      graphite: Object.freeze({ scheme: 'dark', bg: '#111315', panel: '#191c1f', roomsPanel: '#181b1e', panel2: '#22262a', panel3: '#0e1012', typingBg: '#191c1f', typingBubble: '#22262a', line: '#3a4046', text: '#f3f4f5', muted: '#a3a9b0', accent: '#8ab4f8', accent2: '#b493ff', danger: '#ff737f', success: '#58cf86' }),
+      paper: Object.freeze({ scheme: 'light', bg: '#eef1f5', panel: '#ffffff', roomsPanel: '#f5f5f5', panel2: '#f6f8fb', panel3: '#e9edf3', typingBg: '#ffffff', typingBubble: '#f6f8fb', line: '#c7cfdb', text: '#172033', muted: '#647087', accent: '#245fda', accent2: '#7246c7', danger: '#c93648', success: '#16824b' }),
+      'white-contrast': Object.freeze({ scheme: 'light', bg: '#fafafa', panel: '#fffefa', roomsPanel: '#f5f4f0', panel2: '#ffffff', panel3: '#fffaeb', typingBg: '#fffefa', typingBubble: '#ffffff', line: '#002e7a', text: '#21452c', muted: '#a2a8b4', accent: '#245fda', accent2: '#8142ff', danger: '#f83a50', success: '#0aff81' }),
+      oled: Object.freeze({ scheme: 'dark', bg: '#000000', panel: '#07090d', roomsPanel: '#07090c', panel2: '#10141b', panel3: '#000000', typingBg: '#07090d', typingBubble: '#10141b', line: '#293142', text: '#f4f7ff', muted: '#929db4', accent: '#45a3ff', accent2: '#a56cff', danger: '#ff5969', success: '#39d477' }),
     });
 
     const LUCKY_THEME_FAMILIES = Object.freeze([
@@ -14361,6 +14433,9 @@
     const PROFILE_UI_SCALE_MIN = 75;
     const PROFILE_UI_SCALE_MAX = 200;
     const PROFILE_UI_SCALE_DEFAULT = 100;
+    const MEDIA_PREVIEW_SCALE_MIN = 60;
+    const MEDIA_PREVIEW_SCALE_MAX = 140;
+    const MEDIA_PREVIEW_SCALE_DEFAULT = 100;
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -14541,6 +14616,14 @@
         applyProfileUiScale(elements.quickUiScaleInput.value, { persist: false });
       });
       elements.quickUiScaleInput.addEventListener('change', commitQuickUiScale);
+      elements.quickMediaScaleInput.addEventListener('input', () => {
+        state.mediaPreviewScale = normalizeMediaPreviewScale(elements.quickMediaScaleInput.value);
+        applyMediaPreviewScalePreference({ persist: false });
+      });
+      elements.quickMediaScaleInput.addEventListener('change', () => {
+        state.mediaPreviewScale = normalizeMediaPreviewScale(elements.quickMediaScaleInput.value);
+        applyMediaPreviewScalePreference({ persist: true });
+      });
       elements.quickUiScaleOverlay.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
           event.preventDefault();
@@ -14693,6 +14776,10 @@
         state.messagePadding = Math.max(0, Math.min(16, Number(elements.messagePaddingInput.value) || 0));
         writeStorage('chat.messages.padding', String(state.messagePadding));
         applyMessagePaddingPreference();
+      });
+      elements.mediaPreviewScaleInput.addEventListener('input', () => {
+        state.mediaPreviewScale = normalizeMediaPreviewScale(elements.mediaPreviewScaleInput.value);
+        applyMediaPreviewScalePreference({ persist: true });
       });
       elements.mediaControlSizeInput.addEventListener('input', () => {
         state.mediaControlSize = Math.max(20, Math.min(34, Number(elements.mediaControlSizeInput.value) || 24));
@@ -21112,8 +21199,11 @@
       const ratio = sourceWidth / sourceHeight;
       if (!Number.isFinite(ratio) || ratio <= 0) return false;
       const listWidth = Math.max(240, Number(elements.messageList?.clientWidth) || window.innerWidth || 720);
-      const maxWidth = Math.max(180, Math.min(720, listWidth * 0.9, window.innerWidth * 0.9));
-      const maxHeight = Math.max(220, Math.min(520, window.innerHeight * 0.62));
+      const mediaScale = currentMediaPreviewScale() / 100;
+      const widthFraction = Math.min(0.98, 0.9 * mediaScale);
+      const heightFraction = Math.min(0.82, 0.62 * mediaScale);
+      const maxWidth = Math.max(120, Math.min(720 * mediaScale, listWidth * widthFraction, window.innerWidth * widthFraction));
+      const maxHeight = Math.max(140, Math.min(520 * mediaScale, window.innerHeight * heightFraction));
       let displayWidth = Math.min(maxWidth, maxHeight * ratio);
       let displayHeight = displayWidth / ratio;
       if (displayHeight > maxHeight) {
@@ -21147,8 +21237,11 @@
       const ratio = sourceWidth / sourceHeight;
       if (!Number.isFinite(ratio) || ratio <= 0) return false;
       const listWidth = Math.max(220, Number(elements.messageList?.clientWidth) || window.innerWidth || 720);
-      const maxWidth = Math.max(160, Math.min(720, listWidth * 0.9, window.innerWidth * 0.9));
-      const maxHeight = Math.max(200, Math.min(540, window.innerHeight * 0.58));
+      const mediaScale = currentMediaPreviewScale() / 100;
+      const widthFraction = Math.min(0.98, 0.9 * mediaScale);
+      const heightFraction = Math.min(0.82, 0.58 * mediaScale);
+      const maxWidth = Math.max(120, Math.min(720 * mediaScale, listWidth * widthFraction, window.innerWidth * widthFraction));
+      const maxHeight = Math.max(140, Math.min(540 * mediaScale, window.innerHeight * heightFraction));
       let displayWidth = Math.min(maxWidth, maxHeight * ratio);
       let displayHeight = displayWidth / ratio;
       if (displayHeight > maxHeight) {
@@ -23385,6 +23478,18 @@
       const editor = state.mediaEditor;
       if (!editor?.root?.isConnected) return;
       syncMediaEditorViewportLayout();
+
+      // Do not rebuild the overlay DOM while the in-place text field owns
+      // focus. iOS resizes the WebView as its keyboard appears/disappears;
+      // recreating the focused input during that resize immediately dismisses
+      // the keyboard. Existing objects only need their geometry refreshed.
+      if (editor.activeTextEditor) {
+        for (const object of editor.objects) {
+          const element = editor.objectElements.get(object.id);
+          if (element) syncMediaEditorObjectElement(element, object, editor.selectedObjectId === object.id);
+        }
+        return;
+      }
       renderMediaEditorObjects();
     }
 
@@ -23639,7 +23744,11 @@
         }
       }
       const input = element.querySelector('.media-editor-object-input');
-      if (input && object.type === 'text') syncMediaEditorTextInput(input, object);
+      const preserveFocusedEditorInput = input
+        && object.type === 'text'
+        && editor.activeTextEditor?.objectId === object.id
+        && document.activeElement === input;
+      if (input && object.type === 'text' && !preserveFocusedEditorInput) syncMediaEditorTextInput(input, object);
       if (stickerImage) {
         stickerImage.style.width = Math.max(56, (object.width || 0.18) * overlayWidth) + 'px';
         stickerImage.style.height = Math.max(56, (object.height || 0.18) * overlayHeight) + 'px';
@@ -31101,6 +31210,49 @@
       }
     }
 
+    function normalizeMediaPreviewScale(value, fallback = MEDIA_PREVIEW_SCALE_DEFAULT) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return Math.max(MEDIA_PREVIEW_SCALE_MIN, Math.min(MEDIA_PREVIEW_SCALE_MAX, Number(fallback) || MEDIA_PREVIEW_SCALE_DEFAULT));
+      return Math.round(Math.max(MEDIA_PREVIEW_SCALE_MIN, Math.min(MEDIA_PREVIEW_SCALE_MAX, number)) / 5) * 5;
+    }
+
+    function currentMediaPreviewScale() {
+      return normalizeMediaPreviewScale(state.mediaPreviewScale ?? document.documentElement.dataset.mediaPreviewScale ?? readStorage('chat.media.previewScale') ?? MEDIA_PREVIEW_SCALE_DEFAULT);
+    }
+
+    function applyMediaPreviewScalePreference(options = {}) {
+      const percent = normalizeMediaPreviewScale(state.mediaPreviewScale);
+      const scale = percent / 100;
+      state.mediaPreviewScale = percent;
+      const root = document.documentElement;
+      root.dataset.mediaPreviewScale = String(percent);
+      root.style.setProperty('--media-preview-gallery-width', `${Math.round(720 * scale)}px`);
+      root.style.setProperty('--media-preview-gallery-vw', `${Math.min(98, 92 * scale).toFixed(1)}vw`);
+      root.style.setProperty('--media-preview-image-max-height', `${Math.round(540 * scale)}px`);
+      root.style.setProperty('--media-preview-image-max-vh', `${Math.min(82, 58 * scale).toFixed(1)}vh`);
+      root.style.setProperty('--media-preview-video-width', `${Math.round(720 * scale)}px`);
+      root.style.setProperty('--media-preview-video-max-height', `${Math.round(520 * scale)}px`);
+      root.style.setProperty('--media-preview-video-max-vh', `${Math.min(82, 62 * scale).toFixed(1)}vh`);
+      const progress = ((percent - MEDIA_PREVIEW_SCALE_MIN) / (MEDIA_PREVIEW_SCALE_MAX - MEDIA_PREVIEW_SCALE_MIN)) * 100;
+      if (elements.quickUiScaleCard) elements.quickUiScaleCard.style.setProperty('--quick-media-progress', `${progress.toFixed(2)}%`);
+      if (elements.quickMediaScaleInput) {
+        elements.quickMediaScaleInput.value = String(percent);
+        elements.quickMediaScaleInput.setAttribute('aria-valuetext', `${percent}% media preview size`);
+      }
+      if (elements.quickMediaScaleValue) elements.quickMediaScaleValue.textContent = `${percent}%`;
+      if (elements.mediaPreviewScaleInput) {
+        elements.mediaPreviewScaleInput.value = String(percent);
+        elements.mediaPreviewScaleInput.setAttribute('aria-valuetext', `${percent}% media preview size`);
+      }
+      if (elements.mediaPreviewScaleValue) elements.mediaPreviewScaleValue.textContent = `${percent}%`;
+      if (options.persist === true) writeStorage('chat.media.previewScale', String(percent));
+      requestAnimationFrame(() => {
+        refitTimelineMedia();
+        updateMessageToBottomButton();
+      });
+      return percent;
+    }
+
     function normalizeProfileUiScale(value, fallback = PROFILE_UI_SCALE_DEFAULT) {
       const number = Number(value);
       if (!Number.isFinite(number)) return Math.max(PROFILE_UI_SCALE_MIN, Math.min(PROFILE_UI_SCALE_MAX, Number(fallback) || PROFILE_UI_SCALE_DEFAULT));
@@ -32684,6 +32836,7 @@
 
     function applyMobileTypingFocusPreference(options = {}) {
       if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
+      applyMediaPreviewScalePreference({ persist: false });
       document.documentElement.dataset.mobileTypingFocus = state.mobileTypingFocus ? 'on' : 'off';
       if (options.persist !== false) writeStorage('chat.mobile.maximizeTyping', state.mobileTypingFocus ? 'on' : 'off');
       syncMobileTypingFocusState();
@@ -32699,6 +32852,7 @@
       if (elements.densitySelect) elements.densitySelect.value = state.uiDensity;
       applyMessagePaddingPreference();
       applyMediaControlPreferences();
+      applyMediaPreviewScalePreference({ persist: false });
     }
 
     function isSavedThemeSelection(value = state.uiTheme) {
@@ -32727,7 +32881,10 @@
       for (const key of UI_THEME_KEYS) {
         const token = tokens?.[key];
         const colour = token && typeof token === 'object' ? token.color : value?.[key];
-        result[key] = /^#[0-9A-Fa-f]{6}$/.test(colour || '') ? colour.toLowerCase() : fallback[key];
+        const fallbackColour = key === 'roomsPanel'
+          ? (/^#[0-9A-Fa-f]{6}$/.test(value?.panel || '') ? value.panel : (tokens?.panel && /^#[0-9A-Fa-f]{6}$/.test(tokens.panel.color || '') ? tokens.panel.color : fallback.roomsPanel))
+          : fallback[key];
+        result[key] = /^#[0-9A-Fa-f]{6}$/.test(colour || '') ? colour.toLowerCase() : String(fallbackColour || fallback.panel).toLowerCase();
         result.opacity[key] = normalizeThemeOpacity(
           token && typeof token === 'object' ? token.opacity : (opacity?.[key] ?? value?.[`${key}Opacity`]),
           1
@@ -32781,7 +32938,8 @@
       root.dataset.theme = state.uiTheme;
       root.style.colorScheme = theme.scheme;
       for (const key of UI_THEME_KEYS) {
-        const cssName = key === 'panel2' ? '--panel-2'
+        const cssName = key === 'roomsPanel' ? '--rooms-panel-bg'
+          : key === 'panel2' ? '--panel-2'
           : key === 'panel3' ? '--panel-3'
           : key === 'typingBg' ? '--typing-bg'
           : key === 'typingBubble' ? '--typing-bubble'
@@ -32912,7 +33070,7 @@
     }
 
     function luckyThemeContrastReport(theme) {
-      const surfaces = [theme.bg, theme.panel, theme.panel2, theme.panel3, theme.typingBg, theme.typingBubble];
+      const surfaces = [theme.bg, theme.panel, theme.roomsPanel, theme.panel2, theme.panel3, theme.typingBg, theme.typingBubble];
       return {
         text: minimumContrastAgainst(theme.text, surfaces),
         muted: minimumContrastAgainst(theme.muted, surfaces),
@@ -32926,10 +33084,11 @@
       const hue = family.hue + luckyRandomBetween(-10, 10);
       const saturation = luckyRandomBetween(15, 29);
       const surface = (lightness, saturationOffset = 0, hueOffset = 0) => hslToHex(hue + hueOffset, saturation + saturationOffset, lightness);
-      let bg, panel, panel2, panel3, typingBg, typingBubble;
+      let bg, panel, roomsPanel, panel2, panel3, typingBg, typingBubble;
       if (scheme === 'dark') {
         bg = surface(luckyRandomBetween(6, 9), 1);
         panel = surface(luckyRandomBetween(10.5, 13.5), 2);
+        roomsPanel = surface(luckyRandomBetween(9.5, 12.5), 2);
         panel2 = surface(luckyRandomBetween(15, 18), 4);
         panel3 = surface(luckyRandomBetween(7.5, 11), 0);
         typingBg = surface(luckyRandomBetween(9.5, 13), 2);
@@ -32937,12 +33096,13 @@
       } else {
         bg = surface(luckyRandomBetween(95, 97.5), -2);
         panel = surface(luckyRandomBetween(98.5, 100), -7);
+        roomsPanel = surface(luckyRandomBetween(94.5, 97.5), -4);
         panel2 = surface(luckyRandomBetween(95, 98), -3);
         panel3 = surface(luckyRandomBetween(91.5, 95), 0);
         typingBg = surface(luckyRandomBetween(97, 99.5), -5);
         typingBubble = surface(luckyRandomBetween(94, 97.5), -2);
       }
-      const surfaces = [bg, panel, panel2, panel3, typingBg, typingBubble];
+      const surfaces = [bg, panel, roomsPanel, panel2, panel3, typingBg, typingBubble];
       const ink = bestReadableThemeInk(surfaces);
       const text = ink.color;
       const muted = readableSecondaryInk(text, panel, surfaces, 4.5);
@@ -32951,7 +33111,7 @@
       const accent2 = hslToHex(family.accent2 + luckyRandomBetween(-8, 8), luckyRandomBetween(66, 84), scheme === 'dark' ? luckyRandomBetween(62, 70) : luckyRandomBetween(38, 47));
       const danger = hslToHex(luckyRandomBetween(-8, 8), luckyRandomBetween(72, 88), scheme === 'dark' ? 66 : 42);
       const success = hslToHex(luckyRandomBetween(142, 158), luckyRandomBetween(58, 76), scheme === 'dark' ? 60 : 34);
-      const theme = normalizeTheme({ scheme, bg, panel, panel2, panel3, typingBg, typingBubble, line, text, muted, accent, accent2, danger, success });
+      const theme = normalizeTheme({ scheme, bg, panel, roomsPanel, panel2, panel3, typingBg, typingBubble, line, text, muted, accent, accent2, danger, success });
       const report = luckyThemeContrastReport(theme);
       return { family, theme, report, scheme };
     }
@@ -33259,7 +33419,9 @@
       if (!elements.configDrawer.hidden) closeConfig();
       if (!elements.profilePanel.hidden) closeProfileOverlay(false);
       const percent = applyProfileUiScale(currentProfileUiScale(), { persist: false });
+      const mediaPercent = applyMediaPreviewScalePreference({ persist: false });
       elements.quickUiScaleInput.value = String(percent);
+      elements.quickMediaScaleInput.value = String(mediaPercent);
       elements.quickUiScaleOverlay.hidden = false;
       elements.quickUiScaleButton.setAttribute('aria-expanded', 'true');
       requestAnimationFrame(() => elements.quickUiScaleInput.focus({ preventScroll: true }));

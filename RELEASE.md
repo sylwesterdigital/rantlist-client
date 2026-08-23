@@ -1,3 +1,15 @@
+## Changes in v0.1.33
+
+- Synchronized browser client to **9.6.71 / rantlist-deploy-r99**.
+- Image-editor Text mode on iOS now keeps its focused field mounted while the keyboard resizes the native WebView, so the keyboard remains open for typing.
+
+## Changes in v0.1.32
+
+- Synchronized browser client to **9.6.70 / rantlist-deploy-r98**.
+- Added an independent **Rooms panel** Appearance colour token.
+- Added a separate **Media preview size** slider in the Interface size popover and Config → Controls.
+- Inline images, videos and media galleries can now be scaled from 60–140% independently of interface text and controls.
+
 ## Changes in v0.1.31
 
 - Synchronized browser client to **9.6.69 / rantlist-deploy-r97**.
