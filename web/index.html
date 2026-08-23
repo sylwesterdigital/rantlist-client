@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.78">
+  <meta name="chat-ui-version" content="9.6.80">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -825,6 +825,11 @@
     }
     .receipt.read { color: var(--message-ink); }
     .typing-indicator {
+      position: absolute;
+      z-index: 17;
+      left: 0;
+      right: 0;
+      bottom: 0;
       min-height: 0;
       display: none;
       align-items: center;
@@ -834,8 +839,13 @@
       background: var(--typing-bg, color-mix(in srgb, var(--panel) 88%, transparent));
       color: var(--muted);
       font-size: 12px;
+      pointer-events: none;
+      box-sizing: border-box;
     }
     .typing-indicator.visible { display: flex; }
+    .message-viewport.has-context-overlay .typing-indicator { bottom: 46px; }
+    .message-viewport.has-typing-indicator .message-to-bottom-button { bottom: 48px; }
+    .message-viewport.has-context-overlay.has-typing-indicator .message-to-bottom-button { bottom: 92px; }
     .typing-bubble {
       display: inline-flex;
       align-items: center;
@@ -11236,7 +11246,7 @@
     }
     .desktop-camera-source-menu[hidden] { display: none !important; }
     .desktop-camera-source-menu button {
-      min-height: 40px;
+      min-height: 44px;
       display: flex;
       align-items: center;
       gap: 9px;
@@ -11246,6 +11256,24 @@
       background: var(--panel-2);
       color: var(--text);
       text-align: left;
+    }
+    .desktop-camera-source-menu button > .icon { flex: 0 0 auto; }
+    .desktop-camera-source-copy {
+      min-width: 0;
+      display: grid;
+      gap: 1px;
+      line-height: 1.05;
+    }
+    .desktop-camera-source-copy strong {
+      display: block !important;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .desktop-camera-source-copy small {
+      display: block !important;
+      font-size: 10px;
+      color: var(--muted);
     }
     .desktop-camera-recorder {
       position: fixed;
@@ -12002,7 +12030,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.78</small>
+          <small id="serverBrandVersion">v9.6.80</small>
         </span>
       </button>
     </div>
@@ -13061,10 +13089,10 @@
             </span>
             <button id="expiryButton" class="expiry-indicator" type="button" aria-label="Change disappearing-message timer" hidden><span class="icon icon-clock"></span><span id="expiryLabel"></span></button>
           </div>
-        </div>
-        <div id="typingIndicator" class="typing-indicator" aria-live="polite">
-          <span id="typingText"></span>
-          <span class="typing-bubble" aria-hidden="true"><span class="typing-dots"><i></i><i></i><i></i></span></span>
+          <div id="typingIndicator" class="typing-indicator" aria-live="polite">
+            <span id="typingText"></span>
+            <span class="typing-bubble" aria-hidden="true"><span class="typing-dots"><i></i><i></i><i></i></span></span>
+          </div>
         </div>
         <div id="readOnlyChannelNotice" class="system-room-readonly" hidden>This channel is read only. Updates can be posted by @server.</div>
         <form id="messageForm" class="composer">
@@ -21505,12 +21533,27 @@
       return note;
     }
 
-    function isChannelMediaStoryFile(file) {
+    function channelMediaStoryFileType(file) {
       const mime = String(file?.mime || '').toLowerCase();
-      return Boolean(file?.url && (
-        state.capabilities.safeImageMimes.includes(mime) ||
-        state.capabilities.safeVideoMimes.includes(mime)
-      ));
+      if (state.capabilities.safeVideoMimes.includes(mime)) return 'video';
+      if (state.capabilities.safeImageMimes.includes(mime)) return 'image';
+      if (String(file?.streamUrl || '').trim()) return 'video';
+      const name = String(file?.name || file?.url || '').toLowerCase().split(/[?#]/, 1)[0];
+      if (/\.(mp4|m4v|mov|webm)$/.test(name)) return 'video';
+      if (/\.(png|jpe?g|gif|webp|avif)$/.test(name)) return 'image';
+      return '';
+    }
+
+    function isChannelMediaStoryFile(file) {
+      return Boolean(file?.url && channelMediaStoryFileType(file));
+    }
+
+    function channelMediaStoryImageDisplaySource(file) {
+      const original = absoluteMediaUrl(file?.url || '');
+      const mime = String(file?.mime || '').toLowerCase();
+      const preview = absoluteMediaUrl(file?.previewUrl || '');
+      if (mime === 'image/gif') return original;
+      return preview || original;
     }
 
     function channelMediaStoryFileKey(file) {
@@ -21527,8 +21570,9 @@
       const author = from
         ? (isOwnUser(from) ? 'You' : (from.nickname || fallbackAuthor || 'Channel member'))
         : (fallbackAuthor || 'Channel member');
-      const mime = String(file.mime || '').toLowerCase();
-      const isVideo = state.capabilities.safeVideoMimes.includes(mime);
+      const mediaType = channelMediaStoryFileType(file);
+      const isVideo = mediaType === 'video';
+      const originalSrc = absoluteMediaUrl(file.url);
       return {
         key: channelMediaStoryFileKey(file),
         file,
@@ -21538,8 +21582,10 @@
         caption: String(file.caption || message.caption || '').trim(),
         name: String(file.name || (isVideo ? 'Video' : 'Image')),
         serverTime: Number(message.serverTime) || Number(article?.dataset?.groupTime) || 0,
+        mediaType,
         isVideo,
-        src: absoluteMediaUrl(file.url),
+        src: originalSrc,
+        displaySrc: isVideo ? originalSrc : channelMediaStoryImageDisplaySource(file),
         poster: file.previewUrl ? absoluteMediaUrl(file.previewUrl) : '',
         downloadUrl: absoluteMediaUrl(file.downloadUrl || file.url),
       };
@@ -21990,6 +22036,19 @@
       viewer.mute.setAttribute('aria-pressed', viewer.muted ? 'true' : 'false');
     }
 
+    function startChannelMediaStoryVideo(video, viewer) {
+      if (!(video instanceof HTMLVideoElement) || !viewer || video !== viewer.currentMedia) return;
+      const tryPlay = () => {
+        if (video !== viewer.currentMedia || !video.isConnected) return;
+        video.play().then(() => viewer.playState.classList.remove('visible')).catch(() => {
+          viewer.playState.textContent = '▶';
+          viewer.playState.classList.add('visible');
+        });
+      };
+      tryPlay();
+      video.addEventListener('canplay', tryPlay, { once: true });
+    }
+
     function renderChannelMediaStoryViewer(direction = 0) {
       const viewer = ensureChannelMediaStoryViewer();
       const item = viewer.items[viewer.index];
@@ -22011,7 +22070,7 @@
         video.autoplay = true;
         video.loop = true;
         video.controls = false;
-        video.preload = 'auto';
+        video.preload = 'metadata';
         video.muted = viewer.muted;
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
@@ -22019,35 +22078,7 @@
         const preferred = preferredTimelineVideoSource(item.file, video) || item.src;
         video.src = preferred;
 
-        if (window.matchMedia?.('(min-width: 851px)')?.matches) {
-          const backdropVideo = document.createElement('video');
-          backdropVideo.className = 'media-story-backdrop';
-          backdropVideo.autoplay = true;
-          backdropVideo.loop = true;
-          backdropVideo.controls = false;
-          backdropVideo.preload = 'auto';
-          backdropVideo.muted = true;
-          backdropVideo.setAttribute('playsinline', '');
-          backdropVideo.setAttribute('webkit-playsinline', '');
-          if (item.poster) backdropVideo.poster = item.poster;
-          backdropVideo.src = preferred;
-          backdrop = backdropVideo;
-
-          const syncBackdrop = () => {
-            if (!Number.isFinite(video.currentTime) || !Number.isFinite(backdropVideo.currentTime)) return;
-            if (Math.abs(backdropVideo.currentTime - video.currentTime) > .35) {
-              try { backdropVideo.currentTime = video.currentTime; } catch {}
-            }
-          };
-          video.addEventListener('play', () => {
-            syncBackdrop();
-            backdropVideo.play().catch(() => {});
-            viewer.playState.classList.remove('visible');
-          });
-          video.addEventListener('pause', () => backdropVideo.pause());
-          video.addEventListener('seeking', syncBackdrop);
-          video.addEventListener('timeupdate', syncBackdrop);
-        } else if (item.poster) {
+        if (item.poster) {
           const backdropImage = document.createElement('img');
           backdropImage.className = 'media-story-backdrop';
           backdropImage.alt = '';
@@ -22055,10 +22086,8 @@
           backdropImage.decoding = 'async';
           backdropImage.src = item.poster;
           backdrop = backdropImage;
-          video.addEventListener('play', () => viewer.playState.classList.remove('visible'));
-        } else {
-          video.addEventListener('play', () => viewer.playState.classList.remove('visible'));
         }
+        video.addEventListener('play', () => viewer.playState.classList.remove('visible'));
 
         video.addEventListener('error', () => {
           if (preferred !== item.src && item.src && video.src !== item.src) {
@@ -22074,7 +22103,7 @@
         backdropImage.alt = '';
         backdropImage.setAttribute('aria-hidden', 'true');
         backdropImage.decoding = 'async';
-        const displaySrc = item.editedUrl || item.src;
+        const displaySrc = item.editedUrl || item.displaySrc || item.src;
         backdropImage.src = displaySrc;
         backdrop = backdropImage;
 
@@ -22082,6 +22111,7 @@
         image.className = 'media-story-media';
         image.alt = item.name;
         image.decoding = 'async';
+        image.loading = 'eager';
         image.src = displaySrc;
         media = image;
       }
@@ -22120,18 +22150,22 @@
       syncMediaStoryViewerReactions(item.messageId);
       if (item.messageId) acknowledgeRead(item.messageId);
 
-      if (media instanceof HTMLVideoElement) {
-        media.play().catch(() => {
-          viewer.playState.textContent = '▶';
-          viewer.playState.classList.add('visible');
-        });
-      }
+      if (media instanceof HTMLVideoElement) startChannelMediaStoryVideo(media, viewer);
 
       for (const adjacentIndex of [viewer.index - 1, viewer.index + 1]) {
         const adjacent = viewer.items[adjacentIndex];
-        if (!adjacent || adjacent.isVideo) continue;
+        if (!adjacent) continue;
+        if (adjacent.isVideo) {
+          if (adjacent.poster) {
+            const preloadPoster = new Image();
+            preloadPoster.decoding = 'async';
+            preloadPoster.src = adjacent.poster;
+          }
+          continue;
+        }
         const preload = new Image();
-        preload.src = adjacent.src;
+        preload.decoding = 'async';
+        preload.src = adjacent.displaySrc || adjacent.src;
       }
     }
 
@@ -25093,10 +25127,14 @@
 
       const upload = document.createElement('button');
       upload.type = 'button';
-      upload.innerHTML = '<span class="icon icon-file" aria-hidden="true"></span><span>Upload photo or video</span>';
+      upload.setAttribute('data-button-presentation-ignore', '');
+      upload.title = 'Upload photo or video';
+      upload.innerHTML = '<span class="icon icon-file" aria-hidden="true"></span><span class="desktop-camera-source-copy"><strong>Upload</strong><small>Photo / video</small></span>';
       const record = document.createElement('button');
       record.type = 'button';
-      record.innerHTML = '<span class="icon icon-camera" aria-hidden="true"></span><span>Record from webcam</span>';
+      record.setAttribute('data-button-presentation-ignore', '');
+      record.title = 'Record from webcam';
+      record.innerHTML = '<span class="icon icon-camera" aria-hidden="true"></span><span class="desktop-camera-source-copy"><strong>Record</strong><small>Webcam</small></span>';
       menu.append(upload, record);
 
       const recorderRoot = document.createElement('section');
@@ -28800,8 +28838,10 @@
 
     function renderTypingIndicator() {
       const entries = [...state.typingUsers.values()];
-      elements.typingIndicator.classList.toggle('visible', entries.length > 0);
-      if (!entries.length) {
+      const visible = entries.length > 0;
+      elements.typingIndicator.classList.toggle('visible', visible);
+      elements.messageViewport.classList.toggle('has-typing-indicator', visible);
+      if (!visible) {
         elements.typingText.textContent = '';
         return;
       }

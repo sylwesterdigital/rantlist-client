@@ -1,3 +1,16 @@
+## Changes in v0.1.44
+
+- Synchronized browser client to **9.6.80 / rantlist-deploy-r108**.
+- Typing status now overlays the bottom of the message viewport instead of taking layout height, eliminating timeline shake when typing notifications appear or disappear.
+- Jump-to-latest positioning accounts for the typing/context overlays without resizing the message list.
+
+## Changes in v0.1.43
+
+- Synchronized browser client to **9.6.79 / rantlist-deploy-r107**.
+- Desktop camera-source choices always show concise Upload/Photo-video and Record/Webcam descriptions.
+- Stories / Shorts now classifies mixed image/video feeds defensively, uses optimized still-image previews, and avoids loading a duplicate video stream for the blurred backdrop.
+- Story video playback retries at `canplay`, while HLS remains preferred and downloads/editing retain original media.
+
 ## Changes in v0.1.42
 
 - Synchronized browser client to **9.6.78 / rantlist-deploy-r106**.
