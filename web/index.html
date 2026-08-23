@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.81">
+  <meta name="chat-ui-version" content="9.6.82">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -4034,8 +4034,16 @@
       }
       .attachment-tray { padding-top: 7px; }
       .attachment-action { min-width: 74px; width: 74px; }
-      .modal-layer { align-items: end; padding: 0; }
-      .modal-card { width: 100%; max-height: min(86dvh, calc(var(--app-height, 100dvh) - 8px)); border-radius: 17px 17px 0 0; border-bottom: 0; }
+      .modal-layer {
+        align-items: center;
+        padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, var(--safe-bottom, 0px)) max(8px, env(safe-area-inset-left));
+      }
+      .modal-card {
+        width: 100%;
+        max-height: min(90dvh, calc(var(--app-height, 100dvh) - 24px));
+        border-radius: 17px;
+        border-bottom: 1px solid var(--line);
+      }
       .poll-card { min-width: min(270px, 76vw); }
     }
 
@@ -11916,7 +11924,7 @@
     .server-info-stripe-fallback { color:var(--accent); font-size:11px; font-weight:850; line-height:1.3; text-decoration:none; }
     .server-info-stripe-fallback:hover { text-decoration:underline; }
     @media (max-width: 560px) {
-      .server-info-card { max-height:calc(var(--app-height, 100dvh) - 8px); }
+      .server-info-card { max-height:min(90dvh, calc(var(--app-height, 100dvh) - 24px)); }
       .server-info-body { gap:11px; padding:12px; }
       .server-info-hero { grid-template-columns:74px minmax(0,1fr); gap:12px; align-items:center; }
       .server-info-logo { width:74px; height:74px; border-radius:20px; }
@@ -12034,7 +12042,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.81</small>
+          <small id="serverBrandVersion">v9.6.82</small>
         </span>
       </button>
     </div>

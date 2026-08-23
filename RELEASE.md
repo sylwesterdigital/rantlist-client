@@ -1,3 +1,10 @@
+## Changes in v0.1.47
+
+- Synchronized browser client to **9.6.82 / rantlist-deploy-r110**.
+- Small-screen modal dialogs are vertically centered instead of being forced to the bottom edge.
+- Modal cards keep full rounded borders and safe-area spacing, with tall content scrolling inside the visible viewport.
+- The **About this server** support panel is bounded away from the iOS home indicator so the Stripe fallback link remains reachable and visible.
+
 ## Changes in v0.1.46
 
 - Synchronized browser client to **9.6.81 / rantlist-deploy-r109**.
