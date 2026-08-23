@@ -1,3 +1,9 @@
+## Changes in v0.1.39
+
+- Synchronized browser client to **9.6.75 / rantlist-deploy-r103**.
+- Direct-room badge avatars no longer open the profile overlay; clicking them now opens the direct conversation through the enclosing room badge.
+- The current direct-channel badge remains inactive while already open.
+
 ## Changes in v0.1.38
 
 - Fixed the release-source whitespace error that could stop the client release after macOS/iOS builds completed.
