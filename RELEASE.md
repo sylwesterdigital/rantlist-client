@@ -1,3 +1,9 @@
+## Changes in v0.1.31
+
+- Synchronized browser client to **9.6.69 / rantlist-deploy-r97**.
+- Added Config > Controls toggles for borderless toolbar buttons and hidden general interface borders.
+- Border preferences are local, reversible appearance settings.
+
 ## Changes in v0.1.30
 
 - macOS native WKWebView now presents an `NSOpenPanel` for HTML file inputs.

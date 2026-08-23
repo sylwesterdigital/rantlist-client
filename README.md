@@ -1,3 +1,8 @@
+## v0.1.31 / 9.6.69
+
+- Adds optional borderless toolbar buttons and a separate general interface-border visibility toggle.
+- Source synchronized to rantlist-deploy-r97.
+
 ## v0.1.29 / 9.6.68
 
 Composer chrome cleanup: controls are vertically centered, while the outer message-form border/background is removed for a cleaner rounded input surface.

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.68">
+  <meta name="chat-ui-version" content="9.6.69">
   <meta name="chat-protocol-version" content="61">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -42,6 +42,8 @@
       root.dataset.theme = storedTheme || 'white-contrast';
       root.dataset.buttonMode = storedButtonMode || 'icons';
       root.dataset.density = localStorage.getItem('chat.ui.density') || 'compact';
+      root.dataset.toolbarBorders = localStorage.getItem('chat.ui.toolbarBorders') === 'off' ? 'off' : 'on';
+      root.dataset.interfaceBorders = localStorage.getItem('chat.ui.interfaceBorders') === 'off' ? 'off' : 'on';
       const storedBubbleMood = localStorage.getItem('chat.ui.bubbleMood');
       root.dataset.bubbleMood = ['solid', 'soft', 'aurora', 'organic'].includes(storedBubbleMood) ? storedBubbleMood : 'soft';
       const storedBubbleOutlineOpacity = Math.max(0, Math.min(100, Number(localStorage.getItem('chat.ui.bubbleOutlineOpacity') || 0)));
@@ -240,6 +242,16 @@
     .spacer { flex: 1; }
     .toolbar-button { min-height: 34px; padding: 7px 10px; white-space: nowrap; }
     .toolbar-button.active { border-color: var(--accent); background: rgba(110, 168, 254, .16); }
+
+    :root[data-toolbar-borders="off"] .toolbar-button {
+      border-width: 0 !important;
+      border-color: transparent !important;
+      box-shadow: none;
+    }
+    :root[data-interface-borders="off"] {
+      --line: transparent !important;
+      --ui-border: transparent !important;
+    }
 
     #workspace {
       position: relative;
@@ -11883,7 +11895,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.68</small>
+          <small id="serverBrandVersion">v9.6.69</small>
         </span>
       </button>
     </div>
@@ -11926,7 +11938,7 @@
         <div class="server-info-hero">
           <span id="serverInfoLogo" class="server-info-logo">RC</span>
           <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.68</span></div>
+            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.69</span></div>
             <p id="serverInfoDescription" class="server-info-description"></p>
             <div class="server-info-credit">
               <span>Created by</span>
@@ -12051,6 +12063,15 @@
               <option value="comfortable">Comfortable</option>
             </select>
           </div>
+          <label class="config-check-row" for="toolbarBordersInput">
+            <input id="toolbarBordersInput" type="checkbox">
+            <span>Show toolbar button borders</span>
+          </label>
+          <label class="config-check-row" for="interfaceBordersInput">
+            <input id="interfaceBordersInput" type="checkbox">
+            <span>Show general interface borders</span>
+          </label>
+          <p class="hint">Turn toolbar borders off for completely borderless toolbar buttons. Turning general interface borders off hides normal panel, divider and control borders while keeping semantic focus, active and warning indicators available.</p>
           <label class="config-check-row" for="mobileTypingFocusInput">
             <input id="mobileTypingFocusInput" type="checkbox">
             <span>More chat space while typing on mobile</span>
@@ -12735,8 +12756,8 @@
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.68</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.68</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.69</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.69</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -13888,7 +13909,7 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'mobileTypingFocusInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14111,6 +14132,8 @@
       localFontFaceCount: 0,
       uiButtonMode: readStorage('chat.ui.buttonMode') || 'icons',
       uiDensity: readStorage('chat.ui.density') || 'compact',
+      toolbarBorders: readStorage('chat.ui.toolbarBorders') !== 'off',
+      interfaceBorders: readStorage('chat.ui.interfaceBorders') !== 'off',
       mobileTypingFocus: readStorage('chat.mobile.maximizeTyping') === 'on',
       bubbleMood: ['solid', 'soft', 'aurora', 'organic'].includes(readStorage('chat.ui.bubbleMood')) ? readStorage('chat.ui.bubbleMood') : 'soft',
       bubbleOutlineOpacity: Math.max(0, Math.min(100, Number(readStorage('chat.ui.bubbleOutlineOpacity') || 0))),
@@ -14653,6 +14676,14 @@
         writeStorage('chat.ui.density', state.uiDensity);
         applyUiPresentation();
         syncViewportHeight(true);
+      });
+      elements.toolbarBordersInput.addEventListener('change', () => {
+        state.toolbarBorders = elements.toolbarBordersInput.checked;
+        applyBorderPreferences();
+      });
+      elements.interfaceBordersInput.addEventListener('change', () => {
+        state.interfaceBorders = elements.interfaceBordersInput.checked;
+        applyBorderPreferences();
       });
       elements.mobileTypingFocusInput.addEventListener('change', () => {
         state.mobileTypingFocus = elements.mobileTypingFocusInput.checked;
@@ -32370,6 +32401,7 @@
       applyUiFont();
       renderLocalFontAccessState();
       applyUiPresentation();
+      applyBorderPreferences({ persist: false });
       applyMobileTypingFocusPreference({ persist: false });
       applyBubbleMoodPreference({ persist: false });
       applyBubbleOutlinePreference({ persist: false });
@@ -32624,6 +32656,18 @@
       if (elements.mediaControlSizeValue) elements.mediaControlSizeValue.textContent = `${size} px`;
       if (elements.mediaControlOpacityInput) elements.mediaControlOpacityInput.value = String(opacity);
       if (elements.mediaControlOpacityValue) elements.mediaControlOpacityValue.textContent = `${opacity}%`;
+    }
+
+    function applyBorderPreferences(options = {}) {
+      const root = document.documentElement;
+      root.dataset.toolbarBorders = state.toolbarBorders ? 'on' : 'off';
+      root.dataset.interfaceBorders = state.interfaceBorders ? 'on' : 'off';
+      if (elements.toolbarBordersInput) elements.toolbarBordersInput.checked = state.toolbarBorders;
+      if (elements.interfaceBordersInput) elements.interfaceBordersInput.checked = state.interfaceBorders;
+      if (options.persist !== false) {
+        writeStorage('chat.ui.toolbarBorders', state.toolbarBorders ? 'on' : 'off');
+        writeStorage('chat.ui.interfaceBorders', state.interfaceBorders ? 'on' : 'off');
+      }
     }
 
     function syncMobileTypingFocusState() {
@@ -33034,6 +33078,8 @@
       if (elements.bubbleOutlineOpacityInput) elements.bubbleOutlineOpacityInput.value = String(state.bubbleOutlineOpacity);
       if (elements.bubbleOutlineOpacityValue) elements.bubbleOutlineOpacityValue.textContent = `${state.bubbleOutlineOpacity}%`;
       elements.densitySelect.value = state.uiDensity;
+      if (elements.toolbarBordersInput) elements.toolbarBordersInput.checked = state.toolbarBorders;
+      if (elements.interfaceBordersInput) elements.interfaceBordersInput.checked = state.interfaceBorders;
       if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
       elements.mediaDisplaySelect.value = state.mediaDisplayMode;
       elements.mediaViewerModeSelect.value = state.mediaStoryMode;
