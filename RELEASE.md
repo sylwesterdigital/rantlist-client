@@ -1,3 +1,16 @@
+## Changes in v0.1.49
+
+- Synchronized browser client to **9.6.84 / rantlist-deploy-r112** and protocol **62**.
+- Server deployment packaging now ignores stale staging `package-lock.json` files so the URL-preview `playwright-core` dependency can install during production activation.
+- No native iOS/macOS behavior change in this client revision.
+
+## Changes in v0.1.48
+
+- Synchronized browser client to **9.6.83 / rantlist-deploy-r111** and protocol **62**.
+- Text messages containing public web URLs can receive asynchronous rich preview cards with server-extracted title, description, hostname and a same-origin optimized screenshot thumbnail.
+- Link-preview updates decorate the existing message bubble in place without delaying the original message or replacing its text.
+- The message More menu adds **Open link** and **Copy link** actions; server-blocked/malicious destinations are not directly openable from the preview card.
+
 ## Changes in v0.1.47
 
 - Synchronized browser client to **9.6.82 / rantlist-deploy-r110**.

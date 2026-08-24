@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.82">
-  <meta name="chat-protocol-version" content="61">
+  <meta name="chat-ui-version" content="9.6.84">
+  <meta name="chat-protocol-version" content="62">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -750,6 +750,65 @@
     .message-time, .message-label { color: var(--message-muted-ink); font-size: 11px; }
     .message-label { font-weight: 700; }
     .message-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .link-preview-card {
+      width: min(430px, 100%);
+      min-width: 0;
+      display: grid;
+      grid-template-columns: minmax(104px, 34%) minmax(0, 1fr);
+      margin-top: 7px;
+      overflow: hidden;
+      border: 1px solid var(--message-control-border);
+      border-radius: 12px;
+      background: var(--message-control-surface);
+      color: var(--message-ink);
+      text-decoration: none;
+      box-shadow: 0 5px 18px rgba(0, 0, 0, .10);
+    }
+    .link-preview-card:hover, .link-preview-card:focus-visible { background: var(--message-control-hover); }
+    .link-preview-card.no-image { grid-template-columns: 1fr; }
+    .link-preview-card.blocked { cursor: default; }
+    .link-preview-thumbnail {
+      width: 100%;
+      height: 108px;
+      min-height: 108px;
+      display: block;
+      object-fit: cover;
+      background: rgba(0, 0, 0, .12);
+    }
+    .link-preview-copy { min-width: 0; padding: 8px 10px; display: grid; align-content: center; gap: 3px; }
+    .link-preview-site, .link-preview-security {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--message-muted-ink);
+      font-size: 10px;
+      line-height: 1.2;
+    }
+    .link-preview-title {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--message-ink);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+    .link-preview-description {
+      display: -webkit-box;
+      overflow: hidden;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      color: var(--message-muted-ink);
+      font-size: 11px;
+      line-height: 1.3;
+    }
+    .link-preview-security.warning { font-weight: 800; }
+    @media (max-width: 480px) {
+      .link-preview-card { grid-template-columns: 94px minmax(0, 1fr); }
+      .link-preview-thumbnail { height: 94px; min-height: 94px; }
+    }
     .message-actions {
       display: flex;
       align-items: flex-end;
@@ -12042,7 +12101,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.82</small>
+          <small id="serverBrandVersion">v9.6.84</small>
         </span>
       </button>
     </div>
@@ -16437,6 +16496,9 @@
           break;
         case 'media.variant.ready':
           applyMediaVariantReady(message);
+          break;
+        case 'message.link-preview':
+          applyMessageLinkPreview(message);
           break;
         case 'message.edited':
           applyMessageEdit(message);
@@ -26248,11 +26310,109 @@
       body.className = 'message-text';
       body.textContent = message.text;
       article.append(body);
+      renderMessageLinkPreview(article, message.linkPreview);
       elements.messageList.append(article);
       finalizeMessagePresentation(article, { ...message, direct, messageType: 'text' });
       reflowMessageGroups();
       scheduleMessageGroupPostLayoutReflow();
       if (!history) scrollMessages();
+    }
+
+    function normalizeMessageLinkPreview(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      const sourceUrl = String(raw.sourceUrl || '').trim();
+      const resolvedUrl = String(raw.resolvedUrl || sourceUrl).trim();
+      if (!/^https?:\/\//i.test(sourceUrl || resolvedUrl)) return null;
+      const security = raw.security && typeof raw.security === 'object' ? raw.security : {};
+      return {
+        sourceUrl: sourceUrl || resolvedUrl,
+        resolvedUrl: resolvedUrl || sourceUrl,
+        hostname: String(raw.hostname || '').trim(),
+        title: String(raw.title || '').trim(),
+        description: String(raw.description || '').trim(),
+        siteName: String(raw.siteName || '').trim(),
+        screenshotUrl: String(raw.screenshotUrl || '').trim(),
+        contentType: String(raw.contentType || '').trim(),
+        security: {
+          status: String(security.status || 'unverified').trim().toLowerCase(),
+          reason: String(security.reason || '').trim(),
+        },
+      };
+    }
+
+    function renderMessageLinkPreview(article, rawPreview) {
+      article?.querySelector?.('[data-link-preview]')?.remove();
+      const preview = normalizeMessageLinkPreview(rawPreview);
+      if (!article || !preview) return;
+      const status = preview.security.status;
+      const blocked = status === 'blocked' || status === 'malicious';
+      const card = document.createElement(blocked ? 'div' : 'a');
+      card.className = `link-preview-card${preview.screenshotUrl ? '' : ' no-image'}${blocked ? ' blocked' : ''}`;
+      card.dataset.linkPreview = '';
+      if (!blocked) {
+        card.href = preview.resolvedUrl || preview.sourceUrl;
+        card.target = '_blank';
+        card.rel = 'noopener noreferrer nofollow ugc';
+        card.title = `Open ${preview.hostname || 'external link'}`;
+      }
+      if (preview.screenshotUrl) {
+        const image = document.createElement('img');
+        image.className = 'link-preview-thumbnail';
+        image.src = absoluteMediaUrl(preview.screenshotUrl);
+        image.alt = '';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        card.append(image);
+      }
+      const copy = document.createElement('span');
+      copy.className = 'link-preview-copy';
+      const site = document.createElement('span');
+      site.className = 'link-preview-site';
+      site.textContent = preview.siteName || preview.hostname || 'External link';
+      const title = document.createElement('span');
+      title.className = 'link-preview-title';
+      title.textContent = preview.title || preview.hostname || 'External link';
+      copy.append(site, title);
+      if (preview.description) {
+        const description = document.createElement('span');
+        description.className = 'link-preview-description';
+        description.textContent = preview.description;
+        copy.append(description);
+      }
+      if (status === 'suspicious' || blocked) {
+        const warning = document.createElement('span');
+        warning.className = 'link-preview-security warning';
+        warning.textContent = blocked ? (preview.security.reason || 'Link preview blocked') : `Potentially unsafe${preview.security.reason ? ` · ${preview.security.reason}` : ''}`;
+        copy.append(warning);
+      }
+      card.append(copy);
+      article.querySelector('.message-text')?.insertAdjacentElement('afterend', card);
+    }
+
+    function applyMessageLinkPreview(message) {
+      const messageId = String(message?.messageId || '');
+      const article = state.messageNodes.get(messageId);
+      const data = state.messageData.get(messageId);
+      if (!article || !data || data.messageType !== 'text') return;
+      const followIntent = captureTimelineMediaFollowIntent();
+      data.linkPreview = message.linkPreview || null;
+      renderMessageLinkPreview(article, data.linkPreview);
+      reflowMessageGroups();
+      scheduleMessageGroupPostLayoutReflow();
+      settleTimelineMediaAtBottom(followIntent);
+    }
+
+    function openMessageLinkPreview(rawPreview) {
+      const preview = normalizeMessageLinkPreview(rawPreview);
+      if (!preview || ['blocked', 'malicious'].includes(preview.security.status)) return;
+      const anchor = document.createElement('a');
+      anchor.href = preview.resolvedUrl || preview.sourceUrl;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer nofollow ugc';
+      anchor.style.display = 'none';
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
     }
 
     function finalizeMessagePresentation(article, message) {
@@ -26488,6 +26648,32 @@
             catch (error) { addSystemMessage(error?.message || 'File could not be downloaded.', true); }
           },
         });
+      }
+      if (message.messageType === 'text' && message.linkPreview) {
+        const linkPreview = normalizeMessageLinkPreview(message.linkPreview);
+        if (linkPreview) {
+          if (!['blocked', 'malicious'].includes(linkPreview.security.status)) {
+            actions.push({
+              label: 'Open link',
+              title: 'Open external link',
+              icon: 'icon-share',
+              separator: actions.length > 0,
+              run: () => openMessageLinkPreview(linkPreview),
+            });
+          }
+          actions.push({
+            label: 'Copy link',
+            title: 'Copy external link',
+            icon: 'icon-more',
+            separator: ['blocked', 'malicious'].includes(linkPreview.security.status) && actions.length > 0,
+            run: async () => {
+              try {
+                await copyText(linkPreview.resolvedUrl || linkPreview.sourceUrl);
+                addSystemMessage('Link copied to the clipboard.');
+              } catch { addSystemMessage('Link could not be copied.', true); }
+            },
+          });
+        }
       }
       const visualEditIds = visualMessageGroupIds(messageId);
       const visualEditCount = visualEditIds.length;
