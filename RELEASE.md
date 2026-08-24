@@ -1,3 +1,16 @@
+## Changes in v0.1.52
+
+- Synchronized browser client to **9.6.87 / rantlist-deploy-r115** and protocol **62**.
+- Web link preview cards now default to 200% of their previous dimensions, making generated webpage screenshots much easier to see.
+- Config → Controls adds a separate **Web link preview size** slider from **100–300%**; narrow mobile previews stack the screenshot above metadata.
+- No native iOS/macOS behavior change in this client revision.
+
+## Changes in v0.1.51
+
+- Synchronized browser client to **9.6.86 / rantlist-deploy-r114** and protocol **62**.
+- Server link-preview screenshots now support SwiftShader-backed WebGL/WebGPU rendering, reject blank black/white captures, and fall back to safe Open Graph/Twitter imagery when needed.
+- No native iOS/macOS behavior change in this client revision.
+
 ## Changes in v0.1.50
 
 - Synchronized browser client to **9.6.85 / rantlist-deploy-r113** and protocol **62**.

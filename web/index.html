@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.85">
+  <meta name="chat-ui-version" content="9.6.87">
   <meta name="chat-protocol-version" content="62">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -55,6 +55,12 @@
       root.style.setProperty('--media-preview-video-width', `${Math.round(720 * mediaPreviewScale)}px`);
       root.style.setProperty('--media-preview-video-max-height', `${Math.round(520 * mediaPreviewScale)}px`);
       root.style.setProperty('--media-preview-video-max-vh', `${Math.min(82, 62 * mediaPreviewScale).toFixed(1)}vh`);
+      const storedLinkPreviewScale = Math.max(100, Math.min(300, Number(localStorage.getItem('chat.link.previewScale') || 200)));
+      const linkPreviewScale = storedLinkPreviewScale / 100;
+      root.dataset.linkPreviewScale = String(storedLinkPreviewScale);
+      root.style.setProperty('--link-preview-card-width', `${Math.round(430 * linkPreviewScale)}px`);
+      root.style.setProperty('--link-preview-thumbnail-height', `${Math.round(108 * linkPreviewScale)}px`);
+      root.style.setProperty('--link-preview-mobile-thumbnail-height', `${Math.round(94 * linkPreviewScale)}px`);
       const storedBubbleMood = localStorage.getItem('chat.ui.bubbleMood');
       root.dataset.bubbleMood = ['solid', 'soft', 'aurora', 'organic'].includes(storedBubbleMood) ? storedBubbleMood : 'soft';
       const storedBubbleOutlineOpacity = Math.max(0, Math.min(100, Number(localStorage.getItem('chat.ui.bubbleOutlineOpacity') || 0)));
@@ -751,10 +757,10 @@
     .message-label { font-weight: 700; }
     .message-text { white-space: pre-wrap; overflow-wrap: anywhere; }
     .link-preview-card {
-      width: min(430px, 100%);
+      width: min(var(--link-preview-card-width, 860px), 100%);
       min-width: 0;
       display: grid;
-      grid-template-columns: minmax(104px, 34%) minmax(0, 1fr);
+      grid-template-columns: minmax(104px, 42%) minmax(0, 1fr);
       margin-top: 7px;
       overflow: hidden;
       border: 1px solid var(--message-control-border);
@@ -769,8 +775,8 @@
     .link-preview-card.blocked { cursor: default; }
     .link-preview-thumbnail {
       width: 100%;
-      height: 108px;
-      min-height: 108px;
+      height: var(--link-preview-thumbnail-height, 216px);
+      min-height: var(--link-preview-thumbnail-height, 216px);
       display: block;
       object-fit: cover;
       background: rgba(0, 0, 0, .12);
@@ -806,8 +812,11 @@
     }
     .link-preview-security.warning { font-weight: 800; }
     @media (max-width: 480px) {
-      .link-preview-card { grid-template-columns: 94px minmax(0, 1fr); }
-      .link-preview-thumbnail { height: 94px; min-height: 94px; }
+      .link-preview-card:not(.no-image) { grid-template-columns: 1fr; }
+      .link-preview-thumbnail {
+        height: var(--link-preview-mobile-thumbnail-height, 188px);
+        min-height: var(--link-preview-mobile-thumbnail-height, 188px);
+      }
     }
     .message-actions {
       display: flex;
@@ -12101,7 +12110,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.85</small>
+          <small id="serverBrandVersion">v9.6.87</small>
         </span>
       </button>
     </div>
@@ -12309,6 +12318,11 @@
             <span class="config-inline-range"><input id="mediaPreviewScaleInput" type="range" min="60" max="140" step="5" value="100" aria-label="Media preview size"><output id="mediaPreviewScaleValue">100%</output></span>
           </div>
           <p class="hint">Resize inline image, video and media-gallery previews independently from text and control sizing.</p>
+          <div class="config-row">
+            <label for="linkPreviewScaleInput">Web link preview size</label>
+            <span class="config-inline-range"><input id="linkPreviewScaleInput" type="range" min="100" max="300" step="10" value="200" aria-label="Web link preview size"><output id="linkPreviewScaleValue">200%</output></span>
+          </div>
+          <p class="hint">Resize webpage screenshot cards independently. The default is 200%; on narrow phones the screenshot stacks above the link details.</p>
           <div class="config-row">
             <label for="mediaControlSizeInput">Media overlay size</label>
             <span class="config-inline-range"><input id="mediaControlSizeInput" type="range" min="20" max="34" step="1" value="24" aria-label="Media overlay control size"><output id="mediaControlSizeValue">24 px</output></span>
@@ -14137,7 +14151,7 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14375,6 +14389,7 @@
       mediaControlSize: Math.max(20, Math.min(34, Number(readStorage('chat.media.controlSize') || 24))),
       mediaControlOpacity: Math.max(35, Math.min(100, Number(readStorage('chat.media.controlOpacity') || 68))),
       mediaPreviewScale: Math.max(60, Math.min(140, Number(readStorage('chat.media.previewScale') || 100))),
+      linkPreviewScale: Math.max(100, Math.min(300, Number(readStorage('chat.link.previewScale') || 200))),
       mediaDisplayMode: readStorage('chat.media.display') === 'immediate' ? 'immediate' : 'reveal',
       mediaStoryMode: readStorage('chat.media.viewerMode') === 'classic' ? 'classic' : 'stories',
       mediaViewer: null,
@@ -14599,6 +14614,9 @@
     const MEDIA_PREVIEW_SCALE_MIN = 60;
     const MEDIA_PREVIEW_SCALE_MAX = 140;
     const MEDIA_PREVIEW_SCALE_DEFAULT = 100;
+    const LINK_PREVIEW_SCALE_MIN = 100;
+    const LINK_PREVIEW_SCALE_MAX = 300;
+    const LINK_PREVIEW_SCALE_DEFAULT = 200;
 
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
@@ -14947,6 +14965,10 @@
       elements.mediaPreviewScaleInput.addEventListener('input', () => {
         state.mediaPreviewScale = normalizeMediaPreviewScale(elements.mediaPreviewScaleInput.value);
         applyMediaPreviewScalePreference({ persist: true });
+      });
+      elements.linkPreviewScaleInput.addEventListener('input', () => {
+        state.linkPreviewScale = normalizeLinkPreviewScale(elements.linkPreviewScaleInput.value);
+        applyLinkPreviewScalePreference({ persist: true });
       });
       elements.mediaControlSizeInput.addEventListener('input', () => {
         state.mediaControlSize = Math.max(20, Math.min(34, Number(elements.mediaControlSizeInput.value) || 24));
@@ -31717,6 +31739,39 @@
       return percent;
     }
 
+    function normalizeLinkPreviewScale(value, fallback = LINK_PREVIEW_SCALE_DEFAULT) {
+      const number = Number(value);
+      if (!Number.isFinite(number)) return Math.max(LINK_PREVIEW_SCALE_MIN, Math.min(LINK_PREVIEW_SCALE_MAX, Number(fallback) || LINK_PREVIEW_SCALE_DEFAULT));
+      return Math.round(Math.max(LINK_PREVIEW_SCALE_MIN, Math.min(LINK_PREVIEW_SCALE_MAX, number)) / 10) * 10;
+    }
+
+    function currentLinkPreviewScale() {
+      return normalizeLinkPreviewScale(state.linkPreviewScale ?? document.documentElement.dataset.linkPreviewScale ?? readStorage('chat.link.previewScale') ?? LINK_PREVIEW_SCALE_DEFAULT);
+    }
+
+    function applyLinkPreviewScalePreference(options = {}) {
+      const percent = normalizeLinkPreviewScale(state.linkPreviewScale);
+      const scale = percent / 100;
+      state.linkPreviewScale = percent;
+      const root = document.documentElement;
+      root.dataset.linkPreviewScale = String(percent);
+      root.style.setProperty('--link-preview-card-width', `${Math.round(430 * scale)}px`);
+      root.style.setProperty('--link-preview-thumbnail-height', `${Math.round(108 * scale)}px`);
+      root.style.setProperty('--link-preview-mobile-thumbnail-height', `${Math.round(94 * scale)}px`);
+      if (elements.linkPreviewScaleInput) {
+        elements.linkPreviewScaleInput.value = String(percent);
+        elements.linkPreviewScaleInput.setAttribute('aria-valuetext', `${percent}% web link preview size`);
+      }
+      if (elements.linkPreviewScaleValue) elements.linkPreviewScaleValue.textContent = `${percent}%`;
+      if (options.persist === true) writeStorage('chat.link.previewScale', String(percent));
+      requestAnimationFrame(() => {
+        reflowMessageGroups();
+        scheduleMessageGroupPostLayoutReflow();
+        updateMessageToBottomButton();
+      });
+      return percent;
+    }
+
     function normalizeProfileUiScale(value, fallback = PROFILE_UI_SCALE_DEFAULT) {
       const number = Number(value);
       if (!Number.isFinite(number)) return Math.max(PROFILE_UI_SCALE_MIN, Math.min(PROFILE_UI_SCALE_MAX, Number(fallback) || PROFILE_UI_SCALE_DEFAULT));
@@ -33326,6 +33381,7 @@
     function applyMobileTypingFocusPreference(options = {}) {
       if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
       applyMediaPreviewScalePreference({ persist: false });
+      applyLinkPreviewScalePreference({ persist: false });
       document.documentElement.dataset.mobileTypingFocus = state.mobileTypingFocus ? 'on' : 'off';
       if (options.persist !== false) writeStorage('chat.mobile.maximizeTyping', state.mobileTypingFocus ? 'on' : 'off');
       syncMobileTypingFocusState();
@@ -33342,6 +33398,7 @@
       applyMessagePaddingPreference();
       applyMediaControlPreferences();
       applyMediaPreviewScalePreference({ persist: false });
+      applyLinkPreviewScalePreference({ persist: false });
     }
 
     function isSavedThemeSelection(value = state.uiTheme) {
