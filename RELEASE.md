@@ -1,3 +1,9 @@
+## Changes in v0.1.50
+
+- Synchronized browser client to **9.6.85 / rantlist-deploy-r113** and protocol **62**.
+- Server deployments now automatically ensure a Chromium runtime for URL-preview screenshots; no manual Chromium installation or link-preview environment edit is required for the default Ubuntu production setup.
+- No native iOS/macOS behavior change in this client revision.
+
 ## Changes in v0.1.49
 
 - Synchronized browser client to **9.6.84 / rantlist-deploy-r112** and protocol **62**.
