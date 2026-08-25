@@ -23,7 +23,7 @@ private func isRantlistURL(_ url: URL?) -> Bool {
     return allowedHosts.contains(host)
 }
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, WKScriptMessageHandler {
     private var window: NSWindow!
     private var webView: WKWebView!
     private var contentContainer: NSView!
@@ -44,6 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
+        config.userContentController.add(self, name: "rantlistBadge")
 
         webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -91,6 +92,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
     func applicationWillTerminate(_ notification: Notification) {
         pathMonitor.cancel()
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "rantlistBadge")
+    }
+
+    func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        guard message.name == "rantlistBadge" else { return }
+        let count: Int
+        if let body = message.body as? [String: Any] {
+            count = max(0, min(9999, (body["count"] as? NSNumber)?.intValue ?? 0))
+        } else if let number = message.body as? NSNumber {
+            count = max(0, min(9999, number.intValue))
+        } else {
+            return
+        }
+        DispatchQueue.main.async {
+            NSApp.dockTile.badgeLabel = count > 0 ? String(count) : nil
+            NSApp.dockTile.display()
+        }
     }
 
     private func installNativeOverlay() {

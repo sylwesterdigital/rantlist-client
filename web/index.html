@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.87">
-  <meta name="chat-protocol-version" content="62">
+  <meta name="chat-ui-version" content="9.6.90">
+  <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -6031,6 +6031,26 @@
     .media-transcript-actions button .icon { width: 15px; height: 15px; }
     .media-transcript-stop { color: var(--danger) !important; }
     .media-transcript-stop[hidden] { display: none !important; }
+    .media-ai-analysis {
+      display: grid;
+      gap: 5px;
+      margin-top: 6px;
+      padding: 8px 9px;
+      border-left: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
+      background: color-mix(in srgb, var(--panel-3) 82%, transparent);
+      color: var(--text);
+      font-size: 12px;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .media-ai-analysis[hidden] { display: none !important; }
+    .media-ai-analysis-status { color: var(--muted); font-size: 10.5px; font-weight: 700; }
+    .media-ai-analysis-error { color: var(--danger); }
+    .media-ai-card { width: min(560px, calc(100vw - 24px)); }
+    .media-ai-current { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel-3) 82%, transparent); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .media-ai-current[hidden] { display: none !important; }
+    .media-ai-prompt { min-height: 104px; resize: vertical; }
     .media-placeholder.is-audio {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
@@ -12110,7 +12130,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.87</small>
+          <small id="serverBrandVersion">v9.6.90</small>
         </span>
       </button>
     </div>
@@ -12304,6 +12324,15 @@
             <span>More chat space while typing on mobile</span>
           </label>
           <p class="hint">When the mobile keyboard is open in the message composer, hide the top bar and chat header until typing finishes.</p>
+          <div class="config-row">
+            <label for="appIconBadgeSelect">App icon unread badge</label>
+            <select id="appIconBadgeSelect">
+              <option value="off">Off</option>
+              <option value="direct">Private messages only</option>
+              <option value="all">Private + channel messages</option>
+            </select>
+          </div>
+          <p class="hint">Native iOS/macOS only. Updates while the app is running; iOS background/terminated delivery requires APNs and is not enabled yet.</p>
           <label class="config-check-row" for="mobileRoomRailToggleInput">
             <input id="mobileRoomRailToggleInput" type="checkbox">
             <span>Channel rail button in mobile controls</span>
@@ -12367,12 +12396,21 @@
             </select>
           </div>
           <p class="hint">Stories / Shorts is the default: tap any channel image or video to enter the full-screen vertical media feed. Choose Classic inline only if you want videos to play inside message bubbles.</p>
+          <div class="config-row">
+            <label for="mediaAiModeSelect">Experimental image AI</label>
+            <select id="mediaAiModeSelect">
+              <option value="off">Off</option>
+              <option value="manual">On request</option>
+              <option value="auto">Automatic description</option>
+            </select>
+          </div>
+          <p id="mediaAiConfigHint" class="hint">Server-side Hetzner Experiments image analysis. The API key stays on the server and is never stored in this browser/app.</p>
         </section>
         <section class="config-section">
           <h3>Speech</h3>
           <div class="speech-settings">
             <div class="config-row">
-              <label for="voiceTranscriptionSelect">Voice transcripts</label>
+              <label for="voiceTranscriptionSelect">Audio transcripts</label>
               <select id="voiceTranscriptionSelect">
                 <option value="off">Off</option>
                 <option value="manual">On request</option>
@@ -13312,6 +13350,29 @@
   <div id="messageMenu" class="context-popover" role="menu" hidden></div>
   <div id="userMenu" class="context-popover" role="menu" hidden></div>
 
+  <div id="mediaAiModal" class="modal-layer" hidden>
+    <form id="mediaAiForm" class="modal-card media-ai-card" autocomplete="off">
+      <header class="modal-header"><h2>Image AI</h2><button id="mediaAiCloseButton" class="icon-button" type="button" aria-label="Close"><span class="icon icon-close"></span></button></header>
+      <div class="modal-body poll-form-grid">
+        <label for="mediaAiPresetSelect">Action</label>
+        <select id="mediaAiPresetSelect">
+          <option value="detail">Describe in detail</option>
+          <option value="alt">Accessibility alt text</option>
+          <option value="text">Extract visible text</option>
+          <option value="document">Explain chart / document</option>
+          <option value="objects">Objects and scene</option>
+          <option value="caption">Generate caption</option>
+          <option value="custom">Custom question</option>
+        </select>
+        <label for="mediaAiPromptInput">Question or instruction</label>
+        <textarea id="mediaAiPromptInput" class="media-ai-prompt" maxlength="1200" placeholder="Describe this image in detail."></textarea>
+        <div id="mediaAiCurrent" class="media-ai-current" hidden></div>
+        <p id="mediaAiStatus" class="hint" aria-live="polite"></p>
+      </div>
+      <footer class="modal-footer"><button id="mediaAiCancelButton" type="button">Cancel</button><button id="mediaAiRunButton" class="primary" type="submit">Run analysis</button></footer>
+    </form>
+  </div>
+
   <div id="blockModal" class="modal-layer" hidden>
     <form id="blockForm" class="modal-card" autocomplete="off">
       <header class="modal-header"><h2>Block user</h2><button id="blockCloseButton" class="icon-button" type="button" aria-label="Close"><span class="icon icon-close"></span></button></header>
@@ -14151,12 +14212,12 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
         'diagnosticSummary', 'diagnosticVerboseInput', 'messageClientInfoInput', 'diagnosticTokenForm', 'diagnosticTokenInput', 'diagnosticServerButton', 'diagnosticRefreshButton', 'diagnosticCopyButton', 'diagnosticDownloadButton', 'diagnosticClearButton', 'diagnosticLog',
-        'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu',
+        'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu', 'mediaAiModal', 'mediaAiForm', 'mediaAiCloseButton', 'mediaAiCancelButton', 'mediaAiPresetSelect', 'mediaAiPromptInput', 'mediaAiCurrent', 'mediaAiStatus', 'mediaAiRunButton',
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
@@ -14286,6 +14347,10 @@
         maxRoomImportBytes: 256 * 1024 * 1024,
         voiceTranscription: false,
         voiceTranscriptionLanguage: 'auto',
+        mediaAi: false,
+        mediaAiProvider: 'Hetzner Experiments',
+        mediaAiModel: '',
+        mediaAiExperimental: true,
       },
       reconnectDelay: 800,
       reconnectTimer: null,
@@ -14380,6 +14445,7 @@
       toolbarBorders: readStorage('chat.ui.toolbarBorders') !== 'off',
       interfaceBorders: readStorage('chat.ui.interfaceBorders') !== 'off',
       mobileTypingFocus: readStorage('chat.mobile.maximizeTyping') === 'on',
+      appIconBadgeMode: ['direct', 'all'].includes(readStorage('chat.native.badgeMode')) ? readStorage('chat.native.badgeMode') : 'off',
       mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') === 'on',
       mobileRoomRailObserver: null,
       mobileRoomRailResizeBound: false,
@@ -14403,6 +14469,8 @@
       customThemes: readJsonStorage('chat.ui.customThemes') || [],
       customThemeName: readStorage('chat.ui.customThemeName') || '',
       voiceTranscriptionMode: readStorage('chat.voiceTranscriptionMode') || 'manual',
+      mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
+      activeMediaAiMessageId: null,
       voiceTranscriptLanguage: readStorage('chat.voiceTranscriptLanguage') || 'auto',
       autoSpeakIncoming: readStorage('chat.autoSpeakIncoming') === 'on',
       gameVoiceAnnouncements: readStorage('chat.game.voiceAnnouncements') === 'on',
@@ -14953,6 +15021,10 @@
         state.mobileTypingFocus = elements.mobileTypingFocusInput.checked;
         applyMobileTypingFocusPreference();
       });
+      elements.appIconBadgeSelect.addEventListener('change', () => {
+        state.appIconBadgeMode = ['direct', 'all'].includes(elements.appIconBadgeSelect.value) ? elements.appIconBadgeSelect.value : 'off';
+        applyAppIconBadgePreference();
+      });
       elements.mobileRoomRailToggleInput.addEventListener('change', () => {
         state.mobileRoomRailToggle = elements.mobileRoomRailToggleInput.checked;
         applyMobileRoomRailTogglePreference();
@@ -14990,6 +15062,12 @@
         writeStorage('chat.media.viewerMode', state.mediaStoryMode);
         applyMediaStoryModePreference();
       });
+      elements.mediaAiModeSelect.addEventListener('change', () => {
+        state.mediaAiMode = ['manual', 'auto'].includes(elements.mediaAiModeSelect.value) ? elements.mediaAiModeSelect.value : 'off';
+        writeStorage('chat.media.aiMode', state.mediaAiMode);
+        renderMediaAiSettings();
+        if (state.mediaAiMode === 'auto') requestVisibleMediaAiDescriptions();
+      });
       elements.channelMemberPositionSelect.addEventListener('change', () => {
         state.channelMemberPosition = elements.channelMemberPositionSelect.value;
         writeStorage('chat.channelMembers.position', state.channelMemberPosition);
@@ -15008,6 +15086,24 @@
         state.userFilter = elements.userFilterSelect.value;
         writeStorage('chat.users.filter', state.userFilter);
         renderUsers();
+      });
+      elements.mediaAiPresetSelect.addEventListener('change', () => {
+        const preset = mediaAiPresetPrompt(elements.mediaAiPresetSelect.value);
+        if (preset) elements.mediaAiPromptInput.value = preset;
+        elements.mediaAiPromptInput.focus();
+      });
+      elements.mediaAiCloseButton.addEventListener('click', closeMediaAiModal);
+      elements.mediaAiCancelButton.addEventListener('click', closeMediaAiModal);
+      elements.mediaAiModal.addEventListener('click', (event) => { if (event.target === elements.mediaAiModal) closeMediaAiModal(); });
+      elements.mediaAiForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const messageId = state.activeMediaAiMessageId;
+        const prompt = elements.mediaAiPromptInput.value.trim();
+        if (!messageId || !prompt) return;
+        if (requestMediaAiAnalysis(messageId, prompt, { force: true })) {
+          elements.mediaAiStatus.textContent = 'Analysis requested…';
+          elements.mediaAiRunButton.disabled = true;
+        }
       });
       elements.voiceTranscriptionSelect.addEventListener('change', () => {
         state.voiceTranscriptionMode = elements.voiceTranscriptionSelect.value;
@@ -15909,6 +16005,7 @@
           if (!hasEvacuationNotice && !hasMaintenanceNotice) clearServerNotice();
           renderServerBrand();
           state.capabilities = { ...state.capabilities, ...(message.capabilities || {}) };
+          renderMediaAiSettings();
           debugLog('info', 'webrtc', 'configuration', rtcCapabilitySummary(), true);
           state.adminConfigured = message.capabilities?.adminConfigured === true;
           state.adminLoginAvailable = message.capabilities?.adminLoginAvailable === true;
@@ -15952,6 +16049,7 @@
           state.capabilities = { ...state.capabilities, ...(message.capabilities || {}) };
           debugLog('info', 'webrtc', 'configuration-authorized', rtcCapabilitySummary(), true);
           state.registered = true;
+          syncNativeAppBadge();
           state.reconnectDelay = 800;
           state.websocketCloseBlockedReason = '';
           state.isAdmin = true;
@@ -15985,6 +16083,7 @@
           state.capabilities = { ...state.capabilities, ...(message.capabilities || {}) };
           debugLog('info', 'webrtc', 'configuration-authorized', rtcCapabilitySummary(), true);
           state.registered = true;
+          syncNativeAppBadge();
           state.reconnectDelay = 800;
           state.websocketCloseBlockedReason = '';
           state.isAdmin = false;
@@ -16312,7 +16411,17 @@
             state.roomUnread.set(key, Math.min(99, (state.roomUnread.get(key) || 0) + 1));
             state.rooms = state.rooms.map((room) => sameRoom(room.name, message.room) ? { ...room, unread: state.roomUnread.get(key) } : room);
             renderRooms();
+            syncNativeAppBadge();
             playSound('direct');
+          }
+          break;
+        case 'room.activity':
+          if (!sameRoom(message.room, state.currentRoom)) {
+            const key = message.roomKey || normalizeRoomKey(message.room);
+            state.roomUnread.set(key, Math.min(99, (state.roomUnread.get(key) || 0) + 1));
+            state.rooms = state.rooms.map((room) => sameRoom(room.name, message.room) ? { ...room, unread: state.roomUnread.get(key) } : room);
+            renderRooms();
+            syncNativeAppBadge();
           }
           break;
         case 'direct.channel.member_left':
@@ -16363,6 +16472,8 @@
           state.currentRoomDirectLabel = message.directLabel || null;
           state.currentRoomDirectParticipants = Array.isArray(message.directParticipants) ? message.directParticipants : [];
           state.roomUnread.delete(message.roomKey || normalizeRoomKey(message.room));
+          state.rooms = state.rooms.map((room) => sameRoom(room.name, message.room) ? { ...room, unread: 0 } : room);
+          syncNativeAppBadge();
           updateRoomBadgeState(message.room, message.badge, {
             direct: state.currentRoomDirect,
             directLabel: state.currentRoomDirectLabel,
@@ -16545,6 +16656,9 @@
           break;
         case 'voice.transcript':
           updateVoiceTranscript(message);
+          break;
+        case 'media.ai.updated':
+          updateMediaAi(message);
           break;
         case 'room.badge.updated':
           if (sameRoom(message.room, state.currentRoom)) {
@@ -20468,7 +20582,7 @@
       const mime = composerFileMime(file);
       if (state.capabilities.safeImageMimes.includes(mime)) return 'image';
       if (state.capabilities.safeVideoMimes.includes(mime)) return 'video';
-      if (state.capabilities.safeAudioMimes.includes(mime)) return 'audio';
+      if (mime.startsWith('audio/') || state.capabilities.safeAudioMimes.includes(mime)) return 'audio';
       return 'file';
     }
 
@@ -21032,6 +21146,11 @@
       transcript.dataset.voiceTranscript = '';
       transcript.hidden = true;
 
+      const aiAnalysis = document.createElement('div');
+      aiAnalysis.className = 'media-ai-analysis';
+      aiAnalysis.dataset.mediaAi = String(messageId || '');
+      aiAnalysis.hidden = true;
+
       const caption = document.createElement('p');
       caption.className = 'media-inline-caption';
       caption.textContent = String(file.caption || '').trim();
@@ -21045,9 +21164,9 @@
         });
       }
 
-      if (isAudio && mainAction) placeholder.append(info, preview, mainAction, caption, transcript);
-      else if (mainAction) placeholder.append(mainAction, info, preview, caption, transcript);
-      else placeholder.append(info, preview, caption, transcript);
+      if (isAudio && mainAction) placeholder.append(info, preview, mainAction, caption, transcript, aiAnalysis);
+      else if (mainAction) placeholder.append(mainAction, info, preview, caption, transcript, aiAnalysis);
+      else placeholder.append(info, preview, caption, transcript, aiAnalysis);
       article.append(placeholder);
       if (state.mediaDisplayMode === 'immediate' && canInlinePreviewFile(file)) {
         showMediaPreview(preview, file, mainAction, { autoplay: false });
@@ -21188,6 +21307,8 @@
       state.messageData.set(item.id, { ...item, id: item.id, file, direct, messageType: 'file' });
       state.receipts.set(item.id, normalizeReceipt(item.receipt));
       state.reactions.set(item.id, Array.isArray(item.reactions) ? item.reactions : []);
+      renderMediaAiForMessage(item.id);
+      if (state.mediaAiMode === 'auto' && isOwnUser(item.from) && isMediaAiImageFile(file)) requestMediaAiAnalysis(item.id, mediaAiPresetPrompt('detail'));
       if (!item.history) scrollMessages();
     }
 
@@ -21309,7 +21430,9 @@
       elements.messageList.append(article);
       finalizeMessagePresentation(article, { ...item, file, direct, messageType: 'file' });
       renderVoiceTranscriptForMessage(item.id);
-      if (state.voiceTranscriptionMode === 'auto' && file.kind === 'voice') requestVoiceTranscript(item.id);
+      renderMediaAiForMessage(item.id);
+      if (state.voiceTranscriptionMode === 'auto' && isTranscribableAudioFile(file)) requestVoiceTranscript(item.id);
+      if (state.mediaAiMode === 'auto' && isOwnUser(item.from) && isMediaAiImageFile(file)) requestMediaAiAnalysis(item.id, mediaAiPresetPrompt('detail'));
       if (!item.history) scrollMessages();
     }
 
@@ -21733,7 +21856,12 @@
         seen.add(item.key);
         items.push(item);
         if (entry.id) {
-          state.messageData.set(String(entry.id), entry);
+          state.messageData.set(String(entry.id), {
+            ...entry,
+            id: String(entry.id),
+            file: { ...entry.file, messageId: String(entry.id) },
+            messageType: 'file',
+          });
           state.reactions.set(String(entry.id), Array.isArray(entry.reactions) ? entry.reactions : []);
           state.receipts.set(String(entry.id), normalizeReceipt(entry.receipt));
         }
@@ -26626,8 +26754,9 @@
       if (state.speechReadingActive || window.speechSynthesis?.speaking || window.speechSynthesis?.pending) {
         actions.push({ label: 'Stop', title: 'Stop reading aloud', icon: 'icon-stop', run: cancelSpeechReading });
       }
-      if (message.messageType === 'file' && message.file) {
-        const file = message.file;
+      const storedFileMessage = message.messageType === 'file' || message.type === 'message.file';
+      if (storedFileMessage && message.file) {
+        const file = { ...message.file, messageId: message.file.messageId || message.id || message.messageId };
         const article = state.messageNodes.get(messageId);
         const binding = article?.querySelector('.media-placeholder')?.mediaPreviewBinding || null;
         const isAudioFile = file.kind === 'voice' || String(file.mime || '').startsWith('audio/');
@@ -26641,10 +26770,20 @@
             run: () => showMediaPreview(binding.preview, file, binding.button, { autoplay: isAudioFile }),
           });
         }
-        if (file.kind === 'voice' && messageId) {
+        if (isMediaAiImageFile(file) && messageId && state.mediaAiMode !== 'off') {
+          actions.push({
+            label: 'Image AI',
+            title: state.capabilities.mediaAi ? 'Analyze image with experimental AI' : 'Image AI is not configured on this server',
+            icon: 'icon-brain',
+            separator: actions.length > 0,
+            disabled: !state.capabilities.mediaAi,
+            run: () => openMediaAiModal(messageId),
+          });
+        }
+        if (isTranscribableAudioFile(file) && messageId) {
           actions.push({
             label: 'Transcribe',
-            title: 'Transcribe voice message',
+            title: file.kind === 'voice' ? 'Transcribe voice message' : 'Transcribe audio file',
             icon: 'icon-transcript',
             separator: !canPreview && actions.length > 0,
             disabled: !state.capabilities.voiceTranscription,
@@ -32095,6 +32234,7 @@
 
     function completeLocalSignOff() {
       state.registered = false;
+      syncNativeAppBadge();
       state.isAdmin = false;
       state.signingOff = false;
       state.selfUser = null;
@@ -32661,16 +32801,182 @@
       if (message?.text) speakText(message.text, message.from);
     }
 
+    const MEDIA_AI_PRESETS = Object.freeze({
+      detail: 'Describe this image in detail.',
+      alt: 'Write concise accessible alt text for this image. Include important visible text.',
+      text: 'Extract and transcribe all clearly visible text from this image. Preserve useful line breaks.',
+      document: 'Explain this image as a chart, diagram, screenshot, or document. Summarize structure, labels, values, and conclusions.',
+      objects: 'Identify the main objects, people, setting, actions, and notable visual details. Do not identify real people by name.',
+      caption: 'Write a concise neutral caption for this image.',
+    });
+
+    function mediaAiPresetPrompt(name) {
+      return MEDIA_AI_PRESETS[String(name || '').trim()] || '';
+    }
+
+    function isMediaAiImageFile(file) {
+      return Boolean(file && state.capabilities.safeImageMimes.includes(String(file.mime || '').trim().toLowerCase()));
+    }
+
+    function normalizeMediaAi(value) {
+      if (!value || typeof value !== 'object') return null;
+      return {
+        provider: String(value.provider || 'hetzner'),
+        model: String(value.model || state.capabilities.mediaAiModel || ''),
+        prompt: String(value.prompt || ''),
+        response: String(value.response || ''),
+        status: ['idle', 'processing', 'complete', 'error'].includes(value.status) ? value.status : 'idle',
+        error: String(value.error || ''),
+        updatedAt: Number(value.updatedAt) || null,
+      };
+    }
+
+    function renderMediaAiSettings() {
+      if (!elements.mediaAiModeSelect) return;
+      elements.mediaAiModeSelect.value = state.mediaAiMode;
+      const available = state.capabilities.mediaAi === true;
+      elements.mediaAiModeSelect.disabled = !available;
+      if (!available && state.mediaAiMode !== 'off') {
+        state.mediaAiMode = 'off';
+        writeStorage('chat.media.aiMode', 'off');
+        elements.mediaAiModeSelect.value = 'off';
+      }
+      if (elements.mediaAiConfigHint) {
+        const model = state.capabilities.mediaAiModel ? ` · ${state.capabilities.mediaAiModel}` : '';
+        elements.mediaAiConfigHint.textContent = available
+          ? `Experimental server-side image analysis is available via ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}. The API key remains server-only.`
+          : 'Experimental image AI is unavailable until the server-only HETZNER_INFERENCE_API_KEY is configured.';
+      }
+    }
+
+    function ensureMediaAiNode(messageId) {
+      const article = state.messageNodes.get(messageId);
+      if (!article) return null;
+      let node = article.querySelector(`[data-media-ai="${CSS.escape(String(messageId))}"]`);
+      if (node) return node;
+      node = document.createElement('div');
+      node.className = 'media-ai-analysis';
+      node.dataset.mediaAi = String(messageId);
+      node.hidden = true;
+      const target = article.querySelector('.media-placeholder, .media-gallery-placeholder') || article;
+      target.append(node);
+      return node;
+    }
+
+    function renderMediaAiForMessage(messageId) {
+      const data = state.messageData.get(messageId);
+      if (!data?.file || !isMediaAiImageFile(data.file)) return;
+      const node = ensureMediaAiNode(messageId);
+      if (!node) return;
+      const ai = normalizeMediaAi(data.file.ai);
+      node.textContent = '';
+      node.hidden = true;
+      if (!ai || ai.status === 'idle') return;
+      node.hidden = false;
+      const status = document.createElement('span');
+      status.className = 'media-ai-analysis-status';
+      if (ai.status === 'processing') {
+        status.textContent = 'Experimental image AI · analyzing…';
+        node.append(status);
+        return;
+      }
+      if (ai.status === 'error') {
+        status.textContent = 'Experimental image AI';
+        const error = document.createElement('span');
+        error.className = 'media-ai-analysis-error';
+        error.textContent = ai.error || 'Analysis failed.';
+        node.append(status, error);
+        return;
+      }
+      status.textContent = `Experimental image AI${ai.model ? ` · ${ai.model}` : ''}`;
+      const text = document.createElement('span');
+      text.textContent = ai.response;
+      node.append(status, text);
+    }
+
+    function updateMediaAi(message) {
+      const messageId = String(message?.messageId || '');
+      const data = state.messageData.get(messageId);
+      if (!data?.file) return;
+      data.file.ai = normalizeMediaAi(message.ai);
+      renderMediaAiForMessage(messageId);
+      if (!elements.mediaAiModal.hidden && state.activeMediaAiMessageId === messageId) renderMediaAiModalCurrent(messageId);
+    }
+
+    function requestMediaAiAnalysis(messageId, prompt = mediaAiPresetPrompt('detail'), options = {}) {
+      const data = state.messageData.get(messageId);
+      if (!data?.file || !isMediaAiImageFile(data.file) || state.mediaAiMode === 'off' || !state.capabilities.mediaAi) return false;
+      const ai = normalizeMediaAi(data.file.ai);
+      if (!options.force && ['processing', 'complete'].includes(ai?.status)) return false;
+      const cleanPrompt = String(prompt || '').trim().slice(0, 1200);
+      if (!cleanPrompt) return false;
+      data.file.ai = { provider: 'hetzner', model: state.capabilities.mediaAiModel || '', prompt: cleanPrompt, response: '', status: 'processing', error: '', updatedAt: Date.now() };
+      renderMediaAiForMessage(messageId);
+      return sendJson({ type: 'media.ai.request', messageId, prompt: cleanPrompt });
+    }
+
+    function requestVisibleMediaAiDescriptions() {
+      if (state.mediaAiMode !== 'auto' || !state.capabilities.mediaAi) return;
+      for (const [messageId, data] of state.messageData) {
+        if (isOwnUser(data?.from) && isMediaAiImageFile(data?.file)) requestMediaAiAnalysis(messageId, mediaAiPresetPrompt('detail'));
+      }
+    }
+
+    function renderMediaAiModalCurrent(messageId) {
+      const data = state.messageData.get(messageId);
+      const ai = normalizeMediaAi(data?.file?.ai);
+      elements.mediaAiCurrent.textContent = '';
+      elements.mediaAiCurrent.hidden = !ai || (!ai.response && !ai.error && ai.status !== 'processing');
+      elements.mediaAiRunButton.disabled = ai?.status === 'processing';
+      if (!ai) return;
+      const status = document.createElement('strong');
+      status.textContent = ai.status === 'processing' ? 'Analyzing…' : (ai.status === 'error' ? 'Last analysis failed' : 'Current analysis');
+      elements.mediaAiCurrent.append(status);
+      if (ai.response) elements.mediaAiCurrent.append(document.createTextNode(ai.response));
+      if (ai.error) {
+        const error = document.createElement('span');
+        error.className = 'media-ai-analysis-error';
+        error.textContent = ai.error;
+        elements.mediaAiCurrent.append(error);
+      }
+      if (ai.prompt && ai.status !== 'processing') elements.mediaAiPromptInput.value = ai.prompt;
+    }
+
+    function openMediaAiModal(messageId) {
+      const data = state.messageData.get(messageId);
+      if (!data?.file || !isMediaAiImageFile(data.file) || state.mediaAiMode === 'off' || !state.capabilities.mediaAi) return;
+      state.activeMediaAiMessageId = String(messageId);
+      elements.mediaAiPresetSelect.value = 'detail';
+      elements.mediaAiPromptInput.value = mediaAiPresetPrompt('detail');
+      elements.mediaAiStatus.textContent = `${state.capabilities.mediaAiProvider || 'Hetzner Experiments'} · experimental`;
+      renderMediaAiModalCurrent(messageId);
+      elements.mediaAiModal.hidden = false;
+      requestAnimationFrame(() => elements.mediaAiPromptInput.focus());
+    }
+
+    function closeMediaAiModal() {
+      elements.mediaAiModal.hidden = true;
+      state.activeMediaAiMessageId = null;
+      elements.mediaAiStatus.textContent = '';
+      elements.mediaAiRunButton.disabled = false;
+    }
+
+    function isTranscribableAudioFile(file) {
+      if (!file) return false;
+      const mime = String(file.mime || '').trim().toLowerCase();
+      return file.kind === 'voice' || mime.startsWith('audio/') || state.capabilities.safeAudioMimes.includes(mime);
+    }
+
     function requestVoiceTranscript(messageId, force = false) {
       const data = state.messageData.get(messageId);
-      if (!data || data.file?.kind !== 'voice') return false;
+      if (!data || !isTranscribableAudioFile(data.file)) return false;
       const status = data.file.transcriptStatus;
       if (!force && ['processing', 'complete'].includes(status)) return false;
       if (!state.capabilities.voiceTranscription) {
         updateVoiceTranscript({
           messageId,
           status: 'error',
-          error: 'Voice transcription is not configured on this server.',
+          error: 'Audio transcription is not configured on this server.',
           updatedAt: Date.now(),
         });
         return false;
@@ -32687,7 +32993,7 @@
     function requestVisibleVoiceTranscripts() {
       if (state.voiceTranscriptionMode !== 'auto' || !state.capabilities.voiceTranscription) return;
       for (const [messageId, data] of state.messageData) {
-        if (data?.file?.kind === 'voice' && !data.file.transcript && !['processing', 'complete'].includes(data.file.transcriptStatus)) {
+        if (isTranscribableAudioFile(data?.file) && !data.file.transcript && !['processing', 'complete'].includes(data.file.transcriptStatus)) {
           requestVoiceTranscript(messageId);
         }
       }
@@ -33378,6 +33684,35 @@
       state.nativeTypingFocusFallbackActive = false;
     }
 
+    function roomUnreadCount(room) {
+      if (sameRoom(room?.name, state.currentRoom)) return 0;
+      const key = room?.roomKey || room?.key || normalizeRoomKey(room?.name || '');
+      return Math.max(0, Number(state.roomUnread.get(key) ?? room?.unread ?? 0) || 0);
+    }
+
+    function nativeAppBadgeCount() {
+      if (!state.registered || state.appIconBadgeMode === 'off') return 0;
+      let count = 0;
+      for (const room of state.rooms) {
+        if (state.appIconBadgeMode === 'direct' && room?.direct !== true) continue;
+        count += roomUnreadCount(room);
+      }
+      return Math.max(0, Math.min(9999, count));
+    }
+
+    function syncNativeAppBadge() {
+      const handler = window.webkit?.messageHandlers?.rantlistBadge;
+      if (!handler || typeof handler.postMessage !== 'function') return;
+      try { handler.postMessage({ count: nativeAppBadgeCount(), mode: state.appIconBadgeMode }); } catch {}
+    }
+
+    function applyAppIconBadgePreference(options = {}) {
+      if (!['direct', 'all'].includes(state.appIconBadgeMode)) state.appIconBadgeMode = 'off';
+      if (elements.appIconBadgeSelect) elements.appIconBadgeSelect.value = state.appIconBadgeMode;
+      if (options.persist !== false) writeStorage('chat.native.badgeMode', state.appIconBadgeMode);
+      syncNativeAppBadge();
+    }
+
     function applyMobileTypingFocusPreference(options = {}) {
       if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
       applyMediaPreviewScalePreference({ persist: false });
@@ -33399,6 +33734,7 @@
       applyMediaControlPreferences();
       applyMediaPreviewScalePreference({ persist: false });
       applyLinkPreviewScalePreference({ persist: false });
+      applyAppIconBadgePreference({ persist: false });
     }
 
     function isSavedThemeSelection(value = state.uiTheme) {
@@ -33787,8 +34123,10 @@
       if (elements.toolbarBordersInput) elements.toolbarBordersInput.checked = state.toolbarBorders;
       if (elements.interfaceBordersInput) elements.interfaceBordersInput.checked = state.interfaceBorders;
       if (elements.mobileTypingFocusInput) elements.mobileTypingFocusInput.checked = state.mobileTypingFocus;
+      if (elements.appIconBadgeSelect) elements.appIconBadgeSelect.value = state.appIconBadgeMode;
       if (elements.mobileRoomRailToggleInput) elements.mobileRoomRailToggleInput.checked = state.mobileRoomRailToggle;
       elements.mediaDisplaySelect.value = state.mediaDisplayMode;
+      renderMediaAiSettings();
       elements.mediaViewerModeSelect.value = state.mediaStoryMode;
       elements.channelMemberPositionSelect.value = state.channelMemberPosition;
     }

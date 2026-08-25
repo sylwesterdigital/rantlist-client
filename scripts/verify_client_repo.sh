@@ -39,6 +39,13 @@ grep -q 'import Network' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo
 grep -q 'NWPathMonitor' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native offline recovery monitor is missing" >&2; exit 1; }
 grep -q 'No internet connection' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS native offline screen is missing" >&2; exit 1; }
 grep -q 'SplashLogo' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS startup splash logo is missing" >&2; exit 1; }
+grep -q 'config.userContentController.add(context.coordinator, name: "rantlistBadge")' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS unread badge bridge missing" >&2; exit 1; }
+grep -q 'setBadgeCount(count)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS application icon badge update missing" >&2; exit 1; }
+grep -q 'config.userContentController.add(self, name: "rantlistBadge")' "$ROOT/macos/RantlistApp.swift" || { echo "macOS unread badge bridge missing" >&2; exit 1; }
+grep -q 'NSApp.dockTile.badgeLabel' "$ROOT/macos/RantlistApp.swift" || { echo "macOS Dock badge update missing" >&2; exit 1; }
+grep -q 'appIconBadgeSelect' "$ROOT/web/index.html" || { echo "Native unread badge Config control missing" >&2; exit 1; }
+grep -q 'mediaAiModeSelect' "$ROOT/web/index.html" || { echo "Experimental image AI Config control missing" >&2; exit 1; }
+! grep -RIn 'HETZNER_INFERENCE_API_KEY=' "$ROOT" --exclude='RELEASE.md' --exclude='README.md' --exclude='verify_client_repo.sh' >/dev/null 2>&1 || { echo "Public client must not contain a Hetzner API key setting" >&2; exit 1; }
 [[ -f "$ROOT/mobile/ios/Rantlist/Assets.xcassets/SplashLogo.imageset/SplashLogo.png" ]] || { echo "iOS splash logo asset missing" >&2; exit 1; }
 grep -q 'import Network' "$ROOT/macos/RantlistApp.swift" || { echo "macOS native connectivity monitoring is missing" >&2; exit 1; }
 grep -q 'NWPathMonitor' "$ROOT/macos/RantlistApp.swift" || { echo "macOS native offline recovery monitor is missing" >&2; exit 1; }

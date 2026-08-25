@@ -1,6 +1,7 @@
 import AVFoundation
 import Network
 import SwiftUI
+import UserNotifications
 @preconcurrency import WebKit
 
 private let appURL = URL(string: "https://rantlist.me/")!
@@ -166,6 +167,7 @@ private struct RantlistWebView: UIViewRepresentable {
         config.mediaTypesRequiringUserActionForPlayback = []
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
         config.applicationNameForUserAgent = "Rantlist-iOS"
+        config.userContentController.add(context.coordinator, name: "rantlistBadge")
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -188,7 +190,11 @@ private struct RantlistWebView: UIViewRepresentable {
 
     func updateUIView(_ uiView: WKWebView, context: Context) {}
 
-    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, UIDocumentPickerDelegate {
+    static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "rantlistBadge")
+    }
+
+    final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, UIDocumentPickerDelegate, WKScriptMessageHandler {
         private weak var webView: WKWebView?
         private let shellState: NativeShellState
         private let pathMonitor = NWPathMonitor()
@@ -218,6 +224,29 @@ private struct RantlistWebView: UIViewRepresentable {
             self.webView = webView
             shellState.retryAction = { [weak self] in self?.retryInitialLoad() }
             startNetworkMonitoring()
+        }
+
+        func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            guard message.name == "rantlistBadge" else { return }
+            let count: Int
+            if let body = message.body as? [String: Any] {
+                count = max(0, min(9999, (body["count"] as? NSNumber)?.intValue ?? 0))
+            } else if let number = message.body as? NSNumber {
+                count = max(0, min(9999, number.intValue))
+            } else {
+                return
+            }
+            DispatchQueue.main.async {
+                if #available(iOS 16.0, *) {
+                    UNUserNotificationCenter.current().setBadgeCount(count) { error in
+                        if error != nil {
+                            DispatchQueue.main.async { UIApplication.shared.applicationIconBadgeNumber = count }
+                        }
+                    }
+                } else {
+                    UIApplication.shared.applicationIconBadgeNumber = count
+                }
+            }
         }
 
         func beginInitialLoad() {

@@ -1,3 +1,9 @@
+## v0.1.55 / 9.6.90
+
+- Adds native iOS app-icon and macOS Dock unread badges with Off / direct / all-channel modes.
+- Adds the synchronized experimental image-AI UI for server-side Hetzner inference; client source contains no provider secret.
+- Browser source synchronized to rantlist-deploy-r118 / protocol 63.
+
 ## v0.1.46 / 9.6.81
 
 - Fixes native iOS **More chat space while typing on mobile** with a resilient composer-focus fallback and native-specific chrome-hiding selector.

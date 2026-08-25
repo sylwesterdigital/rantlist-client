@@ -1,3 +1,22 @@
+## Changes in v0.1.55
+
+- Synchronized browser client to **9.6.90 / rantlist-deploy-r118** and protocol **63**.
+- Config adds native unread app-icon badge modes: Off, private messages only, or private + channel messages. iOS updates the application icon badge and macOS updates the Dock badge while the app is running.
+- Config → Media adds experimental server-side Hetzner image AI with On request / Automatic description modes, useful analysis presets and custom image questions.
+- The Hetzner API key remains exclusively in the server secret environment; no API key is stored in the public/native client.
+
+## Changes in v0.1.54
+
+- Synchronized browser client to **9.6.89 / rantlist-deploy-r117** and protocol **62**.
+- Audio files uploaded through drag and drop or the normal file picker now offer **Transcribe** from the message More menu, using the same transcription backend as recorded voice notes.
+- Automatic voice-transcription mode also applies to uploaded audio attachments while keeping their original filename and file behavior.
+
+## Changes in v0.1.53
+
+- Synchronized browser client to **9.6.88 / rantlist-deploy-r116** and protocol **62**.
+- Uploaded media keep **Share** and **Download** in the speech-bubble More menu even after Stories / Shorts snapshot data refreshes the same message state.
+- Native iOS Download destination handling is unchanged.
+
 ## Changes in v0.1.52
 
 - Synchronized browser client to **9.6.87 / rantlist-deploy-r115** and protocol **62**.
