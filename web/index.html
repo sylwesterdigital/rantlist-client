@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.90">
+  <meta name="chat-ui-version" content="9.6.91">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -12130,7 +12130,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.90</small>
+          <small id="serverBrandVersion">v9.6.91</small>
         </span>
       </button>
     </div>
@@ -12381,6 +12381,15 @@
         </section>
         <section class="config-section">
           <h3>Media</h3>
+          <div class="config-row" data-config-feature="media-ai">
+            <label for="mediaAiModeSelect">Experimental image AI</label>
+            <select id="mediaAiModeSelect">
+              <option value="off">Off</option>
+              <option value="manual">On request</option>
+              <option value="auto">Automatic description</option>
+            </select>
+          </div>
+          <p id="mediaAiConfigHint" class="hint">Server status: checking experimental image AI…</p>
           <div class="config-row">
             <label for="mediaDisplaySelect">Media previews</label>
             <select id="mediaDisplaySelect">
@@ -12396,15 +12405,6 @@
             </select>
           </div>
           <p class="hint">Stories / Shorts is the default: tap any channel image or video to enter the full-screen vertical media feed. Choose Classic inline only if you want videos to play inside message bubbles.</p>
-          <div class="config-row">
-            <label for="mediaAiModeSelect">Experimental image AI</label>
-            <select id="mediaAiModeSelect">
-              <option value="off">Off</option>
-              <option value="manual">On request</option>
-              <option value="auto">Automatic description</option>
-            </select>
-          </div>
-          <p id="mediaAiConfigHint" class="hint">Server-side Hetzner Experiments image analysis. The API key stays on the server and is never stored in this browser/app.</p>
         </section>
         <section class="config-section">
           <h3>Speech</h3>
@@ -32835,17 +32835,14 @@
       if (!elements.mediaAiModeSelect) return;
       elements.mediaAiModeSelect.value = state.mediaAiMode;
       const available = state.capabilities.mediaAi === true;
-      elements.mediaAiModeSelect.disabled = !available;
-      if (!available && state.mediaAiMode !== 'off') {
-        state.mediaAiMode = 'off';
-        writeStorage('chat.media.aiMode', 'off');
-        elements.mediaAiModeSelect.value = 'off';
-      }
+      // Keep this preference visible and selectable even before the server secret is configured.
+      // Requests remain blocked by capability checks until the server reports mediaAi=true.
+      elements.mediaAiModeSelect.disabled = false;
       if (elements.mediaAiConfigHint) {
         const model = state.capabilities.mediaAiModel ? ` · ${state.capabilities.mediaAiModel}` : '';
         elements.mediaAiConfigHint.textContent = available
-          ? `Experimental server-side image analysis is available via ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}. The API key remains server-only.`
-          : 'Experimental image AI is unavailable until the server-only HETZNER_INFERENCE_API_KEY is configured.';
+          ? `Server status: ready · ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}. API key is server-only.`
+          : 'Server status: not configured · add HETZNER_INFERENCE_API_KEY to /etc/rantlist-chat.env, then restart the service.';
       }
     }
 

@@ -1,3 +1,9 @@
+## Changes in v0.1.56
+
+- Synchronized browser client to **9.6.91 / rantlist-deploy-r119** and protocol **63**.
+- Config → Media now puts **Experimental image AI** first, keeps the selector visible/selectable before the server key is configured, and shows explicit server readiness text.
+- A missing Hetzner server secret no longer resets the saved AI preference to Off.
+
 ## Changes in v0.1.55
 
 - Synchronized browser client to **9.6.90 / rantlist-deploy-r118** and protocol **63**.
