@@ -9,11 +9,12 @@ KEYCHAIN_SERVICE="${RANTLIST_ANDROID_KEYCHAIN_SERVICE:-workwork.rantlist.android
 KEYCHAIN_ACCOUNT="${RANTLIST_ANDROID_KEYCHAIN_ACCOUNT:-rantlist}"
 die(){ printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 [[ "$(uname -s)" == Darwin ]] || die "Android signed release currently expects macOS Keychain."
-for t in keytool security curl unzip; do command -v "$t" >/dev/null 2>&1 || die "Required Android release tool missing: $t"; done
+for t in security curl unzip; do command -v "$t" >/dev/null 2>&1 || die "Required Android release tool missing: $t"; done
 ensure_android_java
+[[ -x "$JAVA_HOME/bin/keytool" ]] || die "JDK $ANDROID_JAVA_MAJOR keytool is missing: $JAVA_HOME/bin/keytool"
 [[ -f "$KEYSTORE_PATH" ]] || die "Android release keystore is missing. Run ./scripts/setup_android_release.sh once."
 PASSWORD="$(security find-generic-password -w -a "$KEYCHAIN_ACCOUNT" -s "$KEYCHAIN_SERVICE" 2>/dev/null || true)"
 [[ -n "$PASSWORD" ]] || die "Android keystore password is missing from macOS Keychain. Run ./scripts/setup_android_release.sh after backing up/removing the incomplete keystore."
-keytool -list -keystore "$KEYSTORE_PATH" -storepass "$PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1 || die "Android release keystore or alias is not usable."
+"$JAVA_HOME/bin/keytool" -list -keystore "$KEYSTORE_PATH" -storepass "$PASSWORD" -alias "$KEY_ALIAS" >/dev/null 2>&1 || die "Android release keystore or alias is not usable."
 ensure_android_sdk
-printf 'Android release signing and SDK are usable (API %s, Build Tools %s).\n' "$ANDROID_API_LEVEL" "$ANDROID_BUILD_TOOLS_VERSION"
+printf 'Android release signing, JDK %s and SDK are usable (API %s, Build Tools %s).\n' "$ANDROID_JAVA_MAJOR" "$ANDROID_API_LEVEL" "$ANDROID_BUILD_TOOLS_VERSION"

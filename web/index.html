@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.91">
+  <meta name="chat-ui-version" content="9.6.111">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -756,6 +756,39 @@
     .message-time, .message-label { color: var(--message-muted-ink); font-size: 11px; }
     .message-label { font-weight: 700; }
     .message-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .ai-builder-card {
+      margin-top: 8px; padding: 10px; display: grid; gap: 9px;
+      border: 1px solid var(--message-control-border); border-radius: 14px;
+      background: var(--message-control-surface); color: var(--message-ink);
+    }
+    .ai-builder-card-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .ai-builder-card-badge { flex: 0 0 auto; padding: 3px 7px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 850; letter-spacing: .02em; }
+    .ai-builder-card-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; }
+    .ai-builder-card-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .ai-builder-card-actions button { min-height: 32px; }
+    .ai-builder-layer { position: fixed; inset: 0; z-index: 1250; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--text); }
+    .ai-builder-layer[hidden] { display: none !important; }
+    .ai-response-timing { margin-top: 6px; font-size: 10px; line-height: 1.3; color: var(--message-muted-ink); opacity: .82; }
+    .ai-builder-thread-state { flex: 0 1 auto; min-width: 0; font-size: 10px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ai-builder-toolbar { min-width: 0; display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; border-bottom: 1px solid var(--line); background: var(--panel); }
+    .ai-builder-toolbar strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: auto; }
+    .ai-builder-toolbar button { min-height: 34px; }
+    .ai-builder-stage { min-height: 0; position: relative; background: #fff; }
+    .ai-builder-frame { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+    .ai-builder-gallery { position: fixed; inset: 0; z-index: 1260; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--text); }
+    .ai-builder-gallery[hidden] { display: none !important; }
+    .ai-builder-gallery-list { min-height: 0; overflow: auto; padding: 14px; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); align-content: start; gap: 12px; }
+    .ai-builder-gallery-item { min-width: 0; padding: 12px; display: grid; gap: 8px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel2); }
+    .ai-builder-gallery-item strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ai-builder-gallery-item small { color: var(--muted); line-height: 1.35; }
+    .ai-builder-gallery-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    @media (min-width: 901px) {
+      .ai-builder-layer:not(.fullscreen) { inset: 0 0 0 50%; border-left: 1px solid var(--line); box-shadow: -12px 0 28px rgba(0, 0, 0, .14); }
+      .ai-builder-layer.fullscreen { inset: 0; }
+      .ai-builder-toolbar { flex-wrap: wrap; }
+    }
+    @media (max-width: 900px) { .ai-builder-layout-toggle { display: none !important; } }
+    @media (max-width: 700px) { .ai-builder-toolbar { flex-wrap: wrap; } .ai-builder-toolbar strong { width: 100%; flex-basis: 100%; } .ai-builder-gallery-list { grid-template-columns: 1fr; } }
     .link-preview-card {
       width: min(var(--link-preview-card-width, 860px), 100%);
       min-width: 0;
@@ -862,6 +895,23 @@
       opacity: .72;
     }
     .message:hover .reaction-button, .message:focus-within .reaction-button { opacity: 1; background: var(--message-control-hover); }
+    .ai-copy-button {
+      width: 24px;
+      height: 24px;
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      border: 0;
+      border-radius: 7px;
+      background: transparent;
+      color: var(--message-muted-ink);
+      opacity: .62;
+    }
+    .ai-copy-button .icon { width: 15px; height: 15px; }
+    .ai-copy-button:hover, .ai-copy-button:focus-visible { opacity: 1; background: var(--message-control-hover); }
+    .ai-copy-button.copied { opacity: 1; }
     .reaction-picker {
       position: absolute;
       right: 0;
@@ -3159,6 +3209,25 @@
       .tetris-key-help { display: none; }
     }
 
+    .helena-drawing-stage {
+      position: fixed; top: var(--topbar-height); right: 0; bottom: 0; left: var(--room-rail-space); z-index: 87;
+      width: calc(100% - var(--room-rail-space)); height: calc(100dvh - var(--topbar-height)); min-height: 0;
+      display: grid; grid-template-rows: 38px minmax(0,1fr); gap: 4px; padding: 4px; color: var(--text); background: var(--bg);
+    }
+    .helena-drawing-stage[hidden] { display: none !important; }
+    .helena-drawing-toolbar {
+      min-width:0; display:flex; align-items:center; gap:7px; padding:3px 5px;
+      border:1px solid var(--line); border-radius:9px; background:var(--panel);
+    }
+    .helena-drawing-toolbar strong { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .helena-drawing-status { min-width:0; flex:1 1 auto; overflow:hidden; color:var(--muted); font-size:11px; text-overflow:ellipsis; white-space:nowrap; }
+    .helena-drawing-status[data-level="error"] { color:var(--danger); }
+    .helena-drawing-status[data-level="success"] { color:var(--success); }
+    .helena-drawing-toolbar button { width:32px; min-width:32px; height:30px; padding:2px; display:grid; place-items:center; }
+    .helena-drawing-toolbar .icon { width:18px; height:18px; }
+    .helena-drawing-frame-shell { min-width:0; min-height:0; overflow:hidden; border:1px solid var(--line); border-radius:10px; background:#111; }
+    .helena-drawing-frame { width:100%; height:100%; display:block; border:0; background:#111; }
+
     .drawing-stage {
       position: fixed; top: var(--topbar-height); right: 0; bottom: 0; left: var(--room-rail-space); z-index: 86;
       width: calc(100% - var(--room-rail-space)); height: calc(100dvh - var(--topbar-height)); min-height: 0;
@@ -4638,6 +4707,7 @@
 
     /* v8 moderation, lazy media, disappearing messages and calls */
     .icon-more { --icon: url('/assets/icons/more.svg'); }
+    .icon-copy { --icon: url('/assets/icons/copy.svg'); }
     .icon-edit { --icon: url('/assets/icons/edit.svg'); }
     .icon-delete { --icon: url('/assets/icons/delete.svg'); }
     .icon-block { --icon: url('/assets/icons/block.svg'); }
@@ -6048,8 +6118,11 @@
     .media-ai-analysis-status { color: var(--muted); font-size: 10.5px; font-weight: 700; }
     .media-ai-analysis-error { color: var(--danger); }
     .media-ai-card { width: min(560px, calc(100vw - 24px)); }
-    .media-ai-current { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel-3) 82%, transparent); white-space: pre-wrap; overflow-wrap: anywhere; }
+    .media-ai-current { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel-3) 82%, transparent); overflow-wrap: anywhere; }
     .media-ai-current[hidden] { display: none !important; }
+    .media-ai-result { display: grid; gap: 6px; line-height: 1.38; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .media-ai-result-section { font-weight: 800; }
+    .media-ai-result-line { margin: 0; }
     .media-ai-prompt { min-height: 104px; resize: vertical; }
     .media-placeholder.is-audio {
       display: grid;
@@ -12130,7 +12203,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.91</small>
+          <small id="serverBrandVersion">v9.6.111</small>
         </span>
       </button>
     </div>
@@ -12377,6 +12450,32 @@
               <button id="floatingButton" data-ui-button class="desktop-only" type="button" aria-label="Float panels"><span class="ui-button-icon" aria-hidden="true">◫</span><span class="ui-button-label ui-button-label-full">Floating</span><span class="ui-button-label ui-button-label-short">Float</span></button>
               <button id="resetLayoutButton" data-ui-button class="desktop-only" type="button" aria-label="Reset panel layout"><span class="ui-button-icon" aria-hidden="true">↺</span><span class="ui-button-label ui-button-label-full">Reset layout</span><span class="ui-button-label ui-button-label-short">Reset</span></button>
             </div>
+          </div>
+        </section>
+        <section class="config-section">
+          <h3>Experimental AI</h3>
+          <div class="config-row" data-config-feature="chat-ai">
+            <label for="chatAiContextInput">Use recent channel context for /ai</label>
+            <input id="chatAiContextInput" type="checkbox">
+          </div>
+          <p id="chatAiContextHint" class="hint">When enabled, recent text from the active channel is sent to Hetzner with your /ai prompt so follow-up questions can use the conversation.</p>
+          <div class="config-row" data-config-feature="chat-ai-prompt-history">
+            <label for="chatAiPromptHistoryInput">Use ↑/↓ for /ai prompt history</label>
+            <input id="chatAiPromptHistoryInput" type="checkbox">
+          </div>
+          <p id="chatAiPromptHistoryHint" class="hint">When enabled, Arrow Up/Down in an empty or /ai composer recalls recent AI prompts stored locally for this profile so you can edit and resend them.</p>
+          <div class="config-row" data-config-feature="chat-ai-builder">
+            <label for="chatAiBuilderInput">Builder mode for /ai</label>
+            <input id="chatAiBuilderInput" type="checkbox">
+          </div>
+          <p id="chatAiBuilderHint" class="hint">When enabled, /ai returns a self-contained HTML app in a sandboxed rendered overlay instead of printing HTML into chat. You can also use /ai build without enabling the preference.</p>
+          <div class="config-row" data-config-feature="chat-ai-builder-thread">
+            <label for="chatAiBuilderThreadInput">Continue active Builder thread</label>
+            <input id="chatAiBuilderThreadInput" type="checkbox">
+          </div>
+          <p id="chatAiBuilderThreadHint" class="hint">When on, /ai sent while a Builder preview is open updates that exact build using only its prior Builder requests and latest HTML.</p>
+          <div class="config-actions">
+            <button id="chatAiBuilderGalleryButton" type="button"><span class="icon icon-preview"></span><span>Open AI Slop Gallery</span></button>
           </div>
         </section>
         <section class="config-section">
@@ -13243,6 +13342,7 @@
             <button id="calendarActionButton" class="attachment-action" type="button"><span class="icon icon-calendar"></span><span>Calendar</span></button>
             <button id="timerActionButton" class="attachment-action" type="button"><span class="icon icon-clock"></span><span>Timer</span></button>
             <button id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing"></span><span>Drawing</span></button>
+            <button id="helenaDrawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing"></span><span>WebGL Draw</span></button>
           </div>
           <div id="stickerTray" class="sticker-tray" role="region" aria-label="Sticker picker"><div id="stickerList" class="sticker-list"></div><span id="stickerStatus" class="sticker-status" aria-live="polite"></span></div>
           <div id="gifTray" class="gif-tray" role="region" aria-label="GIF picker"><div id="gifList" class="gif-list"></div><span id="gifQuotaStatus" class="gif-quota-status" aria-live="polite"></span></div>
@@ -13979,6 +14079,18 @@
 
   <div id="gameMediaControls" class="game-media-controls" hidden aria-label="Game video and voice controls"><span id="gameMediaStatus">Connecting video…</span><button id="gameMediaMuteButton" type="button" title="Mute microphone" aria-label="Mute microphone"><span class="icon icon-mic"></span></button><button id="gameMediaCameraButton" type="button" title="Turn camera off" aria-label="Turn camera off"><span class="icon icon-video"></span></button><button id="gameMediaEndButton" type="button" title="Leave video and voice" aria-label="Leave video and voice"><span class="icon icon-phone"></span></button></div>
 
+  <section id="helenaDrawingStage" class="helena-drawing-stage" hidden aria-label="WebGL Drawing">
+    <header class="helena-drawing-toolbar">
+      <strong>WebGL Draw</strong>
+      <span id="helenaDrawingStatus" class="helena-drawing-status" aria-live="polite">Helena Paint</span>
+      <button id="helenaDrawingReloadButton" type="button" title="Reload WebGL Draw" aria-label="Reload WebGL Draw"><span class="icon icon-history" aria-hidden="true"></span></button>
+      <button id="helenaDrawingCloseButton" type="button" title="Close WebGL Draw" aria-label="Close WebGL Draw"><span class="icon icon-close" aria-hidden="true"></span></button>
+    </header>
+    <div class="helena-drawing-frame-shell">
+      <iframe id="helenaDrawingFrame" class="helena-drawing-frame" title="Helena Paint WebGL drawing app" data-src="/helena-draw/?embed=rantlist" sandbox="allow-scripts allow-same-origin allow-downloads allow-forms allow-modals allow-popups" allow="clipboard-read; clipboard-write"></iframe>
+    </div>
+  </section>
+
   <section id="drawingStage" class="drawing-stage" hidden aria-label="Collaborative Drawing Table">
     <div class="drawing-stage-meta" aria-label="Drawing Table video and voice participants">
       <div id="drawingPlayerLeft" class="drawing-media-player"><span id="drawingPlayerLeftMedia" class="game-media-surface"><video autoplay playsinline></video><span class="call-avatar-fallback"><span id="drawingPlayerLeftAvatar" class="avatar">?</span></span><span class="call-speaking-indicator" aria-label="Audio activity"><i></i><i></i><i></i><i></i><i></i></span><span class="call-presenting-label" hidden>Presenting</span></span><strong id="drawingPlayerLeftName">Player</strong></div>
@@ -14212,7 +14324,7 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14221,13 +14333,13 @@
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
-        'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingChatButton', 'drawingActionSelect', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'togglePresentationButton', 'endCallButton',
+        'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingChatButton', 'drawingActionSelect', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'togglePresentationButton', 'endCallButton',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
-        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'messageForm', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
+        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'messageForm', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'sendButton', 'uploadStatus', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
@@ -14351,6 +14463,17 @@
         mediaAiProvider: 'Hetzner Experiments',
         mediaAiModel: '',
         mediaAiExperimental: true,
+        chatAi: false,
+        chatAiCommand: '/ai',
+        chatAiHelpCommand: '/ai help',
+        chatAiPromptHistory: true,
+        chatAiBuilder: false,
+        chatAiBuilderCommand: '/ai build',
+        chatAiBuilderMaxHtmlChars: 48000,
+        chatAiBuilderGalleryMaxItems: 30,
+        chatAiContext: true,
+        chatAiContextMaxMessages: 20,
+        chatAiContextMaxChars: 12000,
       },
       reconnectDelay: 800,
       reconnectTimer: null,
@@ -14470,6 +14593,16 @@
       customThemeName: readStorage('chat.ui.customThemeName') || '',
       voiceTranscriptionMode: readStorage('chat.voiceTranscriptionMode') || 'manual',
       mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
+      chatAiContextEnabled: readStorage('chat.ai.context') === 'on',
+      chatAiPromptHistoryEnabled: readStorage('chat.ai.promptHistory') === 'on',
+      chatAiPromptHistoryCursor: null,
+      chatAiPromptHistoryDraft: '',
+      chatAiPromptHistoryIdentity: '',
+      chatAiBuilderEnabled: readStorage('chat.ai.builder') === 'on',
+      chatAiBuilderThreadContextEnabled: readStorage('chat.ai.builder.threadContext') !== 'off',
+      aiBuilderGalleryItems: [],
+      aiBuilderGalleryOpen: false,
+      aiBuilderActive: null,
       activeMediaAiMessageId: null,
       voiceTranscriptLanguage: readStorage('chat.voiceTranscriptLanguage') || 'auto',
       autoSpeakIncoming: readStorage('chat.autoSpeakIncoming') === 'on',
@@ -14636,18 +14769,18 @@
       graphite: 'linear-gradient(145deg, #111315, #272c32)',
     });
 
-    const UI_THEME_KEYS = Object.freeze(['bg', 'panel', 'roomsPanel', 'panel2', 'panel3', 'typingBg', 'typingBubble', 'line', 'text', 'muted', 'accent', 'accent2', 'danger', 'success']);
+    const UI_THEME_KEYS = Object.freeze(['bg', 'panel', 'roomsPanel', 'panel2', 'panel3', 'typingBg', 'typingBubble', 'aiBubble', 'line', 'text', 'muted', 'accent', 'accent2', 'danger', 'success']);
     const UI_THEME_LABELS = Object.freeze({
       bg: 'Background', panel: 'Panel', roomsPanel: 'Rooms panel', panel2: 'Raised panel', panel3: 'Input/message',
-      typingBg: 'Typing bar', typingBubble: 'Typing bubble', line: 'Border colour',
+      typingBg: 'Typing bar', typingBubble: 'Typing bubble', aiBubble: 'Rantlist AI bubble', line: 'Border colour',
       text: 'Text', muted: 'Muted text', accent: 'Accent', accent2: 'Accent 2', danger: 'Danger', success: 'Success'
     });
     const UI_THEMES = Object.freeze({
-      midnight: Object.freeze({ scheme: 'dark', bg: '#0a0f1e', panel: '#11192a', roomsPanel: '#101828', panel2: '#17223a', panel3: '#080e1c', typingBg: '#11192a', typingBubble: '#17223a', line: '#2a3854', text: '#eef3ff', muted: '#97a6c4', accent: '#6ea8fe', accent2: '#8b5cf6', danger: '#ff6b7a', success: '#49d17d' }),
-      graphite: Object.freeze({ scheme: 'dark', bg: '#111315', panel: '#191c1f', roomsPanel: '#181b1e', panel2: '#22262a', panel3: '#0e1012', typingBg: '#191c1f', typingBubble: '#22262a', line: '#3a4046', text: '#f3f4f5', muted: '#a3a9b0', accent: '#8ab4f8', accent2: '#b493ff', danger: '#ff737f', success: '#58cf86' }),
-      paper: Object.freeze({ scheme: 'light', bg: '#eef1f5', panel: '#ffffff', roomsPanel: '#f5f5f5', panel2: '#f6f8fb', panel3: '#e9edf3', typingBg: '#ffffff', typingBubble: '#f6f8fb', line: '#c7cfdb', text: '#172033', muted: '#647087', accent: '#245fda', accent2: '#7246c7', danger: '#c93648', success: '#16824b' }),
-      'white-contrast': Object.freeze({ scheme: 'light', bg: '#fafafa', panel: '#fffefa', roomsPanel: '#f5f4f0', panel2: '#ffffff', panel3: '#fffaeb', typingBg: '#fffefa', typingBubble: '#ffffff', line: '#002e7a', text: '#21452c', muted: '#a2a8b4', accent: '#245fda', accent2: '#8142ff', danger: '#f83a50', success: '#0aff81' }),
-      oled: Object.freeze({ scheme: 'dark', bg: '#000000', panel: '#07090d', roomsPanel: '#07090c', panel2: '#10141b', panel3: '#000000', typingBg: '#07090d', typingBubble: '#10141b', line: '#293142', text: '#f4f7ff', muted: '#929db4', accent: '#45a3ff', accent2: '#a56cff', danger: '#ff5969', success: '#39d477' }),
+      midnight: Object.freeze({ scheme: 'dark', bg: '#0a0f1e', panel: '#11192a', roomsPanel: '#101828', panel2: '#17223a', panel3: '#080e1c', typingBg: '#11192a', typingBubble: '#17223a', aiBubble: '#6e8bff', line: '#2a3854', text: '#eef3ff', muted: '#97a6c4', accent: '#6ea8fe', accent2: '#8b5cf6', danger: '#ff6b7a', success: '#49d17d' }),
+      graphite: Object.freeze({ scheme: 'dark', bg: '#111315', panel: '#191c1f', roomsPanel: '#181b1e', panel2: '#22262a', panel3: '#0e1012', typingBg: '#191c1f', typingBubble: '#22262a', aiBubble: '#7893c8', line: '#3a4046', text: '#f3f4f5', muted: '#a3a9b0', accent: '#8ab4f8', accent2: '#b493ff', danger: '#ff737f', success: '#58cf86' }),
+      paper: Object.freeze({ scheme: 'light', bg: '#eef1f5', panel: '#ffffff', roomsPanel: '#f5f5f5', panel2: '#f6f8fb', panel3: '#e9edf3', typingBg: '#ffffff', typingBubble: '#f6f8fb', aiBubble: '#9db7ff', line: '#c7cfdb', text: '#172033', muted: '#647087', accent: '#245fda', accent2: '#7246c7', danger: '#c93648', success: '#16824b' }),
+      'white-contrast': Object.freeze({ scheme: 'light', bg: '#fafafa', panel: '#fffefa', roomsPanel: '#f5f4f0', panel2: '#ffffff', panel3: '#fffaeb', typingBg: '#fffefa', typingBubble: '#ffffff', aiBubble: '#8da6ff', line: '#002e7a', text: '#21452c', muted: '#a2a8b4', accent: '#245fda', accent2: '#8142ff', danger: '#f83a50', success: '#0aff81' }),
+      oled: Object.freeze({ scheme: 'dark', bg: '#000000', panel: '#07090d', roomsPanel: '#07090c', panel2: '#10141b', panel3: '#000000', typingBg: '#07090d', typingBubble: '#10141b', aiBubble: '#647dff', line: '#293142', text: '#f4f7ff', muted: '#929db4', accent: '#45a3ff', accent2: '#a56cff', danger: '#ff5969', success: '#39d477' }),
     });
 
     const LUCKY_THEME_FAMILIES = Object.freeze([
@@ -15068,6 +15201,29 @@
         renderMediaAiSettings();
         if (state.mediaAiMode === 'auto') requestVisibleMediaAiDescriptions();
       });
+      elements.chatAiContextInput.addEventListener('change', () => {
+        state.chatAiContextEnabled = elements.chatAiContextInput.checked === true;
+        writeStorage('chat.ai.context', state.chatAiContextEnabled ? 'on' : 'off');
+        renderChatAiSettings();
+      });
+      elements.chatAiPromptHistoryInput.addEventListener('change', () => {
+        state.chatAiPromptHistoryEnabled = elements.chatAiPromptHistoryInput.checked === true;
+        writeStorage('chat.ai.promptHistory', state.chatAiPromptHistoryEnabled ? 'on' : 'off');
+        resetChatAiPromptHistoryNavigation();
+        renderChatAiSettings();
+      });
+      elements.chatAiBuilderInput.addEventListener('change', () => {
+        state.chatAiBuilderEnabled = elements.chatAiBuilderInput.checked === true;
+        writeStorage('chat.ai.builder', state.chatAiBuilderEnabled ? 'on' : 'off');
+        renderChatAiSettings();
+      });
+      elements.chatAiBuilderThreadInput.addEventListener('change', () => {
+        state.chatAiBuilderThreadContextEnabled = elements.chatAiBuilderThreadInput.checked === true;
+        writeStorage('chat.ai.builder.threadContext', state.chatAiBuilderThreadContextEnabled ? 'on' : 'off');
+        renderChatAiSettings();
+        syncAiBuilderThreadStatus();
+      });
+      elements.chatAiBuilderGalleryButton.addEventListener('click', openAiBuilderGallery);
       elements.channelMemberPositionSelect.addEventListener('change', () => {
         state.channelMemberPosition = elements.channelMemberPositionSelect.value;
         writeStorage('chat.channelMembers.position', state.channelMemberPosition);
@@ -15469,12 +15625,14 @@
       });
 
       elements.messageInput.addEventListener('keydown', (event) => {
+        if (handleChatAiPromptHistoryKeydown(event)) return;
         if (event.key === 'Enter' && !event.shiftKey) {
           event.preventDefault();
           sendCurrentText();
         }
       });
       elements.messageInput.addEventListener('input', () => {
+        resetChatAiPromptHistoryNavigation();
         handleComposerTyping();
         resizeComposerInput();
         refreshComposerVisualState();
@@ -15661,6 +15819,10 @@
       elements.calendarActionButton.addEventListener('click', () => { closeAttachmentTray(); openCalendar(); });
       elements.timerActionButton.addEventListener('click', () => openExpiryModal(null));
       elements.drawingActionButton.addEventListener('click', openSoloDrawingComposer);
+      elements.helenaDrawingActionButton.addEventListener('click', openHelenaDrawingStage);
+      elements.helenaDrawingCloseButton.addEventListener('click', () => closeHelenaDrawingStage(true));
+      elements.helenaDrawingReloadButton.addEventListener('click', reloadHelenaDrawingStage);
+      window.addEventListener('message', handleHelenaDrawingMessage);
       elements.expiryButton.addEventListener('click', () => openExpiryModal(null));
 
 
@@ -16006,6 +16168,7 @@
           renderServerBrand();
           state.capabilities = { ...state.capabilities, ...(message.capabilities || {}) };
           renderMediaAiSettings();
+          renderChatAiSettings();
           debugLog('info', 'webrtc', 'configuration', rtcCapabilitySummary(), true);
           state.adminConfigured = message.capabilities?.adminConfigured === true;
           state.adminLoginAvailable = message.capabilities?.adminLoginAvailable === true;
@@ -16050,6 +16213,7 @@
           debugLog('info', 'webrtc', 'configuration-authorized', rtcCapabilitySummary(), true);
           state.registered = true;
           syncNativeAppBadge();
+          renderChatAiSettings();
           state.reconnectDelay = 800;
           state.websocketCloseBlockedReason = '';
           state.isAdmin = true;
@@ -16084,6 +16248,7 @@
           debugLog('info', 'webrtc', 'configuration-authorized', rtcCapabilitySummary(), true);
           state.registered = true;
           syncNativeAppBadge();
+          renderChatAiSettings();
           state.reconnectDelay = 800;
           state.websocketCloseBlockedReason = '';
           state.isAdmin = false;
@@ -16215,6 +16380,27 @@
 
         case 'admin.server.evacuation.cancelled':
           if (!elements.serverSettingsModal.hidden) setServerSettingsStatus('Scheduled disconnect cancelled.');
+          break;
+
+        case 'ai.builder.gallery.snapshot':
+          state.aiBuilderGalleryItems = Array.isArray(message.items) ? message.items.filter((item) => item?.id) : [];
+          renderAiBuilderGallery();
+          break;
+
+        case 'ai.builder.gallery.saved':
+          addSystemMessage(`Saved “${message.item?.title || 'AI Builder page'}” to AI Slop Gallery.`);
+          sendJson({ type: 'ai.builder.gallery.list' });
+          break;
+
+        case 'ai.builder.gallery.item':
+          if (message.item?.html) {
+            closeAiBuilderGallery();
+            openAiBuilderArtifact(message.item, message.item.sourceMessageId || null, message.item.id || null);
+          }
+          break;
+
+        case 'ai.builder.gallery.deleted':
+          if (state.aiBuilderActive?.artifactId === message.artifactId) closeAiBuilderOverlay();
           break;
 
         case 'gif.gallery.snapshot':
@@ -17131,6 +17317,107 @@
       else if (item.type === 'message.poll') renderPollMessage(item, item.target === 'user', true);
     }
 
+    const CHAT_AI_PROMPT_HISTORY_LIMIT = 50;
+
+    function chatAiPromptHistoryStorageKey() {
+      return `chat.ai.promptHistory.${state.identityId || 'anonymous'}`;
+    }
+
+    function isRecallableChatAiPrompt(value) {
+      const text = String(value || '').trim();
+      if (!/^\/ai(?:\s|$)/i.test(text)) return false;
+      return !/^\/ai\s+(?:help|flush|clear|reset)\s*$/i.test(text);
+    }
+
+    function readChatAiPromptHistory() {
+      const raw = readJsonStorage(chatAiPromptHistoryStorageKey());
+      if (!Array.isArray(raw)) return [];
+      return raw
+        .map((value) => String(value || '').trim())
+        .filter((value) => isRecallableChatAiPrompt(value))
+        .slice(-CHAT_AI_PROMPT_HISTORY_LIMIT);
+    }
+
+    function resetChatAiPromptHistoryNavigation() {
+      state.chatAiPromptHistoryCursor = null;
+      state.chatAiPromptHistoryDraft = '';
+      state.chatAiPromptHistoryIdentity = '';
+    }
+
+    function rememberChatAiPrompt(value) {
+      if (state.chatAiPromptHistoryEnabled !== true) return;
+      const text = String(value || '').trim();
+      if (!isRecallableChatAiPrompt(text)) return;
+      const history = readChatAiPromptHistory().filter((item) => item !== text);
+      history.push(text);
+      writeStorage(chatAiPromptHistoryStorageKey(), JSON.stringify(history.slice(-CHAT_AI_PROMPT_HISTORY_LIMIT)));
+      resetChatAiPromptHistoryNavigation();
+    }
+
+    function applyChatAiPromptHistoryValue(value) {
+      elements.messageInput.value = String(value || '');
+      const end = elements.messageInput.value.length;
+      elements.messageInput.setSelectionRange?.(end, end);
+      resizeComposerInput();
+      refreshComposerVisualState();
+    }
+
+    function handleChatAiPromptHistoryKeydown(event) {
+      if (state.chatAiPromptHistoryEnabled !== true || event.isComposing) return false;
+      if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') return false;
+      if (event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return false;
+      const input = elements.messageInput;
+      const value = String(input.value || '');
+      const trimmedStart = value.trimStart();
+      if (trimmedStart && !/^\/ai(?:\s|$)/i.test(trimmedStart)) return false;
+      const start = Number(input.selectionStart ?? value.length);
+      const end = Number(input.selectionEnd ?? start);
+      if (start !== end) return false;
+      if (event.key === 'ArrowUp' && value.slice(0, start).includes('\n')) return false;
+      if (event.key === 'ArrowDown' && value.slice(end).includes('\n')) return false;
+
+      const identityKey = chatAiPromptHistoryStorageKey();
+      const history = readChatAiPromptHistory();
+      if (!history.length) return false;
+      if (state.chatAiPromptHistoryIdentity !== identityKey) resetChatAiPromptHistoryNavigation();
+
+      if (state.chatAiPromptHistoryCursor === null) {
+        if (event.key === 'ArrowDown') return false;
+        state.chatAiPromptHistoryDraft = value;
+        state.chatAiPromptHistoryIdentity = identityKey;
+        state.chatAiPromptHistoryCursor = history.length - 1;
+      } else if (event.key === 'ArrowUp') {
+        state.chatAiPromptHistoryCursor = Math.max(0, state.chatAiPromptHistoryCursor - 1);
+      } else {
+        const next = state.chatAiPromptHistoryCursor + 1;
+        if (next >= history.length) {
+          applyChatAiPromptHistoryValue(state.chatAiPromptHistoryDraft);
+          resetChatAiPromptHistoryNavigation();
+          event.preventDefault();
+          return true;
+        }
+        state.chatAiPromptHistoryCursor = next;
+      }
+
+      applyChatAiPromptHistoryValue(history[state.chatAiPromptHistoryCursor] || '');
+      event.preventDefault();
+      return true;
+    }
+
+    function outgoingAiOptions(text) {
+      const isAi = /^\/ai(?:\s|$)/i.test(String(text || ''));
+      if (!isAi) return {};
+      const activeThreadId = state.chatAiBuilderThreadContextEnabled === true
+        ? String(state.aiBuilderActive?.threadId || '').trim()
+        : '';
+      return {
+        aiContext: state.chatAiContextEnabled === true,
+        aiBuilder: state.chatAiBuilderEnabled === true || Boolean(activeThreadId),
+        aiBuilderThreadContext: Boolean(activeThreadId),
+        aiBuilderThreadId: activeThreadId || undefined,
+      };
+    }
+
     function sendCurrentText() {
       const text = elements.messageInput.value.trim();
       if (!text || !canSend()) return;
@@ -17140,9 +17427,15 @@
         return;
       }
 
-      const sent = sendJson({ type: 'message.room', text, expiresInMs: state.outgoingExpiresInMs });
+      const sent = sendJson({
+        type: 'message.room',
+        text,
+        expiresInMs: state.outgoingExpiresInMs,
+        ...outgoingAiOptions(text),
+      });
 
       if (sent) {
+        rememberChatAiPrompt(text);
         stopTyping(true);
         playSound('sent');
         elements.messageInput.value = '';
@@ -17811,8 +18104,9 @@
     }
 
     function updateSessionStageUi() {
-      const stageVisible = !elements.gameStage.hidden || !elements.duelStage.hidden || !elements.tetrisStage.hidden || !elements.scribbleStage.hidden || !elements.drawingStage.hidden || !elements.callStage.hidden || !elements.avatarMakerStage?.hidden || !elements.brainStage?.hidden || !elements.quizStage?.hidden || !elements.checkersStage?.hidden || !elements.chessStage?.hidden;
       const kind = activeSessionKind();
+      if (kind && elements.helenaDrawingStage && !elements.helenaDrawingStage.hidden) elements.helenaDrawingStage.hidden = true;
+      const stageVisible = !elements.gameStage.hidden || !elements.duelStage.hidden || !elements.tetrisStage.hidden || !elements.scribbleStage.hidden || !elements.drawingStage.hidden || !elements.helenaDrawingStage?.hidden || !elements.callStage.hidden || !elements.avatarMakerStage?.hidden || !elements.brainStage?.hidden || !elements.quizStage?.hidden || !elements.checkersStage?.hidden || !elements.chessStage?.hidden;
       const minimized = Boolean(kind && state.sessionStageMinimized === kind);
       document.body.classList.toggle('session-stage-open', stageVisible);
       syncMobileRoomRailTogglePlacement();
@@ -19053,6 +19347,131 @@
       if(message.backgrounds&&typeof message.backgrounds==='object')for(const [identityId,background] of Object.entries(message.backgrounds))state.drawing.backgrounds[identityId]=normalizeDrawingBackground(background);
       if(message.layers&&typeof message.layers==='object')for(const [identityId,objects] of Object.entries(message.layers))state.drawing.layers[identityId]=(Array.isArray(objects)?objects:[]).map(normalizeDrawingObject).filter(Boolean);
       state.drawing.locked=true;state.activeGame.status='locked';state.drawing.challenge={...(state.drawing.challenge||{}),...(message.challenge||{}),enabled:true,locked:true};state.drawingPointer=null;state.drawingTransformAction=null;state.drawingChallengeSubmitting=false;closeDrawingDeliveryModal();if(state.drawingTextDraft){elements.drawingTextEditor.hidden=true;elements.drawingTextEditor.value='';elements.drawingTextEditor.readOnly=false;elements.drawingTextEditor.dataset.placing='false';elements.drawingTextEditor.dataset.renderScale='1';elements.drawingTextEditor.style.transform='none';state.drawingTextDraft=null;closeDrawingFontGallery();updateDrawingTextControlsVisibility();}applyDrawingDocumentToUi();renderDrawingTable();updateDrawingChallengeClock();addSystemMessage('Drawing challenge finished. Both canvases are locked and the result is being posted for voting.');sendDrawingChallengeResult();
+    }
+
+    function setHelenaDrawingStatus(message, level='info') {
+      if (!elements.helenaDrawingStatus) return;
+      elements.helenaDrawingStatus.textContent = String(message || '');
+      elements.helenaDrawingStatus.dataset.level = level;
+    }
+
+    function openHelenaDrawingStage() {
+      if (!canSend()) return;
+      if (state.activeGame || state.drawing) {
+        addSystemMessage('Close the active game or Drawing Table session before opening WebGL Draw.', true);
+        return;
+      }
+      closeAttachmentTray();
+      closeGamesTray();
+      elements.helenaDrawingStage.hidden = false;
+      const frame = elements.helenaDrawingFrame;
+      if (!frame.getAttribute('src')) {
+        setHelenaDrawingStatus('Loading Helena Paint…');
+        frame.setAttribute('src', frame.dataset.src || '/helena-draw/?embed=rantlist');
+      } else {
+        setHelenaDrawingStatus('Helena Paint');
+      }
+      updateSessionStageUi();
+    }
+
+    function closeHelenaDrawingStage(focusComposer=false) {
+      if (!elements.helenaDrawingStage || elements.helenaDrawingStage.hidden) return;
+      elements.helenaDrawingStage.hidden = true;
+      updateSessionStageUi();
+      if (focusComposer) elements.messageInput?.focus({ preventScroll: true });
+    }
+
+    function reloadHelenaDrawingStage() {
+      const frame = elements.helenaDrawingFrame;
+      if (!frame) return;
+      setHelenaDrawingStatus('Reloading Helena Paint…');
+      const base = frame.dataset.src || '/helena-draw/?embed=rantlist';
+      const separator = base.includes('?') ? '&' : '?';
+      frame.setAttribute('src', `${base}${separator}reload=${Date.now()}`);
+    }
+
+    async function handleHelenaDrawingMessage(event) {
+      const frame = elements.helenaDrawingFrame;
+      if (!frame?.contentWindow || event.source !== frame.contentWindow || event.origin !== location.origin) return;
+      const message = event.data;
+      if (!message || typeof message !== 'object' || Number(message.version) !== 1) return;
+
+      const reply = (ok, text, requestId = '') => {
+        try {
+          frame.contentWindow.postMessage({
+            type: 'rantlist.helena-draw.send-result',
+            version: 1,
+            requestId: String(requestId || ''),
+            ok: Boolean(ok),
+            message: String(text || ''),
+          }, location.origin);
+        } catch {}
+      };
+
+      if (message.type === 'rantlist.helena-draw.ready') {
+        setHelenaDrawingStatus(message.sendButton === false ? 'Send To Chat adapter unavailable' : 'Loading drawing engine…', message.sendButton === false ? 'error' : 'info');
+        return;
+      }
+      if (message.type === 'rantlist.helena-draw.loaded') {
+        const ready = message.sendButton !== false && message.engineReady !== false;
+        setHelenaDrawingStatus(ready ? 'Ready · Send To Chat posts to this channel' : 'Drawing engine did not initialize correctly', ready ? 'success' : 'error');
+        return;
+      }
+      if (message.type === 'rantlist.helena-draw.status') {
+        setHelenaDrawingStatus(message.message, ['error','success'].includes(message.level) ? message.level : 'info');
+        return;
+      }
+      if (message.type === 'rantlist.helena-draw.send-error') {
+        setHelenaDrawingStatus(String(message.message || 'Could not prepare artwork.'), 'error');
+        return;
+      }
+      if (message.type !== 'rantlist.helena-draw.send') return;
+
+      const requestId = String(message.requestId || '');
+      if (!canSend() || state.uploading) {
+        const text = state.uploading ? 'Another upload is already in progress.' : 'Chat is not ready to receive artwork.';
+        setHelenaDrawingStatus(text, 'error');
+        reply(false, text, requestId);
+        return;
+      }
+
+      try {
+        let blob = null;
+        const declaredMime = String(message.mime || '').toLowerCase();
+        const allowedMime = ['image/png','image/webp','image/jpeg'];
+        const mime = allowedMime.includes(declaredMime) ? declaredMime : 'image/png';
+
+        if (message.bytes instanceof ArrayBuffer && message.bytes.byteLength > 0) {
+          blob = new Blob([message.bytes], { type: mime });
+        } else if (ArrayBuffer.isView(message.bytes) && message.bytes.byteLength > 0) {
+          blob = new Blob([message.bytes.buffer.slice(message.bytes.byteOffset, message.bytes.byteOffset + message.bytes.byteLength)], { type: mime });
+        } else if (message.blob instanceof Blob && message.blob.size > 0) {
+          // Backward compatibility for an already-open r136 iframe during a
+          // hot update; new adapters always transfer an ArrayBuffer.
+          blob = message.blob;
+        }
+
+        if (!(blob instanceof Blob) || blob.size <= 0) {
+          throw new Error('Helena Paint returned an empty artwork.');
+        }
+
+        const ext = mime === 'image/webp' ? 'webp' : (mime === 'image/jpeg' ? 'jpg' : 'png');
+        const proposed = String(message.name || '').replace(/[^A-Za-z0-9._-]+/g, '-').slice(0, 120);
+        const name = proposed && proposed.toLowerCase().endsWith(`.${ext}`) ? proposed : `helena-drawing-${Date.now()}.${ext}`;
+        const file = new File([blob], name, { type: mime, lastModified: Date.now() });
+        const destinationRoom = String(state.currentRoom || '').trim();
+        if (!destinationRoom) throw new Error('No active channel is selected.');
+
+        setHelenaDrawingStatus(`Sending ${formatBytes(file.size)} to #${destinationRoom}…`);
+        const sent = await sendFiles([file], { targetOverride: 'room' });
+        const text = sent ? `Sent to #${destinationRoom}` : 'Artwork was not sent.';
+        setHelenaDrawingStatus(text, sent ? 'success' : 'error');
+        reply(sent, text, requestId);
+      } catch (error) {
+        const text = error?.message || 'Could not send artwork.';
+        setHelenaDrawingStatus(text, 'error');
+        reply(false, text, requestId);
+      }
     }
 
     function openSoloDrawingComposer(purpose='artwork'){
@@ -26395,15 +26814,69 @@
       return parts.join(' · ').slice(0, 96);
     }
 
+    function isChatAiUser(user) {
+      return String(user?.identityId || '') === 'server-ai-hetzner-0001';
+    }
+
+    function currentChatAiBubbleColor() {
+      const theme = selectedThemeEditorSource();
+      return /^#[0-9a-f]{6}$/i.test(String(theme?.aiBubble || '')) ? theme.aiBubble : '#6e8bff';
+    }
+
+    function refreshChatAiBubbleColor() {
+      const color = currentChatAiBubbleColor();
+      for (const article of document.querySelectorAll('.message.ai-message')) {
+        article.style.setProperty('--user-color', color);
+        applyMessageBubbleMood(article, color, article.dataset.messageId || article.dataset.groupTime || color);
+        syncMessageBubbleContrast(article);
+      }
+      reflowMessageGroups();
+    }
+
+    function chatAiAnswerTextForClipboard(text) {
+      return String(text || '').replace(/^@[^\n]+\n/, '').trim();
+    }
+
+    function createChatAiCopyButton(message) {
+      if (!isChatAiUser(message?.from) || message?.aiBuilder) return null;
+      const answer = chatAiAnswerTextForClipboard(message?.text);
+      if (!answer) return null;
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'ai-copy-button';
+      button.title = 'Copy AI answer';
+      button.setAttribute('aria-label', 'Copy AI answer to clipboard');
+      button.innerHTML = '<span class="icon icon-copy" aria-hidden="true"></span>';
+      button.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        try {
+          await copyText(answer);
+          button.classList.add('copied');
+          button.title = 'Copied';
+          button.setAttribute('aria-label', 'AI answer copied');
+          window.setTimeout(() => {
+            button.classList.remove('copied');
+            button.title = 'Copy AI answer';
+            button.setAttribute('aria-label', 'Copy AI answer to clipboard');
+          }, 1400);
+        } catch {
+          addSystemMessage('AI answer could not be copied.', true);
+        }
+      });
+      return button;
+    }
+
     function createMessageShell({ from, direct, time, label }) {
       const article = document.createElement('article');
       article.className = 'message';
       const own = isOwnUser(from);
       const displayUser = resolveUserAppearance(from);
+      const chatAi = isChatAiUser(from) || isChatAiUser(displayUser);
       if (own) article.classList.add('own');
       if (direct) article.classList.add('direct');
+      if (chatAi) article.classList.add('ai-message');
 
-      const userColor = safeProfileColor(displayUser?.metadata?.color);
+      const userColor = chatAi ? currentChatAiBubbleColor() : safeProfileColor(displayUser?.metadata?.color);
       article.style.setProperty('--user-color', userColor);
       article.style.setProperty('--message-surface', userColor);
       applyMessageBubbleMood(article, userColor, `${from?.identityId || from?.nickname || ''}:${time || Date.now()}`);
@@ -26460,12 +26933,20 @@
       body.className = 'message-text';
       body.textContent = message.text;
       article.append(body);
+      renderAiBuilderCard(article, message.aiBuilder, message.id);
+      renderAiResponseTiming(article, message.aiElapsedMs, Boolean(message.aiBuilder));
       renderMessageLinkPreview(article, message.linkPreview);
       elements.messageList.append(article);
       finalizeMessagePresentation(article, { ...message, direct, messageType: 'text' });
       reflowMessageGroups();
       scheduleMessageGroupPostLayoutReflow();
-      if (!history) scrollMessages();
+      if (!history) {
+        scrollMessages();
+        const builder = normalizeAiBuilder(message.aiBuilder);
+        if (builder && builder.requesterIdentityId && builder.requesterIdentityId === state.identityId) {
+          requestAnimationFrame(() => openAiBuilderArtifact(builder, message.id));
+        }
+      }
     }
 
     function normalizeMessageLinkPreview(raw) {
@@ -26598,6 +27079,8 @@
       const controls = document.createElement('div');
       controls.className = 'message-controls';
 
+      const aiCopyButton = createChatAiCopyButton(message);
+
       const reactionButton = document.createElement('button');
       reactionButton.type = 'button';
       reactionButton.className = 'reaction-button';
@@ -26618,6 +27101,7 @@
         controls.append(receipt);
       }
 
+      if (aiCopyButton) actions.append(aiCopyButton);
       actions.append(reactionList, controls);
       article.append(actions);
 
@@ -28706,7 +29190,12 @@
       event.preventDefault();
       const text = elements.callSideChatInput.value.trim();
       if (!text || !canSend()) return;
-      if (sendJson({ type: 'message.room', text, expiresInMs: state.outgoingExpiresInMs || null })) {
+      if (sendJson({
+        type: 'message.room',
+        text,
+        expiresInMs: state.outgoingExpiresInMs || null,
+        ...outgoingAiOptions(text),
+      })) {
         elements.callSideChatInput.value = '';
       }
     }
@@ -29177,6 +29666,7 @@
         state.typingUsers.set(key, {
           user: message.from,
           direct: message.target === 'user',
+          activity: message.activity === 'building' ? 'building' : 'typing',
           expiresAt: Number(message.expiresAt) || Date.now() + 5_000,
         });
       } else {
@@ -29210,12 +29700,23 @@
         return;
       }
 
-      const names = entries.slice(0, 2).map((entry) => entry.user?.nickname || 'Someone');
+      const visibleEntries = entries.slice(0, 2);
+      const names = visibleEntries.map((entry) => entry.user?.nickname || 'Someone');
       const extra = entries.length - names.length;
       const direct = entries.length === 1 && entries[0].direct;
-      elements.typingText.textContent = entries.length === 1
-        ? `${names[0]} is typing${direct ? ' to you' : ''}`
-        : `${names.join(' and ')}${extra > 0 ? ` +${extra}` : ''} are typing`;
+      if (entries.length === 1) {
+        const activity = entries[0].activity === 'building' ? 'building' : 'typing';
+        elements.typingText.textContent = `${names[0]} is ${activity}${direct && activity === 'typing' ? ' to you' : ''}`;
+      } else {
+        const activities = new Set(visibleEntries.map((entry) => entry.activity === 'building' ? 'building' : 'typing'));
+        if (activities.size === 1) {
+          const activity = visibleEntries[0]?.activity === 'building' ? 'building' : 'typing';
+          elements.typingText.textContent = `${names.join(' and ')}${extra > 0 ? ` +${extra}` : ''} are ${activity}`;
+        } else {
+          const described = visibleEntries.map((entry, index) => `${names[index]} is ${entry.activity === 'building' ? 'building' : 'typing'}`);
+          elements.typingText.textContent = `${described.join(' · ')}${extra > 0 ? ` · +${extra}` : ''}`;
+        }
+      }
     }
 
     function removeTypingUser(key) {
@@ -30218,6 +30719,7 @@
       elements.pollActionButton.disabled = !enabled || recording;
       elements.timerActionButton.disabled = !enabled || recording;
       elements.drawingActionButton.disabled = !enabled || recording || Boolean(state.activeGame);
+      elements.helenaDrawingActionButton.disabled = !enabled || recording || Boolean(state.activeGame);
       elements.expiryButton.disabled = !enabled || recording;
       elements.voiceFileInput.disabled = !enabled || recording;
       elements.voiceRecordButton.disabled = state.voiceStarting || state.voiceFinishing || (!enabled && !recording);
@@ -32810,6 +33312,286 @@
       caption: 'Write a concise neutral caption for this image.',
     });
 
+    function normalizeAiBuilder(raw) {
+      if (!raw || typeof raw !== 'object') return null;
+      const html = String(raw.html || '');
+      if (!html) return null;
+      return {
+        title: String(raw.title || 'AI Builder page').slice(0, 120), html,
+        prompt: String(raw.prompt || ''), requesterIdentityId: String(raw.requesterIdentityId || ''), id: String(raw.id || ''),
+        threadId: String(raw.threadId || ''),
+      };
+    }
+
+    function aiBuilderSafeFileName(title) {
+      const base = String(title || 'rantlist-ai-builder').normalize('NFKD').replace(/[^a-z0-9._-]+/gi, '-').replace(/^-+|-+$/g, '').slice(0, 72);
+      return `${base || 'rantlist-ai-builder'}.html`;
+    }
+
+    const AI_BUILDER_RUNTIME_STORAGE_PREFIX = 'chat.ai.builder.runtimeStorage.v1.';
+    const AI_BUILDER_RUNTIME_STORAGE_MAX_BYTES = 256 * 1024;
+    const AI_BUILDER_RUNTIME_STORAGE_MAX_KEYS = 128;
+
+    function aiBuilderRuntimeStorageNamespace(builder, sourceMessageId = '', artifactId = '') {
+      const raw = String(builder?.threadId || artifactId || builder?.id || sourceMessageId || '').trim();
+      if (!raw) return '';
+      return raw.replace(/[^a-z0-9._:-]+/gi, '-').slice(0, 160);
+    }
+
+    function normalizeAiBuilderRuntimeStorage(raw) {
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return {};
+      const output = {};
+      let bytes = 0;
+      const encoder = new TextEncoder();
+      for (const [rawKey, rawValue] of Object.entries(raw).slice(0, AI_BUILDER_RUNTIME_STORAGE_MAX_KEYS)) {
+        const key = String(rawKey).slice(0, 256);
+        const value = String(rawValue).slice(0, 64 * 1024);
+        const entryBytes = encoder.encode(key).length + encoder.encode(value).length;
+        if (!key || bytes + entryBytes > AI_BUILDER_RUNTIME_STORAGE_MAX_BYTES) continue;
+        output[key] = value;
+        bytes += entryBytes;
+      }
+      return output;
+    }
+
+    function readAiBuilderRuntimeStorage(namespace) {
+      if (!namespace) return {};
+      return normalizeAiBuilderRuntimeStorage(readJsonStorage(`${AI_BUILDER_RUNTIME_STORAGE_PREFIX}${namespace}`));
+    }
+
+    function writeAiBuilderRuntimeStorage(namespace, values) {
+      if (!namespace) return;
+      writeJsonStorage(`${AI_BUILDER_RUNTIME_STORAGE_PREFIX}${namespace}`, normalizeAiBuilderRuntimeStorage(values));
+    }
+
+    function handleAiBuilderRuntimeMessage(event) {
+      const frame = document.getElementById('aiBuilderFrame');
+      if (!frame?.contentWindow || event.source !== frame.contentWindow) return;
+      const data = event.data;
+      if (!data || typeof data !== 'object' || data.type !== 'rantlist.ai.builder.storage.v1') return;
+      const namespace = String(state.aiBuilderActive?.storageNamespace || '');
+      if (!namespace || String(data.namespace || '') !== namespace) return;
+      const op = String(data.op || '');
+      const current = readAiBuilderRuntimeStorage(namespace);
+      if (op === 'clear') {
+        writeAiBuilderRuntimeStorage(namespace, {});
+        return;
+      }
+      const key = String(data.key || '').slice(0, 256);
+      if (!key) return;
+      if (op === 'remove') {
+        delete current[key];
+        writeAiBuilderRuntimeStorage(namespace, current);
+        return;
+      }
+      if (op === 'set') {
+        current[key] = String(data.value ?? '').slice(0, 64 * 1024);
+        writeAiBuilderRuntimeStorage(namespace, current);
+      }
+    }
+
+    function aiBuilderSandboxStorageShim(namespace) {
+      const safeNamespace = JSON.stringify(String(namespace || '')).replace(/</g, '\\u003c');
+      const initial = JSON.stringify(readAiBuilderRuntimeStorage(namespace)).replace(/</g, '\\u003c').replace(/>/g, '\\u003e');
+      return `<script>(function(){"use strict";var ns=${safeNamespace};var seed=${initial};function makeStorage(values,persist){var data=Object.create(null);Object.keys(values||{}).forEach(function(k){data[String(k)]=String(values[k]);});function keys(){return Object.keys(data);}function send(op,key,value){if(!persist||!ns)return;try{parent.postMessage({type:"rantlist.ai.builder.storage.v1",namespace:ns,op:op,key:key,value:value},"*");}catch(_){}}var api={key:function(i){var list=keys();i=Number(i)||0;return i>=0&&i<list.length?list[i]:null;},getItem:function(k){k=String(k);return Object.prototype.hasOwnProperty.call(data,k)?data[k]:null;},setItem:function(k,v){k=String(k);v=String(v);data[k]=v;send("set",k,v);},removeItem:function(k){k=String(k);if(Object.prototype.hasOwnProperty.call(data,k)){delete data[k];send("remove",k,"");}},clear:function(){data=Object.create(null);send("clear","","");}};Object.defineProperty(api,"length",{enumerable:true,get:function(){return keys().length;}});return api;}var local=makeStorage(seed,true);var session=makeStorage({},false);function expose(name,value){try{Object.defineProperty(window,name,{configurable:true,enumerable:true,get:function(){return value;}});return true;}catch(_){try{window[name]=value;return true;}catch(__){return false;}}}window.__rantlistBuilderLocalStorage=local;window.__rantlistBuilderSessionStorage=session;expose("localStorage",local);expose("sessionStorage",session);})();<\/script>`;
+    }
+
+    function aiBuilderSandboxDocument(rawHtml, storageNamespace = '') {
+      const html = String(rawHtml || '').trim();
+      const csp = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; media-src data: blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'; font-src data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">`;
+      const viewport = '<meta name="viewport" content="width=device-width, initial-scale=1">';
+      const storageShim = aiBuilderSandboxStorageShim(storageNamespace);
+      const parsed = new DOMParser().parseFromString(html || '<!DOCTYPE html><html><head></head><body></body></html>', 'text/html');
+      parsed.querySelectorAll('base, meta[http-equiv]').forEach((node) => {
+        const directive = String(node.getAttribute('http-equiv') || '').trim().toLowerCase();
+        if (node.tagName === 'BASE' || directive === 'content-security-policy' || directive === 'refresh') node.remove();
+      });
+      const title = parsed.title ? `<title>${escapeHtml(parsed.title)}</title>` : '';
+      parsed.querySelector('title')?.remove();
+      return `<!DOCTYPE html><html><head>${csp}${viewport}${title}${storageShim}${parsed.head.innerHTML}</head><body>${parsed.body.innerHTML}</body></html>`;
+    }
+
+    function formatAiElapsedTime(rawMs) {
+      const ms = Math.max(0, Number(rawMs) || 0);
+      if (ms < 1000) return `${Math.max(1, Math.round(ms))} ms`;
+      const seconds = Math.round(ms / 1000);
+      if (seconds < 60) return `${seconds} sec`;
+      const minutes = Math.floor(seconds / 60);
+      const remainder = seconds % 60;
+      if (minutes < 60) return `${minutes} min${remainder ? ` ${remainder} sec` : ''}`;
+      const hours = Math.floor(minutes / 60);
+      const minuteRemainder = minutes % 60;
+      return `${hours} h${minuteRemainder ? ` ${minuteRemainder} min` : ''}`;
+    }
+
+    function renderAiResponseTiming(article, rawMs, builder = false) {
+      article?.querySelector?.('[data-ai-response-timing]')?.remove();
+      const ms = Math.max(0, Number(rawMs) || 0);
+      if (!article || !ms) return;
+      const note = document.createElement('div');
+      note.className = 'ai-response-timing';
+      note.dataset.aiResponseTiming = '';
+      note.textContent = `${builder ? 'Built' : 'Answered'} after ${formatAiElapsedTime(ms)}`;
+      note.title = 'Prompt-to-answer wall time, including queueing, retrieval and inference.';
+      article.append(note);
+    }
+
+    function syncAiBuilderThreadStatus() {
+      const layer = document.getElementById('aiBuilderLayer');
+      const status = layer?.querySelector('#aiBuilderThreadStatus');
+      if (!status) return;
+      const threadId = String(state.aiBuilderActive?.threadId || '');
+      if (!state.chatAiBuilderThreadContextEnabled) status.textContent = 'Thread context off';
+      else if (threadId) status.textContent = `Thread linked · ${threadId.slice(0, 8)}`;
+      else status.textContent = 'New Builder thread';
+    }
+
+    function toggleAiBuilderLayout() {
+      const layer = document.getElementById('aiBuilderLayer');
+      if (!layer || window.innerWidth <= 900) return;
+      layer.classList.toggle('fullscreen');
+      const button = layer.querySelector('#aiBuilderOverlayLayout');
+      if (button) button.textContent = layer.classList.contains('fullscreen') ? 'Split' : 'Full';
+    }
+
+    function ensureAiBuilderUi() {
+      let layer = document.getElementById('aiBuilderLayer');
+      if (!layer) {
+        layer = document.createElement('section'); layer.id = 'aiBuilderLayer'; layer.className = 'ai-builder-layer'; layer.hidden = true; layer.setAttribute('aria-hidden', 'true');
+        layer.innerHTML = `<header class="ai-builder-toolbar"><strong id="aiBuilderOverlayTitle">AI Builder</strong><span id="aiBuilderThreadStatus" class="ai-builder-thread-state">New Builder thread</span><button id="aiBuilderOverlayLayout" class="ai-builder-layout-toggle" type="button">Full</button><button id="aiBuilderOverlaySave" type="button">Save to Slop Gallery</button><button id="aiBuilderOverlayDownload" type="button">Download HTML</button><button id="aiBuilderOverlayGallery" type="button">Gallery</button><button id="aiBuilderOverlayClose" type="button">Close</button></header><div class="ai-builder-stage"><iframe id="aiBuilderFrame" class="ai-builder-frame" sandbox="allow-scripts" credentialless referrerpolicy="no-referrer" title="AI Builder preview"></iframe></div>`;
+        document.body.append(layer);
+        layer.querySelector('#aiBuilderOverlayClose').addEventListener('click', closeAiBuilderOverlay);
+        layer.querySelector('#aiBuilderOverlayGallery').addEventListener('click', openAiBuilderGallery);
+        layer.querySelector('#aiBuilderOverlayLayout').addEventListener('click', toggleAiBuilderLayout);
+        layer.querySelector('#aiBuilderOverlaySave').addEventListener('click', () => { const sourceMessageId = state.aiBuilderActive?.sourceMessageId; if (!sourceMessageId) return addSystemMessage('Open a channel AI Builder result before saving it.', true); sendJson({ type: 'ai.builder.gallery.save', sourceMessageId }); });
+        layer.querySelector('#aiBuilderOverlayDownload').addEventListener('click', () => { const active = state.aiBuilderActive; if (!active?.html) return; const blob = new Blob([active.html], { type: 'text/html;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = aiBuilderSafeFileName(active.title); document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); });
+        window.addEventListener('message', handleAiBuilderRuntimeMessage);
+      }
+      let gallery = document.getElementById('aiBuilderGallery');
+      if (!gallery) {
+        gallery = document.createElement('section'); gallery.id = 'aiBuilderGallery'; gallery.className = 'ai-builder-gallery'; gallery.hidden = true; gallery.setAttribute('aria-hidden', 'true');
+        gallery.innerHTML = `<header class="ai-builder-toolbar"><strong>AI Slop Gallery</strong><span id="aiBuilderGalleryCount" class="hint"></span><button id="aiBuilderGalleryClose" type="button">Close</button></header><div id="aiBuilderGalleryList" class="ai-builder-gallery-list"></div>`;
+        document.body.append(gallery); gallery.querySelector('#aiBuilderGalleryClose').addEventListener('click', closeAiBuilderGallery);
+      }
+      if (!document.documentElement.dataset.aiBuilderEscapeBound) {
+        document.documentElement.dataset.aiBuilderEscapeBound = '1';
+        window.addEventListener('keydown', (event) => {
+          if (event.key !== 'Escape') return;
+          if (state.aiBuilderGalleryOpen) closeAiBuilderGallery();
+          else if (document.getElementById('aiBuilderLayer')?.hidden === false) closeAiBuilderOverlay();
+        });
+      }
+      return { layer, gallery };
+    }
+
+    function renderAiBuilderCard(article, rawBuilder, sourceMessageId) {
+      const builder = normalizeAiBuilder(rawBuilder); article?.querySelector?.('[data-ai-builder-card]')?.remove(); if (!article || !builder) return;
+      const card = document.createElement('section'); card.className = 'ai-builder-card'; card.dataset.aiBuilderCard = '';
+      const head = document.createElement('div'); head.className = 'ai-builder-card-head';
+      const badge = document.createElement('span'); badge.className = 'ai-builder-card-badge'; badge.textContent = 'AI Builder';
+      const title = document.createElement('span'); title.className = 'ai-builder-card-title'; title.textContent = builder.title; head.append(badge, title);
+      const actions = document.createElement('div'); actions.className = 'ai-builder-card-actions';
+      const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open'; open.addEventListener('click', () => openAiBuilderArtifact(builder, sourceMessageId));
+      const save = document.createElement('button'); save.type = 'button'; save.textContent = 'Save'; save.addEventListener('click', () => sendJson({ type: 'ai.builder.gallery.save', sourceMessageId }));
+      const download = document.createElement('button'); download.type = 'button'; download.textContent = 'Download HTML'; download.addEventListener('click', () => { const blob = new Blob([builder.html], { type: 'text/html;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = aiBuilderSafeFileName(builder.title); document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); });
+      const gallery = document.createElement('button'); gallery.type = 'button'; gallery.textContent = 'Gallery'; gallery.addEventListener('click', openAiBuilderGallery);
+      actions.append(open, save, download, gallery); card.append(head, actions); article.querySelector('.message-text')?.insertAdjacentElement('afterend', card);
+    }
+
+    function openAiBuilderArtifact(rawBuilder, sourceMessageId = null, artifactId = null) {
+      const builder = normalizeAiBuilder(rawBuilder); if (!builder) return; const { layer } = ensureAiBuilderUi();
+      const storageNamespace = aiBuilderRuntimeStorageNamespace(builder, sourceMessageId, artifactId);
+      state.aiBuilderActive = { ...builder, sourceMessageId: sourceMessageId || null, artifactId: artifactId || builder.id || null, storageNamespace };
+      layer.querySelector('#aiBuilderOverlayTitle').textContent = builder.title || 'AI Builder'; layer.querySelector('#aiBuilderOverlaySave').disabled = !sourceMessageId;
+      layer.classList.remove('fullscreen');
+      const layoutButton = layer.querySelector('#aiBuilderOverlayLayout'); if (layoutButton) layoutButton.textContent = 'Full';
+      layer.querySelector('#aiBuilderFrame').srcdoc = aiBuilderSandboxDocument(builder.html, storageNamespace); layer.hidden = false; layer.setAttribute('aria-hidden', 'false');
+      syncAiBuilderThreadStatus();
+    }
+
+    function closeAiBuilderOverlay() {
+      const layer = document.getElementById('aiBuilderLayer'); if (!layer) return; layer.hidden = true; layer.setAttribute('aria-hidden', 'true'); layer.classList.remove('fullscreen'); const frame = layer.querySelector('#aiBuilderFrame'); if (frame) frame.srcdoc = '<!DOCTYPE html><html><body></body></html>'; state.aiBuilderActive = null; if (!state.aiBuilderGalleryOpen) document.body.classList.remove('modal-open');
+    }
+
+    function openAiBuilderGallery() {
+      if (!state.registered) return addSystemMessage('Register before opening AI Slop Gallery.', true); const { gallery } = ensureAiBuilderUi(); state.aiBuilderGalleryOpen = true; gallery.hidden = false; gallery.setAttribute('aria-hidden', 'false'); document.body.classList.add('modal-open'); sendJson({ type: 'ai.builder.gallery.list' }); renderAiBuilderGallery();
+    }
+
+    function closeAiBuilderGallery() {
+      const gallery = document.getElementById('aiBuilderGallery'); if (!gallery) return; gallery.hidden = true; gallery.setAttribute('aria-hidden', 'true'); state.aiBuilderGalleryOpen = false; document.body.classList.remove('modal-open');
+    }
+
+    function renderAiBuilderGallery() {
+      const ui = ensureAiBuilderUi(); const list = ui.gallery.querySelector('#aiBuilderGalleryList'); const count = ui.gallery.querySelector('#aiBuilderGalleryCount'); if (!list || !count) return;
+      const items = Array.isArray(state.aiBuilderGalleryItems) ? state.aiBuilderGalleryItems : []; count.textContent = `${items.length} / ${Number(state.capabilities.chatAiBuilderGalleryMaxItems) || 30}`; list.innerHTML = '';
+      if (!items.length) { const empty = document.createElement('p'); empty.className = 'hint'; empty.textContent = 'No saved AI Builder pages yet.'; list.append(empty); return; }
+      for (const item of items) {
+        const card = document.createElement('article'); card.className = 'ai-builder-gallery-item'; const title = document.createElement('strong'); title.textContent = item.title || 'AI Builder page';
+        const meta = document.createElement('small'); meta.textContent = `${Number(item.htmlChars || 0).toLocaleString()} HTML characters · ${item.updatedAt ? new Date(item.updatedAt).toLocaleString() : 'saved'}`;
+        const prompt = document.createElement('small'); prompt.textContent = String(item.prompt || '').slice(0, 220); const actions = document.createElement('div'); actions.className = 'ai-builder-gallery-actions';
+        const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open'; open.addEventListener('click', () => sendJson({ type: 'ai.builder.gallery.get', artifactId: item.id }));
+        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Delete'; remove.addEventListener('click', () => { if (confirm(`Delete “${item.title || 'this page'}” from AI Slop Gallery?`)) sendJson({ type: 'ai.builder.gallery.delete', artifactId: item.id }); });
+        actions.append(open, remove); card.append(title, meta, prompt, actions); list.append(card);
+      }
+    }
+
+    function renderChatAiSettings() {
+      if (!elements.chatAiContextInput) return;
+      elements.chatAiContextInput.checked = state.chatAiContextEnabled === true;
+      const available = state.capabilities.chatAi === true;
+      const contextAllowed = state.capabilities.chatAiContext !== false;
+      const maxMessages = Number(state.capabilities.chatAiContextMaxMessages) || 20;
+      elements.chatAiContextInput.disabled = !contextAllowed;
+      if (elements.chatAiContextHint) {
+        if (!contextAllowed) {
+          elements.chatAiContextHint.textContent = 'Channel context is disabled by this server. /ai continues to send only the explicit prompt.';
+        } else if (!available) {
+          elements.chatAiContextHint.textContent = 'Preference saved. /ai becomes available when Hetzner inference is configured on the server.';
+        } else if (state.chatAiContextEnabled) {
+          elements.chatAiContextHint.textContent = `On · up to ${maxMessages} recent text messages from this channel are sent to Hetzner with each /ai prompt.`;
+        } else {
+          elements.chatAiContextHint.textContent = 'Off · /ai sends only the explicit prompt. Turn this on for conversational follow-up questions.';
+        }
+      }
+      if (elements.chatAiPromptHistoryInput) {
+        const promptHistoryAvailable = state.capabilities.chatAiPromptHistory !== false;
+        elements.chatAiPromptHistoryInput.checked = state.chatAiPromptHistoryEnabled === true;
+        elements.chatAiPromptHistoryInput.disabled = !promptHistoryAvailable;
+        if (elements.chatAiPromptHistoryHint) {
+          elements.chatAiPromptHistoryHint.textContent = !promptHistoryAvailable
+            ? 'Prompt history is not available in this client.'
+            : (state.chatAiPromptHistoryEnabled
+              ? 'On · ↑/↓ recalls up to 50 /ai prompts stored only on this device for the current profile. Recalled prompts remain editable before sending.'
+              : 'Off · arrow keys keep normal composer behavior. Turn this on to recall recent /ai prompts locally.');
+        }
+      }
+      if (elements.chatAiBuilderInput) {
+        const builderAvailable = state.capabilities.chatAiBuilder === true;
+        elements.chatAiBuilderInput.checked = state.chatAiBuilderEnabled === true;
+        elements.chatAiBuilderInput.disabled = !builderAvailable;
+        elements.chatAiBuilderGalleryButton.disabled = !state.registered || !builderAvailable;
+        if (elements.chatAiBuilderHint) {
+          elements.chatAiBuilderHint.textContent = !builderAvailable
+            ? 'AI Builder is not available on this server.'
+            : (state.chatAiBuilderEnabled
+              ? 'On · /ai requests render as isolated HTML previews. Use /ai build for an explicit one-off builder request.'
+              : 'Off · normal /ai stays conversational. Use /ai build <instruction> for a one-off rendered HTML result.');
+        }
+        if (elements.chatAiBuilderThreadInput) {
+          const threadAvailable = builderAvailable && state.capabilities.chatAiBuilderThreadContext !== false;
+          elements.chatAiBuilderThreadInput.checked = state.chatAiBuilderThreadContextEnabled === true;
+          elements.chatAiBuilderThreadInput.disabled = !threadAvailable;
+          if (elements.chatAiBuilderThreadHint) {
+            elements.chatAiBuilderThreadHint.textContent = !threadAvailable
+              ? 'Scoped Builder thread context is not available on this server.'
+              : (state.chatAiBuilderThreadContextEnabled
+                ? 'On · while a Builder is open, /ai keeps that build isolated and sends its prior Builder requests plus latest HTML for revision.'
+                : 'Off · each Builder request starts independently unless recent channel context is enabled.');
+          }
+        }
+      }
+    }
+
     function mediaAiPresetPrompt(name) {
       return MEDIA_AI_PRESETS[String(name || '').trim()] || '';
     }
@@ -32860,6 +33642,38 @@
       return node;
     }
 
+    function normalizeMediaAiDisplayText(value) {
+      return String(value || '')
+        .replace(/\\([*_`#>-])/g, '$1')
+        .replace(/\*\*([^*\n]+)\*\*/g, '$1')
+        .replace(/__([^_\n]+)__/g, '$1')
+        .replace(/^\s*[\*-]\s+/gm, '• ')
+        .replace(/^\s*#{1,6}\s+/gm, '')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
+
+    function appendMediaAiResult(container, value) {
+      const text = normalizeMediaAiDisplayText(value);
+      if (!text) return;
+      const result = document.createElement('div');
+      result.className = 'media-ai-result';
+      for (const rawLine of text.split('\n')) {
+        const line = rawLine.trimEnd();
+        const row = document.createElement('div');
+        row.className = 'media-ai-result-line';
+        if (!line.trim()) {
+          row.textContent = ' ';
+        } else {
+          const headingLike = !line.startsWith('• ') && line.length <= 80 && !/[.!?]$/.test(line);
+          if (headingLike) row.classList.add('media-ai-result-section');
+          row.textContent = line;
+        }
+        result.append(row);
+      }
+      container.append(result);
+    }
+
     function renderMediaAiForMessage(messageId) {
       const data = state.messageData.get(messageId);
       if (!data?.file || !isMediaAiImageFile(data.file)) return;
@@ -32886,18 +33700,21 @@
         return;
       }
       status.textContent = `Experimental image AI${ai.model ? ` · ${ai.model}` : ''}`;
-      const text = document.createElement('span');
-      text.textContent = ai.response;
-      node.append(status, text);
+      node.append(status);
+      appendMediaAiResult(node, ai.response);
     }
 
     function updateMediaAi(message) {
       const messageId = String(message?.messageId || '');
+      const ai = normalizeMediaAi(message?.ai);
       const data = state.messageData.get(messageId);
-      if (!data?.file) return;
-      data.file.ai = normalizeMediaAi(message.ai);
-      renderMediaAiForMessage(messageId);
-      if (!elements.mediaAiModal.hidden && state.activeMediaAiMessageId === messageId) renderMediaAiModalCurrent(messageId);
+      if (data?.file) {
+        data.file.ai = ai;
+        renderMediaAiForMessage(messageId);
+      }
+      if (!elements.mediaAiModal.hidden && state.activeMediaAiMessageId === messageId) {
+        renderMediaAiModalCurrent(messageId, ai);
+      }
     }
 
     function requestMediaAiAnalysis(messageId, prompt = mediaAiPresetPrompt('detail'), options = {}) {
@@ -32919,9 +33736,9 @@
       }
     }
 
-    function renderMediaAiModalCurrent(messageId) {
+    function renderMediaAiModalCurrent(messageId, suppliedAi = null) {
       const data = state.messageData.get(messageId);
-      const ai = normalizeMediaAi(data?.file?.ai);
+      const ai = normalizeMediaAi(suppliedAi || data?.file?.ai);
       elements.mediaAiCurrent.textContent = '';
       elements.mediaAiCurrent.hidden = !ai || (!ai.response && !ai.error && ai.status !== 'processing');
       elements.mediaAiRunButton.disabled = ai?.status === 'processing';
@@ -32929,13 +33746,16 @@
       const status = document.createElement('strong');
       status.textContent = ai.status === 'processing' ? 'Analyzing…' : (ai.status === 'error' ? 'Last analysis failed' : 'Current analysis');
       elements.mediaAiCurrent.append(status);
-      if (ai.response) elements.mediaAiCurrent.append(document.createTextNode(ai.response));
+      if (ai.response) appendMediaAiResult(elements.mediaAiCurrent, ai.response);
       if (ai.error) {
         const error = document.createElement('span');
         error.className = 'media-ai-analysis-error';
         error.textContent = ai.error;
         elements.mediaAiCurrent.append(error);
       }
+      if (ai.status === 'processing') elements.mediaAiStatus.textContent = 'Analysis requested · waiting for Qwen…';
+      else if (ai.status === 'complete') elements.mediaAiStatus.textContent = 'Analysis complete.';
+      else if (ai.status === 'error') elements.mediaAiStatus.textContent = 'Analysis failed.';
       if (ai.prompt && ai.status !== 'processing') elements.mediaAiPromptInput.value = ai.prompt;
     }
 
@@ -33822,6 +34642,7 @@
           : key === 'panel3' ? '--panel-3'
           : key === 'typingBg' ? '--typing-bg'
           : key === 'typingBubble' ? '--typing-bubble'
+          : key === 'aiBubble' ? '--ai-bubble'
           : key === 'accent2' ? '--accent-2'
           : `--${key}`;
         root.style.setProperty(cssName, themeCssValue(theme, key));
@@ -33831,6 +34652,7 @@
       if (elements.themeSelect) elements.themeSelect.value = state.uiTheme;
       updateAppearanceCycleButton();
       applyChatBackground();
+      refreshChatAiBubbleColor();
       requestAnimationFrame(() => refreshMessageBubbleMood(elements.messageList || document));
     }
 
@@ -33988,9 +34810,10 @@
       const line = readableSecondaryInk(text, panel, [panel, panel2, panel3], 3);
       const accent = hslToHex(family.accent + luckyRandomBetween(-8, 8), luckyRandomBetween(70, 88), scheme === 'dark' ? luckyRandomBetween(61, 68) : luckyRandomBetween(38, 45));
       const accent2 = hslToHex(family.accent2 + luckyRandomBetween(-8, 8), luckyRandomBetween(66, 84), scheme === 'dark' ? luckyRandomBetween(62, 70) : luckyRandomBetween(38, 47));
+      const aiBubble = hslToHex(family.accent2 + luckyRandomBetween(-14, 14), luckyRandomBetween(58, 82), scheme === 'dark' ? luckyRandomBetween(58, 69) : luckyRandomBetween(62, 78));
       const danger = hslToHex(luckyRandomBetween(-8, 8), luckyRandomBetween(72, 88), scheme === 'dark' ? 66 : 42);
       const success = hslToHex(luckyRandomBetween(142, 158), luckyRandomBetween(58, 76), scheme === 'dark' ? 60 : 34);
-      const theme = normalizeTheme({ scheme, bg, panel, roomsPanel, panel2, panel3, typingBg, typingBubble, line, text, muted, accent, accent2, danger, success });
+      const theme = normalizeTheme({ scheme, bg, panel, roomsPanel, panel2, panel3, typingBg, typingBubble, aiBubble, line, text, muted, accent, accent2, danger, success });
       const report = luckyThemeContrastReport(theme);
       return { family, theme, report, scheme };
     }

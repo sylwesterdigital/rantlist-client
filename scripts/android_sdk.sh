@@ -5,6 +5,7 @@ set -Eeuo pipefail
 ANDROID_API_LEVEL="${RANTLIST_ANDROID_API_LEVEL:-35}"
 ANDROID_BUILD_TOOLS_VERSION="${RANTLIST_ANDROID_BUILD_TOOLS_VERSION:-35.0.0}"
 SDK_ROOT="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-$HOME/Library/Android/sdk}}"
+ANDROID_JAVA_MAJOR="${RANTLIST_ANDROID_JAVA_MAJOR:-17}"
 
 android_sdk_die(){ printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 android_sdk_log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
@@ -14,49 +15,62 @@ java_major(){
   "$java_bin" -version 2>&1 | awk -F'[".]' '/version/ { if ($2 == "1") print $3; else print $2; exit }'
 }
 
+use_android_java_home(){
+  local home="$1" major=""
+  [[ -n "$home" && -x "$home/bin/java" ]] || return 1
+  major="$(java_major "$home/bin/java")"
+  [[ "$major" == "$ANDROID_JAVA_MAJOR" ]] || return 1
+  export JAVA_HOME="$home"
+  export PATH="$JAVA_HOME/bin:$PATH"
+  return 0
+}
+
 ensure_android_java(){
-  local home="" major=""
-  if [[ -x /usr/libexec/java_home ]]; then
-    home="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
-    if [[ -n "$home" && -x "$home/bin/java" ]]; then
-      export JAVA_HOME="$home"
-      export PATH="$JAVA_HOME/bin:$PATH"
-      return 0
-    fi
+  local home=""
+
+  # Explicit override wins, but must be the pinned Android JDK major.
+  if [[ -n "${RANTLIST_ANDROID_JAVA_HOME:-}" ]]; then
+    use_android_java_home "$RANTLIST_ANDROID_JAVA_HOME" || \
+      android_sdk_die "RANTLIST_ANDROID_JAVA_HOME must point to JDK ${ANDROID_JAVA_MAJOR}."
+    return 0
   fi
+
+  # Prefer the Homebrew JDK 17 keg directly. It does not need to be made the
+  # system-wide default or linked into /Library/Java/JavaVirtualMachines.
   for home in \
-    "/Applications/Android Studio.app/Contents/jbr/Contents/Home" \
     /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
     /usr/local/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home; do
-    if [[ -x "$home/bin/java" ]]; then
-      major="$(java_major "$home/bin/java")"
-      if [[ "$major" =~ ^[0-9]+$ && "$major" -ge 17 ]]; then
-        export JAVA_HOME="$home"
-        export PATH="$JAVA_HOME/bin:$PATH"
-        return 0
-      fi
+    if use_android_java_home "$home"; then
+      return 0
     fi
   done
-  if command -v java >/dev/null 2>&1; then
-    major="$(java_major "$(command -v java)")"
-    if [[ "$major" =~ ^[0-9]+$ && "$major" -ge 17 && "$major" -le 23 ]]; then
+
+  # Then accept a correctly registered macOS JDK 17.
+  if [[ -x /usr/libexec/java_home ]]; then
+    home="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
+    if use_android_java_home "$home"; then
       return 0
     fi
   fi
+
+  # Android Studio may carry JDK 17 on some installations.
+  if use_android_java_home "/Applications/Android Studio.app/Contents/jbr/Contents/Home"; then
+    return 0
+  fi
+
   if command -v brew >/dev/null 2>&1 && [[ "${RANTLIST_ANDROID_AUTO_INSTALL_TOOLS:-1}" == 1 ]]; then
-    android_sdk_log "Installing OpenJDK 17 for Android builds"
+    android_sdk_log "Installing OpenJDK ${ANDROID_JAVA_MAJOR} for Android builds"
     brew list --versions openjdk@17 >/dev/null 2>&1 || brew install openjdk@17
     for home in \
       /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home \
       /usr/local/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home; do
-      if [[ -x "$home/bin/java" ]]; then
-        export JAVA_HOME="$home"
-        export PATH="$JAVA_HOME/bin:$PATH"
+      if use_android_java_home "$home"; then
         return 0
       fi
     done
   fi
-  android_sdk_die "A Java 17+ runtime suitable for Android builds was not found. Install Android Studio or Homebrew openjdk@17."
+
+  android_sdk_die "JDK ${ANDROID_JAVA_MAJOR} was not found. Install Homebrew openjdk@17 or set RANTLIST_ANDROID_JAVA_HOME to a JDK ${ANDROID_JAVA_MAJOR} home."
 }
 
 find_sdkmanager(){
@@ -77,7 +91,6 @@ find_sdkmanager(){
       return 0
     fi
   done
-  # Android Studio permits multiple versioned cmdline-tools folders.
   if [[ -d "$SDK_ROOT/cmdline-tools" ]]; then
     candidate="$(find "$SDK_ROOT/cmdline-tools" -maxdepth 3 -type f -name sdkmanager -perm -111 2>/dev/null | sort -Vr | head -n 1 || true)"
     if [[ -n "$candidate" ]]; then

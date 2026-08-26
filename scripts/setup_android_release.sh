@@ -2,6 +2,9 @@
 # One-time Android release signing setup. Keystore stays outside the repository; password is stored in macOS Keychain.
 set -Eeuo pipefail
 IFS=$'\n\t'
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# shellcheck source=android_sdk.sh
+source "$ROOT/scripts/android_sdk.sh"
 KEYSTORE_PATH="${RANTLIST_ANDROID_KEYSTORE:-$HOME/.config/workwork/rantlist-android-release.keystore}"
 KEY_ALIAS="${RANTLIST_ANDROID_KEY_ALIAS:-rantlist}"
 KEYCHAIN_SERVICE="${RANTLIST_ANDROID_KEYCHAIN_SERVICE:-workwork.rantlist.android.keystore}"
@@ -9,7 +12,9 @@ KEYCHAIN_ACCOUNT="${RANTLIST_ANDROID_KEYCHAIN_ACCOUNT:-rantlist}"
 
 die(){ printf 'ERROR: %s\n' "$*" >&2; exit 1; }
 [[ "$(uname -s)" == Darwin ]] || die "Android release signing setup currently expects macOS Keychain."
-for t in keytool security openssl; do command -v "$t" >/dev/null 2>&1 || die "Required tool missing: $t"; done
+for t in security openssl; do command -v "$t" >/dev/null 2>&1 || die "Required tool missing: $t"; done
+ensure_android_java
+[[ -x "$JAVA_HOME/bin/keytool" ]] || die "JDK $ANDROID_JAVA_MAJOR keytool is missing: $JAVA_HOME/bin/keytool"
 if [[ -f "$KEYSTORE_PATH" ]]; then
   printf 'Android release keystore already exists: %s\n' "$KEYSTORE_PATH"
   exit 0
@@ -17,7 +22,7 @@ fi
 mkdir -p "$(dirname "$KEYSTORE_PATH")"
 umask 077
 PASSWORD="$(openssl rand -hex 24)"
-keytool -genkeypair -v \
+"$JAVA_HOME/bin/keytool" -genkeypair -v \
   -keystore "$KEYSTORE_PATH" \
   -storepass "$PASSWORD" \
   -keypass "$PASSWORD" \

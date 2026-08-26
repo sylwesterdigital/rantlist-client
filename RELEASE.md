@@ -1,3 +1,10 @@
+## Changes in v0.1.57
+
+- Android release builds now pin the Gradle runtime to JDK 17 even when a newer system Java (including Java 26) is first on PATH.
+- Android Java discovery validates the actual runtime major and prefers the Homebrew openjdk@17 keg without changing the macOS-wide Java default.
+- Android signing checks and keystore setup use the selected JDK 17 keytool explicitly.
+- Android build output reports the exact JDK home/runtime before Gradle starts and fails early if it is not JDK 17.
+
 ## Changes in v0.1.56
 
 - Synchronized browser client to **9.6.91 / rantlist-deploy-r119** and protocol **63**.

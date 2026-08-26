@@ -8,7 +8,7 @@ for path in \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
   scripts/release_signed.sh scripts/publish_github_release.sh scripts/deploy_homepage.sh \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
-  scripts/build_android_release.sh scripts/build_ios_release.sh; do
+  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh; do
   [[ -e "$ROOT/$path" ]] || { echo "Missing $path" >&2; exit 1; }
 done
 [[ -d "$ROOT/web/assets" ]] || { echo "Missing web/assets" >&2; exit 1; }

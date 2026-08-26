@@ -21,6 +21,9 @@ log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 die(){ printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 [[ "$(uname -s)" == Darwin ]] || die "Android release builder currently runs from the macOS release host."
 "$ROOT/scripts/check_android_release_credentials.sh" >/dev/null
+# check_android_release_credentials.sh runs in a child process, so reselect and
+# export the pinned JDK in this build shell before Gradle starts.
+ensure_android_java
 [[ -f "$VERSION_FILE" ]] || die "VERSION.txt is missing."
 [[ -f "$BUILD_NUMBER_FILE" ]] || printf '0\n' > "$BUILD_NUMBER_FILE"
 APP_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
@@ -46,11 +49,9 @@ fi
 GRADLE="$GRADLE_HOME/bin/gradle"
 [[ -x "$GRADLE" ]] || die "Gradle extraction failed: $GRADLE"
 
-if [[ -x /usr/libexec/java_home ]]; then
-  JAVA_HOME_CANDIDATE="$(/usr/libexec/java_home -v 17 2>/dev/null || true)"
-  [[ -z "$JAVA_HOME_CANDIDATE" ]] || export JAVA_HOME="$JAVA_HOME_CANDIDATE"
-fi
-java -version 2>&1 | head -n 1
+log "Android build JDK: $JAVA_HOME"
+"$JAVA_HOME/bin/java" -version 2>&1 | head -n 1
+[[ "$(java_major "$JAVA_HOME/bin/java")" == "$ANDROID_JAVA_MAJOR" ]] || die "Android Gradle runtime must use JDK $ANDROID_JAVA_MAJOR."
 log "Building signed Android APK and AAB"
 "$GRADLE" --no-daemon --console=plain -p "$ANDROID_DIR" clean assembleRelease bundleRelease
 APK_SRC="$ANDROID_DIR/app/build/outputs/apk/release/app-release.apk"
