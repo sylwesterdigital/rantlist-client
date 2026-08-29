@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.111">
+  <meta name="chat-ui-version" content="9.6.128">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -413,6 +413,11 @@
     .field input, .field select { width: 100%; min-height: var(--control-height); padding: 5px 8px; }
     .form-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
     .profile-picker { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-2); }
+    .profile-portability-row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
+    .profile-portability-row button { flex: 1 1 128px; min-height: var(--control-height); }
+    .profile-transfer-status { display: block; margin-top: 6px; color: var(--muted); font-size: 9px; line-height: 1.35; }
+    .profile-transfer-status[data-tone="error"] { color: var(--danger); }
+    .profile-transfer-status[data-tone="success"] { color: var(--success); }
     .profile-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
     .profile-actions .primary { flex: 1 1 120px; }
     .profile-actions button { min-height: var(--control-height); }
@@ -766,6 +771,18 @@
     .ai-builder-card-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; }
     .ai-builder-card-actions { display: flex; gap: 7px; flex-wrap: wrap; }
     .ai-builder-card-actions button { min-height: 32px; }
+    .ai-youtube-transcript-card { margin-top: 8px; padding: 9px 10px; display: grid; gap: 7px; border: 1px solid var(--message-control-border); border-radius: 12px; background: var(--message-control-surface); color: var(--message-ink); }
+    .ai-youtube-transcript-head { display: flex; align-items: baseline; gap: 7px; min-width: 0; }
+    .ai-youtube-transcript-head strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ai-youtube-transcript-meta { color: var(--message-muted-ink); font-size: 10px; line-height: 1.3; }
+    .ai-youtube-transcript-actions { display: flex; gap: 7px; flex-wrap: wrap; }
+    .ai-youtube-transcript-actions button { min-height: 30px; }
+    .ai-youtube-transcript-layer { position: fixed; inset: 0; z-index: 1270; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--text); }
+    .ai-youtube-transcript-layer[hidden] { display: none !important; }
+    .ai-youtube-transcript-toolbar { min-width: 0; display: flex; align-items: center; gap: 8px; padding: max(10px, env(safe-area-inset-top)) 12px 10px; border-bottom: 1px solid var(--line); background: var(--panel); flex-wrap: wrap; }
+    .ai-youtube-transcript-toolbar strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: auto; }
+    .ai-youtube-transcript-body { min-height: 0; overflow: auto; padding: 14px; }
+    .ai-youtube-transcript-text { margin: 0; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; border: 1px solid var(--line); border-radius: 12px; background: var(--panel2); color: var(--text); font: inherit; line-height: 1.5; user-select: text; }
     .ai-builder-layer { position: fixed; inset: 0; z-index: 1250; display: grid; grid-template-rows: auto minmax(0, 1fr); background: var(--bg); color: var(--text); }
     .ai-builder-layer[hidden] { display: none !important; }
     .ai-response-timing { margin-top: 6px; font-size: 10px; line-height: 1.3; color: var(--message-muted-ink); opacity: .82; }
@@ -945,22 +962,36 @@
     .typing-indicator {
       position: absolute;
       z-index: 17;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      left: 12px;
+      right: auto;
+      bottom: 6px;
+      width: fit-content;
+      max-width: calc(100% - 24px);
       min-height: 0;
       display: none;
       align-items: center;
-      gap: 8px;
-      padding: 7px 13px;
-      border-top: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
-      background: var(--typing-bg, color-mix(in srgb, var(--panel) 88%, transparent));
+      gap: 7px;
+      padding: 5px 9px 6px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+      border-radius: 12px 12px 12px 4px;
+      background: var(--typing-bg, color-mix(in srgb, var(--panel) 94%, transparent));
+      box-shadow: 0 2px 8px color-mix(in srgb, #000 10%, transparent);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
       color: var(--muted);
       font-size: 12px;
       pointer-events: none;
       box-sizing: border-box;
     }
     .typing-indicator.visible { display: flex; }
+    #typingText {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .message-viewport.has-typing-indicator #messageList { padding-bottom: 46px; }
+    .message-viewport.has-context-overlay.has-typing-indicator #messageList { padding-bottom: 96px; }
     .message-viewport.has-context-overlay .typing-indicator { bottom: 46px; }
     .message-viewport.has-typing-indicator .message-to-bottom-button { bottom: 48px; }
     .message-viewport.has-context-overlay.has-typing-indicator .message-to-bottom-button { bottom: 92px; }
@@ -968,10 +999,11 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 6px 9px;
-      border: 1px solid var(--line);
-      border-radius: 13px 13px 13px 4px;
-      background: var(--typing-bubble, color-mix(in srgb, var(--panel-2) 88%, transparent));
+      padding: 2px 1px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
     }
     .typing-dots { display: inline-flex; align-items: center; gap: 3px; }
     .typing-dots i {
@@ -4290,6 +4322,64 @@
     }
 
     .profile-compact-grid { display: grid; gap: var(--space-3); }
+    .profile-start-card {
+      display: grid;
+      gap: 10px;
+      padding: 13px;
+      border: 1px solid color-mix(in srgb, var(--accent) 48%, var(--line));
+      border-radius: var(--radius-md);
+      background:
+        radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent) 15%, transparent), transparent 42%),
+        color-mix(in srgb, var(--panel-2) 94%, var(--accent) 6%);
+      box-shadow: 0 8px 24px color-mix(in srgb, #000 12%, transparent);
+    }
+    .profile-start-copy { display: grid; gap: 3px; }
+    .profile-start-kicker,
+    .profile-section-kicker {
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+    }
+    .profile-start-copy h3,
+    .profile-section-heading h3 { margin: 0; color: var(--text); font-size: 15px; }
+    .profile-start-copy p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
+    .profile-start-identity { min-width: 0; display: grid; gap: 4px; }
+    .profile-nickname-label { display: flex; align-items: center; gap: 6px; font-weight: 900; }
+    .profile-required-badge {
+      padding: 2px 6px;
+      border-radius: 999px;
+      color: var(--panel);
+      background: var(--accent);
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    #nicknameInput {
+      min-height: 40px;
+      font-size: 15px;
+      font-weight: 750;
+      border-color: color-mix(in srgb, var(--accent) 52%, var(--line));
+      background: color-mix(in srgb, var(--panel-3) 92%, var(--accent) 8%);
+    }
+    #nicknameInput:focus { border-color: var(--accent); }
+    .profile-start-optional-note { margin-left: 60px; color: var(--muted); font-size: 9px; }
+    .profile-avatar-controls { display: grid; justify-items: end; gap: 5px; }
+    .profile-avatar-controls > button { width: 32px; min-width: 32px; height: 32px; min-height: 32px; padding: 0; }
+    .profile-optional-section,
+    .profile-secondary-section {
+      display: grid;
+      gap: var(--space-3);
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--panel-2) 92%, transparent);
+    }
+    .profile-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; }
+    .profile-section-heading > div { display: grid; gap: 2px; }
+    .profile-section-heading > small { max-width: 48%; color: var(--muted); font-size: 9px; text-align: right; }
     .profile-avatar-row {
       display: grid;
       grid-template-columns: 48px minmax(0, 1fr);
@@ -5302,6 +5392,112 @@
       pointer-events: none;
       -webkit-user-drag: none;
     }
+    .media-story-media.media-story-transforming { transition: transform .12s ease-out; }
+    .media-story-stage.media-story-image-inspect { cursor: grab; }
+    .media-story-stage.media-story-image-inspect.dragging { cursor: grabbing; }
+    .media-story-transform-controls {
+      position: absolute;
+      z-index: 4;
+      top: max(62px, calc(env(safe-area-inset-top) + 54px));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 999px;
+      background: rgba(0,0,0,.42);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      pointer-events: auto;
+    }
+    .media-story-transform-controls[hidden] { display: none !important; }
+    .media-story-transform-button {
+      width: 36px;
+      min-width: 36px;
+      height: 36px;
+      min-height: 36px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(255,255,255,.1);
+      color: #fff;
+      font-size: 18px;
+      font-weight: 850;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+    }
+    .media-story-transform-button:hover { background: rgba(255,255,255,.2); }
+    .media-story-transform-button[disabled] { opacity: .38; }
+    .media-story-ai-trigger {
+      position: absolute;
+      z-index: 5;
+      left: max(12px, env(safe-area-inset-left));
+      bottom: max(14px, calc(var(--safe-bottom, 0px) + 10px));
+      min-width: 38px;
+      height: 38px;
+      padding: 0 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 999px;
+      background: rgba(0,0,0,.52);
+      color: #fff;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      pointer-events: auto;
+    }
+    .media-story-ai-trigger[hidden] { display: none !important; }
+    .media-story-ai-trigger .icon { width: 17px; height: 17px; }
+    .media-story-ai-count { min-width: 16px; font-size: 10px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .media-story-ai-panel {
+      position: absolute;
+      z-index: 6;
+      left: max(12px, env(safe-area-inset-left));
+      right: max(72px, calc(env(safe-area-inset-right) + 62px));
+      bottom: max(58px, calc(var(--safe-bottom, 0px) + 54px));
+      max-width: 760px;
+      max-height: min(52vh, 560px);
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 14px;
+      background: rgba(8,10,14,.88);
+      color: #fff;
+      box-shadow: 0 16px 54px rgba(0,0,0,.42);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      pointer-events: auto;
+      user-select: text;
+      -webkit-user-select: text;
+      font-size: var(--ui-font-size, 14px);
+      line-height: 1.5;
+    }
+    .media-story-ai-panel[hidden] { display: none !important; }
+    .media-story-ai-panel .media-ai-entry { background: rgba(255,255,255,.07); border-color: rgba(255,255,255,.18); }
+    .media-story-ai-panel .media-ai-entry-prompt,
+    .media-story-ai-panel .media-ai-entry-time,
+    .media-story-ai-panel .media-ai-analysis-status { color: rgba(255,255,255,.72); }
+    .media-story-ai-panel .media-ai-copy-button { color: #fff; background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
+    .media-story-ai-panel-head { display: flex; align-items: center; gap: 8px; position: sticky; top: 0; z-index: 1; padding-bottom: 4px; background: rgba(8,10,14,.92); }
+    .media-story-ai-panel-head strong { flex: 1; }
+    .media-story-ai-close { width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
+    .media-story-transform-readout {
+      min-width: 74px;
+      padding: 0 4px;
+      color: rgba(255,255,255,.92);
+      font-size: 11px;
+      font-weight: 800;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
     .media-story-stage.story-enter-next .media-story-media { animation: media-story-enter-next .18s ease-out; }
     .media-story-stage.story-enter-previous .media-story-media { animation: media-story-enter-previous .18s ease-out; }
     @keyframes media-story-enter-next { from { opacity: .35; transform: translateY(7%); } to { opacity: 1; transform: translateY(0); } }
@@ -6103,24 +6299,74 @@
     .media-transcript-stop[hidden] { display: none !important; }
     .media-ai-analysis {
       display: grid;
-      gap: 5px;
+      gap: 7px;
       margin-top: 6px;
       padding: 8px 9px;
       border-left: 2px solid color-mix(in srgb, var(--accent) 65%, transparent);
       background: color-mix(in srgb, var(--panel-3) 82%, transparent);
       color: var(--text);
-      font-size: 12px;
-      line-height: 1.45;
-      white-space: pre-wrap;
+      font-size: var(--ui-font-size, 14px);
+      line-height: 1.5;
+      white-space: normal;
       overflow-wrap: anywhere;
     }
     .media-ai-analysis[hidden] { display: none !important; }
-    .media-ai-analysis-status { color: var(--muted); font-size: 10.5px; font-weight: 700; }
+    .media-ai-analysis-status { color: var(--muted); font-size: var(--ui-small-font-size, 12px); font-weight: 700; }
+    .media-ai-history-toggle {
+      justify-self: start;
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--panel-2) 88%, transparent);
+      color: var(--text);
+      font-size: var(--ui-small-font-size, 12px);
+      font-weight: 800;
+    }
+    .media-ai-history-toggle .icon { width: 15px; height: 15px; }
+    .media-ai-history-body { display: grid; gap: 8px; }
+    .media-ai-history-body[hidden] { display: none !important; }
+    .media-ai-entry {
+      display: grid;
+      gap: 6px;
+      padding: 9px;
+      border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+      border-radius: 10px;
+      background: color-mix(in srgb, var(--panel) 86%, transparent);
+    }
+    .media-ai-entry-head { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .media-ai-entry-time { margin-left: auto; color: var(--muted); font-size: var(--ui-tiny-font-size, 11px); font-variant-numeric: tabular-nums; }
+    .media-ai-entry-prompt { color: var(--muted); font-size: var(--ui-small-font-size, 12px); line-height: 1.4; white-space: pre-wrap; }
+    .media-ai-entry-actions { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+    .media-ai-copy-button {
+      min-height: 28px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 7px;
+      border: 1px solid color-mix(in srgb, var(--line) 82%, transparent);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel-2) 88%, transparent);
+      color: var(--text);
+      font-size: var(--ui-tiny-font-size, 11px);
+      font-weight: 750;
+    }
+    .media-ai-copy-button .icon { width: 14px; height: 14px; }
+    .media-ai-history-more { color: var(--muted); font-size: var(--ui-small-font-size, 12px); }
+    [data-media-ai-processing="true"] {
+      color: color-mix(in srgb, var(--accent) 76%, var(--text));
+      animation: media-ai-status-pulse 1.35s ease-in-out infinite;
+    }
+    @keyframes media-ai-status-pulse { 0%, 100% { opacity: .62; } 50% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { [data-media-ai-processing="true"] { animation: none; } }
     .media-ai-analysis-error { color: var(--danger); }
     .media-ai-card { width: min(560px, calc(100vw - 24px)); }
-    .media-ai-current { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel-3) 82%, transparent); overflow-wrap: anywhere; }
+    .media-ai-current { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel-3) 82%, transparent); overflow-wrap: anywhere; font-size: var(--ui-font-size, 14px); line-height: 1.5; }
     .media-ai-current[hidden] { display: none !important; }
-    .media-ai-result { display: grid; gap: 6px; line-height: 1.38; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .media-ai-result { display: grid; gap: 6px; font-size: var(--ui-font-size, 14px); line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
     .media-ai-result-section { font-weight: 800; }
     .media-ai-result-line { margin: 0; }
     .media-ai-prompt { min-height: 104px; resize: vertical; }
@@ -6628,10 +6874,10 @@
       height: var(--app-height, 100dvh);
       max-height: var(--app-height, 100dvh);
       display: grid;
-      /* Header + accessibility calibrator + scrollable profile body + actions.
-         Keeping four explicit rows prevents the calibrator from occupying the
-         flexible body row and covering the administrator/profile controls. */
-      grid-template-rows: auto auto minmax(0, 1fr) auto;
+      /* Header + scrollable profile body + actions. Profile onboarding lives
+         at the top of the scrollable body so a new user sees the one required
+         field before optional settings and utilities. */
+      grid-template-rows: auto minmax(0, 1fr) auto;
       overflow: hidden;
       border-left: 1px solid var(--line);
       background: var(--panel);
@@ -6658,7 +6904,7 @@
       min-height: 32px !important;
     }
     .profile-dialog-body {
-      grid-row: 3;
+      grid-row: 2;
       min-height: 0;
       overflow-x: hidden;
       overflow-y: auto;
@@ -6670,7 +6916,7 @@
     }
 
     .profile-dialog-footer {
-      grid-row: 4;
+      grid-row: 3;
       flex: 0 0 auto;
       padding: 8px 9px calc(8px + var(--safe-bottom));
       border-top: 1px solid var(--line);
@@ -6694,20 +6940,18 @@
 
     .profile-accessibility-field {
       --profile-scale-progress: 0%;
-      grid-row: 2;
       position: relative;
-      z-index: 4;
+      z-index: 1;
       display: grid;
       gap: 7px;
       min-height: 100px;
-      padding: 10px 14px 9px;
-      border: 0;
-      border-bottom: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
-      border-radius: 0;
+      padding: 10px 12px 9px;
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
+      border-radius: var(--radius-md);
       background:
         radial-gradient(circle at 78% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 42%),
         linear-gradient(180deg, color-mix(in srgb, var(--panel-2) 98%, var(--accent) 2%), var(--panel));
-      box-shadow: 0 10px 26px color-mix(in srgb, #000 10%, transparent);
+      box-shadow: none;
       font-size: 12px !important;
       line-height: 1.2;
       contain: layout paint;
@@ -7073,6 +7317,14 @@
       .profile-contact-grid {
         grid-template-columns: 1fr;
       }
+      .profile-start-card { padding: 10px; }
+      .profile-avatar-row { grid-template-columns: auto minmax(0, 1fr); }
+      .profile-avatar-controls { grid-column: 1 / -1; grid-template-columns: 1fr auto; align-items: center; justify-items: stretch; }
+      .profile-avatar-controls .profile-colour-swatch { justify-self: start; }
+      .profile-avatar-controls > button { justify-self: end; }
+      .profile-start-optional-note { margin-left: 0; }
+      .profile-section-heading { align-items: start; flex-direction: column; }
+      .profile-section-heading > small { max-width: none; text-align: left; }
     }
 
     :root[data-density="comfortable"] {
@@ -7700,10 +7952,10 @@
     .profile-onboarding { padding: 7px 8px; }
     .profile-avatar-row {
       grid-template-columns: auto minmax(0, 1fr) auto;
-      padding: 7px;
-      border: 1px solid var(--line);
+      padding: 8px;
+      border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--line));
       border-radius: var(--radius-sm);
-      background: var(--panel-2);
+      background: color-mix(in srgb, var(--panel-3) 90%, transparent);
     }
     .profile-avatar-row .avatar-upload { border-radius: 50%; }
     .profile-avatar-row .avatar { transition: box-shadow .15s ease, border-color .15s ease; }
@@ -12203,7 +12455,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.111</small>
+          <small id="serverBrandVersion">v9.6.128</small>
         </span>
       </button>
     </div>
@@ -12459,6 +12711,7 @@
             <input id="chatAiContextInput" type="checkbox">
           </div>
           <p id="chatAiContextHint" class="hint">When enabled, recent text from the active channel is sent to Hetzner with your /ai prompt so follow-up questions can use the conversation.</p>
+          <p id="chatAiYoutubeSummaryHint" class="hint">YouTube transcript summaries: checking server support…</p>
           <div class="config-row" data-config-feature="chat-ai-prompt-history">
             <label for="chatAiPromptHistoryInput">Use ↑/↓ for /ai prompt history</label>
             <input id="chatAiPromptHistoryInput" type="checkbox">
@@ -12477,9 +12730,6 @@
           <div class="config-actions">
             <button id="chatAiBuilderGalleryButton" type="button"><span class="icon icon-preview"></span><span>Open AI Slop Gallery</span></button>
           </div>
-        </section>
-        <section class="config-section">
-          <h3>Media</h3>
           <div class="config-row" data-config-feature="media-ai">
             <label for="mediaAiModeSelect">Experimental image AI</label>
             <select id="mediaAiModeSelect">
@@ -12489,6 +12739,14 @@
             </select>
           </div>
           <p id="mediaAiConfigHint" class="hint">Server status: checking experimental image AI…</p>
+          <div class="config-row" data-config-feature="media-ai-timeout">
+            <label for="mediaAiTimeoutInput">Image AI timeout</label>
+            <span class="config-inline-range"><input id="mediaAiTimeoutInput" type="number" min="15" max="300" step="5" value="180" inputmode="numeric" aria-describedby="mediaAiTimeoutHint"><span>sec</span></span>
+          </div>
+          <p id="mediaAiTimeoutHint" class="hint">Per-device setting · 15–300 seconds · default 180 seconds. Saved automatically and applied to each image-analysis request.</p>
+        </section>
+        <section class="config-section">
+          <h3>Media</h3>
           <div class="config-row">
             <label for="mediaDisplaySelect">Media previews</label>
             <select id="mediaDisplaySelect">
@@ -12836,110 +13094,139 @@
           </div>
           <button id="profileCloseButton" class="icon-button" type="button" aria-label="Close profile"><span class="icon icon-close"></span></button>
         </header>
-        <section id="profileUiScaleField" class="profile-accessibility-field" aria-label="Interface size">
-          <div class="profile-accessibility-head">
-            <div class="profile-accessibility-title">
-              <span class="profile-accessibility-kicker">Accessibility</span>
-              <label for="profileUiScaleInput">Interface size</label>
-            </div>
-            <output id="profileUiScaleValue" for="profileUiScaleInput">100%</output>
-          </div>
-          <div class="profile-accessibility-slider-row">
-            <span class="profile-scale-glyph profile-scale-glyph-small" aria-hidden="true">A</span>
-            <input id="profileUiScaleInput" type="range" min="75" max="200" step="5" value="100" aria-describedby="profileUiScaleHint">
-            <span class="profile-scale-glyph profile-scale-glyph-large" aria-hidden="true">A</span>
-          </div>
-          <div class="profile-accessibility-scale" aria-hidden="true"><span>75%</span><span>200%</span></div>
-          <small id="profileUiScaleHint" class="hint">Text, controls and the room rail resize together. Saved with this profile.</small>
-        </section>
         <div id="profileDialogBody" class="profile-dialog-body">
           <form id="profileForm" class="profile-compact-grid">
-            <div id="profileAdminEntry" class="profile-admin-entry" hidden>
-              <button id="adminLoginOpenButton" class="danger-button" type="button"><span class="icon icon-lock"></span><span>Log in as administrator</span></button>
-              <small>Administrator access is created on the server command line and is rate-limited.</small>
-            </div>
-            <div id="profileSharedMediaNotice" class="profile-shared-media-notice" hidden>
-              <strong>Shared media</strong>
-              <span>Create or sign in to a profile to view the shared media inside Rantlist. The shared link will not force a file download.</span>
-            </div>
-            <div class="profile-calendar-entry">
-              <button id="profileCalendarButton" type="button"><span class="icon icon-calendar"></span><span>Calendar &amp; scheduled calls</span></button>
-              <small>Invite Rantlist users or external email guests.</small>
-            </div>
-
-            <div id="profileInvitePinField" class="field">
-              <label for="profileInvitePinInput">Invitation PIN</label>
-              <div class="profile-picker"><input id="profileInvitePinInput" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit PIN"><button id="profileInvitePinButton" type="button">Join</button></div>
-              <small class="hint">You can enter an external invitation PIN before or after creating a profile.</small>
-            </div>
-
-            <div id="profilePickerField" class="field">
-              <label for="profileSelect">Saved profiles</label>
-              <div class="profile-picker">
-                <select id="profileSelect" aria-label="Saved profiles"></select>
-                <button id="newProfileButton" type="button" aria-label="New profile"><span class="icon icon-add"></span></button>
+            <section class="profile-start-card" aria-labelledby="profileStartTitle">
+              <div class="profile-start-copy">
+                <span class="profile-start-kicker">Start here</span>
+                <h3 id="profileStartTitle">Choose a nickname</h3>
+                <p>A nickname is all you need to start using Rantlist. Everything else in your profile is optional.</p>
               </div>
-            </div>
 
-            <div class="profile-avatar-row">
-              <label class="avatar-upload" title="Choose profile picture">
-                <span id="profileAvatarPreview" class="avatar">?</span>
-                <input id="profileAvatarInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/*">
-              </label>
-              <div class="profile-avatar-actions">
-                <strong>Picture and profile colour</strong>
-                <button id="removeAvatarButton" type="button" aria-label="Remove profile picture"><span class="icon icon-remove"></span></button>
-              </div>
-              <label class="profile-colour-swatch" for="colorInput"><span>Colour</span><input id="colorInput" type="color" value="#6e8bff" aria-label="Profile colour"></label>
-            </div>
-
-            <div class="profile-form-fields">
-              <div class="field"><label for="nicknameInput">Nickname</label><input id="nicknameInput" maxlength="24" autocomplete="nickname" placeholder="Required"></div>
-              <div class="field profile-status-field">
-                <label for="statusPresetSelect">Status</label>
-                <div class="status-editor-row">
-                  <select id="statusPresetSelect" aria-label="Status">
-                    <option value="Available">Available</option>
-                    <option value="Busy">Busy</option>
-                    <option value="Away">Away</option>
-                    <option value="Do not disturb">Do not disturb</option>
-                    <option value="In a meeting">In a meeting</option>
-                    <option value="On a call">On a call</option>
-                    <option value="On a break">On a break</option>
-                    <option value="__custom__">Custom…</option>
-                  </select>
-                  <input id="statusInput" maxlength="100" placeholder="Custom status" hidden disabled>
+              <div class="profile-avatar-row">
+                <label class="avatar-upload" title="Choose an optional profile picture">
+                  <span id="profileAvatarPreview" class="avatar">?</span>
+                  <input id="profileAvatarInput" type="file" accept="image/png,image/jpeg,image/gif,image/webp,image/*">
+                </label>
+                <div class="profile-start-identity">
+                  <label class="profile-nickname-label" for="nicknameInput"><span>Nickname</span><span class="profile-required-badge">Required</span></label>
+                  <input id="nicknameInput" maxlength="24" autocomplete="nickname" placeholder="Your nickname" required aria-describedby="profileNicknameHint">
+                  <small id="profileNicknameHint" class="hint">This is the name people will see in channels.</small>
+                </div>
+                <div class="profile-avatar-controls">
+                  <label class="profile-colour-swatch" for="colorInput"><span>Colour</span><input id="colorInput" type="color" value="#6e8bff" aria-label="Profile colour"></label>
+                  <button id="removeAvatarButton" type="button" aria-label="Remove profile picture" title="Remove profile picture"><span class="icon icon-remove"></span></button>
                 </div>
               </div>
-              <div class="field"><label for="profileBioInput">Bio</label><textarea id="profileBioInput" maxlength="280" rows="3" placeholder="Short bio"></textarea></div>
-              <label class="switch-row profile-visibility-row"><input id="profilePublicInput" type="checkbox"><span><strong>Public profile</strong><small>Off: only accepted friends can open your profile. On: other signed-in server members can view it.</small></span></label>
-              <div class="profile-contact-grid">
-                <div class="field"><label for="profileEmailInput">Email</label><input id="profileEmailInput" type="email" maxlength="120" autocomplete="email" placeholder="Optional"></div>
-                <div class="field"><label for="profilePhoneInput">Phone</label><input id="profilePhoneInput" type="tel" maxlength="40" autocomplete="tel" placeholder="Optional"></div>
-              </div>
-              <div class="field">
-                <label>Social links</label>
-                <div class="social-link-toggles" aria-label="Social links">
-                  <button type="button" class="social-toggle" data-social-target="profileWebsiteInput" title="Website" aria-label="Website"><span class="icon icon-website"></span></button>
-                  <button type="button" class="social-toggle" data-social-target="profileLinkedinInput" title="LinkedIn" aria-label="LinkedIn"><span class="icon icon-linkedin"></span></button>
-                  <button type="button" class="social-toggle" data-social-target="profileGithubInput" title="GitHub" aria-label="GitHub"><span class="icon icon-github"></span></button>
-                  <button type="button" class="social-toggle" data-social-target="profileInstagramInput" title="Instagram" aria-label="Instagram"><span class="icon icon-instagram"></span></button>
-                  <button type="button" class="social-toggle" data-social-target="profileXInput" title="X" aria-label="X"><span class="icon icon-x"></span></button>
-                </div>
-                <div class="social-link-fields">
-                  <input id="profileWebsiteInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://website.example" hidden>
-                  <input id="profileLinkedinInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://linkedin.com/in/…" hidden>
-                  <input id="profileGithubInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://github.com/…" hidden>
-                  <input id="profileInstagramInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://instagram.com/…" hidden>
-                  <input id="profileXInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://x.com/…" hidden>
-                </div>
-              </div>
-            </div>
-            <section id="profileGameSummary" class="profile-game-summary" aria-label="Game achievements">
-              <h3>Games</h3>
-              <div id="profileGameSummaryBody" class="hint">Sign in to load scores and achievements.</div>
+              <small class="profile-start-optional-note">Profile picture and colour are optional.</small>
             </section>
 
+            <section class="profile-optional-section" aria-labelledby="profileOptionalTitle">
+              <div class="profile-section-heading">
+                <div><span class="profile-section-kicker">Optional</span><h3 id="profileOptionalTitle">Profile details</h3></div>
+                <small>Add as much or as little as you want.</small>
+              </div>
+              <div class="profile-form-fields">
+                <div class="field profile-status-field">
+                  <label for="statusPresetSelect">Status</label>
+                  <div class="status-editor-row">
+                    <select id="statusPresetSelect" aria-label="Status">
+                      <option value="Available">Available</option>
+                      <option value="Busy">Busy</option>
+                      <option value="Away">Away</option>
+                      <option value="Do not disturb">Do not disturb</option>
+                      <option value="In a meeting">In a meeting</option>
+                      <option value="On a call">On a call</option>
+                      <option value="On a break">On a break</option>
+                      <option value="__custom__">Custom…</option>
+                    </select>
+                    <input id="statusInput" maxlength="100" placeholder="Custom status" hidden disabled>
+                  </div>
+                </div>
+                <div class="field"><label for="profileBioInput">Bio</label><textarea id="profileBioInput" maxlength="280" rows="3" placeholder="Short bio"></textarea></div>
+                <label class="switch-row profile-visibility-row"><input id="profilePublicInput" type="checkbox"><span><strong>Public profile</strong><small>Off: only accepted friends can open your profile. On: other signed-in server members can view it.</small></span></label>
+                <div class="profile-contact-grid">
+                  <div class="field"><label for="profileEmailInput">Email</label><input id="profileEmailInput" type="email" maxlength="120" autocomplete="email" placeholder="Optional"></div>
+                  <div class="field"><label for="profilePhoneInput">Phone</label><input id="profilePhoneInput" type="tel" maxlength="40" autocomplete="tel" placeholder="Optional"></div>
+                </div>
+                <div class="field">
+                  <label>Social links</label>
+                  <div class="social-link-toggles" aria-label="Social links">
+                    <button type="button" class="social-toggle" data-social-target="profileWebsiteInput" title="Website" aria-label="Website"><span class="icon icon-website"></span></button>
+                    <button type="button" class="social-toggle" data-social-target="profileLinkedinInput" title="LinkedIn" aria-label="LinkedIn"><span class="icon icon-linkedin"></span></button>
+                    <button type="button" class="social-toggle" data-social-target="profileGithubInput" title="GitHub" aria-label="GitHub"><span class="icon icon-github"></span></button>
+                    <button type="button" class="social-toggle" data-social-target="profileInstagramInput" title="Instagram" aria-label="Instagram"><span class="icon icon-instagram"></span></button>
+                    <button type="button" class="social-toggle" data-social-target="profileXInput" title="X" aria-label="X"><span class="icon icon-x"></span></button>
+                  </div>
+                  <div class="social-link-fields">
+                    <input id="profileWebsiteInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://website.example" hidden>
+                    <input id="profileLinkedinInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://linkedin.com/in/…" hidden>
+                    <input id="profileGithubInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://github.com/…" hidden>
+                    <input id="profileInstagramInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://instagram.com/…" hidden>
+                    <input id="profileXInput" class="social-link-input" type="url" maxlength="240" inputmode="url" placeholder="https://x.com/…" hidden>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="profile-secondary-section" aria-label="Profile options">
+              <div id="profilePickerField" class="field">
+                <label for="profileSelect">Saved profiles</label>
+                <div class="profile-picker">
+                  <select id="profileSelect" aria-label="Saved profiles"></select>
+                  <button id="newProfileButton" type="button" aria-label="New profile"><span class="icon icon-add"></span></button>
+                </div>
+                <div class="profile-portability-row" aria-label="Profile backup and restore">
+                  <button id="profileExportButton" type="button"><span class="icon icon-download"></span><span>Export JSON</span></button>
+                  <button id="profileImportButton" type="button"><span class="icon icon-file"></span><span>Import JSON</span></button>
+                  <input id="profileImportInput" type="file" accept="application/json,.json" hidden>
+                </div>
+                <small id="profileTransferStatus" class="profile-transfer-status" aria-live="polite">Export keeps this profile’s identity UUID so the same identity can be restored on another device. Keep the JSON backup private.</small>
+              </div>
+
+              <div class="profile-calendar-entry">
+                <button id="profileCalendarButton" type="button"><span class="icon icon-calendar"></span><span>Calendar &amp; scheduled calls</span></button>
+                <small>Invite Rantlist users or external email guests.</small>
+              </div>
+
+              <div id="profileInvitePinField" class="field">
+                <label for="profileInvitePinInput">Invitation PIN</label>
+                <div class="profile-picker"><input id="profileInvitePinInput" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit PIN"><button id="profileInvitePinButton" type="button">Join</button></div>
+                <small class="hint">Enter an external invitation PIN before or after creating a profile.</small>
+              </div>
+
+              <section id="profileUiScaleField" class="profile-accessibility-field" aria-label="Interface size">
+                <div class="profile-accessibility-head">
+                  <div class="profile-accessibility-title">
+                    <span class="profile-accessibility-kicker">Accessibility</span>
+                    <label for="profileUiScaleInput">Interface size</label>
+                  </div>
+                  <output id="profileUiScaleValue" for="profileUiScaleInput">100%</output>
+                </div>
+                <div class="profile-accessibility-slider-row">
+                  <span class="profile-scale-glyph profile-scale-glyph-small" aria-hidden="true">A</span>
+                  <input id="profileUiScaleInput" type="range" min="75" max="200" step="5" value="100" aria-describedby="profileUiScaleHint">
+                  <span class="profile-scale-glyph profile-scale-glyph-large" aria-hidden="true">A</span>
+                </div>
+                <div class="profile-accessibility-scale" aria-hidden="true"><span>75%</span><span>200%</span></div>
+                <small id="profileUiScaleHint" class="hint">Text, controls and the room rail resize together. Saved with this profile.</small>
+              </section>
+
+              <section id="profileGameSummary" class="profile-game-summary" aria-label="Game achievements">
+                <h3>Games</h3>
+                <div id="profileGameSummaryBody" class="hint">Sign in to load scores and achievements.</div>
+              </section>
+
+              <div id="profileSharedMediaNotice" class="profile-shared-media-notice" hidden>
+                <strong>Shared media</strong>
+                <span>Create or sign in to a profile to view the shared media inside Rantlist. The shared link will not force a file download.</span>
+              </div>
+
+              <div id="profileAdminEntry" class="profile-admin-entry" hidden>
+                <button id="adminLoginOpenButton" class="danger-button" type="button"><span class="icon icon-lock"></span><span>Log in as administrator</span></button>
+                <small>Administrator access is created on the server command line and is rate-limited.</small>
+              </div>
+            </section>
           </form>
         </div>
         <footer class="profile-dialog-footer">
@@ -14324,7 +14611,7 @@
         'workspace', 'chatPanel', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'appearanceCycleButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -14335,7 +14622,7 @@
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingChatButton', 'drawingActionSelect', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'togglePresentationButton', 'endCallButton',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
-        'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
+        'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
@@ -14462,8 +14749,11 @@
         mediaAi: false,
         mediaAiProvider: 'Hetzner Experiments',
         mediaAiModel: '',
+        mediaAiTimeoutMs: 180000,
         mediaAiExperimental: true,
+        mediaAiRequestMode: 'standard-openai-compatible',
         chatAi: false,
+        chatAiRequestMode: 'standard-openai-compatible',
         chatAiCommand: '/ai',
         chatAiHelpCommand: '/ai help',
         chatAiPromptHistory: true,
@@ -14474,6 +14764,11 @@
         chatAiContext: true,
         chatAiContextMaxMessages: 20,
         chatAiContextMaxChars: 12000,
+        chatAiYoutubeSummary: false,
+        chatAiYoutubeSummaryCommand: '/ai summary',
+        chatAiYoutubeSummaryYtDlpVersion: '',
+        chatAiYoutubeSummaryMaxTranscriptChars: 120000,
+        chatAiYoutubeAuthenticatedSession: false,
       },
       reconnectDelay: 800,
       reconnectTimer: null,
@@ -14593,6 +14888,7 @@
       customThemeName: readStorage('chat.ui.customThemeName') || '',
       voiceTranscriptionMode: readStorage('chat.voiceTranscriptionMode') || 'manual',
       mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
+      mediaAiTimeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(readStorage('chat.media.aiTimeoutSeconds')) || 180))),
       chatAiContextEnabled: readStorage('chat.ai.context') === 'on',
       chatAiPromptHistoryEnabled: readStorage('chat.ai.promptHistory') === 'on',
       chatAiPromptHistoryCursor: null,
@@ -14603,7 +14899,10 @@
       aiBuilderGalleryItems: [],
       aiBuilderGalleryOpen: false,
       aiBuilderActive: null,
+      aiYoutubeTranscriptPendingActions: new Map(),
+      aiYoutubeTranscriptActive: null,
       activeMediaAiMessageId: null,
+      mediaAiCollapsedMessages: new Set(),
       voiceTranscriptLanguage: readStorage('chat.voiceTranscriptLanguage') || 'auto',
       autoSpeakIncoming: readStorage('chat.autoSpeakIncoming') === 'on',
       gameVoiceAnnouncements: readStorage('chat.game.voiceAnnouncements') === 'on',
@@ -15201,6 +15500,15 @@
         renderMediaAiSettings();
         if (state.mediaAiMode === 'auto') requestVisibleMediaAiDescriptions();
       });
+      const saveMediaAiTimeoutPreference = () => {
+        const seconds = Math.max(15, Math.min(300, Math.round(Number(elements.mediaAiTimeoutInput.value) || 180)));
+        state.mediaAiTimeoutSeconds = seconds;
+        elements.mediaAiTimeoutInput.value = String(seconds);
+        writeStorage('chat.media.aiTimeoutSeconds', String(seconds));
+        if (elements.mediaAiTimeoutHint) elements.mediaAiTimeoutHint.textContent = `Saved · image AI may run for up to ${seconds}s on this device.`;
+      };
+      elements.mediaAiTimeoutInput.addEventListener('change', saveMediaAiTimeoutPreference);
+      elements.mediaAiTimeoutInput.addEventListener('blur', saveMediaAiTimeoutPreference);
       elements.chatAiContextInput.addEventListener('change', () => {
         state.chatAiContextEnabled = elements.chatAiContextInput.checked === true;
         writeStorage('chat.ai.context', state.chatAiContextEnabled ? 'on' : 'off');
@@ -15510,6 +15818,24 @@
       elements.newProfileButton.addEventListener('click', () => {
         startNewProfile();
       });
+      elements.profileExportButton.addEventListener('click', exportSelectedProfile);
+      elements.profileImportButton.addEventListener('click', () => {
+        elements.profileImportInput.value = '';
+        elements.profileImportInput.click();
+      });
+      elements.profileImportInput.addEventListener('change', async () => {
+        const file = elements.profileImportInput.files?.[0] || null;
+        elements.profileImportInput.value = '';
+        if (!file) return;
+        try {
+          setProfileTransferStatus('Checking profile backup…');
+          await importProfileFile(file);
+        } catch (error) {
+          console.error(error);
+          setProfileTransferStatus(error.message || 'The profile could not be imported.', 'error');
+          playSound('error');
+        }
+      });
       elements.profileAvatarInput.addEventListener('change', async () => {
         const file = elements.profileAvatarInput.files?.[0];
         elements.profileAvatarInput.value = '';
@@ -15532,6 +15858,8 @@
       });
 
       elements.removeAvatarButton.addEventListener('click', () => {
+        if (!state.editorAvatar) return;
+        if (!window.confirm('Remove this profile picture from the profile editor? The saved profile is not changed until you choose Save and sign in.')) return;
         state.editorAvatar = null;
         renderEditorAvatar();
       });
@@ -16217,6 +16545,7 @@
           state.reconnectDelay = 800;
           state.websocketCloseBlockedReason = '';
           state.isAdmin = true;
+          renderMediaAiSettings();
           state.adminLoginAvailable = false;
           state.autoLogin = false;
           renderServerBrand();
@@ -16252,6 +16581,7 @@
           state.reconnectDelay = 800;
           state.websocketCloseBlockedReason = '';
           state.isAdmin = false;
+          renderMediaAiSettings();
           state.autoLogin = true;
           renderServerBrand();
           writeStorage('chat.autoLogin', 'on');
@@ -16297,6 +16627,20 @@
             ? `Invitation accepted · joined #${message.invite?.room || state.currentRoom || 'channel'}.`
             : `Invitation accepted · opening ${message.invite?.targetKind || 'destination'} in #${message.invite?.room || state.currentRoom || 'channel'}.`);
           break;
+
+        case 'media.ai.runtime': {
+          const runtime = message.mediaAi || {};
+          state.capabilities = {
+            ...state.capabilities,
+            mediaAi: runtime.available === true,
+            mediaAiProvider: runtime.provider || state.capabilities.mediaAiProvider,
+            mediaAiModel: runtime.model || state.capabilities.mediaAiModel,
+            mediaAiTimeoutMs: Number(runtime.timeoutMs) || state.capabilities.mediaAiTimeoutMs,
+            mediaAiExperimental: runtime.experimental !== false,
+          };
+          renderMediaAiSettings();
+          break;
+        }
 
         case 'admin.dashboard.snapshot': {
           const snapshot = normalizeAdminDashboardSnapshot(message);
@@ -16401,6 +16745,10 @@
 
         case 'ai.builder.gallery.deleted':
           if (state.aiBuilderActive?.artifactId === message.artifactId) closeAiBuilderOverlay();
+          break;
+
+        case 'ai.youtube.transcript.item':
+          handleAiYoutubeTranscriptItem(message);
           break;
 
         case 'gif.gallery.snapshot':
@@ -22302,7 +22650,10 @@
       viewer.next.disabled = viewer.index >= viewer.items.length - 1;
       const current = viewer.items[viewer.index];
       const timeText = current?.serverTime ? formatTime(current.serverTime) : '';
-      viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Channel media'}`;
+      const interactionHint = current?.isVideo
+        ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Channel media')
+        : (viewer.items.length > 1 ? 'Swipe up/down · pinch/drag to inspect · +/− and rotate controls' : 'Pinch/drag to inspect · +/− and rotate controls');
+      viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${interactionHint}`;
       syncMediaStoryViewerReactions(current?.messageId || '');
     }
 
@@ -22385,7 +22736,94 @@
       media.style.height = `${Math.max(1, Math.floor(height))}px`;
       media.style.maxWidth = '100%';
       media.style.maxHeight = '100%';
+      if (media instanceof HTMLImageElement) applyMediaStoryImageTransform(false);
       return true;
+    }
+
+    function mediaStoryImageTransformMetrics(viewer = state.mediaStoryViewer) {
+      const image = viewer?.currentMedia instanceof HTMLImageElement ? viewer.currentMedia : null;
+      if (!viewer || !image || !image.clientWidth || !image.clientHeight) return null;
+      const stageWidth = Math.max(1, viewer.stage.clientWidth || window.innerWidth || 1);
+      const stageHeight = Math.max(1, viewer.stage.clientHeight || window.innerHeight || 1);
+      const radians = (Number(viewer.imageRotation) || 0) * Math.PI / 180;
+      const cos = Math.abs(Math.cos(radians));
+      const sin = Math.abs(Math.sin(radians));
+      const rotatedWidth = image.clientWidth * cos + image.clientHeight * sin;
+      const rotatedHeight = image.clientWidth * sin + image.clientHeight * cos;
+      const rotationFit = Math.min(1, stageWidth / Math.max(1, rotatedWidth), stageHeight / Math.max(1, rotatedHeight));
+      const userScale = Math.max(1, Math.min(8, Number(viewer.imageScale) || 1));
+      const totalScale = rotationFit * userScale;
+      const boundsWidth = rotatedWidth * totalScale;
+      const boundsHeight = rotatedHeight * totalScale;
+      return {
+        image, stageWidth, stageHeight, rotationFit, userScale, totalScale,
+        maxPanX: Math.max(0, (boundsWidth - stageWidth) / 2),
+        maxPanY: Math.max(0, (boundsHeight - stageHeight) / 2),
+      };
+    }
+
+    function applyMediaStoryImageTransform(animate = false) {
+      const viewer = state.mediaStoryViewer;
+      const metrics = mediaStoryImageTransformMetrics(viewer);
+      if (!viewer || !metrics) return false;
+      viewer.imageScale = metrics.userScale;
+      viewer.imagePanX = Math.max(-metrics.maxPanX, Math.min(metrics.maxPanX, Number(viewer.imagePanX) || 0));
+      viewer.imagePanY = Math.max(-metrics.maxPanY, Math.min(metrics.maxPanY, Number(viewer.imagePanY) || 0));
+      metrics.image.classList.toggle('media-story-transforming', Boolean(animate));
+      metrics.image.style.transformOrigin = '50% 50%';
+      metrics.image.style.transform = `translate3d(${viewer.imagePanX.toFixed(2)}px, ${viewer.imagePanY.toFixed(2)}px, 0) rotate(${(Number(viewer.imageRotation) || 0).toFixed(2)}deg) scale(${metrics.totalScale.toFixed(5)})`;
+      if (animate) setTimeout(() => metrics.image.classList.remove('media-story-transforming'), 150);
+      if (viewer.transformReadout) {
+        const normalizedRotation = ((Math.round(Number(viewer.imageRotation) || 0) % 360) + 360) % 360;
+        viewer.transformReadout.textContent = `${Math.round(viewer.imageScale * 100)}% · ${normalizedRotation}°`;
+      }
+      if (viewer.zoomOut) viewer.zoomOut.disabled = viewer.imageScale <= 1.001;
+      if (viewer.resetTransform) viewer.resetTransform.disabled = viewer.imageScale <= 1.001 && Math.abs(Number(viewer.imageRotation) || 0) < .01 && Math.abs(viewer.imagePanX) < .5 && Math.abs(viewer.imagePanY) < .5;
+      return true;
+    }
+
+    function resetMediaStoryImageTransform(viewer = state.mediaStoryViewer, apply = true) {
+      if (!viewer) return;
+      viewer.imageScale = 1;
+      viewer.imageRotation = 0;
+      viewer.imagePanX = 0;
+      viewer.imagePanY = 0;
+      viewer.imagePinch = null;
+      viewer.stage?.classList.remove('dragging');
+      if (apply) applyMediaStoryImageTransform(true);
+    }
+
+    function setMediaStoryImageScale(scale, animate = true) {
+      const viewer = state.mediaStoryViewer;
+      if (!viewer?.currentMedia || !(viewer.currentMedia instanceof HTMLImageElement)) return false;
+      viewer.imageScale = Math.max(1, Math.min(8, Number(scale) || 1));
+      if (viewer.imageScale <= 1.001) {
+        viewer.imageScale = 1;
+        viewer.imagePanX = 0;
+        viewer.imagePanY = 0;
+      }
+      return applyMediaStoryImageTransform(animate);
+    }
+
+    function rotateMediaStoryImage(degrees) {
+      const viewer = state.mediaStoryViewer;
+      if (!viewer?.currentMedia || !(viewer.currentMedia instanceof HTMLImageElement)) return false;
+      viewer.imageRotation = (Number(viewer.imageRotation) || 0) + Number(degrees || 0);
+      viewer.imagePanX = 0;
+      viewer.imagePanY = 0;
+      return applyMediaStoryImageTransform(true);
+    }
+
+    function mediaStoryTouchDistance(a, b) {
+      return Math.hypot(Number(b?.x || 0) - Number(a?.x || 0), Number(b?.y || 0) - Number(a?.y || 0));
+    }
+
+    function mediaStoryTouchAngle(a, b) {
+      return Math.atan2(Number(b?.y || 0) - Number(a?.y || 0), Number(b?.x || 0) - Number(a?.x || 0));
+    }
+
+    function mediaStoryTouchCenter(a, b) {
+      return { x: (Number(a?.x || 0) + Number(b?.x || 0)) / 2, y: (Number(a?.y || 0) + Number(b?.y || 0)) / 2 };
     }
 
     function ensureChannelMediaStoryViewer() {
@@ -22400,7 +22838,7 @@
 
       const stage = document.createElement('div');
       stage.className = 'media-story-stage';
-      stage.setAttribute('aria-label', 'Swipe up or down to move between channel media');
+      stage.setAttribute('aria-label', 'Swipe up or down to move between channel media; pinch, drag or use controls to inspect images');
 
       const shade = document.createElement('div');
       shade.className = 'media-story-shade';
@@ -22419,6 +22857,45 @@
       const position = document.createElement('div');
       position.className = 'media-story-position';
       topbar.append(back, title, position);
+
+      const transformControls = document.createElement('div');
+      transformControls.className = 'media-story-transform-controls';
+      transformControls.hidden = true;
+      transformControls.setAttribute('aria-label', 'Image zoom and rotation controls');
+      const zoomOut = document.createElement('button');
+      zoomOut.type = 'button';
+      zoomOut.className = 'media-story-transform-button';
+      zoomOut.textContent = '−';
+      zoomOut.title = 'Zoom out';
+      zoomOut.setAttribute('aria-label', 'Zoom out');
+      const zoomIn = document.createElement('button');
+      zoomIn.type = 'button';
+      zoomIn.className = 'media-story-transform-button';
+      zoomIn.textContent = '+';
+      zoomIn.title = 'Zoom in';
+      zoomIn.setAttribute('aria-label', 'Zoom in');
+      const rotateLeft = document.createElement('button');
+      rotateLeft.type = 'button';
+      rotateLeft.className = 'media-story-transform-button';
+      rotateLeft.textContent = '↶';
+      rotateLeft.title = 'Rotate left 90°';
+      rotateLeft.setAttribute('aria-label', 'Rotate image left 90 degrees');
+      const transformReadout = document.createElement('span');
+      transformReadout.className = 'media-story-transform-readout';
+      transformReadout.textContent = '100% · 0°';
+      const rotateRight = document.createElement('button');
+      rotateRight.type = 'button';
+      rotateRight.className = 'media-story-transform-button';
+      rotateRight.textContent = '↷';
+      rotateRight.title = 'Rotate right 90°';
+      rotateRight.setAttribute('aria-label', 'Rotate image right 90 degrees');
+      const resetTransform = document.createElement('button');
+      resetTransform.type = 'button';
+      resetTransform.className = 'media-story-transform-button';
+      resetTransform.textContent = '⤢';
+      resetTransform.title = 'Fit and reset image';
+      resetTransform.setAttribute('aria-label', 'Fit and reset image');
+      transformControls.append(zoomOut, zoomIn, rotateLeft, transformReadout, rotateRight, resetTransform);
 
       const rail = document.createElement('aside');
       rail.className = 'media-story-right-rail';
@@ -22478,6 +22955,35 @@
       next.setAttribute('aria-label', 'Next media');
       rail.append(previous, likeWrap, edit, share, mute, download, next);
 
+      const aiTrigger = document.createElement('button');
+      aiTrigger.type = 'button';
+      aiTrigger.className = 'media-story-ai-trigger';
+      aiTrigger.hidden = true;
+      aiTrigger.title = 'View image AI analyses';
+      aiTrigger.setAttribute('aria-label', 'View image AI analyses');
+      aiTrigger.setAttribute('aria-expanded', 'false');
+      aiTrigger.innerHTML = '<span class="icon icon-brain" aria-hidden="true"></span><span class="media-story-ai-count">0</span>';
+      const aiCount = aiTrigger.querySelector('.media-story-ai-count');
+
+      const aiPanel = document.createElement('section');
+      aiPanel.className = 'media-story-ai-panel';
+      aiPanel.hidden = true;
+      aiPanel.setAttribute('aria-label', 'Image AI analysis history');
+      const aiPanelHead = document.createElement('div');
+      aiPanelHead.className = 'media-story-ai-panel-head';
+      const aiPanelTitle = document.createElement('strong');
+      aiPanelTitle.textContent = 'Image AI analyses';
+      const aiPanelClose = document.createElement('button');
+      aiPanelClose.type = 'button';
+      aiPanelClose.className = 'media-story-ai-close';
+      aiPanelClose.title = 'Collapse AI analyses';
+      aiPanelClose.setAttribute('aria-label', 'Collapse AI analyses');
+      aiPanelClose.textContent = '×';
+      aiPanelHead.append(aiPanelTitle, aiPanelClose);
+      const aiPanelBody = document.createElement('div');
+      aiPanelBody.className = 'media-ai-history-body';
+      aiPanel.append(aiPanelHead, aiPanelBody);
+
       const bottom = document.createElement('footer');
       bottom.className = 'media-story-bottom';
       const authorRow = document.createElement('div');
@@ -22497,13 +23003,15 @@
       playState.className = 'media-story-play-state';
       playState.textContent = '▶';
 
-      root.append(stage, shade, topbar, rail, bottom, playState);
+      root.append(stage, shade, topbar, transformControls, rail, aiTrigger, aiPanel, bottom, playState);
       document.body.append(root);
 
       const viewer = {
-        root, stage, back, title, position, previous, next, like, likeCount, edit, share, mute, download,
+        root, stage, back, title, position, previous, next, like, likeCount, edit, share, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
+        transformControls, zoomOut, zoomIn, rotateLeft, rotateRight, resetTransform, transformReadout,
         avatar, author, caption, meta, playState,
         items: [], index: 0, currentMedia: null, currentBackdropMedia: null, muted: readStorage('chat.media.story.muted') !== 'false',
+        imageScale: 1, imageRotation: 0, imagePanX: 0, imagePanY: 0, imagePinch: null,
         pointer: null, pointers: new Map(), twoFingerGesture: null,
         wheelDeltaY: 0, wheelResetTimer: null, wheelLockedUntil: 0,
         returnFocus: null, playStateTimer: null,
@@ -22516,8 +23024,27 @@
       window.visualViewport?.addEventListener?.('resize', fitChannelMediaStoryForeground);
 
       back.addEventListener('click', closeChannelMediaStoryViewer);
+      const closeStoryAiPanel = () => {
+        aiPanel.hidden = true;
+        aiTrigger.setAttribute('aria-expanded', 'false');
+      };
+      aiTrigger.addEventListener('click', (event) => {
+        event.stopPropagation();
+        aiPanel.hidden = !aiPanel.hidden;
+        aiTrigger.setAttribute('aria-expanded', aiPanel.hidden ? 'false' : 'true');
+      });
+      aiPanelClose.addEventListener('click', (event) => { event.stopPropagation(); closeStoryAiPanel(); });
+      aiPanel.addEventListener('pointerdown', (event) => event.stopPropagation());
+      aiPanel.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
       previous.addEventListener('click', () => moveChannelMediaStoryViewer(-1));
       next.addEventListener('click', () => moveChannelMediaStoryViewer(1));
+      zoomOut.addEventListener('click', () => setMediaStoryImageScale(viewer.imageScale / 1.25));
+      zoomIn.addEventListener('click', () => setMediaStoryImageScale(viewer.imageScale * 1.25));
+      rotateLeft.addEventListener('click', () => rotateMediaStoryImage(-90));
+      rotateRight.addEventListener('click', () => rotateMediaStoryImage(90));
+      resetTransform.addEventListener('click', () => resetMediaStoryImageTransform(viewer));
+      transformControls.addEventListener('pointerdown', (event) => event.stopPropagation());
+      transformControls.addEventListener('wheel', (event) => event.stopPropagation(), { passive: true });
       like.addEventListener('click', () => {
         const item = viewer.items[viewer.index];
         if (item?.messageId) sendReaction(item.messageId, '❤️');
@@ -22546,6 +23073,8 @@
           pointerType: event.pointerType,
           startX: event.clientX,
           startY: event.clientY,
+          lastX: event.clientX,
+          lastY: event.clientY,
           x: event.clientX,
           y: event.clientY,
           moved: false,
@@ -22556,31 +23085,83 @@
         if (event.pointerType === 'touch' && viewer.pointers.size >= 2) {
           const touches = [...viewer.pointers.values()].filter((entry) => entry.pointerType === 'touch').slice(0, 2);
           if (touches.length === 2) {
+            const center = mediaStoryTouchCenter(touches[0], touches[1]);
             viewer.pointer = null;
             viewer.twoFingerGesture = {
               ids: touches.map((entry) => entry.id),
               starts: new Map(touches.map((entry) => [entry.id, { x: entry.startX, y: entry.startY }])),
+              startDistance: Math.max(1, mediaStoryTouchDistance(touches[0], touches[1])),
+              startAngle: mediaStoryTouchAngle(touches[0], touches[1]),
+              startCenter: center,
+              startScale: Number(viewer.imageScale) || 1,
+              startRotation: Number(viewer.imageRotation) || 0,
+              startPanX: Number(viewer.imagePanX) || 0,
+              startPanY: Number(viewer.imagePanY) || 0,
               consumed: false,
             };
           }
           return;
         }
         if (viewer.pointers.size === 1) {
-          viewer.pointer = { id: event.pointerId, x: event.clientX, y: event.clientY, moved: false };
+          const panMode = viewer.currentMedia instanceof HTMLImageElement && Number(viewer.imageScale) > 1.001;
+          viewer.pointer = {
+            id: event.pointerId,
+            x: event.clientX,
+            y: event.clientY,
+            lastX: event.clientX,
+            lastY: event.clientY,
+            moved: false,
+            mode: panMode ? 'pan' : 'navigate',
+          };
+          if (panMode) stage.classList.add('dragging');
         }
       });
       stage.addEventListener('pointermove', (event) => {
         const point = viewer.pointers.get(event.pointerId);
         if (point) {
+          point.lastX = point.x;
+          point.lastY = point.y;
           point.x = event.clientX;
           point.y = event.clientY;
           if (Math.abs(point.y - point.startY) > 8 || Math.abs(point.x - point.startX) > 8) point.moved = true;
         }
-        if (viewer.twoFingerGesture?.ids?.includes(event.pointerId)) {
+        const gesture = viewer.twoFingerGesture;
+        if (gesture?.ids?.includes(event.pointerId)) {
+          const points = gesture.ids.map((id) => viewer.pointers.get(id)).filter(Boolean);
+          if (points.length === 2 && viewer.currentMedia instanceof HTMLImageElement) {
+            const distance = Math.max(1, mediaStoryTouchDistance(points[0], points[1]));
+            const angle = mediaStoryTouchAngle(points[0], points[1]);
+            const center = mediaStoryTouchCenter(points[0], points[1]);
+            const scaleRatio = distance / Math.max(1, gesture.startDistance);
+            let angleDelta = (angle - gesture.startAngle) * 180 / Math.PI;
+            while (angleDelta > 180) angleDelta -= 360;
+            while (angleDelta < -180) angleDelta += 360;
+            const transformIntent = Math.abs(scaleRatio - 1) > .025 || Math.abs(angleDelta) > 2.5 || gesture.startScale > 1.001;
+            if (transformIntent) {
+              gesture.consumed = true;
+              viewer.imageScale = Math.max(1, Math.min(8, gesture.startScale * scaleRatio));
+              viewer.imageRotation = gesture.startRotation + angleDelta;
+              viewer.imagePanX = gesture.startPanX + center.x - gesture.startCenter.x;
+              viewer.imagePanY = gesture.startPanY + center.y - gesture.startCenter.y;
+              applyMediaStoryImageTransform(false);
+            }
+          }
           event.preventDefault();
           return;
         }
         if (!viewer.pointer || viewer.pointer.id !== event.pointerId) return;
+        if (viewer.pointer.mode === 'pan' && viewer.currentMedia instanceof HTMLImageElement) {
+          const dx = event.clientX - viewer.pointer.lastX;
+          const dy = event.clientY - viewer.pointer.lastY;
+          if (Math.abs(event.clientY - viewer.pointer.y) > 2 || Math.abs(event.clientX - viewer.pointer.x) > 2 || point?.moved) viewer.pointer.moved = true;
+          viewer.imagePanX = (Number(viewer.imagePanX) || 0) + dx;
+          viewer.imagePanY = (Number(viewer.imagePanY) || 0) + dy;
+          viewer.pointer.lastX = event.clientX;
+          viewer.pointer.lastY = event.clientY;
+          applyMediaStoryImageTransform(false);
+          event.preventDefault();
+          return;
+        }
         if (Math.abs(event.clientY - viewer.pointer.y) > 8 || Math.abs(event.clientX - viewer.pointer.x) > 8) viewer.pointer.moved = true;
         if (viewer.pointer.moved) event.preventDefault();
       });
@@ -22614,12 +23195,15 @@
           const activeGesturePointers = viewer.twoFingerGesture.ids.filter((id) => viewer.pointers.has(id));
           if (!activeGesturePointers.length) viewer.twoFingerGesture = null;
           viewer.pointer = null;
+          stage.classList.remove('dragging');
           return;
         }
 
         if (!viewer.pointer || viewer.pointer.id !== event.pointerId) return;
         const pointer = viewer.pointer;
         viewer.pointer = null;
+        stage.classList.remove('dragging');
+        if (pointer.mode === 'pan') return;
         const dx = event.clientX - pointer.x;
         const dy = event.clientY - pointer.y;
         if (Math.abs(dy) >= 48 && Math.abs(dy) > Math.abs(dx) * 1.08) {
@@ -22633,10 +23217,26 @@
         viewer.pointers.delete(event.pointerId);
         if (viewer.pointer?.id === event.pointerId) viewer.pointer = null;
         if (viewer.twoFingerGesture?.ids?.includes(event.pointerId)) viewer.twoFingerGesture = null;
+        stage.classList.remove('dragging');
+      });
+      stage.addEventListener('dblclick', (event) => {
+        if (!(viewer.currentMedia instanceof HTMLImageElement)) return;
+        event.preventDefault();
+        setMediaStoryImageScale(viewer.imageScale > 1.001 ? 1 : 2);
       });
 
       stage.addEventListener('wheel', (event) => {
-        if (root.hidden || viewer.items.length < 2) return;
+        if (root.hidden) return;
+        const image = viewer.currentMedia instanceof HTMLImageElement ? viewer.currentMedia : null;
+        const zoomGesture = Boolean(image && (event.ctrlKey || event.metaKey || viewer.imageScale > 1.001 || viewer.items.length < 2));
+        if (zoomGesture) {
+          if (Math.abs(event.deltaY) < 1) return;
+          event.preventDefault();
+          const factor = Math.exp(-event.deltaY * .0022);
+          setMediaStoryImageScale(viewer.imageScale * factor, false);
+          return;
+        }
+        if (viewer.items.length < 2) return;
         if (Math.abs(event.deltaY) <= Math.abs(event.deltaX) || Math.abs(event.deltaY) < 1) return;
         event.preventDefault();
         const now = performance.now();
@@ -22656,6 +23256,21 @@
         if (event.key === 'Escape') {
           event.preventDefault();
           closeChannelMediaStoryViewer();
+        } else if ((event.key === '+' || event.key === '=') && viewer.currentMedia instanceof HTMLImageElement) {
+          event.preventDefault();
+          setMediaStoryImageScale(viewer.imageScale * 1.25);
+        } else if (event.key === '-' && viewer.currentMedia instanceof HTMLImageElement) {
+          event.preventDefault();
+          setMediaStoryImageScale(viewer.imageScale / 1.25);
+        } else if (event.key === '0' && viewer.currentMedia instanceof HTMLImageElement) {
+          event.preventDefault();
+          resetMediaStoryImageTransform(viewer);
+        } else if (event.key === '[' && viewer.currentMedia instanceof HTMLImageElement) {
+          event.preventDefault();
+          rotateMediaStoryImage(-90);
+        } else if (event.key === ']' && viewer.currentMedia instanceof HTMLImageElement) {
+          event.preventDefault();
+          rotateMediaStoryImage(90);
         } else if (event.key === 'ArrowUp') {
           event.preventDefault();
           moveChannelMediaStoryViewer(-1);
@@ -22669,6 +23284,34 @@
       });
 
       return viewer;
+    }
+
+    function syncMediaStoryAiPanel(messageId = null) {
+      const viewer = state.mediaStoryViewer;
+      if (!viewer) return;
+      const item = viewer.items?.[viewer.index];
+      if (!item || item.isVideo) {
+        viewer.aiTrigger.hidden = true;
+        viewer.aiPanel.hidden = true;
+        viewer.aiTrigger.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      if (messageId && String(item.messageId || '') !== String(messageId)) return;
+      const data = item.messageId ? state.messageData.get(String(item.messageId)) : null;
+      const ai = normalizeMediaAi(data?.file?.ai || item.file?.ai);
+      const entries = mediaAiHistoryEntries(ai);
+      const total = Math.max(entries.length, Number(ai?.analysisCount) || 0);
+      viewer.aiTrigger.hidden = total <= 0;
+      viewer.aiCount.textContent = String(total);
+      viewer.aiTrigger.title = total === 1 ? 'View 1 image AI analysis' : `View ${total} image AI analyses`;
+      viewer.aiTrigger.setAttribute('aria-label', viewer.aiTrigger.title);
+      viewer.aiPanelBody.textContent = '';
+      if (!entries.length) {
+        viewer.aiPanel.hidden = true;
+        viewer.aiTrigger.setAttribute('aria-expanded', 'false');
+        return;
+      }
+      appendMediaAiHistory(viewer.aiPanelBody, ai);
     }
 
     function syncMediaStorySoundButton() {
@@ -22703,6 +23346,7 @@
       if (!item) return closeChannelMediaStoryViewer();
       if (viewer.currentMedia instanceof HTMLVideoElement) viewer.currentMedia.pause();
       if (viewer.currentBackdropMedia instanceof HTMLVideoElement) viewer.currentBackdropMedia.pause();
+      resetMediaStoryImageTransform(viewer, false);
       viewer.stage.textContent = '';
 
       const foreground = document.createElement('div');
@@ -22765,6 +23409,9 @@
       }
       viewer.currentMedia = media;
       viewer.currentBackdropMedia = backdrop;
+      viewer.transformControls.hidden = item.isVideo;
+      viewer.stage.classList.toggle('media-story-image-inspect', !item.isVideo);
+      viewer.transformReadout.textContent = '100% · 0°';
       if (backdrop) viewer.stage.append(backdrop);
       viewer.stage.append(backdropScrim, foreground);
       foreground.append(media);
@@ -22788,11 +23435,17 @@
         try { setAvatarContent(viewer.avatar, item.from); } catch { viewer.avatar.textContent = avatarText; }
       }
       const timeText = item.serverTime ? formatTime(item.serverTime) : '';
-      viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Channel media'}`;
+      const interactionHint = item.isVideo
+        ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Channel media')
+        : (viewer.items.length > 1 ? 'Swipe up/down · pinch/drag to inspect · +/− and rotate controls' : 'Pinch/drag to inspect · +/− and rotate controls');
+      viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${interactionHint}`;
       viewer.download.href = item.downloadUrl || item.src;
       viewer.download.download = item.name || 'media';
       viewer.edit.hidden = item.isVideo;
       viewer.edit.disabled = item.isVideo;
+      viewer.aiPanel.hidden = true;
+      viewer.aiTrigger.setAttribute('aria-expanded', 'false');
+      syncMediaStoryAiPanel();
       syncMediaStorySoundButton();
       viewer.like.disabled = !item.messageId;
       syncMediaStoryViewerReactions(item.messageId);
@@ -22864,6 +23517,12 @@
       viewer.pointer = null;
       viewer.pointers?.clear?.();
       viewer.twoFingerGesture = null;
+      resetMediaStoryImageTransform(viewer, false);
+      viewer.stage.classList.remove('media-story-image-inspect', 'dragging');
+      viewer.transformControls.hidden = true;
+      viewer.aiTrigger.hidden = true;
+      viewer.aiPanel.hidden = true;
+      viewer.aiTrigger.setAttribute('aria-expanded', 'false');
       viewer.wheelDeltaY = 0;
       viewer.wheelLockedUntil = 0;
       clearTimeout(viewer.wheelResetTimer);
@@ -26934,6 +27593,7 @@
       body.textContent = message.text;
       article.append(body);
       renderAiBuilderCard(article, message.aiBuilder, message.id);
+      renderAiYoutubeTranscriptCard(article, message.aiYoutubeTranscript, message.id);
       renderAiResponseTiming(article, message.aiElapsedMs, Boolean(message.aiBuilder));
       renderMessageLinkPreview(article, message.linkPreview);
       elements.messageList.append(article);
@@ -29666,7 +30326,7 @@
         state.typingUsers.set(key, {
           user: message.from,
           direct: message.target === 'user',
-          activity: message.activity === 'building' ? 'building' : 'typing',
+          activity: ['building', 'youtube-checking', 'youtube-captions', 'youtube-audio', 'youtube-transcribing', 'youtube-summarizing'].includes(message.activity) ? message.activity : 'typing',
           expiresAt: Number(message.expiresAt) || Date.now() + 5_000,
         });
       } else {
@@ -29690,6 +30350,16 @@
       }, Math.max(100, nextExpiry - Date.now() + 50));
     }
 
+    function typingActivityLabel(activity) {
+      if (activity === 'building') return 'building';
+      if (activity === 'youtube-checking') return 'checking YouTube…';
+      if (activity === 'youtube-captions') return 'retrieving captions…';
+      if (activity === 'youtube-audio') return 'downloading audio…';
+      if (activity === 'youtube-transcribing') return 'transcribing audio…';
+      if (activity === 'youtube-summarizing') return 'summarizing transcript…';
+      return 'typing';
+    }
+
     function renderTypingIndicator() {
       const entries = [...state.typingUsers.values()];
       const visible = entries.length > 0;
@@ -29705,15 +30375,15 @@
       const extra = entries.length - names.length;
       const direct = entries.length === 1 && entries[0].direct;
       if (entries.length === 1) {
-        const activity = entries[0].activity === 'building' ? 'building' : 'typing';
-        elements.typingText.textContent = `${names[0]} is ${activity}${direct && activity === 'typing' ? ' to you' : ''}`;
+        const activity = typingActivityLabel(entries[0].activity);
+        elements.typingText.textContent = `${names[0]} is ${activity}${direct && entries[0].activity === 'typing' ? ' to you' : ''}`;
       } else {
-        const activities = new Set(visibleEntries.map((entry) => entry.activity === 'building' ? 'building' : 'typing'));
+        const activities = new Set(visibleEntries.map((entry) => typingActivityLabel(entry.activity)));
         if (activities.size === 1) {
-          const activity = visibleEntries[0]?.activity === 'building' ? 'building' : 'typing';
+          const activity = typingActivityLabel(visibleEntries[0]?.activity);
           elements.typingText.textContent = `${names.join(' and ')}${extra > 0 ? ` +${extra}` : ''} are ${activity}`;
         } else {
-          const described = visibleEntries.map((entry, index) => `${names[index]} is ${entry.activity === 'building' ? 'building' : 'typing'}`);
+          const described = visibleEntries.map((entry, index) => `${names[index]} is ${typingActivityLabel(entry.activity)}`);
           elements.typingText.textContent = `${described.join(' · ')}${extra > 0 ? ` · +${extra}` : ''}`;
         }
       }
@@ -32577,8 +33247,9 @@
       }
 
       elements.profileSelect.value = state.profiles.some((profile) => profile.id === previous) ? previous : '';
-      elements.profilePickerField.hidden = state.profiles.length === 0;
+      elements.profilePickerField.hidden = false;
       elements.deleteProfileButton.disabled = !elements.profileSelect.value;
+      elements.profileExportButton.disabled = !elements.profileSelect.value;
     }
 
     function selectSavedProfile(profileId, options = {}) {
@@ -32601,6 +33272,7 @@
       elements.colorInput.value = profile.color || '#6e8bff';
       applyProfileUiScale(profile.uiScale, { persist: options.commitScale === true });
       elements.deleteProfileButton.disabled = false;
+      elements.profileExportButton.disabled = false;
       writeStorage('chat.activeProfileId', profile.id);
       renderEditorAvatar();
       renderIdentity();
@@ -32621,10 +33293,143 @@
       elements.colorInput.value = '#6e8bff';
       applyProfileUiScale(currentProfileUiScale(), { persist: false });
       elements.deleteProfileButton.disabled = true;
+      elements.profileExportButton.disabled = true;
       renderEditorAvatar();
       renderIdentity();
       refreshControls();
       elements.nicknameInput.focus();
+    }
+
+    function isStandardProfileUuid(value) {
+      return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value || ''));
+    }
+
+    function setProfileTransferStatus(message, tone = '') {
+      elements.profileTransferStatus.textContent = String(message || '');
+      if (tone) elements.profileTransferStatus.dataset.tone = tone;
+      else delete elements.profileTransferStatus.dataset.tone;
+    }
+
+    function portableProfilePayload(profile) {
+      return {
+        format: 'rantlist-profile',
+        version: 1,
+        exportedAt: new Date().toISOString(),
+        identity: {
+          id: profile.id,
+          uuid: isStandardProfileUuid(profile.id) ? profile.id : null,
+        },
+        profile: {
+          nickname: profile.nickname || '',
+          status: profile.status || '',
+          bio: profile.bio || '',
+          publicProfile: profile.publicProfile === true,
+          email: profile.email || '',
+          phone: profile.phone || '',
+          website: profile.website || '',
+          linkedin: profile.linkedin || '',
+          github: profile.github || '',
+          instagram: profile.instagram || '',
+          x: profile.x || '',
+          uiScale: normalizeProfileUiScale(profile.uiScale, PROFILE_UI_SCALE_DEFAULT),
+          color: profile.color || '#6e8bff',
+          avatar: isSafeAvatarUrl(profile.avatar) ? profile.avatar : null,
+          createdAt: Number(profile.createdAt) || Date.now(),
+          updatedAt: Number(profile.updatedAt) || Date.now(),
+        },
+      };
+    }
+
+    function profileExportFileName(profile) {
+      const nickname = String(profile.nickname || 'profile')
+        .normalize('NFKD')
+        .replace(/[^A-Za-z0-9._-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .slice(0, 48) || 'profile';
+      return `rantlist-profile-${nickname}-${profile.id}.json`;
+    }
+
+    function exportSelectedProfile() {
+      const profile = state.profiles.find((item) => item.id === state.selectedProfileId);
+      if (!profile) {
+        setProfileTransferStatus('Select a saved profile before exporting.', 'error');
+        return;
+      }
+      const proceed = window.confirm(
+        `Export “${profile.nickname || 'Unnamed profile'}” as a JSON backup?\n\nThe file contains identity ${profile.id}. Keep it private because importing it restores the same Rantlist identity.`
+      );
+      if (!proceed) {
+        setProfileTransferStatus('Export cancelled.');
+        return;
+      }
+      const payload = portableProfilePayload(profile);
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = profileExportFileName(profile);
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setProfileTransferStatus(`Exported ${profile.nickname || 'profile'} with identity ${profile.id}.`, 'success');
+    }
+
+    function normalizeImportedProfileDocument(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('This is not a Rantlist profile JSON file.');
+      if (value.format !== 'rantlist-profile' || Number(value.version) !== 1) throw new Error('Unsupported Rantlist profile export format.');
+      const identityId = String(value.identity?.id || value.identity?.uuid || '').trim();
+      if (!/^[A-Za-z0-9_-]{16,80}$/.test(identityId)) throw new Error('The profile identity UUID is missing or invalid.');
+      if (value.identity?.uuid != null && !isStandardProfileUuid(value.identity.uuid)) throw new Error('The exported UUID is not a valid Rantlist UUID.');
+      if (value.identity?.uuid && String(value.identity.uuid) !== identityId) throw new Error('The profile identity UUID does not match the exported identity.');
+      const source = value.profile;
+      if (!source || typeof source !== 'object' || Array.isArray(source)) throw new Error('The exported profile data is missing.');
+      const nickname = String(source.nickname || '').trim();
+      if (nickname.length < 1 || nickname.length > 24) throw new Error('The imported nickname is invalid.');
+      return {
+        id: identityId,
+        nickname,
+        status: String(source.status || '').trim().slice(0, 100),
+        bio: String(source.bio || '').trim().slice(0, 280),
+        publicProfile: source.publicProfile === true,
+        email: String(source.email || '').trim().slice(0, 120),
+        phone: String(source.phone || '').trim().slice(0, 40),
+        website: normalizeOptionalProfileUrl(source.website),
+        linkedin: normalizeOptionalProfileUrl(source.linkedin),
+        github: normalizeOptionalProfileUrl(source.github),
+        instagram: normalizeOptionalProfileUrl(source.instagram),
+        x: normalizeOptionalProfileUrl(source.x),
+        uiScale: normalizeProfileUiScale(source.uiScale, PROFILE_UI_SCALE_DEFAULT),
+        color: /^#[0-9A-Fa-f]{6}$/.test(source.color || '') ? source.color : '#6e8bff',
+        avatar: isSafeAvatarUrl(source.avatar) ? source.avatar : null,
+        createdAt: Number(source.createdAt) || Date.now(),
+        updatedAt: Number(source.updatedAt) || Date.now(),
+      };
+    }
+
+    async function importProfileFile(file) {
+      if (!file) return;
+      if (file.size > 2 * 1024 * 1024) throw new Error('Profile JSON must be smaller than 2 MB.');
+      let documentValue;
+      try {
+        documentValue = JSON.parse(await file.text());
+      } catch {
+        throw new Error('The selected file is not valid JSON.');
+      }
+      const imported = normalizeImportedProfileDocument(documentValue);
+      const existing = state.profiles.find((item) => item.id === imported.id);
+      if (existing) {
+        const replace = window.confirm(
+          `A saved profile with the same identity already exists:\n\n${existing.nickname || 'Unnamed profile'}\n${existing.id}\n\nReplace the local saved copy with the imported profile? Your current signed-in session will not change until you choose Save and sign in.`
+        );
+        if (!replace) {
+          setProfileTransferStatus('Import cancelled. The existing profile was not changed.');
+          return;
+        }
+      }
+      const saved = await saveStoredProfile(imported);
+      selectSavedProfile(saved.id);
+      setProfileTransferStatus(`Imported ${saved.nickname || 'profile'} with identity ${saved.id}. Review it, then choose Save and sign in.`, 'success');
     }
 
     function profileToNetwork(profile) {
@@ -32772,9 +33577,16 @@
     async function deleteSelectedProfile() {
       const profile = state.profiles.find((item) => item.id === state.selectedProfileId);
       if (!profile) return;
-      if (!window.confirm(`Delete the saved profile “${profile.nickname}” from this device?`)) return;
-
       const isCurrent = state.registered && state.selfUser?.identityId === profile.id;
+      const warning = [
+        `Delete the saved profile “${profile.nickname || 'Unnamed profile'}” from this device?`,
+        `Identity: ${profile.id}`,
+        '',
+        'This removes the local saved profile and cannot be undone unless you previously exported its JSON backup.',
+        isCurrent ? 'You are currently signed in with this profile and will be signed off.' : '',
+      ].filter(Boolean).join('\n');
+      if (!window.confirm(warning)) return;
+
       if (isCurrent) requestSignOff(false);
       await removeStoredProfile(profile.id);
 
@@ -33312,6 +34124,158 @@
       caption: 'Write a concise neutral caption for this image.',
     });
 
+    function normalizeAiYoutubeTranscript(raw) {
+      if (!raw || typeof raw !== 'object' || raw.available === false) return null;
+      return {
+        available: true,
+        url: String(raw.url || '').trim(),
+        videoId: String(raw.videoId || '').trim().slice(0, 40),
+        title: String(raw.title || 'YouTube transcript').trim().slice(0, 300) || 'YouTube transcript',
+        channel: String(raw.channel || '').trim().slice(0, 200),
+        language: String(raw.language || '').trim().slice(0, 40),
+        source: raw.source === 'audio-transcription' ? 'audio-transcription' : 'captions',
+        automaticCaptions: raw.automaticCaptions === true,
+        transcriptCharacters: Math.max(0, Number(raw.transcriptCharacters) || 0),
+        transcriptTruncated: raw.transcriptTruncated === true,
+      };
+    }
+
+    function aiYoutubeTranscriptFileName(meta) {
+      const base = String(meta?.title || meta?.videoId || 'youtube-transcript')
+        .normalize('NFKD').replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 80) || 'youtube-transcript';
+      return `${base}.txt`;
+    }
+
+    function requestAiYoutubeTranscript(messageId, action = 'view') {
+      const id = String(messageId || '').trim();
+      if (!id) return;
+      state.aiYoutubeTranscriptPendingActions.set(id, action === 'download' ? 'download' : 'view');
+      sendJson({ type: 'ai.youtube.transcript.get', messageId: id });
+    }
+
+    function downloadAiYoutubeTranscript(item) {
+      const transcript = String(item?.transcript || '');
+      if (!transcript) return addSystemMessage('The saved YouTube transcript is empty.', true);
+      const meta = normalizeAiYoutubeTranscript(item?.meta) || { title: 'YouTube transcript' };
+      const header = [
+        meta.title,
+        meta.url ? `URL: ${meta.url}` : '',
+        meta.channel ? `Channel: ${meta.channel}` : '',
+        meta.language ? `Language: ${meta.language}` : '',
+        `Source: ${meta.source === 'audio-transcription' ? 'audio transcription' : (meta.automaticCaptions ? 'automatic captions' : 'captions')}`,
+        '',
+      ].filter((line, index, lines) => line || index === lines.length - 1).join('\n');
+      const blob = new Blob([header, transcript, '\n'], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = aiYoutubeTranscriptFileName(meta);
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1500);
+    }
+
+    function ensureAiYoutubeTranscriptUi() {
+      let layer = document.getElementById('aiYoutubeTranscriptLayer');
+      if (layer) return layer;
+      layer = document.createElement('section');
+      layer.id = 'aiYoutubeTranscriptLayer';
+      layer.className = 'ai-youtube-transcript-layer';
+      layer.hidden = true;
+      layer.setAttribute('aria-hidden', 'true');
+      layer.innerHTML = `<header class="ai-youtube-transcript-toolbar"><strong id="aiYoutubeTranscriptTitle">YouTube transcript</strong><span id="aiYoutubeTranscriptInfo" class="hint"></span><button id="aiYoutubeTranscriptCopy" type="button">Copy</button><button id="aiYoutubeTranscriptDownload" type="button"><span class="icon icon-download" aria-hidden="true"></span><span>Download TXT</span></button><button id="aiYoutubeTranscriptClose" type="button">Close</button></header><div class="ai-youtube-transcript-body"><pre id="aiYoutubeTranscriptText" class="ai-youtube-transcript-text"></pre></div>`;
+      document.body.append(layer);
+      layer.querySelector('#aiYoutubeTranscriptClose').addEventListener('click', closeAiYoutubeTranscript);
+      layer.querySelector('#aiYoutubeTranscriptCopy').addEventListener('click', async () => {
+        const active = state.aiYoutubeTranscriptActive;
+        if (!active?.transcript) return;
+        try {
+          await copyText(active.transcript);
+          addSystemMessage('YouTube transcript copied.');
+        } catch {
+          addSystemMessage('YouTube transcript could not be copied.', true);
+        }
+      });
+      layer.querySelector('#aiYoutubeTranscriptDownload').addEventListener('click', () => {
+        if (state.aiYoutubeTranscriptActive) downloadAiYoutubeTranscript(state.aiYoutubeTranscriptActive);
+      });
+      return layer;
+    }
+
+    function openAiYoutubeTranscript(item) {
+      const transcript = String(item?.transcript || '');
+      if (!transcript) return addSystemMessage('The saved YouTube transcript is empty.', true);
+      const meta = normalizeAiYoutubeTranscript(item?.meta) || { title: 'YouTube transcript', source: 'captions', transcriptCharacters: transcript.length };
+      state.aiYoutubeTranscriptActive = { messageId: String(item?.messageId || ''), transcript, meta };
+      const layer = ensureAiYoutubeTranscriptUi();
+      layer.querySelector('#aiYoutubeTranscriptTitle').textContent = meta.title || 'YouTube transcript';
+      const source = meta.source === 'audio-transcription' ? 'audio transcription' : (meta.automaticCaptions ? 'automatic captions' : 'captions');
+      const parts = [source, meta.language, `${transcript.length.toLocaleString()} characters`].filter(Boolean);
+      layer.querySelector('#aiYoutubeTranscriptInfo').textContent = parts.join(' · ');
+      layer.querySelector('#aiYoutubeTranscriptText').textContent = transcript;
+      layer.hidden = false;
+      layer.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-open');
+    }
+
+    function closeAiYoutubeTranscript() {
+      const layer = document.getElementById('aiYoutubeTranscriptLayer');
+      if (!layer) return;
+      layer.hidden = true;
+      layer.setAttribute('aria-hidden', 'true');
+      const text = layer.querySelector('#aiYoutubeTranscriptText');
+      if (text) text.textContent = '';
+      state.aiYoutubeTranscriptActive = null;
+      if (!state.aiBuilderGalleryOpen && document.getElementById('aiBuilderLayer')?.hidden !== false) document.body.classList.remove('modal-open');
+    }
+
+    function handleAiYoutubeTranscriptItem(message) {
+      const messageId = String(message?.messageId || '');
+      const transcript = String(message?.transcript || '');
+      if (!messageId || !transcript) return addSystemMessage('The saved YouTube transcript is unavailable.', true);
+      const item = { messageId, transcript, meta: normalizeAiYoutubeTranscript(message.meta) };
+      const action = state.aiYoutubeTranscriptPendingActions.get(messageId) || 'view';
+      state.aiYoutubeTranscriptPendingActions.delete(messageId);
+      if (action === 'download') downloadAiYoutubeTranscript(item);
+      else openAiYoutubeTranscript(item);
+    }
+
+    function renderAiYoutubeTranscriptCard(article, rawMeta, sourceMessageId) {
+      article?.querySelector?.('[data-ai-youtube-transcript-card]')?.remove();
+      const meta = normalizeAiYoutubeTranscript(rawMeta);
+      if (!article || !meta || !sourceMessageId) return;
+      const card = document.createElement('section');
+      card.className = 'ai-youtube-transcript-card';
+      card.dataset.aiYoutubeTranscriptCard = '';
+      const head = document.createElement('div');
+      head.className = 'ai-youtube-transcript-head';
+      const label = document.createElement('strong');
+      label.textContent = 'YouTube transcript';
+      const title = document.createElement('span');
+      title.textContent = meta.title;
+      title.title = meta.title;
+      head.append(label, title);
+      const info = document.createElement('div');
+      info.className = 'ai-youtube-transcript-meta';
+      const source = meta.source === 'audio-transcription' ? 'audio transcription' : (meta.automaticCaptions ? 'automatic captions' : 'captions');
+      const bits = [source, meta.language, meta.transcriptCharacters ? `${meta.transcriptCharacters.toLocaleString()} characters` : '', meta.transcriptTruncated ? 'truncated' : ''].filter(Boolean);
+      info.textContent = bits.join(' · ');
+      const actions = document.createElement('div');
+      actions.className = 'ai-youtube-transcript-actions';
+      const view = document.createElement('button');
+      view.type = 'button';
+      view.textContent = 'View';
+      view.addEventListener('click', () => requestAiYoutubeTranscript(sourceMessageId, 'view'));
+      const download = document.createElement('button');
+      download.type = 'button';
+      download.innerHTML = '<span class="icon icon-download" aria-hidden="true"></span><span>Download TXT</span>';
+      download.addEventListener('click', () => requestAiYoutubeTranscript(sourceMessageId, 'download'));
+      actions.append(view, download);
+      card.append(head, info, actions);
+      article.querySelector('.message-text')?.insertAdjacentElement('afterend', card);
+    }
+
     function normalizeAiBuilder(raw) {
       if (!raw || typeof raw !== 'object') return null;
       const html = String(raw.html || '');
@@ -33553,6 +34517,17 @@
           elements.chatAiContextHint.textContent = 'Off · /ai sends only the explicit prompt. Turn this on for conversational follow-up questions.';
         }
       }
+      if (elements.chatAiYoutubeSummaryHint) {
+        const youtubeAvailable = state.capabilities.chatAiYoutubeSummary === true;
+        const ytDlpVersion = String(state.capabilities.chatAiYoutubeSummaryYtDlpVersion || '').trim();
+        const ytDlpJsRuntime = String(state.capabilities.chatAiYoutubeSummaryJsRuntime || '').trim();
+        const audioFallback = state.capabilities.chatAiYoutubeAudioFallback === true;
+        const authenticatedSession = state.capabilities.chatAiYoutubeAuthenticatedSession === true;
+        const requestMode = state.capabilities.chatAiRequestMode === 'standard-openai-compatible' ? 'standard OpenAI-compatible API mode' : 'provider API mode';
+        elements.chatAiYoutubeSummaryHint.textContent = youtubeAvailable
+          ? `YouTube summaries ready · /ai summary <YouTube URL> · ${requestMode} · ${authenticatedSession ? 'authenticated server session ready' : 'anonymous server session'} · captions first${audioFallback ? ' · audio transcription fallback ready' : ' · audio fallback unavailable'}${ytDlpVersion ? ` · yt-dlp ${ytDlpVersion}` : ''}${ytDlpJsRuntime ? ` · ${ytDlpJsRuntime}` : ''}.`
+          : 'YouTube transcript summaries are not available on this server. Normal /ai and webpage retrieval are unaffected.';
+      }
       if (elements.chatAiPromptHistoryInput) {
         const promptHistoryAvailable = state.capabilities.chatAiPromptHistory !== false;
         elements.chatAiPromptHistoryInput.checked = state.chatAiPromptHistoryEnabled === true;
@@ -33600,17 +34575,40 @@
       return Boolean(file && state.capabilities.safeImageMimes.includes(String(file.mime || '').trim().toLowerCase()));
     }
 
-    function normalizeMediaAi(value) {
+    function normalizeMediaAiEntry(value, fallback = {}) {
       if (!value || typeof value !== 'object') return null;
       return {
-        provider: String(value.provider || 'hetzner'),
-        model: String(value.model || state.capabilities.mediaAiModel || ''),
+        id: String(value.id || fallback.id || ''),
+        provider: String(value.provider || fallback.provider || 'hetzner'),
+        model: String(value.model || fallback.model || state.capabilities.mediaAiModel || ''),
         prompt: String(value.prompt || ''),
         response: String(value.response || ''),
         status: ['idle', 'processing', 'complete', 'error'].includes(value.status) ? value.status : 'idle',
         error: String(value.error || ''),
-        updatedAt: Number(value.updatedAt) || null,
+        createdAt: Number(value.createdAt) || Number(value.updatedAt) || null,
+        updatedAt: Number(value.updatedAt) || Number(value.createdAt) || null,
       };
+    }
+
+    function normalizeMediaAi(value) {
+      if (!value || typeof value !== 'object') return null;
+      const current = normalizeMediaAiEntry(value) || {};
+      const analyses = Array.isArray(value.analyses)
+        ? value.analyses.map((entry) => normalizeMediaAiEntry(entry, current)).filter(Boolean)
+        : [];
+      if (!analyses.length && current.status && current.status !== 'idle' && (current.response || current.error || current.status === 'processing')) {
+        analyses.push({ ...current, id: current.id || `legacy-${current.updatedAt || 'analysis'}` });
+      }
+      analyses.sort((a, b) => (Number(b.updatedAt) || 0) - (Number(a.updatedAt) || 0));
+      return {
+        ...current,
+        analyses,
+        analysisCount: Math.max(analyses.length, Number(value.analysisCount) || 0),
+      };
+    }
+
+    function mediaAiHistoryEntries(ai) {
+      return Array.isArray(ai?.analyses) ? ai.analyses.filter((entry) => entry && entry.status !== 'idle') : [];
     }
 
     function renderMediaAiSettings() {
@@ -33620,11 +34618,20 @@
       // Keep this preference visible and selectable even before the server secret is configured.
       // Requests remain blocked by capability checks until the server reports mediaAi=true.
       elements.mediaAiModeSelect.disabled = false;
+      const timeoutSeconds = Math.max(15, Math.min(300, Math.round(Number(state.mediaAiTimeoutSeconds) || 180)));
       if (elements.mediaAiConfigHint) {
         const model = state.capabilities.mediaAiModel ? ` · ${state.capabilities.mediaAiModel}` : '';
+        const requestMode = state.capabilities.mediaAiRequestMode === 'standard-openai-compatible' ? ' · standard OpenAI-compatible API mode' : '';
         elements.mediaAiConfigHint.textContent = available
-          ? `Server status: ready · ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}. API key is server-only.`
+          ? `Server status: ready · ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}${requestMode}.`
           : 'Server status: not configured · add HETZNER_INFERENCE_API_KEY to /etc/rantlist-chat.env, then restart the service.';
+      }
+      if (elements.mediaAiTimeoutInput) {
+        elements.mediaAiTimeoutInput.value = String(timeoutSeconds);
+        elements.mediaAiTimeoutInput.disabled = false;
+      }
+      if (elements.mediaAiTimeoutHint) {
+        elements.mediaAiTimeoutHint.textContent = `Per-device setting · 15–300 seconds · current ${timeoutSeconds}s. Saved automatically and sent with each image-analysis request.`;
       }
     }
 
@@ -33655,7 +34662,7 @@
 
     function appendMediaAiResult(container, value) {
       const text = normalizeMediaAiDisplayText(value);
-      if (!text) return;
+      if (!text) return null;
       const result = document.createElement('div');
       result.className = 'media-ai-result';
       for (const rawLine of text.split('\n')) {
@@ -33672,7 +34679,118 @@
         result.append(row);
       }
       container.append(result);
+      return result;
     }
+
+    function mediaAiCopyButton(label, title, textValue) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'media-ai-copy-button';
+      button.title = title;
+      button.setAttribute('aria-label', title);
+      button.innerHTML = `<span class="icon icon-copy" aria-hidden="true"></span><span>${label}</span>`;
+      button.addEventListener('click', async (event) => {
+        event.stopPropagation();
+        const original = button.innerHTML;
+        try {
+          await copyText(String(textValue || ''));
+          button.textContent = 'Copied';
+        } catch {
+          button.textContent = 'Copy failed';
+        }
+        setTimeout(() => { if (button.isConnected) button.innerHTML = original; }, 1200);
+      });
+      return button;
+    }
+
+    function appendMediaAiHistory(container, ai, options = {}) {
+      const entries = mediaAiHistoryEntries(ai);
+      const showPrompt = options.showPrompt !== false;
+      for (const entry of entries) {
+        const card = document.createElement('article');
+        card.className = 'media-ai-entry';
+        const head = document.createElement('div');
+        head.className = 'media-ai-entry-head';
+        const status = document.createElement('span');
+        status.className = 'media-ai-analysis-status';
+        if (entry.status === 'processing') markMediaAiProcessingLabel(status, 'Experimental image AI · analyzing', entry.updatedAt || entry.createdAt);
+        else if (entry.status === 'error') status.textContent = 'Experimental image AI · failed';
+        else status.textContent = `Experimental image AI${entry.model ? ` · ${entry.model}` : ''}`;
+        const time = document.createElement('span');
+        time.className = 'media-ai-entry-time';
+        const timestamp = Number(entry.updatedAt || entry.createdAt);
+        time.textContent = timestamp ? new Date(timestamp).toLocaleString() : '';
+        head.append(status, time);
+        card.append(head);
+        if (showPrompt && entry.prompt) {
+          const prompt = document.createElement('div');
+          prompt.className = 'media-ai-entry-prompt';
+          prompt.textContent = `Prompt: ${entry.prompt}`;
+          card.append(prompt);
+        }
+        if (entry.response) {
+          appendMediaAiResult(card, entry.response);
+          const actions = document.createElement('div');
+          actions.className = 'media-ai-entry-actions';
+          actions.append(
+            mediaAiCopyButton('Text', 'Copy analysis as plain text', normalizeMediaAiDisplayText(entry.response)),
+            mediaAiCopyButton('Markdown', 'Copy original analysis as Markdown', entry.response),
+          );
+          card.append(actions);
+        }
+        if (entry.error) {
+          const error = document.createElement('span');
+          error.className = 'media-ai-analysis-error';
+          error.textContent = entry.error;
+          card.append(error);
+        }
+        container.append(card);
+      }
+      const total = Math.max(entries.length, Number(ai?.analysisCount) || 0);
+      if (total > entries.length) {
+        const more = document.createElement('div');
+        more.className = 'media-ai-history-more';
+        more.textContent = `Showing the newest ${entries.length} of ${total} analyses. Older analyses remain stored on the server.`;
+        container.append(more);
+      }
+      return entries.length;
+    }
+
+    function mediaAiProcessingTimeoutMs() {
+      return Math.max(15000, Math.min(300000, (Number(state.mediaAiTimeoutSeconds) || 180) * 1000));
+    }
+
+    function mediaAiProcessingText(base, startedAt) {
+      const dots = '.'.repeat((Math.floor(Date.now() / 450) % 3) + 1);
+      const started = Number(startedAt) || Date.now();
+      const elapsedSeconds = Math.max(0, Math.floor((Date.now() - started) / 1000));
+      const timeoutSeconds = Math.max(1, Math.round(mediaAiProcessingTimeoutMs() / 1000));
+      return `${base}${dots} · ${elapsedSeconds}s / ${timeoutSeconds}s`;
+    }
+
+    function markMediaAiProcessingLabel(node, base, startedAt) {
+      if (!node) return;
+      node.dataset.mediaAiProcessing = 'true';
+      node.dataset.mediaAiProcessingBase = String(base || 'Analyzing');
+      node.dataset.mediaAiProcessingStartedAt = String(Number(startedAt) || Date.now());
+      node.textContent = mediaAiProcessingText(node.dataset.mediaAiProcessingBase, node.dataset.mediaAiProcessingStartedAt);
+    }
+
+    function clearMediaAiProcessingLabel(node) {
+      if (!node) return;
+      delete node.dataset.mediaAiProcessing;
+      delete node.dataset.mediaAiProcessingBase;
+      delete node.dataset.mediaAiProcessingStartedAt;
+    }
+
+    function refreshMediaAiProcessingLabels() {
+      document.querySelectorAll('[data-media-ai-processing="true"]').forEach((node) => {
+        if (node.hidden || !node.isConnected) return;
+        node.textContent = mediaAiProcessingText(node.dataset.mediaAiProcessingBase || 'Analyzing', node.dataset.mediaAiProcessingStartedAt);
+      });
+    }
+
+    window.setInterval(refreshMediaAiProcessingLabels, 450);
 
     function renderMediaAiForMessage(messageId) {
       const data = state.messageData.get(messageId);
@@ -33682,26 +34800,31 @@
       const ai = normalizeMediaAi(data.file.ai);
       node.textContent = '';
       node.hidden = true;
-      if (!ai || ai.status === 'idle') return;
+      const entries = mediaAiHistoryEntries(ai);
+      if (!entries.length) return;
       node.hidden = false;
-      const status = document.createElement('span');
-      status.className = 'media-ai-analysis-status';
-      if (ai.status === 'processing') {
-        status.textContent = 'Experimental image AI · analyzing…';
-        node.append(status);
-        return;
-      }
-      if (ai.status === 'error') {
-        status.textContent = 'Experimental image AI';
-        const error = document.createElement('span');
-        error.className = 'media-ai-analysis-error';
-        error.textContent = ai.error || 'Analysis failed.';
-        node.append(status, error);
-        return;
-      }
-      status.textContent = `Experimental image AI${ai.model ? ` · ${ai.model}` : ''}`;
-      node.append(status);
-      appendMediaAiResult(node, ai.response);
+
+      const collapsed = state.mediaAiCollapsedMessages.has(String(messageId));
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'media-ai-history-toggle';
+      toggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      toggle.innerHTML = `<span class="icon icon-brain" aria-hidden="true"></span><span>AI analyses · ${Math.max(entries.length, Number(ai.analysisCount) || 0)}</span><span aria-hidden="true">${collapsed ? '▸' : '▾'}</span>`;
+      const body = document.createElement('div');
+      body.className = 'media-ai-history-body';
+      body.hidden = collapsed;
+      appendMediaAiHistory(body, ai);
+      toggle.addEventListener('click', () => {
+        const shouldCollapse = !body.hidden;
+        body.hidden = shouldCollapse;
+        toggle.setAttribute('aria-expanded', shouldCollapse ? 'false' : 'true');
+        const id = String(messageId);
+        if (shouldCollapse) state.mediaAiCollapsedMessages.add(id);
+        else state.mediaAiCollapsedMessages.delete(id);
+        const arrow = toggle.lastElementChild;
+        if (arrow) arrow.textContent = shouldCollapse ? '▸' : '▾';
+      });
+      node.append(toggle, body);
     }
 
     function updateMediaAi(message) {
@@ -33715,6 +34838,7 @@
       if (!elements.mediaAiModal.hidden && state.activeMediaAiMessageId === messageId) {
         renderMediaAiModalCurrent(messageId, ai);
       }
+      if (typeof syncMediaStoryAiPanel === 'function') syncMediaStoryAiPanel(messageId);
     }
 
     function requestMediaAiAnalysis(messageId, prompt = mediaAiPresetPrompt('detail'), options = {}) {
@@ -33722,11 +34846,27 @@
       if (!data?.file || !isMediaAiImageFile(data.file) || state.mediaAiMode === 'off' || !state.capabilities.mediaAi) return false;
       const ai = normalizeMediaAi(data.file.ai);
       if (!options.force && ['processing', 'complete'].includes(ai?.status)) return false;
+      if (ai?.status === 'processing') return false;
       const cleanPrompt = String(prompt || '').trim().slice(0, 1200);
       if (!cleanPrompt) return false;
-      data.file.ai = { provider: 'hetzner', model: state.capabilities.mediaAiModel || '', prompt: cleanPrompt, response: '', status: 'processing', error: '', updatedAt: Date.now() };
+      const now = Date.now();
+      const localEntry = {
+        id: `pending-${now}-${Math.random().toString(36).slice(2, 8)}`,
+        provider: 'hetzner',
+        model: state.capabilities.mediaAiModel || '',
+        prompt: cleanPrompt,
+        response: '',
+        status: 'processing',
+        error: '',
+        createdAt: now,
+        updatedAt: now,
+      };
+      const previousEntries = mediaAiHistoryEntries(ai);
+      data.file.ai = { ...localEntry, analyses: [localEntry, ...previousEntries], analysisCount: Math.max(previousEntries.length + 1, Number(ai?.analysisCount) + 1 || 1) };
+      state.mediaAiCollapsedMessages.delete(String(messageId));
       renderMediaAiForMessage(messageId);
-      return sendJson({ type: 'media.ai.request', messageId, prompt: cleanPrompt });
+      if (typeof syncMediaStoryAiPanel === 'function') syncMediaStoryAiPanel(String(messageId));
+      return sendJson({ type: 'media.ai.request', messageId, prompt: cleanPrompt, timeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(state.mediaAiTimeoutSeconds) || 180))) });
     }
 
     function requestVisibleMediaAiDescriptions() {
@@ -33739,24 +34879,18 @@
     function renderMediaAiModalCurrent(messageId, suppliedAi = null) {
       const data = state.messageData.get(messageId);
       const ai = normalizeMediaAi(suppliedAi || data?.file?.ai);
+      const entries = mediaAiHistoryEntries(ai);
       elements.mediaAiCurrent.textContent = '';
-      elements.mediaAiCurrent.hidden = !ai || (!ai.response && !ai.error && ai.status !== 'processing');
+      elements.mediaAiCurrent.hidden = !entries.length;
       elements.mediaAiRunButton.disabled = ai?.status === 'processing';
-      if (!ai) return;
-      const status = document.createElement('strong');
-      status.textContent = ai.status === 'processing' ? 'Analyzing…' : (ai.status === 'error' ? 'Last analysis failed' : 'Current analysis');
-      elements.mediaAiCurrent.append(status);
-      if (ai.response) appendMediaAiResult(elements.mediaAiCurrent, ai.response);
-      if (ai.error) {
-        const error = document.createElement('span');
-        error.className = 'media-ai-analysis-error';
-        error.textContent = ai.error;
-        elements.mediaAiCurrent.append(error);
-      }
-      if (ai.status === 'processing') elements.mediaAiStatus.textContent = 'Analysis requested · waiting for Qwen…';
-      else if (ai.status === 'complete') elements.mediaAiStatus.textContent = 'Analysis complete.';
-      else if (ai.status === 'error') elements.mediaAiStatus.textContent = 'Analysis failed.';
-      if (ai.prompt && ai.status !== 'processing') elements.mediaAiPromptInput.value = ai.prompt;
+      if (entries.length) appendMediaAiHistory(elements.mediaAiCurrent, ai);
+      clearMediaAiProcessingLabel(elements.mediaAiStatus);
+      if (ai?.status === 'processing') markMediaAiProcessingLabel(elements.mediaAiStatus, 'Analysis requested · waiting for Qwen', ai.updatedAt);
+      else if (ai?.status === 'complete') elements.mediaAiStatus.textContent = `${Math.max(entries.length, Number(ai.analysisCount) || 0)} analysis${Math.max(entries.length, Number(ai.analysisCount) || 0) === 1 ? '' : 'es'} stored for this image.`;
+      else if (ai?.status === 'error') elements.mediaAiStatus.textContent = 'Latest analysis failed; earlier analyses are preserved.';
+      else elements.mediaAiStatus.textContent = `${state.capabilities.mediaAiProvider || 'Hetzner Experiments'} · experimental`;
+      const latestFinished = entries.find((entry) => entry.status !== 'processing');
+      if (latestFinished?.prompt) elements.mediaAiPromptInput.value = latestFinished.prompt;
     }
 
     function openMediaAiModal(messageId) {
@@ -33764,7 +34898,9 @@
       if (!data?.file || !isMediaAiImageFile(data.file) || state.mediaAiMode === 'off' || !state.capabilities.mediaAi) return;
       state.activeMediaAiMessageId = String(messageId);
       elements.mediaAiPresetSelect.value = 'detail';
-      elements.mediaAiPromptInput.value = mediaAiPresetPrompt('detail');
+      const ai = normalizeMediaAi(data.file.ai);
+      const latestFinished = mediaAiHistoryEntries(ai).find((entry) => entry.status !== 'processing');
+      elements.mediaAiPromptInput.value = latestFinished?.prompt || mediaAiPresetPrompt('detail');
       elements.mediaAiStatus.textContent = `${state.capabilities.mediaAiProvider || 'Hetzner Experiments'} · experimental`;
       renderMediaAiModalCurrent(messageId);
       elements.mediaAiModal.hidden = false;
@@ -33774,6 +34910,7 @@
     function closeMediaAiModal() {
       elements.mediaAiModal.hidden = true;
       state.activeMediaAiMessageId = null;
+      clearMediaAiProcessingLabel(elements.mediaAiStatus);
       elements.mediaAiStatus.textContent = '';
       elements.mediaAiRunButton.disabled = false;
     }
@@ -35604,6 +36741,8 @@
       renderHistorySettings();
       renderBlockedUsers();
       renderSpeechSettings();
+      renderMediaAiSettings();
+      renderChatAiSettings();
       renderDiagnostics();
       requestAnimationFrame(() => elements.configCloseButton.focus({ preventScroll: true }));
     }
