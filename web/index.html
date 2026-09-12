@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.221">
+  <meta name="chat-ui-version" content="9.6.222">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -14993,7 +14993,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.221</small>
+          <small id="serverBrandVersion">v9.6.222</small>
         </span>
       </button>
     </div>
@@ -43343,20 +43343,137 @@
       return true;
     };
 
+    const nativeSharedFileRequests = new Map();
+
+    function nativeSharedFileRequestId() {
+      try { return crypto.randomUUID(); } catch {}
+      return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+    }
+
     function normalizeNativeSharedGroups(rawGroups) {
       return (Array.isArray(rawGroups) ? rawGroups : []).map((group) => {
         const id = String(group?.id || '').trim();
         const items = (Array.isArray(group?.items) ? group.items : []).map((item) => ({
           id: String(item?.id || '').trim(),
+          shareId: id,
           kind: ['file', 'url', 'text'].includes(item?.kind) ? item.kind : 'file',
           name: String(item?.name || 'Shared item').slice(0, 220),
           mime: String(item?.mime || 'application/octet-stream').slice(0, 160),
           nativeURL: String(item?.nativeURL || ''),
+          nativeRead: item?.nativeRead === true,
           text: String(item?.text || '').slice(0, 12000),
           url: String(item?.url || '').slice(0, 4000),
-        })).filter((item) => item.id && (item.nativeURL || item.text || item.url));
+        })).filter((item) => item.id && (
+          (item.kind === 'file' && item.shareId)
+          || item.nativeURL
+          || item.text
+          || item.url
+        ));
         return { id, createdAt: Number(group?.createdAt) || Date.now() / 1000, items };
       }).filter((group) => group.id && group.items.length);
+    }
+
+    function nativeSharedChunkBytes(base64) {
+      const binary = atob(String(base64 || ''));
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      return bytes;
+    }
+
+    window.rantlistNativeSharedFileChunk = (rawRequestId, rawIndex, rawTotal, rawBase64, rawMime, rawName) => {
+      const requestId = String(rawRequestId || '');
+      const request = nativeSharedFileRequests.get(requestId);
+      if (!request) return false;
+      const index = Number(rawIndex);
+      const total = Number(rawTotal);
+      if (!Number.isInteger(index) || !Number.isInteger(total) || index < 0 || total < 1 || index >= total || total > 8192) {
+        clearTimeout(request.timer);
+        nativeSharedFileRequests.delete(requestId);
+        request.reject(new Error('The iOS shared-file transfer returned invalid chunk metadata.'));
+        return false;
+      }
+      if (request.total == null) {
+        request.total = total;
+        request.chunks = new Array(total);
+        request.mime = String(rawMime || request.mime || 'application/octet-stream').slice(0, 160);
+        request.name = String(rawName || request.name || 'Shared file').slice(0, 220);
+      } else if (request.total !== total) {
+        clearTimeout(request.timer);
+        nativeSharedFileRequests.delete(requestId);
+        request.reject(new Error('The iOS shared-file transfer changed size while reading.'));
+        return false;
+      }
+      try {
+        if (!request.chunks[index]) {
+          request.chunks[index] = nativeSharedChunkBytes(rawBase64);
+          request.received += 1;
+        }
+      } catch {
+        clearTimeout(request.timer);
+        nativeSharedFileRequests.delete(requestId);
+        request.reject(new Error('The iOS shared-file transfer could not decode a chunk.'));
+        return false;
+      }
+      if (request.received !== request.total) return true;
+      clearTimeout(request.timer);
+      nativeSharedFileRequests.delete(requestId);
+      const byteLength = request.chunks.reduce((sum, chunk) => sum + (chunk?.byteLength || 0), 0);
+      const merged = new Uint8Array(byteLength);
+      let offset = 0;
+      for (const chunk of request.chunks) {
+        merged.set(chunk, offset);
+        offset += chunk.byteLength;
+      }
+      request.resolve(new File([merged], request.name, { type: request.mime, lastModified: Date.now() }));
+      return true;
+    };
+
+    window.rantlistNativeSharedFileError = (rawRequestId, rawMessage) => {
+      const requestId = String(rawRequestId || '');
+      const request = nativeSharedFileRequests.get(requestId);
+      if (!request) return false;
+      clearTimeout(request.timer);
+      nativeSharedFileRequests.delete(requestId);
+      request.reject(new Error(String(rawMessage || 'The shared file is no longer available on this iPhone.')));
+      return true;
+    };
+
+    async function readNativeSharedFile(item) {
+      const handler = window.webkit?.messageHandlers?.rantlistShare;
+      if (item?.nativeRead === true && handler && typeof handler.postMessage === 'function' && item?.shareId && item?.id) {
+        return await new Promise((resolve, reject) => {
+          const requestId = nativeSharedFileRequestId();
+          const request = {
+            resolve,
+            reject,
+            chunks: [],
+            received: 0,
+            total: null,
+            mime: item.mime || 'application/octet-stream',
+            name: item.name || 'Shared file',
+            timer: null,
+          };
+          request.timer = setTimeout(() => {
+            nativeSharedFileRequests.delete(requestId);
+            reject(new Error(`Timed out reading ${request.name} from the iOS Share Extension.`));
+          }, 60000);
+          nativeSharedFileRequests.set(requestId, request);
+          try {
+            handler.postMessage({ action: 'read', requestId, shareId: item.shareId, itemId: item.id });
+          } catch (error) {
+            clearTimeout(request.timer);
+            nativeSharedFileRequests.delete(requestId);
+            reject(error);
+          }
+        });
+      }
+      if (item?.nativeURL) {
+        const response = await fetch(item.nativeURL, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Could not read ${item.name || 'shared file'} from iOS.`);
+        const blob = await response.blob();
+        return new File([blob], item.name || 'Shared file', { type: item.mime || blob.type || 'application/octet-stream', lastModified: Date.now() });
+      }
+      throw new Error(`${item?.name || 'The shared file'} is no longer available on this iPhone.`);
     }
 
     function renderNativeSharePendingBar() {
@@ -43372,7 +43489,9 @@
       elements.nativeSharePendingHint.textContent = `Destination: ${destination}. Navigate elsewhere first if needed.`;
       elements.nativeShareSendButton.disabled = state.nativeShareSending || !canSend();
       elements.nativeShareDiscardButton.disabled = state.nativeShareSending;
-      elements.nativeShareSendButton.textContent = state.nativeShareSending ? 'Sending…' : 'Send here';
+      elements.nativeShareSendButton.textContent = state.nativeShareSending
+        ? 'Sending…'
+        : (count === 1 ? 'Send item' : `Send ${count} items`);
     }
 
     function consumeNativeSharedGroups(ids) {
@@ -43405,11 +43524,8 @@
           for (const item of group.items || []) {
             if (item.kind === 'url' && item.url) sharedText.push(item.url);
             else if (item.kind === 'text' && item.text) sharedText.push(item.text);
-            if (!item.nativeURL) continue;
-            const response = await fetch(item.nativeURL, { cache: 'no-store' });
-            if (!response.ok) throw new Error(`Could not read ${item.name || 'shared file'} from iOS.`);
-            const blob = await response.blob();
-            files.push(new File([blob], item.name || 'Shared file', { type: item.mime || blob.type || 'application/octet-stream', lastModified: Date.now() }));
+            if (item.kind !== 'file') continue;
+            files.push(await readNativeSharedFile(item));
           }
         }
         if (sharedText.length) {
@@ -43428,7 +43544,13 @@
         renderNativeSharePendingBar();
         return true;
       } catch (error) {
-        addSystemMessage(error?.message || 'The shared item could not be sent.', true);
+        const message = String(error?.message || '').trim();
+        addSystemMessage(
+          !message || message === 'Load failed'
+            ? 'The iOS shared item could not be read. It remains queued; reopen Rantlist and try Send again or discard it.'
+            : message,
+          true
+        );
         return false;
       } finally {
         state.nativeShareSending = false;

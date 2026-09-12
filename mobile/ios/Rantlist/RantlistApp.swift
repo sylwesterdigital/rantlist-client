@@ -68,7 +68,7 @@ private enum NativeShareInbox {
         return dirs.compactMap { dir in
             guard let data = try? Data(contentsOf: dir.appendingPathComponent("manifest.json")),
                   let manifest = try? JSONDecoder().decode(NativeShareManifest.self, from: data) else { return nil }
-            let items: [[String: Any]] = manifest.items.map { item in
+            let items: [[String: Any]] = manifest.items.compactMap { item in
                 var payload: [String: Any] = [
                     "id": item.id,
                     "kind": item.kind,
@@ -76,12 +76,15 @@ private enum NativeShareInbox {
                     "mime": item.mime,
                 ]
                 if item.relativePath != nil {
+                    guard fileURL(shareID: manifest.id, itemID: item.id) != nil else { return nil }
                     payload["nativeURL"] = "\(nativeShareScheme)://item/\(manifest.id)/\(item.id)"
+                    payload["nativeRead"] = true
                 }
                 if let text = item.text { payload["text"] = text }
                 if let url = item.url { payload["url"] = url }
                 return payload
             }
+            guard !items.isEmpty else { return nil }
             return ["id": manifest.id, "createdAt": manifest.createdAt, "items": items]
         }.sorted { (lhs, rhs) in
             (lhs["createdAt"] as? Double ?? 0) < (rhs["createdAt"] as? Double ?? 0)
@@ -104,8 +107,15 @@ private enum NativeShareInbox {
               let root = rootURL() else { return nil }
         let base = root.appendingPathComponent(shareID, isDirectory: true).standardizedFileURL
         let file = base.appendingPathComponent(relativePath, isDirectory: false).standardizedFileURL
-        guard file.path.hasPrefix(base.path + "/") else { return nil }
+        guard file.path.hasPrefix(base.path + "/"),
+              FileManager.default.fileExists(atPath: file.path) else { return nil }
         return (file, item.mime.isEmpty ? "application/octet-stream" : item.mime)
+    }
+
+    static func itemName(shareID: String, itemID: String) -> String? {
+        guard let manifest = loadManifest(shareID: shareID),
+              let item = manifest.items.first(where: { $0.id == itemID }) else { return nil }
+        return item.name
     }
 }
 
@@ -425,9 +435,17 @@ private struct RantlistWebView: UIViewRepresentable {
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "rantlistShare" {
                 guard let body = message.body as? [String: Any],
-                      body["action"] as? String == "consume",
-                      let ids = body["ids"] as? [String] else { return }
-                NativeShareInbox.consume(ids: ids)
+                      let action = body["action"] as? String else { return }
+                if action == "consume", let ids = body["ids"] as? [String] {
+                    NativeShareInbox.consume(ids: ids)
+                    return
+                }
+                if action == "read",
+                   let requestID = body["requestId"] as? String,
+                   let shareID = body["shareId"] as? String,
+                   let itemID = body["itemId"] as? String {
+                    deliverSharedFile(requestID: requestID, shareID: shareID, itemID: itemID)
+                }
                 return
             }
             guard message.name == "rantlistBadge" else { return }
@@ -461,6 +479,61 @@ private struct RantlistWebView: UIViewRepresentable {
             string.removeFirst()
             string.removeLast()
             return string
+        }
+
+        private func deliverSharedFileError(requestID: String, message: String) {
+            guard let requestJSON = jsonLiteral(requestID),
+                  let messageJSON = jsonLiteral(message) else { return }
+            webView?.evaluateJavaScript(
+                "window.rantlistNativeSharedFileError && window.rantlistNativeSharedFileError(\(requestJSON), \(messageJSON));",
+                completionHandler: nil
+            )
+        }
+
+        private func deliverSharedFile(requestID: String, shareID: String, itemID: String) {
+            guard requestID.range(of: "^[A-Za-z0-9._-]{8,128}$", options: .regularExpression) != nil,
+                  shareID.range(of: "^[A-Fa-f0-9-]{8,64}$", options: .regularExpression) != nil,
+                  itemID.range(of: "^[A-Fa-f0-9-]{8,64}$", options: .regularExpression) != nil else {
+                deliverSharedFileError(requestID: requestID, message: "The iOS shared-file request was invalid.")
+                return
+            }
+            guard let (fileURL, mime) = NativeShareInbox.fileURL(shareID: shareID, itemID: itemID) else {
+                deliverSharedFileError(requestID: requestID, message: "The shared file is no longer available on this iPhone.")
+                return
+            }
+            let name = NativeShareInbox.itemName(shareID: shareID, itemID: itemID) ?? fileURL.lastPathComponent
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                do {
+                    let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+                    let byteCount = (attributes[.size] as? NSNumber)?.int64Value ?? 0
+                    guard byteCount >= 0, byteCount <= 256 * 1024 * 1024 else {
+                        throw NSError(domain: "RantlistShare", code: 11, userInfo: [NSLocalizedDescriptionKey: "This shared file is too large for the native handoff."])
+                    }
+                    let chunkSize: Int64 = 96 * 1024
+                    let total = max(1, Int((byteCount + chunkSize - 1) / chunkSize))
+                    let handle = try FileHandle(forReadingFrom: fileURL)
+                    defer { try? handle.close() }
+                    for index in 0..<total {
+                        let chunk = try handle.read(upToCount: Int(chunkSize)) ?? Data()
+                        let base64 = chunk.base64EncodedString()
+                        DispatchQueue.main.async { [weak self] in
+                            guard let self,
+                                  let requestJSON = self.jsonLiteral(requestID),
+                                  let base64JSON = self.jsonLiteral(base64),
+                                  let mimeJSON = self.jsonLiteral(mime),
+                                  let nameJSON = self.jsonLiteral(name) else { return }
+                            self.webView?.evaluateJavaScript(
+                                "window.rantlistNativeSharedFileChunk && window.rantlistNativeSharedFileChunk(\(requestJSON), \(index), \(total), \(base64JSON), \(mimeJSON), \(nameJSON));",
+                                completionHandler: nil
+                            )
+                        }
+                    }
+                } catch {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.deliverSharedFileError(requestID: requestID, message: error.localizedDescription)
+                    }
+                }
+            }
         }
 
         private func deliverNativePushToken() {

@@ -1,3 +1,9 @@
+## v0.1.61 / 9.6.222
+- Fix iOS Share Extension media delivery: the main app now streams App Group files to WKWebView in bounded chunks instead of relying on custom-scheme Fetch, preventing the observed **Load failed** send failure.
+- Share sheet flow saves immediately and automatically attempts to open Rantlist; when iOS refuses to foreground the containing app, the extension shows only a concise saved-state message and Done.
+- Pending share UI uses **Send item / Send N items**, and stale missing files are omitted instead of creating broken sends.
+- Browser source synchronized to rantlist-deploy-r250 / protocol 63.
+
 ## v0.1.60 / 9.6.221
 - Fix the inactive native **Shared items ready** bar so it is invisible unless a real Share Extension payload is queued.
 - Keep the iOS notification permission prompt: it is required for APNs alerts/sounds and app-icon unread badges.

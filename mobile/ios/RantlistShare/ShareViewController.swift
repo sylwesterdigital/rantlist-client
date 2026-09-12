@@ -19,29 +19,30 @@ private struct ShareManifest: Codable {
 }
 
 final class ShareViewController: UIViewController {
+    private let titleLabel = UILabel()
     private let statusLabel = UILabel()
-    private let openButton = UIButton(type: .system)
     private let doneButton = UIButton(type: .system)
     private var shareID: String?
     private var didStart = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = .secondarySystemBackground
+
+        titleLabel.text = "Rantlist"
+        titleLabel.textAlignment = .center
+        titleLabel.font = .preferredFont(forTextStyle: .title2)
+
         statusLabel.numberOfLines = 0
         statusLabel.textAlignment = .center
-        statusLabel.text = "Preparing items for Rantlist…"
+        statusLabel.text = "Saving shared item…"
         statusLabel.font = .preferredFont(forTextStyle: .body)
 
-        openButton.setTitle("Open Rantlist", for: .normal)
-        openButton.titleLabel?.font = .preferredFont(forTextStyle: .headline)
-        openButton.isEnabled = false
-        openButton.addTarget(self, action: #selector(openRantlist), for: .touchUpInside)
-
         doneButton.setTitle("Done", for: .normal)
+        doneButton.isHidden = true
         doneButton.addTarget(self, action: #selector(done), for: .touchUpInside)
 
-        let stack = UIStackView(arrangedSubviews: [statusLabel, openButton, doneButton])
+        let stack = UIStackView(arrangedSubviews: [titleLabel, statusLabel, doneButton])
         stack.axis = .vertical
         stack.alignment = .fill
         stack.spacing = 18
@@ -128,9 +129,9 @@ final class ShareViewController: UIViewController {
                     let data = try JSONEncoder().encode(manifest)
                     try data.write(to: directory.appendingPathComponent("manifest.json"), options: .atomic)
                     self.statusLabel.text = collected.count == 1
-                        ? "1 item is ready. Open Rantlist, choose the channel or private conversation, then tap Send shared item."
-                        : "\(collected.count) items are ready. Open Rantlist, choose the channel or private conversation, then tap Send shared items."
-                    self.openButton.isEnabled = true
+                        ? "Shared item saved. Opening Rantlist…"
+                        : "\(collected.count) shared items saved. Opening Rantlist…"
+                    self.attemptAutomaticHandoff()
                 } catch {
                     try? FileManager.default.removeItem(at: directory)
                     self.finishWithError(error.localizedDescription)
@@ -209,18 +210,24 @@ final class ShareViewController: UIViewController {
 
     private func finishWithError(_ message: String) {
         statusLabel.text = message
-        openButton.isEnabled = false
+        doneButton.isHidden = false
     }
 
-    @objc private func openRantlist() {
+    private func attemptAutomaticHandoff() {
         guard let shareID,
-              let url = URL(string: "rantlist://share?id=\(shareID)") else { return }
+              let url = URL(string: "rantlist://share?id=\(shareID)") else {
+            statusLabel.text = "Shared item saved. Open Rantlist to choose where to send it."
+            doneButton.isHidden = false
+            return
+        }
         extensionContext?.open(url) { [weak self] opened in
             DispatchQueue.main.async {
+                guard let self else { return }
                 if opened {
-                    self?.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
+                    self.extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
                 } else {
-                    self?.statusLabel.text = "The item is saved. Open Rantlist manually, choose the destination, then tap Send shared item."
+                    self.statusLabel.text = "Shared item saved to Rantlist. Open the app to choose where to send it."
+                    self.doneButton.isHidden = false
                 }
             }
         }

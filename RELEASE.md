@@ -1,3 +1,10 @@
+## Changes in v0.1.61
+
+- Replaces the unreliable `fetch(rantlist-share://...)` browser path with a native `rantlistShare` read request and bounded chunk callbacks (`rantlistNativeSharedFileChunk` / `rantlistNativeSharedFileError`). Shared photos/files are reconstructed as normal browser `File` objects and continue through the existing upload pipeline.
+- The Share Extension persists the App Group manifest first, then automatically attempts `rantlist://share`; if iOS declines to open the containing app, the extension presents a single saved-state message rather than separate Open/Done commands.
+- Missing App Group files are excluded from the pending payload so stale manifests cannot produce a broken Send action.
+- Synchronized browser client to **9.6.222 / rantlist-deploy-r250** and protocol **63**.
+
 ## Changes in v0.1.60
 
 - Native share pending UI now strictly respects `hidden`, eliminating the phantom **Shared items ready** card when no iOS share payload exists.
