@@ -1,3 +1,11 @@
+## v0.1.69 / 9.6.230
+
+- Synchronized browser client to **9.6.230 / rantlist-deploy-r258** and protocol **63**.
+- Fleet Battle target taps now acknowledge immediately on the selected cell while the server-authoritative shot result is pending, preventing the iOS client from feeling dead after a tap.
+- Resolved shots surface a temporary high-contrast **HIT / MISS / SUNK** banner, while the normal board marks remain authoritative.
+- Finished Fleet matches now show a large winner overlay with **YOU WON** or the opponent name, surviving ship counts, and the final sinking coordinate/ship length.
+- The 9.6.229 square two-harbour iOS fitting logic is retained unchanged.
+
 ## v0.1.68 / 9.6.229
 
 - Synchronized browser client to **9.6.229 / rantlist-deploy-r257** and protocol **63**.

@@ -1,3 +1,10 @@
+## Changes in v0.1.69
+
+- Synchronized browser client to **9.6.230 / rantlist-deploy-r258** and protocol **63**.
+- Fleet Battle gives immediate visual acknowledgement to a fired cell, locks the other target cells until the authoritative response arrives, and then displays an explicit **HIT / MISS / SUNK** result.
+- The final state now overlays the completed harbours with a clear winner statement, surviving fleet count, and the decisive sinking shot.
+- Mobile board geometry remains the deterministic, square, two-board non-scrolling layout introduced in 9.6.229.
+
 ## Changes in v0.1.68
 
 - Synchronized browser client to **9.6.229 / rantlist-deploy-r257** and protocol **63**.

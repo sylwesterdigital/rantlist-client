@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.229">
+  <meta name="chat-ui-version" content="9.6.230">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -3003,7 +3003,7 @@
     .duel-stage.fleet-mode .duel-prompt { min-height:22px; max-width:980px; display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap; gap:4px 8px; }
     .duel-stage.fleet-mode .duel-prompt strong { display:inline; font-size:14px; }
     .duel-stage.fleet-mode .duel-prompt span { display:inline; margin:0; font-size:11px; }
-    .duel-board.fleet-board-host { width:min(1280px, 100%); gap:6px; }
+    .duel-board.fleet-board-host { position:relative; width:min(1280px, 100%); gap:6px; }
     .fleet-toolbar {
       display:flex;
       align-items:center;
@@ -3191,6 +3191,23 @@
     .fleet-cell.sunk { z-index:2; overflow:hidden; border-color:color-mix(in srgb, var(--danger) 68%, #111); background:repeating-linear-gradient(135deg, color-mix(in srgb, #111 72%, var(--panel-3)) 0 4px, color-mix(in srgb, #3b1e1e 55%, var(--panel-3)) 4px 8px); }
     .fleet-cell.sunk::before { content:""; position:absolute; inset:12%; border:1px dashed color-mix(in srgb, var(--danger) 42%, #777); border-radius:45%; background:color-mix(in srgb, #111 28%, transparent); }
     .fleet-cell.sunk::after { content:"✕"; position:relative; z-index:3; color:color-mix(in srgb, var(--danger) 55%, #b6b6b6); font-size:1.05em; opacity:.9; }
+    .fleet-cell.pending-shot { z-index:3; border-color:var(--warning); background:linear-gradient(color-mix(in srgb, var(--warning) 20%, transparent), color-mix(in srgb, var(--warning) 20%, transparent)), var(--fleet-cell-bg); }
+    .fleet-cell.pending-shot::before { content:""; position:absolute; inset:18%; z-index:5; border:2px solid color-mix(in srgb, var(--warning) 82%, #fff); border-radius:50%; animation:fleet-shot-pending .72s ease-in-out infinite; }
+    .fleet-cell.pending-shot::after { content:""; position:absolute; z-index:6; width:18%; height:18%; border-radius:50%; background:color-mix(in srgb, var(--warning) 88%, #fff); box-shadow:0 0 0 3px color-mix(in srgb, var(--warning) 22%, transparent); }
+    @keyframes fleet-shot-pending { 0%,100% { transform:scale(.72); opacity:.45; } 50% { transform:scale(1.08); opacity:1; } }
+    .fleet-shot-feedback { position:absolute; z-index:12; top:42px; left:50%; transform:translateX(-50%); min-width:min(280px,82%); max-width:92%; padding:8px 12px; border:1px solid color-mix(in srgb,var(--accent) 62%,var(--line)); border-radius:999px; background:color-mix(in srgb,var(--panel) 94%,transparent); box-shadow:0 8px 28px rgba(0,0,0,.3); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); text-align:center; font-size:12px; font-weight:900; letter-spacing:.02em; pointer-events:none; animation:fleet-shot-feedback 1.8s ease both; }
+    .fleet-shot-feedback.hit, .fleet-shot-feedback.sunk { border-color:color-mix(in srgb,var(--danger) 72%,var(--line)); color:color-mix(in srgb,var(--danger) 78%,#fff); }
+    .fleet-shot-feedback.miss { color:var(--text); }
+    @keyframes fleet-shot-feedback { 0% { opacity:0; transform:translate(-50%,-5px) scale(.96); } 12%,78% { opacity:1; transform:translate(-50%,0) scale(1); } 100% { opacity:0; transform:translate(-50%,-3px) scale(.985); } }
+    .fleet-result-overlay { position:absolute; inset:0; z-index:20; display:grid; place-items:center; padding:18px; background:color-mix(in srgb,var(--bg) 68%,transparent); backdrop-filter:blur(5px); -webkit-backdrop-filter:blur(5px); pointer-events:none; }
+    .fleet-result-card { width:min(520px,92%); display:grid; justify-items:center; gap:8px; padding:22px 20px; border:2px solid var(--line); border-radius:20px; background:color-mix(in srgb,var(--panel) 96%,transparent); box-shadow:0 20px 60px rgba(0,0,0,.45); text-align:center; }
+    .fleet-result-card.is-win { border-color:var(--success); box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 4px color-mix(in srgb,var(--success) 16%,transparent); }
+    .fleet-result-card.is-loss { border-color:var(--danger); box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 0 4px color-mix(in srgb,var(--danger) 14%,transparent); }
+    .fleet-result-card > strong { font-size:clamp(28px,5vw,46px); line-height:1; letter-spacing:.02em; }
+    .fleet-result-card.is-win > strong { color:var(--success); }
+    .fleet-result-card.is-loss > strong { color:color-mix(in srgb,var(--danger) 82%,#fff); }
+    .fleet-result-card > span { font-size:clamp(14px,2vw,18px); font-weight:800; }
+    .fleet-result-card > small { color:var(--muted); font-size:12px; line-height:1.35; }
     .fleet-cell.revealed { border-style:dashed; border-color:color-mix(in srgb, var(--accent) 65%, var(--line)); background:linear-gradient(color-mix(in srgb, var(--accent) 14%, transparent), color-mix(in srgb, var(--accent) 14%, transparent)), var(--fleet-cell-bg); }
     .fleet-battle-strip { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:4px 8px; min-height:30px; color:var(--muted); font-size:10px; text-align:center; }
     .fleet-battle-strip strong { color:var(--text); }
@@ -3856,6 +3873,12 @@
       }
       .fleet-battle-strip .fleet-last-shot,
       .fleet-battle-strip .fleet-theme-cycle { display:none; }
+      .fleet-shot-feedback { top:34px; min-width:min(240px,86%); padding:6px 10px; font-size:10px; }
+      .fleet-result-overlay { padding:8px; }
+      .fleet-result-card { width:min(360px,94%); gap:6px; padding:16px 12px; border-radius:15px; }
+      .fleet-result-card > strong { font-size:clamp(24px,8vw,34px); }
+      .fleet-result-card > span { font-size:13px; }
+      .fleet-result-card > small { font-size:10px; }
       .fleet-dual-layout {
         width:100%;
         height:100%;
@@ -15250,7 +15273,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.229</small>
+          <small id="serverBrandVersion">v9.6.230</small>
         </span>
       </button>
     </div>
@@ -20923,6 +20946,7 @@
           } else {
             addSystemMessage(errorText, true);
           }
+          if((String(message.code||'').startsWith('fleet_')||message.code==='duel_not_your_turn')&&fleetPendingShot){clearFleetPendingShot();if(state.activeGame?.game==='fleet-battle')renderDuelStage();}
           if(String(message.code||'').startsWith('game_')&&state.pendingGameMedia)stopPendingGameMedia();
           if (message.code === 'server_maintenance') {
             state.reconnectBlockedUntil = Math.max(state.reconnectBlockedUntil, Number(message.details?.retryAt) || (Date.now() + 60_000));
@@ -22050,13 +22074,25 @@
         return;
       }
       const previous = state.activeGame;
+      if(normalized.game==='fleet-battle'&&fleetPendingShot&&String(normalized.id)===String(fleetPendingShot.gameId)){
+        const shot=normalized.duel?.lastShot;
+        if(normalized.status==='finished'||(shot&&Number(shot.index)===Number(fleetPendingShot.index)&&shot.byIdentityId===state.identityId))clearFleetPendingShot();
+      }
       state.activeGame = normalized;
+      const fleetShotPatched=normalized.game==='fleet-battle'&&patchFleetBattleShotResolution(previous,normalized);
       announceHangmanRaceTransition(previous, normalized);
       announceScribbleTransition(previous,normalized);
       elements.incomingGameModal.hidden = true;
       state.incomingGame = null;
       closeAvatarMakerStage(false);
-      if (normalized.game === 'tetris') { openTetrisStage(); renderTetrisStage(); } else if(normalized.game==='scribble'){openScribbleStage();renderScribbleStage();} else if(normalized.game==='brain'){openBrainStage();renderBrainStage();} else if(normalized.game==='quiz'){openQuizStage();renderQuizStage();} else if(normalized.game==='checkers'){openCheckersStage();renderCheckersStage(previous);} else if(normalized.game==='chess'){openChessStage();renderChessStage(previous);} else if(DUEL_GAME_TYPES.has(normalized.game)){openDuelStage();renderDuelStage();}else { openGameStage(); renderGameStage(); maybeAnnounceGameTurn(previous, normalized); }
+      if (normalized.game === 'tetris') { openTetrisStage(); renderTetrisStage(); } else if(normalized.game==='scribble'){openScribbleStage();renderScribbleStage();} else if(normalized.game==='brain'){openBrainStage();renderBrainStage();} else if(normalized.game==='quiz'){openQuizStage();renderQuizStage();} else if(normalized.game==='checkers'){openCheckersStage();renderCheckersStage(previous);} else if(normalized.game==='chess'){openChessStage();renderChessStage(previous);} else if(DUEL_GAME_TYPES.has(normalized.game)){
+        openDuelStage();
+        if(fleetShotPatched){
+          if(fleetDeferredRenderTimer)clearTimeout(fleetDeferredRenderTimer);
+          const expectedReceivedAt=normalized.receivedAt;
+          fleetDeferredRenderTimer=setTimeout(()=>{fleetDeferredRenderTimer=null;if(state.activeGame?.game==='fleet-battle'&&state.activeGame.receivedAt===expectedReceivedAt){renderDuelStage();refreshControls();}},80);
+        }else renderDuelStage();
+      }else { openGameStage(); renderGameStage(); maybeAnnounceGameTurn(previous, normalized); }
       refreshControls();
     }
 
@@ -22883,7 +22919,7 @@
           if(mode==='preview'&&decoys.has(index))attrs+=` style="--fleet-decoy-delay:${-((index%9)*.17).toFixed(2)}s"`;
           const waterLabel=mode==='target'||mode==='preview'?'Opponent harbour':'Your harbour';
           const detail=shot?` ${shot}`:(showOwnShip?` ${ship.label}`:'');
-          cells.push(`<button class="${classes.join(' ')}" type="button"${attrs}${disabled} aria-label="${escapeGameHtml(`${waterLabel} ${fleetCoordinate(index)}${detail}`)}" title="${escapeGameHtml(`${waterLabel} ${fleetCoordinate(index)}${detail}`)}"></button>`);
+          cells.push(`<button class="${classes.join(' ')}" type="button" data-fleet-cell-index="${index}" data-fleet-cell-mode="${mode}"${attrs}${disabled} aria-label="${escapeGameHtml(`${waterLabel} ${fleetCoordinate(index)}${detail}`)}" title="${escapeGameHtml(`${waterLabel} ${fleetCoordinate(index)}${detail}`)}"></button>`);
         }
       }
       return `<div class="fleet-grid" role="grid" aria-label="${mode==='target'||mode==='preview'?'Opponent harbour':'Your harbour'}">${cells.join('')}</div>`;
@@ -22902,6 +22938,64 @@
       const outcome=shot.result==='sunk'?`sank a ${Number(shot.shipLength)||0}-cell ship`:shot.result;
       const continuation=shot.continues?' · shoots again':' · turn changes';
       return`<span class="fleet-last-shot ${escapeGameHtml(shot.result||'')}"><strong>${escapeGameHtml(shooter?.nickname||'Player')}</strong> → ${escapeGameHtml(target?.nickname||'player')} ${fleetCoordinate(shot.index)} · ${escapeGameHtml(outcome)}${continuation}</span>`;
+    }
+    let fleetPendingShot=null;
+    function clearFleetPendingShot(){
+      fleetPendingShot=null;
+      if(state.activeGame?.game!=='fleet-battle')return;
+      elements.duelBoard?.querySelectorAll('.fleet-cell.pending-shot').forEach(cell=>{cell.classList.remove('pending-shot');cell.removeAttribute('aria-busy');});
+    }
+    function markFleetShotPending(button,index){
+      const game=state.activeGame;if(game?.game!=='fleet-battle'||game.status!=='active'||fleetPendingShot)return false;
+      const value=Number(index);if(!Number.isInteger(value)||value<0||value>=100)return false;
+      if(!sendDuelAction('fire',{index:value}))return false;
+      fleetPendingShot={gameId:String(game.id),index:value,startedAt:Date.now()};
+      elements.duelBoard.querySelectorAll('[data-fleet-shot-index]').forEach(cell=>{cell.disabled=true;});
+      button.classList.add('pending-shot');button.setAttribute('aria-busy','true');
+      elements.duelPrompt.classList.add('fleet-turn-yours');
+      elements.duelPrompt.innerHTML=`<strong>Firing at ${fleetCoordinate(value)}…</strong><span>Shot sent. Waiting for the server result.</span>`;
+      return true;
+    }
+    function fleetShotFeedbackHtml(duel){
+      const shot=duel?.lastShot;if(!shot)return'';
+      const ours=shot.byIdentityId===state.identityId,coordinate=fleetCoordinate(shot.index),opponent=duelPlayerByIdentity(ours?shot.targetIdentityId:shot.byIdentityId),name=escapeGameHtml(opponent?.nickname||'Opponent');
+      let text='';
+      if(ours){
+        if(shot.result==='sunk')text=`SUNK · ${Number(shot.shipLength)||0}-cell ship at ${coordinate}`;
+        else if(shot.result==='hit')text=`HIT at ${coordinate} · fire again`;
+        else text=`MISS at ${coordinate} · ${name}'s turn`;
+      }else{
+        if(shot.result==='sunk')text=`YOUR ${Number(shot.shipLength)||0}-CELL SHIP WAS SUNK at ${coordinate}`;
+        else if(shot.result==='hit')text=`YOUR SHIP WAS HIT at ${coordinate}`;
+        else text=`${name} MISSED at ${coordinate}`;
+      }
+      return`<div class="fleet-shot-feedback ${escapeGameHtml(shot.result||'miss')}" role="status" aria-live="assertive">${text}</div>`;
+    }
+    function fleetResultOverlayHtml(game,duel,ownBoard,targetBoard){
+      if(game?.status!=='finished')return'';
+      const winner=duelPlayerByIdentity(game.winnerIdentityId),won=game.winnerIdentityId===state.identityId,draw=!game.winnerIdentityId||game.result==='draw';
+      const winnerName=escapeGameHtml(winner?.nickname||'Opponent'),ownRemaining=Math.max(0,Number(ownBoard?.remainingShips)||0),enemyRemaining=Math.max(0,Number(targetBoard?.remainingShips)||0),shot=duel?.lastShot;
+      const title=draw?'DRAW':(won?'YOU WON':`${winnerName} WON`);
+      const summary=draw?'Both fleets finished level.':(won?`Enemy fleet destroyed · ${ownRemaining} of your ships remain afloat.`:`Your fleet was destroyed · ${enemyRemaining} enemy ship${enemyRemaining===1?'':'s'} remain afloat.`);
+      let detail='';
+      if(shot){
+        const shooter=duelPlayerByIdentity(shot.byIdentityId),shooterName=shot.byIdentityId===state.identityId?'You':escapeGameHtml(shooter?.nickname||'Opponent');
+        detail=shot.result==='sunk'?`${shooterName} sank the final ${Number(shot.shipLength)||0}-cell ship at ${fleetCoordinate(shot.index)}.`:`Final shot: ${shooterName} fired at ${fleetCoordinate(shot.index)} · ${escapeGameHtml(shot.result||'resolved')}.`;
+      }
+      return`<div class="fleet-result-overlay" role="status" aria-live="assertive"><div class="fleet-result-card ${draw?'':won?'is-win':'is-loss'}"><strong>${title}</strong><span>${summary}</span>${detail?`<small>${detail}</small>`:''}</div></div>`;
+    }
+    let fleetDeferredRenderTimer=null;
+    function patchFleetBattleShotResolution(previous,next){
+      if(previous?.game!=='fleet-battle'||next?.game!=='fleet-battle'||String(previous.id)!==String(next.id)||previous.duel?.phase!=='battle'||next.duel?.phase!=='battle')return false;
+      const before=previous.duel?.lastShot,shot=next.duel?.lastShot;if(!shot)return false;
+      const beforeKey=before?`${before.byIdentityId}:${before.targetIdentityId}:${before.index}:${before.result}`:'';
+      const shotKey=`${shot.byIdentityId}:${shot.targetIdentityId}:${shot.index}:${shot.result}`;if(beforeKey===shotKey)return false;
+      const mode=shot.targetIdentityId===state.identityId?'own':'target',board=mode==='own'?next.duel?.ownBoard:next.duel?.targetBoard,result=board?.shots?.[Number(shot.index)]||shot.result;
+      const cell=elements.duelBoard?.querySelector(`[data-fleet-cell-mode="${mode}"][data-fleet-cell-index="${Number(shot.index)}"]`);if(!cell)return false;
+      cell.classList.remove('pending-shot','hit','miss','sunk');cell.classList.add(result==='sunk'?'sunk':result==='hit'?'hit':'miss');cell.disabled=true;cell.removeAttribute('aria-busy');cell.removeAttribute('data-fleet-shot-index');
+      elements.duelBoard.querySelectorAll('.fleet-shot-feedback').forEach(item=>item.remove());
+      elements.duelBoard.insertAdjacentHTML('beforeend',fleetShotFeedbackHtml(next.duel));
+      return true;
     }
     function renderFleetBattle(game,duel,canAct){
       elements.duelStage.dataset.fleetTheme=fleetThemeValue();
@@ -22947,7 +23041,7 @@
       const ownRemaining=Number(ownBoard.remainingShips)||0,targetRemaining=Number(targetBoard.remainingShips)||0;
       const ownRole=finished||paused?'':yourTurn?'':'Target',opponentRole=finished||paused?'':yourTurn?'Target':'';
       const ownClass=finished||paused?'':yourTurn?'':'is-active-target is-own-target',opponentClass=finished||paused?'':yourTurn?'is-active-target':'';
-      elements.duelBoard.innerHTML=`<div class="fleet-battle-strip"><span><strong>${ownRemaining}</strong> yours afloat</span><span><strong>${targetRemaining}</strong> enemy afloat</span>${fleetLastShotHtml(duel)}${fleetThemeSelectHtml()}</div><div class="fleet-dual-layout">${fleetPanelHtml({board:ownBoard,title:'Your harbour',roleLabel:ownRole,roleClass:ownClass,mode:'own',ready:true})}${fleetPanelHtml({board:targetBoard,title:opponentName,roleLabel:opponentRole,roleClass:opponentClass,mode:'target',canAct:canFire,ready:true})}</div>`;
+      elements.duelBoard.innerHTML=`<div class="fleet-battle-strip"><span><strong>${ownRemaining}</strong> yours afloat</span><span><strong>${targetRemaining}</strong> enemy afloat</span>${fleetLastShotHtml(duel)}${fleetThemeSelectHtml()}</div><div class="fleet-dual-layout">${fleetPanelHtml({board:ownBoard,title:'Your harbour',roleLabel:ownRole,roleClass:ownClass,mode:'own',ready:true})}${fleetPanelHtml({board:targetBoard,title:opponentName,roleLabel:opponentRole,roleClass:opponentClass,mode:'target',canAct:canFire,ready:true})}</div>${fleetShotFeedbackHtml(duel)}${fleetResultOverlayHtml(game,duel,ownBoard,targetBoard)}`;
       elements.duelRoundLabel.textContent=`Match ${game.round} · ${finished?'finished':'battle'}`;
       elements.duelRoundLabel.dataset.compact=`M${game.round} · ${finished?'done':'battle'}`;
       scheduleFleetBattleMobileFit();
@@ -23205,7 +23299,7 @@
       else if(game.game==='trivia-duel'){const submitted=new Set(duel.submittedBy||[]),locked=submitted.has(state.identityId),question=duel.question;elements.duelPrompt.innerHTML=`<strong>${escapeGameHtml(question?.text||'Results')}</strong><span>Question ${Number(duel.questionNumber)||1} of ${Number(duel.totalQuestions)||5} · answers reveal together.</span>`;elements.duelBoard.innerHTML=`${duelScoreHtml(game)}${question?`<div class="duel-choice-grid two">${(question.options||[]).map((option,index)=>`<button class="duel-option" type="button" data-duel-value="${index}" ${!canAct||locked?'disabled':''}>${escapeGameHtml(option)}</button>`).join('')}</div>`:''}${duel.lastResult?`<div class="duel-last-result">Previous answer: ${escapeGameHtml(duel.lastResult.options?.[duel.lastResult.correctIndex]||'')}</div>`:''}`;}
       elements.duelStageStatus.textContent=isHangman?'':duelStatusText(game);updateDuelRematchButton(game);
     }
-    function sendDuelAction(action='choose',value=null){const game=state.activeGame;if(!game?.id||!DUEL_GAME_TYPES.has(game.game)||game.status!=='active')return;sendJson({type:'duel.action',gameId:game.id,action,value});}
+    function sendDuelAction(action='choose',value=null){const game=state.activeGame;if(!game?.id||!DUEL_GAME_TYPES.has(game.game)||game.status!=='active')return false;return sendJson({type:'duel.action',gameId:game.id,action,value});}
     function handleDuelBoardChange(event){
       const select=event.target.closest('[data-fleet-theme-select]');
       if(!select||state.activeGame?.game!=='fleet-battle')return;
@@ -23235,7 +23329,7 @@
         if(button.dataset.fleetThemeCycle){const current=FLEET_THEMES.findIndex(([theme])=>theme===button.dataset.fleetThemeCycle),next=FLEET_THEMES[(current+1+FLEET_THEMES.length)%FLEET_THEMES.length][0];writeStorage('chat.games.fleetTheme',next);elements.duelStage.dataset.fleetTheme=next;renderDuelStage();return;}
         if(button.dataset.fleetModeCycle){sendDuelAction('set-fleet-mode',{mode:button.dataset.fleetModeCycle==='straight'?'flexible':'straight'});return;}
         if(button.dataset.fleetPlanIndex!=null){sendDuelAction('toggle-cell',{index:Number(button.dataset.fleetPlanIndex)});return;}
-        if(button.dataset.fleetShotIndex!=null){sendDuelAction('fire',{index:Number(button.dataset.fleetShotIndex)});return;}
+        if(button.dataset.fleetShotIndex!=null){markFleetShotPending(button,Number(button.dataset.fleetShotIndex));return;}
         if(button.dataset.fleetMode){sendDuelAction('set-fleet-mode',{mode:button.dataset.fleetMode});return;}
         const action=button.dataset.fleetAction;
         if(['randomize-fleet','clear-fleet','ready','unready'].includes(action)){sendDuelAction(action);return;}
@@ -23258,7 +23352,7 @@
     }
     function submitDuelTextInput(event){event.preventDefault();const value=elements.duelTextInput.value.trim();if(!value)return;sendDuelAction('submit',value);elements.duelTextInput.value='';}
     function openDuelStage(force=false){elements.gameStage.hidden=true;elements.tetrisStage.hidden=true;elements.scribbleStage.hidden=true;elements.brainStage.hidden=true;elements.quizStage.hidden=true;elements.checkersStage.hidden=true;elements.chessStage.hidden=true;elements.drawingStage.hidden=true;if(state.sessionStageMinimized==='duel'&&!force){elements.duelStage.hidden=true;updateSessionStageUi();return;}if(force)state.sessionStageMinimized=null;elements.duelStage.hidden=false;updateSessionStageUi();closeAttachmentTray();closeGamesTray();requestAnimationFrame(()=>elements.duelStage.focus({preventScroll:true}));}
-    function closeDuelStage(clearGame=true){const closingGameId=DUEL_GAME_TYPES.has(state.activeGame?.game)?state.activeGame.id:null;if(closingGameId&&state.activeCall?.embeddedGameId===String(closingGameId))endActiveCall('game closed',false);elements.duelStage.hidden=true;elements.duelStage.classList.remove('fleet-mode','hangman-mode','hangman-race-mode','hangman-classic-mode');delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelBoard.classList.remove('fleet-board-host');elements.duelBoard.innerHTML='';elements.duelPrompt.innerHTML='';elements.duelInputForm.hidden=true;if(state.sessionStageMinimized==='duel')state.sessionStageMinimized=null;if(clearGame&&DUEL_GAME_TYPES.has(state.activeGame?.game))state.activeGame=null;updateSessionStageUi();refreshControls();}
+    function closeDuelStage(clearGame=true){const closingGameId=DUEL_GAME_TYPES.has(state.activeGame?.game)?state.activeGame.id:null;clearFleetPendingShot();if(fleetDeferredRenderTimer){clearTimeout(fleetDeferredRenderTimer);fleetDeferredRenderTimer=null;}if(closingGameId&&state.activeCall?.embeddedGameId===String(closingGameId))endActiveCall('game closed',false);elements.duelStage.hidden=true;elements.duelStage.classList.remove('fleet-mode','hangman-mode','hangman-race-mode','hangman-classic-mode');delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelBoard.classList.remove('fleet-board-host');elements.duelBoard.innerHTML='';elements.duelPrompt.innerHTML='';elements.duelInputForm.hidden=true;if(state.sessionStageMinimized==='duel')state.sessionStageMinimized=null;if(clearGame&&DUEL_GAME_TYPES.has(state.activeGame?.game))state.activeGame=null;updateSessionStageUi();refreshControls();}
 
     function tetrisShapeCells(type, rotation=0, offsetX=0, offsetY=0) {
       const rotations=TETRIS_SHAPES[type]||TETRIS_SHAPES.T;
