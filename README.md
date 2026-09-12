@@ -1,3 +1,10 @@
+## v0.1.65 / 9.6.226
+
+- Synchronized browser client to **9.6.226 / rantlist-deploy-r254** and protocol **63**.
+- Fleet Battle mobile boards size from both the post-Channel-rail width and remaining viewport height, so all ten columns remain inside the app.
+- Common portrait phones can keep both stacked harbours visible together; secondary battle copy is collapsed before the boards are allowed to overflow.
+- Fleet Battle footer gives its full width to media, Chat and Leave game controls so messaging/actions are no longer clipped.
+
 ## v0.1.64 / 9.6.225
 
 - Synchronized browser client to **9.6.225 / rantlist-deploy-r253** and protocol **63**.

@@ -1,3 +1,10 @@
+## Changes in v0.1.65
+
+- Synchronized browser client to **9.6.226 / rantlist-deploy-r254** and protocol **63**.
+- Fleet Battle constrains every mobile battle container to the stage width left after the Channel rail and scales the 10×10 grids from width plus viewport height.
+- Both harbours are height-bounded into two stacked rows for common portrait screens, with compact prompt/header chrome and no horizontal board overflow.
+- Duplicate footer status is removed on mobile Fleet Battle, leaving complete room for media, Chat and Leave game controls.
+
 ## Changes in v0.1.64
 
 - Synchronized browser client to **9.6.225 / rantlist-deploy-r253** and protocol **63**.

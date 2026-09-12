@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.225">
+  <meta name="chat-ui-version" content="9.6.226">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -3720,84 +3720,166 @@
       }
 
       .duel-stage.fleet-mode {
+        --fleet-mobile-grid-size:min(
+          calc(100vw - var(--room-rail-space) - 28px),
+          calc((100dvh - var(--topbar-height) - 190px) / 2)
+        );
         grid-template-rows:auto minmax(0,1fr) auto;
         align-content:stretch;
+        width:calc(100% - var(--room-rail-space));
+        max-width:calc(100% - var(--room-rail-space));
         overflow:hidden;
-        padding-left:5px;
-        padding-right:5px;
-        padding-bottom:0;
+        padding:3px 4px 0;
       }
-      .duel-stage.fleet-mode .duel-stage-header { gap:4px; }
-      .duel-stage.fleet-mode .duel-player-card { padding:3px 4px; gap:4px; border-radius:9px; }
-      .duel-stage.fleet-mode .duel-player-card .game-media-surface { width:27px; height:27px; flex-basis:27px; }
-      .duel-stage.fleet-mode .duel-player-card .game-media-surface.media-active { width:56px; height:32px; flex-basis:56px; }
-      .duel-stage.fleet-mode .duel-stage-title { min-width:62px; gap:0; }
-      .duel-stage.fleet-mode .duel-stage-title .icon { width:19px; height:19px; }
-      .duel-stage.fleet-mode .duel-stage-title strong { font-size:10px; }
-      .duel-stage.fleet-mode .duel-stage-title span:not(.icon) { font-size:8px; }
-      .duel-stage.fleet-mode .duel-stage-body { min-height:0; overflow-x:hidden; overflow-y:auto; align-content:start; gap:3px; padding:1px 0 4px; overscroll-behavior-y:contain; }
-      .duel-stage.fleet-mode .duel-prompt { min-height:20px; display:flex; align-items:center; justify-content:center; flex-wrap:nowrap; gap:4px; line-height:1; overflow:hidden; }
-      .duel-stage.fleet-mode .duel-prompt strong { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
-      .duel-stage.fleet-mode .duel-prompt span { flex:0 1 auto; min-width:0; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:8px; }
-      .duel-stage.fleet-mode .duel-stage-footer {
-        position:sticky;
-        z-index:7;
-        bottom:0;
-        min-height:40px;
+      .duel-stage.fleet-mode > *,
+      .duel-stage.fleet-mode .duel-stage-header,
+      .duel-stage.fleet-mode .duel-stage-body,
+      .duel-stage.fleet-mode .duel-board,
+      .duel-stage.fleet-mode .fleet-dual-layout,
+      .duel-stage.fleet-mode .fleet-board-panel,
+      .duel-stage.fleet-mode .fleet-grid { min-width:0; max-width:100%; }
+      .duel-stage.fleet-mode .duel-stage-header {
+        width:100%;
+        grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr);
+        gap:3px;
+        overflow:hidden;
+      }
+      .duel-stage.fleet-mode .duel-player-card { width:100%; max-width:100%; overflow:hidden; padding:2px 3px; gap:3px; border-radius:8px; }
+      .duel-stage.fleet-mode .duel-player-card .game-media-surface { width:24px; height:24px; flex:0 0 24px; }
+      .duel-stage.fleet-mode .duel-player-card .game-media-surface.media-active { width:40px; height:26px; flex:0 0 40px; }
+      .duel-stage.fleet-mode .duel-player-copy { min-width:0; overflow:hidden; }
+      .duel-stage.fleet-mode .duel-player-copy strong { font-size:10px; }
+      .duel-stage.fleet-mode .duel-player-copy small { display:none; }
+      .duel-stage.fleet-mode .duel-stage-title { min-width:0; gap:0; }
+      .duel-stage.fleet-mode .duel-stage-title .icon { width:17px; height:17px; }
+      .duel-stage.fleet-mode .duel-stage-title strong { font-size:9px; line-height:1; }
+      .duel-stage.fleet-mode .duel-stage-title span:not(.icon) { font-size:7px; line-height:1; }
+      .duel-stage.fleet-mode .duel-stage-body {
+        width:100%;
+        min-height:0;
+        overflow:hidden;
+        align-content:stretch;
+        justify-items:stretch;
+        gap:2px;
+        padding:0;
+        overscroll-behavior:none;
+      }
+      .duel-stage.fleet-mode .duel-prompt {
+        min-height:17px;
+        max-width:100%;
         display:flex;
         align-items:center;
         justify-content:center;
         flex-wrap:nowrap;
         gap:3px;
-        padding:3px max(4px,env(safe-area-inset-right)) max(3px,var(--safe-bottom)) max(4px,env(safe-area-inset-left));
+        line-height:1;
+        overflow:hidden;
+      }
+      .duel-stage.fleet-mode .duel-prompt strong { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:10px; }
+      .duel-stage.fleet-mode .duel-prompt span { display:none; }
+      .duel-stage.fleet-mode .duel-stage-footer {
+        position:relative;
+        z-index:7;
+        bottom:auto;
+        width:100%;
+        min-width:0;
+        min-height:39px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-wrap:nowrap;
+        gap:2px;
+        padding:3px max(3px,env(safe-area-inset-right)) max(3px,var(--safe-bottom)) max(3px,env(safe-area-inset-left));
+        overflow:hidden;
         border-top:1px solid var(--line);
         background:color-mix(in srgb,var(--panel) 96%,transparent);
         backdrop-filter:blur(10px);
       }
-      .duel-stage.fleet-mode .duel-stage-footer .game-status {
+      .duel-stage.fleet-mode .duel-stage-footer .game-status { display:none !important; }
+      .duel-stage.fleet-mode .duel-stage-actions {
         flex:1 1 auto;
-        width:auto;
+        width:100%;
         min-width:0;
-        min-height:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-wrap:nowrap;
+        gap:2px;
         overflow:hidden;
-        text-overflow:ellipsis;
-        white-space:nowrap;
-        line-height:1;
-        font-size:9px;
-        text-align:left;
       }
-      .duel-stage.fleet-mode .duel-stage-actions { flex:0 0 auto; display:flex; align-items:center; flex-wrap:nowrap; gap:2px; }
-      .duel-stage.fleet-mode .duel-stage-actions > button { min-height:32px; padding:3px 7px; font-size:10px; }
-      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls { flex-wrap:nowrap; gap:2px; }
+      .duel-stage.fleet-mode .duel-stage-actions > button { flex:0 1 auto; min-width:0; min-height:31px; padding:3px 6px; font-size:9px; white-space:nowrap; }
+      .duel-stage.fleet-mode #duelChatButton { padding-inline:7px; }
+      .duel-stage.fleet-mode #duelLeaveButton { padding-inline:8px; }
+      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls { flex:0 0 auto; flex-wrap:nowrap; gap:2px; }
       .duel-stage.fleet-mode .duel-stage-actions .game-media-controls > span { display:none; }
-      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls button { width:32px; min-width:32px; height:32px; min-height:32px; padding:0; }
-      .duel-board.fleet-board-host, .fleet-dual-layout, .fleet-board-panel { overflow:visible; }
-      .duel-board.fleet-board-host { gap:3px; }
-      .fleet-battle-strip { min-height:22px; justify-content:flex-start; flex-wrap:nowrap; gap:3px 6px; overflow-x:auto; scrollbar-width:none; white-space:nowrap; font-size:8px; }
-      .fleet-battle-strip::-webkit-scrollbar { display:none; }
-      .fleet-dual-layout { grid-template-columns:minmax(0,1fr); gap:7px; justify-items:center; }
-      .fleet-board-panel { width:min(100%,520px); gap:3px; padding:5px; border-radius:10px; }
-      .fleet-board-panel.is-ready .fleet-board-heading { margin:-4px -4px 0; padding:4px; border-radius:7px 7px 5px 5px; }
-      .fleet-board-heading { font-size:10px; }
+      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls button { width:30px; min-width:30px; height:30px; min-height:30px; padding:0; }
+      .duel-board.fleet-board-host {
+        width:100%;
+        height:100%;
+        min-height:0;
+        gap:2px;
+        overflow:hidden;
+      }
+      .fleet-battle-strip {
+        min-height:17px;
+        justify-content:center;
+        flex-wrap:nowrap;
+        gap:3px 8px;
+        overflow:hidden;
+        white-space:nowrap;
+        font-size:8px;
+      }
+      .fleet-battle-strip .fleet-last-shot,
+      .fleet-battle-strip .fleet-theme-cycle { display:none; }
+      .fleet-dual-layout {
+        width:100%;
+        min-height:0;
+        grid-template-columns:minmax(0,1fr);
+        grid-template-rows:repeat(2,minmax(0,1fr));
+        align-items:center;
+        justify-items:center;
+        gap:4px;
+        overflow:hidden;
+      }
+      .fleet-board-panel {
+        width:min(100%, calc(var(--fleet-mobile-grid-size) + 10px));
+        max-width:100%;
+        min-height:0;
+        gap:2px;
+        padding:3px 4px;
+        overflow:visible;
+        border-radius:9px;
+      }
+      .fleet-board-panel.is-ready .fleet-board-heading { margin:-2px -3px 0; padding:3px 4px; border-radius:6px 6px 4px 4px; }
+      .fleet-board-heading { min-height:12px; font-size:9px; line-height:1; }
       .fleet-board-role { gap:2px; padding:1px 3px; font-size:6px; }
-      .fleet-ready-mark { width:11px; height:11px; font-size:7px; }
+      .fleet-ready-mark { width:10px; height:10px; font-size:7px; }
       .fleet-theme-control, .fleet-template-switch { display:none; }
       .fleet-cycle-button { display:inline-grid; }
-      .fleet-grid { max-width:none; grid-template-columns:8px repeat(10, minmax(0, 1fr)); gap:1px; }
+      .fleet-grid {
+        width:var(--fleet-mobile-grid-size);
+        max-width:100%;
+        margin:0 auto;
+        grid-template-columns:7px repeat(10,minmax(0,1fr));
+        gap:1px;
+        overflow:hidden;
+      }
       .fleet-axis { font-size:6px; }
-      .fleet-toolbar { gap:3px; padding:4px; }
+      .fleet-cell { min-width:0; max-width:100%; }
+      .fleet-toolbar { max-width:100%; gap:3px; padding:4px; overflow:hidden; }
       .fleet-toolbar > button:not(.fleet-cycle-button) { min-height:27px; padding:4px 6px; font-size:9px; }
-      .fleet-quota { flex:1 1 238px; flex-wrap:nowrap; gap:2px; }
+      .fleet-quota { flex:1 1 238px; min-width:0; flex-wrap:nowrap; gap:2px; overflow-x:auto; scrollbar-width:none; }
+      .fleet-quota::-webkit-scrollbar { display:none; }
       .fleet-quota-chip { min-height:22px; padding:2px 4px; font-size:8px; }
       .fleet-quota-chip strong { font-size:9px; }
       .fleet-quota-check { width:10px; height:10px; font-size:6px; }
-      .fleet-ready-action, .fleet-edit-action { min-width:126px; min-height:29px; font-size:9px; }
+      .fleet-ready-action, .fleet-edit-action { min-width:112px; min-height:29px; font-size:9px; }
       .fleet-ready-action-mark { width:15px; height:15px; font-size:9px; }
-      .fleet-ready-banner { min-height:31px; padding:5px 7px; font-size:9px; }
-      .fleet-ready-banner .fleet-ready-mark { width:18px; height:18px; font-size:11px; }
+      .fleet-ready-banner { min-height:29px; padding:4px 6px; font-size:9px; }
+      .fleet-ready-banner .fleet-ready-mark { width:17px; height:17px; font-size:10px; }
       .fleet-plan-note { font-size:8px; }
-      .duel-input-form { grid-template-columns: minmax(0, 1fr) auto; }
-      .duel-input-form #duelPassButton { grid-column: 1 / -1; }
+      .duel-input-form { max-width:100%; grid-template-columns:minmax(0,1fr) auto; }
+      .duel-input-form #duelPassButton { grid-column:1 / -1; }
     }
 
 
@@ -15108,7 +15190,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.225</small>
+          <small id="serverBrandVersion">v9.6.226</small>
         </span>
       </button>
     </div>
