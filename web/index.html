@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.228">
+  <meta name="chat-ui-version" content="9.6.229">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -3906,7 +3906,9 @@
         width:var(--fleet-mobile-cell-size);
         height:var(--fleet-mobile-cell-size);
         min-width:0;
+        min-height:0;
         max-width:none;
+        max-height:none;
         aspect-ratio:1 / 1;
       }
       .fleet-toolbar {
@@ -15248,7 +15250,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.228</small>
+          <small id="serverBrandVersion">v9.6.229</small>
         </span>
       </button>
     </div>
@@ -22795,45 +22797,54 @@
     function fleetPlanDelta(board){const counts=board?.fleetCounts||{},missing=[],excess=[];for(const [length,required]of FLEET_REQUIREMENTS){const current=Number(counts[length])||0;if(current<required)missing.push({length,count:required-current});if(current>required)excess.push({length,count:current-required});}return{missing,excess};}
     function fleetPlanGuidance(board){const placed=Math.max(0,Number(board?.cellsPlaced)||0),{missing,excess}=fleetPlanDelta(board);if(board?.complete)return{tone:'complete',text:'Fleet complete · press READY'};if(placed>=20||excess.length){const parts=[];if(excess.length)parts.push(`remove ${excess.map(item=>fleetShipPhrase(item.length,item.count,{extra:true})).join(' and ')}`);if(missing.length)parts.push(`add ${missing.map(item=>fleetShipPhrase(item.length,item.count,{separate:item.length===1})).join(' and ')}`);return{tone:'needs-fix',text:`${placed}/20 · ${parts.join(', then ')}`};}return{tone:'',text:`${placed}/20 · joined cells form ships · no touching`};}
     let fleetBattleFitFrame=0;
+    let fleetBattleFitRetry=0;
     let fleetBattleResizeObserver=null;
     let fleetBattleViewportListenersInstalled=false;
     function fleetBattleUsesMobileLayout(){return window.matchMedia?window.matchMedia('(max-width: 620px)').matches:window.innerWidth<=620;}
-    function fleetBattleMobileCandidateFits(dual){
+    function fleetBattleStyleNumber(style,name){const value=parseFloat(style?.[name]);return Number.isFinite(value)?value:0;}
+    function fleetBattleMobileGridSizeForBox(width,height,gap,chromeWidths,chromeHeights){
+      const safeWidth=Math.max(0,Number(width)||0),safeHeight=Math.max(0,Number(height)||0),safeGap=Math.max(0,Number(gap)||0);
+      const widthChrome=Math.max(0,...(chromeWidths||[]).map(value=>Number(value)||0));
+      const heightChrome=(chromeHeights||[]).reduce((sum,value)=>sum+Math.max(0,Number(value)||0),0);
+      const widthBudget=Math.floor(safeWidth-widthChrome-2);
+      const heightBudget=Math.floor((safeHeight-safeGap-heightChrome)/2);
+      return Math.max(0,Math.min(640,widthBudget,heightBudget));
+    }
+    function fleetBattleMobileGridBudget(dual){
       const panels=[...dual.querySelectorAll(':scope > .fleet-board-panel')];
-      if(panels.length<2)return true;
-      const dualRect=dual.getBoundingClientRect(),first=panels[0].getBoundingClientRect(),second=panels[1].getBoundingClientRect();
-      if(!dualRect.width||!dualRect.height)return false;
-      if(first.top<dualRect.top-.75||second.bottom>dualRect.bottom+.75||first.bottom>second.top+.75)return false;
-      for(const panel of panels){
-        const panelRect=panel.getBoundingClientRect(),grid=panel.querySelector('.fleet-grid');
-        if(!grid||panelRect.width>dualRect.width+1)return false;
-        const gridRect=grid.getBoundingClientRect(),style=getComputedStyle(panel),rightInset=(parseFloat(style.paddingRight)||0)+(parseFloat(style.borderRightWidth)||0),bottomInset=(parseFloat(style.paddingBottom)||0)+(parseFloat(style.borderBottomWidth)||0);
-        if(Math.abs(gridRect.width-gridRect.height)>1)return false;
-        const cell=grid.querySelector('.fleet-cell');
-        if(cell){const cellRect=cell.getBoundingClientRect();if(Math.abs(cellRect.width-cellRect.height)>1)return false;}
-        if(gridRect.right>panelRect.right-rightInset+1||gridRect.bottom>panelRect.bottom-bottomInset+1)return false;
+      if(panels.length<2||dual.clientWidth<1||dual.clientHeight<1)return 0;
+      const dualStyle=getComputedStyle(dual),dualGap=fleetBattleStyleNumber(dualStyle,'rowGap')||fleetBattleStyleNumber(dualStyle,'gap');
+      const chromeWidths=[],chromeHeights=[];
+      for(const panel of panels.slice(0,2)){
+        const style=getComputedStyle(panel),heading=panel.querySelector('.fleet-board-heading');
+        const horizontal=fleetBattleStyleNumber(style,'paddingLeft')+fleetBattleStyleNumber(style,'paddingRight')+fleetBattleStyleNumber(style,'borderLeftWidth')+fleetBattleStyleNumber(style,'borderRightWidth');
+        const vertical=fleetBattleStyleNumber(style,'paddingTop')+fleetBattleStyleNumber(style,'paddingBottom')+fleetBattleStyleNumber(style,'borderTopWidth')+fleetBattleStyleNumber(style,'borderBottomWidth')+(heading?.getBoundingClientRect().height||12)+(fleetBattleStyleNumber(style,'rowGap')||fleetBattleStyleNumber(style,'gap'));
+        chromeWidths.push(horizontal);
+        chromeHeights.push(vertical);
       }
-      return true;
+      return fleetBattleMobileGridSizeForBox(dual.clientWidth,dual.clientHeight,dualGap,chromeWidths,chromeHeights);
     }
     function fitFleetBattleMobile(){
       fleetBattleFitFrame=0;
       const stage=elements.duelStage;
       if(!stage||stage.hidden||!stage.classList.contains('fleet-mode')||!fleetBattleUsesMobileLayout()){
+        fleetBattleFitRetry=0;
         stage?.style.removeProperty('--fleet-mobile-grid-size');
         return;
       }
       const dual=elements.duelBoard?.querySelector('.fleet-dual-layout');
-      if(!dual||dual.clientWidth<1||dual.clientHeight<1)return;
-      const minimum=18;
-      const upper=Math.max(minimum,Math.min(640,Math.floor(dual.clientWidth-12)));
-      const fits=(size)=>{stage.style.setProperty('--fleet-mobile-grid-size',`${size}px`);return fleetBattleMobileCandidateFits(dual);};
-      let low=minimum,high=upper,best=minimum;
-      fits(minimum);
-      while(low<=high){
-        const mid=Math.floor((low+high)/2);
-        if(fits(mid)){best=mid;low=mid+1;}else high=mid-1;
+      if(!dual||dual.clientWidth<1||dual.clientHeight<1){
+        if(fleetBattleFitRetry<4){fleetBattleFitRetry+=1;fleetBattleFitFrame=requestAnimationFrame(fitFleetBattleMobile);}
+        return;
       }
-      stage.style.setProperty('--fleet-mobile-grid-size',`${best}px`);
+      const size=fleetBattleMobileGridBudget(dual);
+      if(size<24&&fleetBattleFitRetry<4){
+        fleetBattleFitRetry+=1;
+        fleetBattleFitFrame=requestAnimationFrame(fitFleetBattleMobile);
+        return;
+      }
+      fleetBattleFitRetry=0;
+      stage.style.setProperty('--fleet-mobile-grid-size',`${Math.max(24,size)}px`);
     }
     function ensureFleetBattleFitObservers(){
       if(!fleetBattleResizeObserver&&typeof ResizeObserver==='function'){

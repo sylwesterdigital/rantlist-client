@@ -1,3 +1,10 @@
+## v0.1.68 / 9.6.229
+
+- Synchronized browser client to **9.6.229 / rantlist-deploy-r257** and protocol **63**.
+- Fixes the iOS Fleet Battle regression where the 9.6.228 binary-search fitter could collapse both harbours to miniature remnants after a transient WKWebView geometry read.
+- Mobile harbour size is now calculated directly from the actual dual-board width/height and the combined heading/padding/border chrome of both panels; both complete 10×10 fields remain square and visible together without scrolling.
+- Transient zero/tiny layout measurements are retried without replacing the conservative first-paint board, and Fleet cells explicitly clear inherited min/max heights so WebKit cannot stretch the square tracks.
+
 ## v0.1.67 / 9.6.228
 
 - Synchronized browser client to **9.6.228 / rantlist-deploy-r256** and protocol **63**.

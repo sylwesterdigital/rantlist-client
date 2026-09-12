@@ -1,3 +1,10 @@
+## Changes in v0.1.68
+
+- Synchronized browser client to **9.6.229 / rantlist-deploy-r257** and protocol **63**.
+- Replaces Fleet Battle's rendered-candidate binary search with deterministic mobile geometry budgeting, preventing the native iOS client from collapsing the boards to the old 18px floor.
+- Both stacked harbours reserve their full panel chrome before sharing the remaining height, keeping every row and column visible at once with square cells and no board scrolling.
+- WKWebView transient measurements now retry while preserving the usable first-paint grid instead of committing a tiny temporary result.
+
 ## Changes in v0.1.67
 
 - Synchronized browser client to **9.6.228 / rantlist-deploy-r256** and protocol **63**.
