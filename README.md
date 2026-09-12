@@ -1,3 +1,17 @@
+## v0.1.59 / 9.6.220
+
+- Fixes iOS release failure when the Apple Developer account has not yet assigned `group.fun.workwork.rantlist` to the app/Share Extension provisioning profiles.
+- iOS release mode now defaults to `auto`: it tries the complete Share Extension build first, but if Apple rejects only the App Group entitlement it automatically retries a push-only archive. APNs registration and unread app-icon badges still ship.
+- `RANTLIST_IOS_SHARE_MODE=full` requires the Share Extension and fails with an actionable provisioning message; `off` intentionally omits it.
+- The real Share Extension remains in the project and will ship automatically once the App Group is registered and assigned to both iOS bundle identifiers.
+
+## v0.1.58 / 9.6.220
+
+- Adds native iOS APNs registration, notification/badge permission, foreground/tap handling and authenticated token handoff to the Rantlist server.
+- Adds a real **Share to Rantlist** iOS Share Extension using the `group.fun.workwork.rantlist` App Group. Shared files, links and text remain queued until Rantlist is opened; navigate to the intended channel/private conversation and tap **Send here**.
+- Adds Push Notifications + App Groups entitlements and embeds the Share Extension in the signed iOS archive.
+- Browser source synchronized to rantlist-deploy-r248 / protocol 63.
+
 ## v0.1.55 / 9.6.90
 
 - Adds native iOS app-icon and macOS Dock unread badges with Off / direct / all-channel modes.

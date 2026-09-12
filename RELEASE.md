@@ -1,3 +1,18 @@
+## Changes in v0.1.59
+
+- Fixes the build-48 archive failure caused by stale/missing Apple App Group provisioning for `group.fun.workwork.rantlist`.
+- `scripts/build_ios_release.sh` now supports `RANTLIST_IOS_SHARE_MODE=auto|full|off` (default `auto`). Auto mode first attempts the complete `RantlistShare` archive. If and only if Xcode reports an App Group entitlement/profile mismatch, the release creates a temporary project copy that removes the extension from the archive graph and removes App Groups while retaining the Push Notifications entitlement.
+- The fallback does not mutate the checked-in Xcode project. It preserves APNs registration, server device-token handoff and unread app-icon badges, allowing the unattended watcher release to finish instead of failing the whole client release.
+- To include **Share to Rantlist**, the Apple Developer account must register `group.fun.workwork.rantlist` and assign it to both `fun.workwork.rantlist` and `fun.workwork.rantlist.share`; after that, auto mode ships the extension normally. Use `RANTLIST_IOS_SHARE_MODE=full` to make missing Share provisioning fatal.
+
+## Changes in v0.1.58
+
+- Synchronized browser client to **9.6.220 / rantlist-deploy-r248** and protocol **63**.
+- iOS requests alert/sound/badge notification permission, registers with APNs, forwards the device token only into the authenticated Rantlist session and applies authoritative server badge counts while foregrounded/backgrounded.
+- The Xcode target enables Push Notifications and App Groups; debug builds identify sandbox APNs while release builds identify production APNs, with server-side endpoint recovery for mismatched development/distribution tokens.
+- Adds an embedded **Share to Rantlist** Share Extension. Files/media/links/text are copied into an App Group inbox and handed to the main app; because iOS does not guarantee that a Share Extension can launch its containing app, the Open Rantlist action is best-effort and queued items remain available when the app is opened manually.
+- In Rantlist, shared items show a persistent **Send here** bar; navigate to the desired channel or private conversation before sending.
+
 ## Changes in v0.1.57
 
 - Android release builds now pin the Gradle runtime to JDK 17 even when a newer system Java (including Java 26) is first on PATH.

@@ -10,6 +10,13 @@
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>$(MARKETING_VERSION)</string>
     <key>CFBundleVersion</key><string>$(CURRENT_PROJECT_VERSION)</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>fun.workwork.rantlist</string>
+            <key>CFBundleURLSchemes</key><array><string>rantlist</string></array>
+        </dict>
+    </array>
     <key>LSRequiresIPhoneOS</key><true/>
     <key>NSCameraUsageDescription</key><string>Rantlist uses the camera when you choose video calls or camera capture.</string>
     <key>NSMicrophoneUsageDescription</key><string>Rantlist uses the microphone when you choose calls, voice messages or recording.</string>

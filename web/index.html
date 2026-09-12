@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.219">
+  <meta name="chat-ui-version" content="9.6.220">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1587,6 +1587,24 @@
       background: transparent;
     }
     .composer { position: relative; }
+
+    .native-share-pending {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 8px 6px;
+      padding: 8px 10px;
+      border: 1px solid color-mix(in srgb, var(--warning, #f59e0b) 48%, var(--border));
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--warning, #f59e0b) 10%, var(--panel));
+      font-size: 12px;
+    }
+    .native-share-pending-copy { min-width: 0; flex: 1; }
+    .native-share-pending-copy strong,
+    .native-share-pending-copy span { display: block; }
+    .native-share-pending-copy span { opacity: .72; margin-top: 2px; }
+    .native-share-pending-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+    .native-share-pending button { min-height: 30px; }
     .composer-shell {
       min-width: 0;
       display: flex;
@@ -14974,7 +14992,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.219</small>
+          <small id="serverBrandVersion">v9.6.220</small>
         </span>
       </button>
     </div>
@@ -16216,6 +16234,13 @@
           </div>
         </div>
         <div id="readOnlyChannelNotice" class="system-room-readonly" hidden>This channel is read only. Updates can be posted by @server.</div>
+        <div id="nativeSharePendingBar" class="native-share-pending" hidden aria-live="polite">
+          <div class="native-share-pending-copy"><strong id="nativeSharePendingTitle">Shared items ready</strong><span id="nativeSharePendingHint">Open the channel or private conversation you want, then send here.</span></div>
+          <div class="native-share-pending-actions">
+            <button id="nativeShareSendButton" type="button">Send here</button>
+            <button id="nativeShareDiscardButton" type="button">Discard</button>
+          </div>
+        </div>
         <form id="messageForm" class="composer">
           <div id="mentionAutocomplete" class="composer-mention-menu" role="listbox" aria-label="Mention a channel user" hidden></div>
           <div id="replyComposerPreview" class="composer-reply-preview" hidden aria-live="polite">
@@ -17418,7 +17443,7 @@
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
-        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
+        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
@@ -17746,6 +17771,12 @@
       interfaceBorders: readStorage('chat.ui.interfaceBorders') !== 'off',
       mobileTypingFocus: readStorage('chat.mobile.maximizeTyping') === 'on',
       appIconBadgeMode: ['direct', 'all'].includes(readStorage('chat.native.badgeMode')) ? readStorage('chat.native.badgeMode') : 'off',
+      nativePushToken: null,
+      nativePushEnvironment: 'production',
+      nativePushRegisteredToken: null,
+      nativePushAuthoritativeCount: null,
+      nativeSharedGroups: [],
+      nativeShareSending: false,
       mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') === 'on',
       mobileRoomRailObserver: null,
       mobileRoomRailResizeBound: false,
@@ -18974,6 +19005,8 @@
         event.preventDefault();
         sendCurrentText();
       });
+      elements.nativeShareSendButton?.addEventListener('click', () => { void sendPendingNativeShares(); });
+      elements.nativeShareDiscardButton?.addEventListener('click', discardPendingNativeShares);
       elements.replyComposerCancel.addEventListener('click', clearMessageReplyDraft);
 
       elements.messageInput.addEventListener('keydown', (event) => {
@@ -19662,6 +19695,7 @@
           cacheUserAppearance(message.user);
           state.identityId = message.user.identityId || state.identityId;
           state.selectedProfileId = state.identityId;
+          registerNativePushDevice();
           writeStorage('chat.activeProfileId', state.identityId);
           state.desiredProfile = { nickname: message.user.nickname, metadata: message.user.metadata || {} };
           updateRememberedProfileFromServer(message.user);
@@ -19680,6 +19714,23 @@
           redeemPendingExternalInvite();
           redeemPendingCalendarInvite();
           openPendingSharedMediaLink();
+          break;
+
+        case 'push.device.registered':
+          state.nativePushRegisteredToken = state.nativePushToken;
+          break;
+
+        case 'push.device.unregistered':
+          state.nativePushRegisteredToken = null;
+          state.nativePushAuthoritativeCount = 0;
+          syncNativeAppBadge();
+          break;
+
+        case 'push.badge.sync':
+          if (!message.mode || message.mode === state.appIconBadgeMode) {
+            state.nativePushAuthoritativeCount = Math.max(0, Math.min(9999, Number(message.count) || 0));
+            syncNativeAppBadge();
+          }
           break;
 
         case 'external.invite.created':
@@ -19985,14 +20036,22 @@
         case 'rooms.snapshot':
           state.rooms = (Array.isArray(message.rooms) ? message.rooms : []).map((room) => {
             const key = room.roomKey || normalizeRoomKey(room.name);
-            const unread = Math.max(state.roomUnread.get(key) || 0, Math.max(0, Number(room.mentionUnread) || 0));
-            if (unread > 0) state.roomUnread.set(key, unread);
+            let unread;
+            if (room.unreadAuthoritative === true) {
+              unread = Math.max(0, Number(room.unread) || 0);
+              if (unread > 0) state.roomUnread.set(key, unread);
+              else state.roomUnread.delete(key);
+            } else {
+              unread = Math.max(state.roomUnread.get(key) || 0, Math.max(0, Number(room.mentionUnread) || 0));
+              if (unread > 0) state.roomUnread.set(key, unread);
+            }
             return { ...room, unread };
           });
           renderRooms();
           renderRoomSearchResults();
           applyChatBackground();
           renderChatBackgroundEditor();
+          renderNativeSharePendingBar();
 
           if (state.pendingInitialRoomJoin && state.registered && !state.currentRoom) {
             state.pendingInitialRoomJoin = false;
@@ -38614,6 +38673,7 @@
     }
 
     function refreshControls() {
+      renderNativeSharePendingBar();
       const blocked = state.versionBlocked || state.reloadPending;
       const enabled = canSend() && !state.uploading && !blocked;
       const socketOpen = state.socket?.readyState === WebSocket.OPEN && !blocked;
@@ -43239,6 +43299,9 @@
 
     function nativeAppBadgeCount() {
       if (!state.registered || state.appIconBadgeMode === 'off') return 0;
+      if (Number.isFinite(state.nativePushAuthoritativeCount)) {
+        return Math.max(0, Math.min(9999, Number(state.nativePushAuthoritativeCount) || 0));
+      }
       let count = 0;
       for (const room of state.rooms) {
         if (state.appIconBadgeMode === 'direct' && room?.direct !== true) continue;
@@ -43253,11 +43316,152 @@
       try { handler.postMessage({ count: nativeAppBadgeCount(), mode: state.appIconBadgeMode }); } catch {}
     }
 
+    function normalizeNativePushToken(value) {
+      const token = String(value || '').trim().toLowerCase();
+      return /^[a-f0-9]{32,256}$/.test(token) ? token : null;
+    }
+
+    function registerNativePushDevice() {
+      if (!isRantlistIOSApp() || !state.registered || !state.nativePushToken) return;
+      sendJson({
+        type: 'push.device.register',
+        platform: 'ios',
+        token: state.nativePushToken,
+        environment: state.nativePushEnvironment === 'sandbox' ? 'sandbox' : 'production',
+        badgeMode: state.appIconBadgeMode,
+      });
+    }
+
+    window.rantlistNativePushToken = (rawToken, rawEnvironment = 'production') => {
+      const token = normalizeNativePushToken(rawToken);
+      if (!token) return false;
+      state.nativePushToken = token;
+      state.nativePushEnvironment = rawEnvironment === 'sandbox' ? 'sandbox' : 'production';
+      state.nativePushAuthoritativeCount = null;
+      registerNativePushDevice();
+      return true;
+    };
+
+    function normalizeNativeSharedGroups(rawGroups) {
+      return (Array.isArray(rawGroups) ? rawGroups : []).map((group) => {
+        const id = String(group?.id || '').trim();
+        const items = (Array.isArray(group?.items) ? group.items : []).map((item) => ({
+          id: String(item?.id || '').trim(),
+          kind: ['file', 'url', 'text'].includes(item?.kind) ? item.kind : 'file',
+          name: String(item?.name || 'Shared item').slice(0, 220),
+          mime: String(item?.mime || 'application/octet-stream').slice(0, 160),
+          nativeURL: String(item?.nativeURL || ''),
+          text: String(item?.text || '').slice(0, 12000),
+          url: String(item?.url || '').slice(0, 4000),
+        })).filter((item) => item.id && (item.nativeURL || item.text || item.url));
+        return { id, createdAt: Number(group?.createdAt) || Date.now() / 1000, items };
+      }).filter((group) => group.id && group.items.length);
+    }
+
+    function renderNativeSharePendingBar() {
+      if (!elements.nativeSharePendingBar) return;
+      const groups = state.nativeSharedGroups || [];
+      const count = groups.reduce((sum, group) => sum + (group.items?.length || 0), 0);
+      elements.nativeSharePendingBar.hidden = count <= 0;
+      if (count <= 0) return;
+      elements.nativeSharePendingTitle.textContent = count === 1 ? '1 shared item ready' : `${count} shared items ready`;
+      const destination = state.directTo?.nickname
+        ? `private message with @${state.directTo.nickname}`
+        : (state.currentRoom ? `#${state.currentRoom}` : 'a channel or private conversation');
+      elements.nativeSharePendingHint.textContent = `Destination: ${destination}. Navigate elsewhere first if needed.`;
+      elements.nativeShareSendButton.disabled = state.nativeShareSending || !canSend();
+      elements.nativeShareDiscardButton.disabled = state.nativeShareSending;
+      elements.nativeShareSendButton.textContent = state.nativeShareSending ? 'Sending…' : 'Send here';
+    }
+
+    function consumeNativeSharedGroups(ids) {
+      const handler = window.webkit?.messageHandlers?.rantlistShare;
+      if (!handler || typeof handler.postMessage !== 'function') return;
+      try { handler.postMessage({ action: 'consume', ids }); } catch {}
+    }
+
+    function discardPendingNativeShares() {
+      const ids = state.nativeSharedGroups.map((group) => group.id).filter(Boolean);
+      if (ids.length) consumeNativeSharedGroups(ids);
+      state.nativeSharedGroups = [];
+      renderNativeSharePendingBar();
+    }
+
+    async function sendPendingNativeShares() {
+      if (state.nativeShareSending || !state.nativeSharedGroups.length) return false;
+      if (!canSend() || !state.currentRoom) {
+        addSystemMessage('Open a channel or private conversation before sending the shared item.', true);
+        renderNativeSharePendingBar();
+        return false;
+      }
+      state.nativeShareSending = true;
+      renderNativeSharePendingBar();
+      const groups = [...state.nativeSharedGroups];
+      try {
+        const files = [];
+        const sharedText = [];
+        for (const group of groups) {
+          for (const item of group.items || []) {
+            if (item.kind === 'url' && item.url) sharedText.push(item.url);
+            else if (item.kind === 'text' && item.text) sharedText.push(item.text);
+            if (!item.nativeURL) continue;
+            const response = await fetch(item.nativeURL, { cache: 'no-store' });
+            if (!response.ok) throw new Error(`Could not read ${item.name || 'shared file'} from iOS.`);
+            const blob = await response.blob();
+            files.push(new File([blob], item.name || 'Shared file', { type: item.mime || blob.type || 'application/octet-stream', lastModified: Date.now() }));
+          }
+        }
+        if (sharedText.length) {
+          const text = sharedText.join('\n').slice(0, 8000);
+          const existing = String(elements.messageInput.value || '').trim();
+          elements.messageInput.value = existing ? `${existing}\n${text}`.slice(0, 8000) : text;
+          elements.messageInput.dispatchEvent(new Event('input', { bubbles: true }));
+          sendCurrentText();
+        }
+        let sentFiles = true;
+        if (files.length) sentFiles = await sendComposerFiles(files, { source: 'native-share' });
+        if (!sentFiles && files.length) throw new Error('The shared files were not sent.');
+        const ids = groups.map((group) => group.id).filter(Boolean);
+        consumeNativeSharedGroups(ids);
+        state.nativeSharedGroups = [];
+        renderNativeSharePendingBar();
+        return true;
+      } catch (error) {
+        addSystemMessage(error?.message || 'The shared item could not be sent.', true);
+        return false;
+      } finally {
+        state.nativeShareSending = false;
+        renderNativeSharePendingBar();
+      }
+    }
+
+    window.rantlistNativeSharedItems = (rawGroups) => {
+      const incoming = normalizeNativeSharedGroups(rawGroups);
+      if (!incoming.length) return false;
+      const byId = new Map(state.nativeSharedGroups.map((group) => [group.id, group]));
+      for (const group of incoming) byId.set(group.id, group);
+      state.nativeSharedGroups = [...byId.values()].sort((a, b) => a.createdAt - b.createdAt);
+      renderNativeSharePendingBar();
+      return true;
+    };
+
+    window.rantlistNativeOpenRoom = (roomKeyOrName) => {
+      const key = String(roomKeyOrName || '').trim();
+      if (!key || !state.registered) return false;
+      const target = state.rooms.find((room) => room.roomKey === key || sameRoom(room.name, key));
+      if (!target || target.archived) return false;
+      joinRoom(target.name);
+      return true;
+    };
+
     function applyAppIconBadgePreference(options = {}) {
       if (!['direct', 'all'].includes(state.appIconBadgeMode)) state.appIconBadgeMode = 'off';
       if (elements.appIconBadgeSelect) elements.appIconBadgeSelect.value = state.appIconBadgeMode;
       if (options.persist !== false) writeStorage('chat.native.badgeMode', state.appIconBadgeMode);
+      state.nativePushAuthoritativeCount = null;
       syncNativeAppBadge();
+      registerNativePushDevice();
+      if (state.registered && state.nativePushToken) sendJson({ type: 'push.badge.query', mode: state.appIconBadgeMode });
     }
 
     function applyMobileTypingFocusPreference(options = {}) {

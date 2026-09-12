@@ -4,11 +4,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 for path in \
   web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html assets/rantlist-logo.svg \
   mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
-  mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist.xcodeproj/project.pbxproj \
+  mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
+  mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
   scripts/release_signed.sh scripts/publish_github_release.sh scripts/deploy_homepage.sh \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
-  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh; do
+  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js; do
   [[ -e "$ROOT/$path" ]] || { echo "Missing $path" >&2; exit 1; }
 done
 [[ -d "$ROOT/web/assets" ]] || { echo "Missing web/assets" >&2; exit 1; }
@@ -41,6 +42,31 @@ grep -q 'No internet connection' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" |
 grep -q 'SplashLogo' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS startup splash logo is missing" >&2; exit 1; }
 grep -q 'config.userContentController.add(context.coordinator, name: "rantlistBadge")' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS unread badge bridge missing" >&2; exit 1; }
 grep -q 'setBadgeCount(count)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS application icon badge update missing" >&2; exit 1; }
+grep -q '@UIApplicationDelegateAdaptor(RantlistAppDelegate.self)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS UIApplicationDelegate bridge for APNs missing" >&2; exit 1; }
+grep -q 'requestAuthorization(options: \[.alert, .sound, .badge\])' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS notification alert/sound/badge permission request missing" >&2; exit 1; }
+grep -q 'registerForRemoteNotifications()' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS APNs registration missing" >&2; exit 1; }
+grep -q 'didRegisterForRemoteNotificationsWithDeviceToken' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS APNs device-token callback missing" >&2; exit 1; }
+grep -q 'window.rantlistNativePushToken' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS APNs token is not forwarded into the authenticated web client" >&2; exit 1; }
+grep -q '<key>aps-environment</key>' "$ROOT/mobile/ios/Rantlist/Rantlist.entitlements" || { echo "iOS aps-environment entitlement missing" >&2; exit 1; }
+grep -q 'group.fun.workwork.rantlist' "$ROOT/mobile/ios/Rantlist/Rantlist.entitlements" || { echo "iOS App Group entitlement missing" >&2; exit 1; }
+grep -q 'CODE_SIGN_ENTITLEMENTS = Rantlist/Rantlist.entitlements' "$ROOT/mobile/ios/Rantlist.xcodeproj/project.pbxproj" || { echo "iOS target is not wired to push/App Group entitlements" >&2; exit 1; }
+grep -q 'com.apple.Push = {enabled = 1;}' "$ROOT/mobile/ios/Rantlist.xcodeproj/project.pbxproj" || { echo "Xcode Push Notifications capability missing" >&2; exit 1; }
+grep -q 'RantlistShare.appex' "$ROOT/mobile/ios/Rantlist.xcodeproj/project.pbxproj" || { echo "iOS Share Extension target is not embedded" >&2; exit 1; }
+grep -q 'com.apple.share-services' "$ROOT/mobile/ios/RantlistShare/Info.plist" || { echo "iOS Share Extension point identifier missing" >&2; exit 1; }
+grep -q 'group.fun.workwork.rantlist' "$ROOT/mobile/ios/RantlistShare/RantlistShare.entitlements" || { echo "Share Extension App Group entitlement missing" >&2; exit 1; }
+grep -q 'loadFileRepresentation' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not copy shared media into the App Group inbox" >&2; exit 1; }
+grep -q 'rantlist://share' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension best-effort app handoff missing" >&2; exit 1; }
+grep -q 'RantlistShareSchemeHandler' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file scheme bridge missing" >&2; exit 1; }
+grep -q 'window.rantlistNativeSharedItems' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native share inbox is not delivered to the web client" >&2; exit 1; }
+grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client shared-item destination bar missing" >&2; exit 1; }
+grep -q 'window.rantlistNativeSharedItems' "$ROOT/web/index.html" || { echo "Web client native Share Extension receiver missing" >&2; exit 1; }
+grep -q 'window.rantlistNativePushToken' "$ROOT/web/index.html" || { echo "Web client native APNs token receiver missing" >&2; exit 1; }
+! grep -q 'PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script globally overrides the Share Extension bundle identifier" >&2; exit 1; }
+grep -q 'RANTLIST_APP_BUNDLE_ID="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not provide the shared bundle-id base to app + extension targets" >&2; exit 1; }
+grep -q 'RANTLIST_IOS_SHARE_MODE:-auto' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script lacks automatic Share provisioning fallback" >&2; exit 1; }
+grep -q 'com.apple.security.application-groups' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not narrowly detect App Group provisioning failure" >&2; exit 1; }
+grep -q 'make_ios_push_only_project.js' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not generate the temporary push-only fallback project" >&2; exit 1; }
+grep -q 'RantlistPushOnly.entitlements' "$ROOT/scripts/make_ios_push_only_project.js" || { echo "Push-only project generator does not preserve APNs entitlements" >&2; exit 1; }
 grep -q 'config.userContentController.add(self, name: "rantlistBadge")' "$ROOT/macos/RantlistApp.swift" || { echo "macOS unread badge bridge missing" >&2; exit 1; }
 grep -q 'NSApp.dockTile.badgeLabel' "$ROOT/macos/RantlistApp.swift" || { echo "macOS Dock badge update missing" >&2; exit 1; }
 grep -q 'appIconBadgeSelect' "$ROOT/web/index.html" || { echo "Native unread badge Config control missing" >&2; exit 1; }

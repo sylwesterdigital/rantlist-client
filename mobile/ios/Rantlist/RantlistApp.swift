@@ -7,6 +7,193 @@ import UserNotifications
 private let appURL = URL(string: "https://rantlist.me/")!
 private let allowedHosts: Set<String> = ["rantlist.me", "www.rantlist.me"]
 
+private let appGroupIdentifier = "group.fun.workwork.rantlist"
+private let nativeShareScheme = "rantlist-share"
+
+private extension Notification.Name {
+    static let rantlistPushTokenDidUpdate = Notification.Name("RantlistPushTokenDidUpdate")
+    static let rantlistSharedInboxDidUpdate = Notification.Name("RantlistSharedInboxDidUpdate")
+    static let rantlistOpenRoom = Notification.Name("RantlistOpenRoom")
+}
+
+private final class NativeBridgeState {
+    static let shared = NativeBridgeState()
+    var pushToken: String?
+    #if DEBUG
+    let pushEnvironment = "sandbox"
+    #else
+    let pushEnvironment = "production"
+    #endif
+    var pendingRoom: String?
+}
+
+private struct NativeShareManifest: Codable {
+    struct Item: Codable {
+        let id: String
+        let kind: String
+        let name: String
+        let mime: String
+        let relativePath: String?
+        let text: String?
+        let url: String?
+    }
+    let id: String
+    let createdAt: Double
+    let items: [Item]
+}
+
+private enum NativeShareInbox {
+    static func rootURL(create: Bool = false) -> URL? {
+        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) else { return nil }
+        let root = container.appendingPathComponent("Library/Application Support/RantlistShareInbox", isDirectory: true)
+        if create { try? FileManager.default.createDirectory(at: root, withIntermediateDirectories: true) }
+        return root
+    }
+
+    static func manifestURL(shareID: String) -> URL? {
+        guard shareID.range(of: "^[A-Fa-f0-9-]{8,64}$", options: .regularExpression) != nil,
+              let root = rootURL() else { return nil }
+        return root.appendingPathComponent(shareID, isDirectory: true).appendingPathComponent("manifest.json")
+    }
+
+    static func loadManifest(shareID: String) -> NativeShareManifest? {
+        guard let url = manifestURL(shareID: shareID),
+              let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(NativeShareManifest.self, from: data)
+    }
+
+    static func pendingPayload() -> [[String: Any]] {
+        guard let root = rootURL(create: true),
+              let dirs = try? FileManager.default.contentsOfDirectory(at: root, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles]) else { return [] }
+        return dirs.compactMap { dir in
+            guard let data = try? Data(contentsOf: dir.appendingPathComponent("manifest.json")),
+                  let manifest = try? JSONDecoder().decode(NativeShareManifest.self, from: data) else { return nil }
+            let items: [[String: Any]] = manifest.items.map { item in
+                var payload: [String: Any] = [
+                    "id": item.id,
+                    "kind": item.kind,
+                    "name": item.name,
+                    "mime": item.mime,
+                ]
+                if item.relativePath != nil {
+                    payload["nativeURL"] = "\(nativeShareScheme)://item/\(manifest.id)/\(item.id)"
+                }
+                if let text = item.text { payload["text"] = text }
+                if let url = item.url { payload["url"] = url }
+                return payload
+            }
+            return ["id": manifest.id, "createdAt": manifest.createdAt, "items": items]
+        }.sorted { (lhs, rhs) in
+            (lhs["createdAt"] as? Double ?? 0) < (rhs["createdAt"] as? Double ?? 0)
+        }
+    }
+
+    static func consume(ids: [String]) {
+        guard let root = rootURL() else { return }
+        for id in ids where id.range(of: "^[A-Fa-f0-9-]{8,64}$", options: .regularExpression) != nil {
+            try? FileManager.default.removeItem(at: root.appendingPathComponent(id, isDirectory: true))
+        }
+    }
+
+    static func fileURL(shareID: String, itemID: String) -> (URL, String)? {
+        guard itemID.range(of: "^[A-Fa-f0-9-]{8,64}$", options: .regularExpression) != nil,
+              let manifest = loadManifest(shareID: shareID),
+              let item = manifest.items.first(where: { $0.id == itemID }),
+              let relativePath = item.relativePath,
+              !relativePath.contains(".."),
+              let root = rootURL() else { return nil }
+        let base = root.appendingPathComponent(shareID, isDirectory: true).standardizedFileURL
+        let file = base.appendingPathComponent(relativePath, isDirectory: false).standardizedFileURL
+        guard file.path.hasPrefix(base.path + "/") else { return nil }
+        return (file, item.mime.isEmpty ? "application/octet-stream" : item.mime)
+    }
+}
+
+private final class RantlistShareSchemeHandler: NSObject, WKURLSchemeHandler {
+    func webView(_ webView: WKWebView, start urlSchemeTask: WKURLSchemeTask) {
+        guard let url = urlSchemeTask.request.url,
+              url.scheme == nativeShareScheme,
+              url.host == "item" else {
+            urlSchemeTask.didFailWithError(NSError(domain: NSURLErrorDomain, code: NSURLErrorBadURL))
+            return
+        }
+        let parts = url.pathComponents.filter { $0 != "/" }
+        guard parts.count == 2,
+              let (fileURL, mime) = NativeShareInbox.fileURL(shareID: parts[0], itemID: parts[1]),
+              let data = try? Data(contentsOf: fileURL) else {
+            urlSchemeTask.didFailWithError(NSError(domain: NSURLErrorDomain, code: NSURLErrorFileDoesNotExist))
+            return
+        }
+        let response = HTTPURLResponse(
+            url: url,
+            statusCode: 200,
+            httpVersion: "HTTP/1.1",
+            headerFields: [
+                "Content-Type": mime,
+                "Content-Length": String(data.count),
+                "Cache-Control": "no-store",
+                "Access-Control-Allow-Origin": "https://rantlist.me",
+            ]
+        )!
+        urlSchemeTask.didReceive(response)
+        urlSchemeTask.didReceive(data)
+        urlSchemeTask.didFinish()
+    }
+
+    func webView(_ webView: WKWebView, stop urlSchemeTask: WKURLSchemeTask) {}
+}
+
+final class RantlistAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication,
+                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
+        let center = UNUserNotificationCenter.current()
+        center.delegate = self
+        center.requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in
+            DispatchQueue.main.async { UIApplication.shared.registerForRemoteNotifications() }
+        }
+        return true
+    }
+
+    func application(_ application: UIApplication,
+                     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        let token = deviceToken.map { String(format: "%02x", $0) }.joined()
+        NativeBridgeState.shared.pushToken = token
+        NotificationCenter.default.post(name: .rantlistPushTokenDidUpdate, object: nil)
+    }
+
+    func application(_ application: UIApplication,
+                     didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        NativeBridgeState.shared.pushToken = nil
+    }
+
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        guard url.scheme?.lowercased() == "rantlist" else { return false }
+        NotificationCenter.default.post(name: .rantlistSharedInboxDidUpdate, object: nil)
+        return true
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                willPresent notification: UNNotification,
+                                withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        completionHandler([.banner, .sound, .badge])
+    }
+
+    func userNotificationCenter(_ center: UNUserNotificationCenter,
+                                didReceive response: UNNotificationResponse,
+                                withCompletionHandler completionHandler: @escaping () -> Void) {
+        let info = response.notification.request.content.userInfo
+        if let rantlist = info["rantlist"] as? [String: Any],
+           let room = (rantlist["roomKey"] as? String) ?? (rantlist["room"] as? String),
+           !room.isEmpty {
+            NativeBridgeState.shared.pendingRoom = room
+            NotificationCenter.default.post(name: .rantlistOpenRoom, object: nil)
+        }
+        completionHandler()
+    }
+}
+
 private func trusted(_ url: URL?) -> Bool {
     guard let url,
           url.scheme?.lowercased() == "https",
@@ -68,6 +255,8 @@ private final class NativeShellState: ObservableObject {
 
 @main
 struct RantlistMobileApp: App {
+    @UIApplicationDelegateAdaptor(RantlistAppDelegate.self) private var appDelegate
+
     var body: some Scene {
         WindowGroup {
             RantlistRootView()
@@ -168,6 +357,8 @@ private struct RantlistWebView: UIViewRepresentable {
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
         config.applicationNameForUserAgent = "Rantlist-iOS"
         config.userContentController.add(context.coordinator, name: "rantlistBadge")
+        config.userContentController.add(context.coordinator, name: "rantlistShare")
+        config.setURLSchemeHandler(context.coordinator.shareSchemeHandler, forURLScheme: nativeShareScheme)
 
         let webView = WKWebView(frame: .zero, configuration: config)
         webView.navigationDelegate = context.coordinator
@@ -192,6 +383,7 @@ private struct RantlistWebView: UIViewRepresentable {
 
     static func dismantleUIView(_ uiView: WKWebView, coordinator: Coordinator) {
         uiView.configuration.userContentController.removeScriptMessageHandler(forName: "rantlistBadge")
+        uiView.configuration.userContentController.removeScriptMessageHandler(forName: "rantlistShare")
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate, WKUIDelegate, WKDownloadDelegate, UIDocumentPickerDelegate, WKScriptMessageHandler {
@@ -203,6 +395,7 @@ private struct RantlistWebView: UIViewRepresentable {
         private var downloads: [WKDownload] = []
         private var downloadDestinations: [ObjectIdentifier: URL] = [:]
         private var exportTemporaryDirectories: [ObjectIdentifier: URL] = [:]
+        let shareSchemeHandler = RantlistShareSchemeHandler()
 
         init(shellState: NativeShellState) {
             self.shellState = shellState
@@ -213,6 +406,9 @@ private struct RantlistWebView: UIViewRepresentable {
             center.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
             center.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
             center.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
+            center.addObserver(self, selector: #selector(pushTokenDidUpdate), name: .rantlistPushTokenDidUpdate, object: nil)
+            center.addObserver(self, selector: #selector(sharedInboxDidUpdate), name: .rantlistSharedInboxDidUpdate, object: nil)
+            center.addObserver(self, selector: #selector(openPendingRoom), name: .rantlistOpenRoom, object: nil)
         }
 
         deinit {
@@ -227,6 +423,13 @@ private struct RantlistWebView: UIViewRepresentable {
         }
 
         func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+            if message.name == "rantlistShare" {
+                guard let body = message.body as? [String: Any],
+                      body["action"] as? String == "consume",
+                      let ids = body["ids"] as? [String] else { return }
+                NativeShareInbox.consume(ids: ids)
+                return
+            }
             guard message.name == "rantlistBadge" else { return }
             let count: Int
             if let body = message.body as? [String: Any] {
@@ -248,6 +451,53 @@ private struct RantlistWebView: UIViewRepresentable {
                 }
             }
         }
+
+        private func jsonLiteral(_ value: Any) -> String? {
+            let wrapper: [Any] = [value]
+            guard JSONSerialization.isValidJSONObject(wrapper),
+                  let data = try? JSONSerialization.data(withJSONObject: wrapper),
+                  var string = String(data: data, encoding: .utf8),
+                  string.first == "[", string.last == "]" else { return nil }
+            string.removeFirst()
+            string.removeLast()
+            return string
+        }
+
+        private func deliverNativePushToken() {
+            guard shellState.hasLoadedUI,
+                  let token = NativeBridgeState.shared.pushToken,
+                  let tokenJSON = jsonLiteral(token),
+                  let environmentJSON = jsonLiteral(NativeBridgeState.shared.pushEnvironment) else { return }
+            webView?.evaluateJavaScript(
+                "window.rantlistNativePushToken && window.rantlistNativePushToken(\(tokenJSON), \(environmentJSON));",
+                completionHandler: nil
+            )
+        }
+
+        private func deliverPendingShares() {
+            guard shellState.hasLoadedUI else { return }
+            let payload = NativeShareInbox.pendingPayload()
+            guard !payload.isEmpty, let json = jsonLiteral(payload) else { return }
+            webView?.evaluateJavaScript(
+                "window.rantlistNativeSharedItems && window.rantlistNativeSharedItems(\(json));",
+                completionHandler: nil
+            )
+        }
+
+        private func deliverPendingRoom() {
+            guard shellState.hasLoadedUI,
+                  let room = NativeBridgeState.shared.pendingRoom,
+                  let json = jsonLiteral(room) else { return }
+            NativeBridgeState.shared.pendingRoom = nil
+            webView?.evaluateJavaScript(
+                "window.rantlistNativeOpenRoom && window.rantlistNativeOpenRoom(\(json));",
+                completionHandler: nil
+            )
+        }
+
+        @objc private func pushTokenDidUpdate() { deliverNativePushToken() }
+        @objc private func sharedInboxDidUpdate() { deliverPendingShares() }
+        @objc private func openPendingRoom() { deliverPendingRoom() }
 
         func beginInitialLoad() {
             guard let webView else { return }
@@ -298,8 +548,16 @@ private struct RantlistWebView: UIViewRepresentable {
         }
 
         @objc private func applicationDidBecomeActive() {
-            guard !shellState.hasLoadedUI else { return }
-            DispatchQueue.main.async { [weak self] in self?.retryInitialLoad() }
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                if self.shellState.hasLoadedUI {
+                    self.deliverNativePushToken()
+                    self.deliverPendingShares()
+                    self.deliverPendingRoom()
+                } else {
+                    self.retryInitialLoad()
+                }
+            }
         }
 
         private func isConnectivityError(_ error: Error) -> Bool {
@@ -340,6 +598,9 @@ private struct RantlistWebView: UIViewRepresentable {
             guard trusted(webView.url) else { return }
             shellState.hasLoadedUI = true
             shellState.phase = .ready
+            deliverNativePushToken()
+            deliverPendingShares()
+            deliverPendingRoom()
         }
 
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {

@@ -12,7 +12,13 @@ BUILD_NUMBER_OVERRIDE="${BUILD_NUMBER_OVERRIDE:-}"
 PERSIST_BUILD_NUMBER="${PERSIST_BUILD_NUMBER:-1}"
 TEAM_ID="${RANTLIST_APPLE_TEAM_ID:-5P9V78UZAC}"
 BUNDLE_ID="${RANTLIST_IOS_BUNDLE_ID:-fun.workwork.rantlist}"
+# auto: try the real Share Extension first and fall back only when Apple's
+# provisioning profile has not yet been assigned the required App Group.
+# full: require App Group provisioning and fail rather than falling back.
+# off: build the APNs/badge-capable containing app without the Share Extension.
+IOS_SHARE_MODE="${RANTLIST_IOS_SHARE_MODE:-auto}"
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
+warn(){ printf '\033[1;33mWARNING:\033[0m %s\n' "$*" >&2; }
 die(){ printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 "$ROOT/scripts/check_ios_release_credentials.sh" >/dev/null
 [[ -f "$VERSION_FILE" ]] || die "VERSION.txt is missing."
@@ -22,9 +28,11 @@ APP_VERSION="$(tr -d '[:space:]' < "$VERSION_FILE")"
 PREVIOUS_BUILD="$(tr -cd '0-9' < "$BUILD_NUMBER_FILE")"; PREVIOUS_BUILD="${PREVIOUS_BUILD:-0}"
 if [[ -n "$BUILD_NUMBER_OVERRIDE" ]]; then BUILD_NUMBER="$BUILD_NUMBER_OVERRIDE"; else BUILD_NUMBER="$((10#$PREVIOUS_BUILD + 1))"; fi
 [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || die "Invalid build number: $BUILD_NUMBER"
+case "$IOS_SHARE_MODE" in auto|full|off) ;; *) die "RANTLIST_IOS_SHARE_MODE must be auto, full, or off (got: $IOS_SHARE_MODE)" ;; esac
 rm -rf "$BUILD_ROOT"; mkdir -p "$BUILD_ROOT/export" "$RELEASE_DIR"
 ARCHIVE="$BUILD_ROOT/Rantlist.xcarchive"
 EXPORT_OPTIONS="$BUILD_ROOT/ExportOptions.plist"
+ARCHIVE_LOG="$BUILD_ROOT/archive-full.log"
 cat > "$EXPORT_OPTIONS" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -36,12 +44,53 @@ cat > "$EXPORT_OPTIONS" <<PLIST
 <key>manageAppVersionAndBuildNumber</key><false/>
 </dict></plist>
 PLIST
-log "Archiving iOS app with automatic signing"
-xcodebuild -project "$IOS_DIR/Rantlist.xcodeproj" -scheme Rantlist -configuration Release -sdk iphoneos \
-  -archivePath "$ARCHIVE" \
-  DEVELOPMENT_TEAM="$TEAM_ID" PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID" \
-  MARKETING_VERSION="$APP_VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
-  CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates archive
+
+archive_project() {
+  local project_dir="$1"
+  xcodebuild -project "$project_dir/Rantlist.xcodeproj" -scheme Rantlist -configuration Release -sdk iphoneos \
+    -archivePath "$ARCHIVE" \
+    DEVELOPMENT_TEAM="$TEAM_ID" RANTLIST_APP_BUNDLE_ID="$BUNDLE_ID" \
+    MARKETING_VERSION="$APP_VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
+    CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates archive
+}
+
+build_push_only_fallback() {
+  local fallback_ios="$BUILD_ROOT/ios-push-only"
+  rm -rf "$ARCHIVE" "$BUILD_ROOT/export" "$fallback_ios"
+  mkdir -p "$BUILD_ROOT/export" "$fallback_ios"
+  # ditto preserves the Xcode project bundle exactly and is available on every
+  # macOS/Xcode release host used by this workflow.
+  ditto "$IOS_DIR" "$fallback_ios"
+  node "$ROOT/scripts/make_ios_push_only_project.js" "$fallback_ios"
+  log "Retrying iOS archive with APNs/badges enabled and Share Extension omitted"
+  archive_project "$fallback_ios"
+  printf 'push-only\n' > "$BUILD_ROOT/ios-share-result.txt"
+}
+
+if [[ "$IOS_SHARE_MODE" == "off" ]]; then
+  log "Archiving iOS app (Share Extension disabled by RANTLIST_IOS_SHARE_MODE=off)"
+  build_push_only_fallback
+else
+  log "Archiving iOS app with automatic signing"
+  set +e
+  archive_project "$IOS_DIR" 2>&1 | tee "$ARCHIVE_LOG"
+  archive_status=${PIPESTATUS[0]}
+  set -e
+  if [[ "$archive_status" -eq 0 ]]; then
+    printf 'full\n' > "$BUILD_ROOT/ios-share-result.txt"
+  elif grep -q 'com.apple.security.application-groups' "$ARCHIVE_LOG"; then
+    if [[ "$IOS_SHARE_MODE" == "full" ]]; then
+      die "Apple provisioning does not yet include App Group group.fun.workwork.rantlist. Register/assign that App Group to $BUNDLE_ID and $BUNDLE_ID.share, refresh signing, then rerun."
+    fi
+    warn "Apple provisioning does not yet include App Group group.fun.workwork.rantlist for the app + Share Extension."
+    warn "This release will keep APNs/unread app-icon badges and automatically omit only the Share Extension."
+    warn "To ship Share to Rantlist, register/assign group.fun.workwork.rantlist to $BUNDLE_ID and $BUNDLE_ID.share in the Apple Developer account, then rerun with RANTLIST_IOS_SHARE_MODE=full."
+    build_push_only_fallback
+  else
+    exit "$archive_status"
+  fi
+fi
+
 log "Exporting iOS IPA"
 xcodebuild -exportArchive -archivePath "$ARCHIVE" -exportPath "$BUILD_ROOT/export" \
   -exportOptionsPlist "$EXPORT_OPTIONS" -allowProvisioningUpdates
@@ -52,4 +101,5 @@ SHA="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-iOS-SHA256.txt"
 cp "$IPA_SRC" "$IPA"
 ( cd "$RELEASE_DIR"; shasum -a 256 "$(basename "$IPA")" > "$(basename "$SHA")"; shasum -a 256 -c "$(basename "$SHA")" )
 [[ "$PERSIST_BUILD_NUMBER" == 1 ]] && printf '%s\n' "$BUILD_NUMBER" > "$BUILD_NUMBER_FILE"
-printf '\nRantlist iOS release complete.\nIPA: %s\nSHA: %s\n' "$IPA" "$SHA"
+share_result="$(cat "$BUILD_ROOT/ios-share-result.txt" 2>/dev/null || printf 'unknown')"
+printf '\nRantlist iOS release complete.\nIPA: %s\nSHA: %s\niOS share mode: %s\n' "$IPA" "$SHA" "$share_result"
