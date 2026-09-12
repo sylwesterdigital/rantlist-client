@@ -65,7 +65,12 @@ grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client sha
 grep -q 'id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing1"' "$ROOT/web/index.html" || { echo "First Drawing attachment action does not use drawing1.svg" >&2; exit 1; }
 ! grep -q 'id="drawingActionSelect"' "$ROOT/web/index.html" || { echo "Obsolete Drawing action select still present" >&2; exit 1; }
 grep -q 'id="drawingLeaveButton" class="exit-control"' "$ROOT/web/index.html" || { echo "Drawing explicit leave/close control missing" >&2; exit 1; }
-grep -q 'drawing-stroke-toolbar { order:20; width:100%; flex:1 1 100%;' "$ROOT/web/index.html" || { echo "Drawing narrow-toolbar stroke wrapping missing" >&2; exit 1; }
+grep -q 'drawing-bottom-stroke-toolbar { order:0; width:100%; flex:1 1 100%;' "$ROOT/web/index.html" || { echo "Drawing bottom stroke toolbar wrapping missing" >&2; exit 1; }
+grep -q '>Back to chat</span>' "$ROOT/web/index.html" || { echo "Drawing Back to chat label missing" >&2; exit 1; }
+grep -q '>Close and Exit</span>' "$ROOT/web/index.html" || { echo "Drawing Close and Exit label missing" >&2; exit 1; }
+grep -q 'word-break: keep-all;' "$ROOT/web/index.html" || { echo "Attachment labels can still split words" >&2; exit 1; }
+grep -q 'drawing-stroke-preview-control' "$ROOT/web/index.html" || { echo "Drawing stroke-aware tool contrast missing" >&2; exit 1; }
+grep -q "mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') !== 'off'" "$ROOT/web/index.html" || { echo "Fresh-user Channel rail default is not enabled" >&2; exit 1; }
 
 grep -q '\.native-share-pending\[hidden\].*display: none !important' "$ROOT/web/index.html" || { echo "Native shared-item pending bar can appear with no queued share payload" >&2; exit 1; }
 grep -q 'RANTLIST_IOS_INSTALL_CONNECTED:-1' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not default to connected-device install" >&2; exit 1; }

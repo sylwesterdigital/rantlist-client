@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.223">
+  <meta name="chat-ui-version" content="9.6.224">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15,7 +15,7 @@
       const nativeIosApp = String(navigator.userAgent || '').includes('Rantlist-iOS');
       root.dataset.nativeIosApp = nativeIosApp ? 'true' : 'false';
       root.dataset.mobileTypingFocus = localStorage.getItem('chat.mobile.maximizeTyping') === 'on' ? 'on' : 'off';
-      root.dataset.mobileRoomRailToggle = localStorage.getItem('chat.mobile.roomRailToggle') === 'on' ? 'on' : 'off';
+      root.dataset.mobileRoomRailToggle = localStorage.getItem('chat.mobile.roomRailToggle') === 'off' ? 'off' : 'on';
       root.dataset.composeTyping = 'false';
       if (nativeIosApp) {
         const viewportMeta = document.querySelector('meta[name="viewport"]');
@@ -1693,16 +1693,18 @@
       padding: 8px 1px 3px;
     }
     .attachment-action {
-      width: 76px;
+      width: max-content;
       min-width: 76px;
+      max-width: none;
       min-height: 62px;
+      flex: 0 0 auto;
       display: grid;
       grid-template-rows: 26px minmax(0, auto);
       place-items: center;
       align-content: center;
       gap: 3px;
-      padding: 6px 4px;
-      overflow: hidden;
+      padding: 6px 10px;
+      overflow: visible;
       border: 0;
       border-radius: 12px;
       color: var(--text);
@@ -1713,12 +1715,13 @@
     }
     .attachment-action .icon { width: 24px; height: 24px; flex: 0 0 auto; }
     .attachment-action > span:last-child {
-      width: 100%;
-      max-width: 100%;
+      width: max-content;
+      max-width: none;
       min-width: 0;
-      overflow: hidden;
-      overflow-wrap: anywhere;
-      white-space: normal;
+      overflow: visible;
+      overflow-wrap: normal;
+      word-break: keep-all;
+      white-space: nowrap;
       text-align: center;
     }
     .attachment-action:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 17%, var(--panel-2)); }
@@ -4157,7 +4160,15 @@
     .drawing-node-layer .drawing-node.active { fill:var(--accent); }
     .drawing-tools button[data-drawing-tool="cursor"], .drawing-tools #drawingSmoothButton { color:var(--drawing-tool-stroke,var(--text)); }
 
+    .drawing-tools button.drawing-stroke-preview-control {
+      background:var(--drawing-tool-contrast-bg,var(--panel-2));
+      border-color:var(--drawing-tool-contrast-border,var(--line));
+    }
     .drawing-tools button.active { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 20%,var(--panel-2)); }
+    .drawing-tools button.drawing-stroke-preview-control.active {
+      border-color:var(--accent);
+      box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent);
+    }
     .drawing-tools .icon { width:22px; height:22px; }
     .drawing-color-tool { position:relative; overflow:hidden; cursor:pointer; }
     .drawing-color-tool input[type="color"] { width:100%; height:100%; min-height:27px; padding:0; border:0; background:transparent; cursor:pointer; }
@@ -4189,7 +4200,7 @@
     }
     .drawing-toolbar button, .drawing-toolbar select, .drawing-toolbar label { min-height:29px; padding-block:2px; white-space:nowrap; }
     .drawing-bottom-toolbar {
-      min-height:36px; display:flex; align-items:center; justify-content:space-between; gap:3px; padding:2px 3px;
+      min-height:36px; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:3px; padding:2px 3px;
       border:1px solid var(--ui-border); border-radius:8px; background:var(--panel); overflow:hidden;
     }
     .drawing-bottom-group { display:flex; align-items:center; gap:3px; flex:0 0 auto; }
@@ -4213,8 +4224,9 @@
     .drawing-toolbar input[type="number"] { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:7px; }
     .drawing-toolbar input[type=color] { width:32px; height:29px; padding:1px; }
     .drawing-exit-controls { display:flex; align-items:center; gap:3px; margin-left:auto; flex:0 0 auto; }
-    .drawing-exit-controls button { width:31px; min-width:31px; height:29px; min-height:29px; padding:2px; display:grid; place-items:center; }
-    .drawing-exit-controls .icon { width:18px; height:18px; }
+    .drawing-exit-controls button { width:auto; min-width:31px; height:29px; min-height:29px; padding:2px 7px; display:inline-flex; align-items:center; justify-content:center; gap:5px; font-size:11px; font-weight:800; white-space:nowrap; }
+    .drawing-exit-controls .icon { width:18px; height:18px; flex:0 0 auto; }
+    .drawing-exit-label { line-height:1; white-space:nowrap; }
     #drawingOpponentToggleButton { width:31px; min-width:31px; padding-inline:3px; }
 
     .drawing-toolbar-compact-group { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
@@ -4233,7 +4245,8 @@
     .drawing-reference-opacity-control button .icon { width:16px; height:16px; }
     .drawing-reference-image { cursor:grab; }
     .drawing-reference-hit { cursor:grab; }
-    .drawing-stroke-toolbar { margin-left:auto; min-width:0; display:flex; align-items:center; flex:0 1 auto; gap:3px; white-space:nowrap; }
+    .drawing-stroke-toolbar { margin-left:0; min-width:0; display:flex; align-items:center; flex:0 1 auto; gap:3px; white-space:nowrap; }
+    .drawing-bottom-stroke-toolbar { order:0; }
     .drawing-stroke-toolbar > button { width:31px; min-width:31px; padding-inline:3px; }
     .drawing-stroke-toolbar .drawing-inline-slider { flex:0 0 auto; }
     .drawing-view-mode-button { min-width:34px; min-height:29px; padding-inline:7px; font-size:18px; }
@@ -4388,8 +4401,8 @@
       .drawing-toolbar { min-height:29px; gap:2px; padding:1px 2px; border-radius:6px; overflow:hidden; }
       .drawing-toolbar button, .drawing-toolbar select, .drawing-toolbar label { min-height:27px; max-height:29px; font-size:12px; }
       .drawing-exit-controls { order:10; margin-left:auto; }
-      .drawing-exit-controls button { width:29px; min-width:29px; height:27px; min-height:27px; }
-      .drawing-stroke-toolbar { order:20; width:100%; flex:1 1 100%; margin-left:0; gap:2px; }
+      .drawing-exit-controls button { width:auto; min-width:29px; height:27px; min-height:27px; padding-inline:6px; font-size:10px; }
+      .drawing-bottom-stroke-toolbar { order:0; width:100%; flex:1 1 100%; margin-left:0; gap:2px; }
       .drawing-stroke-toolbar .drawing-canvas-width-tool,
       .drawing-stroke-toolbar .drawing-inline-slider { min-width:0; flex:1 1 92px; padding-inline:3px; }
       .drawing-stroke-toolbar .drawing-canvas-width-tool > span,
@@ -4415,7 +4428,7 @@
       .drawing-reference-opacity-control > span:not(.icon) { display:none; }
       .drawing-reference-opacity-control input[type="range"] { width:54px; }
       .drawing-reference-opacity-control output { min-width:28px; }
-      .drawing-stroke-toolbar { margin-left:0; gap:2px; }
+      .drawing-bottom-stroke-toolbar { margin-left:0; gap:2px; }
       .drawing-stroke-toolbar > button { width:28px; min-width:28px; }
       .drawing-canvas-width-tool { min-height:25px; padding:1px 4px; }
       .drawing-canvas-width-tool > span { display:none; }
@@ -15047,7 +15060,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.223</small>
+          <small id="serverBrandVersion">v9.6.224</small>
         </span>
       </button>
     </div>
@@ -17307,15 +17320,9 @@
             <output id="drawingReferenceOpacityValue">50%</output>
             <button id="drawingReferenceRemoveButton" type="button" title="Remove reference image" aria-label="Remove reference image"><span class="icon icon-delete" aria-hidden="true"></span></button>
           </div>
-          <div class="drawing-stroke-toolbar" role="group" aria-label="Stroke style controls">
-            <button id="drawingLineStyleButton" type="button" title="Line style: solid" aria-label="Line style: solid"><svg class="drawing-line-style-preview" viewBox="0 0 32 20" aria-hidden="true"><line id="drawingLineStylePreview" x1="3" y1="10" x2="29" y2="10"></line></svg></button>
-            <label class="drawing-canvas-width-tool" title="Stroke width ([ thinner, ] thicker)"><span>Stroke</span><input id="drawingStrokeWidth" type="range" min="0" max="40" step="1" value="3" aria-label="Stroke width"><output id="drawingStrokeWidthValue">3</output></label>
-            <label class="drawing-inline-slider" title="Dash or dot length"><span>Length</span><input id="drawingDashLength" type="range" min="1" max="60" step="1" value="18" aria-label="Dash or dot length"><output id="drawingDashLengthValue">18</output></label>
-            <label class="drawing-inline-slider" title="Dash or dot gap"><span>Gap</span><input id="drawingDashGap" type="range" min="1" max="60" step="1" value="10" aria-label="Dash or dot gap"><output id="drawingDashGapValue">10</output></label>
-          </div>
           <span class="drawing-exit-controls" role="group" aria-label="Drawing session controls">
-            <button id="drawingChatButton" class="return-control" type="button" title="Return to the channel without leaving Drawing Table" aria-label="Return to channel"><span class="icon icon-chat" aria-hidden="true"></span></button>
-            <button id="drawingLeaveButton" class="exit-control" type="button" title="Leave Drawing Table" aria-label="Leave Drawing Table"><span class="icon icon-close" aria-hidden="true"></span></button>
+            <button id="drawingChatButton" class="return-control" type="button" title="Back to chat without closing Drawing Table" aria-label="Back to chat"><span class="icon icon-chat" aria-hidden="true"></span><span class="drawing-exit-label">Back to chat</span></button>
+            <button id="drawingLeaveButton" class="exit-control" type="button" title="Close and Exit Drawing Table" aria-label="Close and Exit"><span class="icon icon-close" aria-hidden="true"></span><span class="drawing-exit-label">Close and Exit</span></button>
           </span>
         </div>
         <div id="drawingCanvases" class="drawing-canvases view-split-own-left" data-divider-axis="x">
@@ -17326,6 +17333,12 @@
           <section class="drawing-pane overlay"><span id="drawingOverlayPaneLabel" class="drawing-pane-label"><span id="drawingOverlayPaneAvatar" class="drawing-pane-label-avatar"></span><span id="drawingOverlayPaneName" class="drawing-pane-label-name">Combined</span></span><div class="drawing-paper"><svg id="drawingOverlaySvg" viewBox="0 0 1200 800" role="img" aria-label="Combined drawing"></svg></div></section>
         </div>
         <nav class="drawing-bottom-toolbar" role="toolbar" aria-label="Drawing actions">
+          <div class="drawing-stroke-toolbar drawing-bottom-stroke-toolbar" role="group" aria-label="Stroke style controls">
+            <button id="drawingLineStyleButton" type="button" title="Line style: solid" aria-label="Line style: solid"><svg class="drawing-line-style-preview" viewBox="0 0 32 20" aria-hidden="true"><line id="drawingLineStylePreview" x1="3" y1="10" x2="29" y2="10"></line></svg></button>
+            <label class="drawing-canvas-width-tool" title="Stroke width ([ thinner, ] thicker)"><span>Stroke</span><input id="drawingStrokeWidth" type="range" min="0" max="40" step="1" value="3" aria-label="Stroke width"><output id="drawingStrokeWidthValue">3</output></label>
+            <label class="drawing-inline-slider" title="Dash or dot length"><span>Length</span><input id="drawingDashLength" type="range" min="1" max="60" step="1" value="18" aria-label="Dash or dot length"><output id="drawingDashLengthValue">18</output></label>
+            <label class="drawing-inline-slider" title="Dash or dot gap"><span>Gap</span><input id="drawingDashGap" type="range" min="1" max="60" step="1" value="10" aria-label="Dash or dot gap"><output id="drawingDashGapValue">10</output></label>
+          </div>
           <div class="drawing-bottom-group drawing-bottom-left">
             <label class="drawing-color-tool stroke" title="Stroke colour"><input id="drawingStrokeColor" type="color" value="#111111" aria-label="Stroke colour"></label>
             <label class="drawing-color-tool fill" title="Fill colour"><input id="drawingFillColor" type="color" value="#ffffff" aria-label="Fill colour"></label>
@@ -17829,7 +17842,7 @@
       nativePushAuthoritativeCount: null,
       nativeSharedGroups: [],
       nativeShareSending: false,
-      mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') === 'on',
+      mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') !== 'off',
       mobileRoomRailObserver: null,
       mobileRoomRailResizeBound: false,
       bubbleMood: ['solid', 'soft', 'aurora', 'organic'].includes(readStorage('chat.ui.bubbleMood')) ? readStorage('chat.ui.bubbleMood') : 'soft',
@@ -23846,6 +23859,9 @@
       const selected=selectedDrawingObject(),selectedObjects=selectedDrawingObjects(),selectedArtworkObjects=drawingSelectedArtworkObjects(),selectedCount=selectedObjects.length,selectedReference=isDrawingReferenceImage(selected),ownLocked=drawingOwnLayerLocked();
       const stroke=elements.drawingStrokeColor.value||'#111111',fill=elements.drawingFillColor.value||'#ffffff';
       elements.drawingStage.style.setProperty('--drawing-tool-stroke',stroke);
+      const parsedStroke=cssColorToRgba(stroke),darkStroke=parsedStroke?relativeLuminance(parsedStroke)<.42:true;
+      const toolContrastBackground=darkStroke?'#f7f7f7':'#17191f',toolContrastBorder=darkStroke?'#b9bec8':'#5a606c';
+      for(const button of document.querySelectorAll('.drawing-tools button[data-drawing-tool], #drawingPolylineToolButton, #drawingSmoothButton')){button.classList.add('drawing-stroke-preview-control');button.style.setProperty('--drawing-tool-contrast-bg',toolContrastBackground);button.style.setProperty('--drawing-tool-contrast-border',toolContrastBorder);}
       elements.drawingLineStyleButton.style.color=stroke; elements.drawingLineStyleButton.title=`Line style: ${state.drawingLineStyle}`; elements.drawingLineStyleButton.setAttribute('aria-label',elements.drawingLineStyleButton.title);
       const dash=drawingDash(state.drawingLineStyle); if(dash)elements.drawingLineStylePreview.setAttribute('stroke-dasharray',dash);else elements.drawingLineStylePreview.removeAttribute('stroke-dasharray');
       elements.drawingStrokeWidth.value=String(state.drawingStrokeWidth);elements.drawingStrokeWidthValue.value=String(state.drawingStrokeWidth);elements.drawingStrokeWidthValue.textContent=String(state.drawingStrokeWidth);
@@ -23897,7 +23913,7 @@
       elements.drawingStage.dataset.transformMode=state.drawingTool==='select'?'true':'false';elements.drawingBackgroundKind.value=ownBg.kind;elements.drawingBackgroundColor.value=ownBg.color;
       const mode=state.drawing.solo?'own':(elements.drawingViewMode.value||'split-own-left');elements.drawingCanvases.className=`drawing-canvases view-${mode}`;elements.drawingCanvases.style.setProperty('--drawing-own-share',`${Math.round(state.drawingCanvasShare*1000)/10}%`);elements.drawingCanvases.dataset.dividerAxis=state.drawing.solo?'':(drawingViewAxis(mode)||'');
       elements.drawingOpponentPane.hidden=state.drawing.solo||state.drawingOpponentHidden;elements.drawingStage.dataset.solo=String(Boolean(state.drawing.solo));elements.drawingStage.dataset.ownLocked=String(drawingOwnLayerLocked());applyDrawingCanvasGestureView(false);requestAnimationFrame(fitDrawingPapers);
-      if(elements.drawingOpponentToggleButton){const solo=Boolean(state.drawing.solo),showing=Boolean(state.drawingOpponentHidden);elements.drawingOpponentToggleButton.disabled=solo;elements.drawingOpponentToggleButton.title=solo?'Personal drawing only':(showing?'Show opponent':'Hide opponent');elements.drawingOpponentToggleButton.setAttribute('aria-label',elements.drawingOpponentToggleButton.title);const icon=elements.drawingOpponentToggleButton.querySelector('.icon');if(icon)icon.className=`icon ${showing?'icon-show':'icon-hide'}`;}if(elements.drawingLeaveButton){elements.drawingLeaveButton.title=state.drawing.solo?'Close drawing':'Leave Drawing Table';elements.drawingLeaveButton.setAttribute('aria-label',elements.drawingLeaveButton.title);}elements.drawingStage.dataset.activeTransform=state.drawingTransformAction?.mode||'';
+      if(elements.drawingOpponentToggleButton){const solo=Boolean(state.drawing.solo),showing=Boolean(state.drawingOpponentHidden);elements.drawingOpponentToggleButton.disabled=solo;elements.drawingOpponentToggleButton.title=solo?'Personal drawing only':(showing?'Show opponent':'Hide opponent');elements.drawingOpponentToggleButton.setAttribute('aria-label',elements.drawingOpponentToggleButton.title);const icon=elements.drawingOpponentToggleButton.querySelector('.icon');if(icon)icon.className=`icon ${showing?'icon-show':'icon-hide'}`;}if(elements.drawingChatButton){elements.drawingChatButton.title='Back to chat without closing Drawing Table';elements.drawingChatButton.setAttribute('aria-label','Back to chat');}if(elements.drawingLeaveButton){elements.drawingLeaveButton.title=state.drawing.solo?'Close and Exit drawing':'Close and Exit Drawing Table';elements.drawingLeaveButton.setAttribute('aria-label','Close and Exit');}elements.drawingStage.dataset.activeTransform=state.drawingTransformAction?.mode||'';
       if(state.drawingTransformAction)updateDrawingTransformPrompt();updateDrawingStyleControls();updateDrawingTextControlsVisibility();renderDrawingPlayers();if(state.drawingTool==='cursor')renderDrawingNodes(elements.drawingOwnSvg,selectedDrawingObject());if(state.drawingTextDraft)requestAnimationFrame(positionDrawingTextEditor);
     }
     function drawingPointFromClient(clientX,clientY,svg=elements.drawingOwnSvg){

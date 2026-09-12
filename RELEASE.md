@@ -1,3 +1,11 @@
+## Changes in v0.1.63
+
+- Synchronized browser client to **9.6.224 / rantlist-deploy-r252** and protocol **63**.
+- Attachment-tray actions use intrinsic width and `white-space: nowrap`, keeping complete labels such as Calendar, Drawing, WebGL Draw and Translator on one line.
+- Drawing stroke controls move below the canvases into the bottom toolbar; stroke-driven tool buttons select a light/dark preview surface from the active stroke luminance so dark and light lines remain visible.
+- Drawing session controls now visibly distinguish **Back to chat** from **Close and Exit**.
+- New/fresh profiles start with the mobile Channel rail control enabled unless the user has explicitly saved Off.
+
 ## Changes in v0.1.62
 
 - Synchronized browser client to **9.6.223 / rantlist-deploy-r251** and protocol **63**.

@@ -1,3 +1,10 @@
+## v0.1.63 / 9.6.224
+- Synchronizes the attachment-tray and Drawing control-layout update from rantlist-deploy-r252.
+- Attachment actions expand to fit complete labels instead of breaking words across lines.
+- Drawing moves stroke style/width/dash controls to the bottom action toolbar, automatically contrasts stroke-driven tool previews, and labels **Back to chat** versus **Close and Exit**.
+- Fresh profiles default the mobile Channel rail control to On while preserving an explicit Off preference.
+- Browser source synchronized to rantlist-deploy-r252 / protocol 63.
+
 ## v0.1.62 / 9.6.223
 - Synchronizes the attachment tray and Drawing readability update from rantlist-deploy-r251.
 - Long attachment labels wrap inside their own cards; the first **Drawing** action uses the supplied `drawing1.svg` while **WebGL Draw** keeps its existing icon.
