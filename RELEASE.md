@@ -1,3 +1,9 @@
+## Changes in v0.1.64
+
+- Synchronized browser client to **9.6.225 / rantlist-deploy-r253** and protocol **63**.
+- Drawing stroke-driven tool controls remain legible while selected on dark themes.
+- Fleet Battle mobile harbours stack vertically; the local harbour pulses red while under fire and the footer stays pinned with compact controls.
+
 ## Changes in v0.1.63
 
 - Synchronized browser client to **9.6.224 / rantlist-deploy-r252** and protocol **63**.

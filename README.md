@@ -1,3 +1,9 @@
+## v0.1.64 / 9.6.225
+
+- Synchronized browser client to **9.6.225 / rantlist-deploy-r253** and protocol **63**.
+- Drawing active tools preserve stroke-contrast backgrounds on dark themes.
+- Fleet Battle mobile view stacks harbours, gives the local target a pulsing red border, compacts status/actions, and pins the footer.
+
 ## v0.1.63 / 9.6.224
 - Synchronizes the attachment-tray and Drawing control-layout update from rantlist-deploy-r252.
 - Attachment actions expand to fit complete labels instead of breaking words across lines.

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.224">
+  <meta name="chat-ui-version" content="9.6.225">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -3099,6 +3099,22 @@
       0%,100% { opacity:.58; }
       50% { opacity:1; }
     }
+    .fleet-board-panel.is-active-target.is-own-target::before {
+      background:linear-gradient(135deg,#ff304f,#ff6b5f,#ff304f);
+      background-size:180% 180%;
+      opacity:.9;
+      filter:drop-shadow(0 0 5px color-mix(in srgb,#ff304f 68%,transparent));
+      animation:fleet-own-target-pulse .92s ease-in-out infinite;
+    }
+    .fleet-board-panel.is-own-target .fleet-board-role {
+      border-color:#ff5268;
+      background:color-mix(in srgb,#ff304f 18%,var(--panel-3));
+      color:#ff8797;
+    }
+    @keyframes fleet-own-target-pulse {
+      0%,100% { opacity:.62; filter:drop-shadow(0 0 2px color-mix(in srgb,#ff304f 48%,transparent)); }
+      50% { opacity:1; filter:drop-shadow(0 0 10px color-mix(in srgb,#ff304f 86%,transparent)); }
+    }
     .duel-prompt.fleet-turn-yours strong,
     .duel-stage-footer .game-status.fleet-your-turn { color:var(--success); animation:fleet-turn-text-pulse 1.05s ease-in-out infinite; }
     .duel-prompt.fleet-turn-opponent strong,
@@ -3704,32 +3720,63 @@
       }
 
       .duel-stage.fleet-mode {
-        grid-template-rows:auto auto;
-        align-content:start;
-        overflow-x:hidden;
-        overflow-y:auto;
-        overscroll-behavior-y:contain;
+        grid-template-rows:auto minmax(0,1fr) auto;
+        align-content:stretch;
+        overflow:hidden;
         padding-left:5px;
         padding-right:5px;
+        padding-bottom:0;
       }
-      .duel-stage.fleet-mode .duel-stage-header { gap:5px; }
-      .duel-stage.fleet-mode .duel-stage-body { min-height:auto; overflow:visible; }
-      .duel-stage.fleet-mode .duel-prompt { min-height:0; display:grid; gap:1px; line-height:1.15; }
-      .duel-stage.fleet-mode .duel-prompt strong { font-size:12px; }
-      .duel-stage.fleet-mode .duel-prompt span { font-size:9px; }
-      .duel-stage.fleet-mode .duel-stage-footer { position:static; padding-bottom:max(6px, var(--safe-bottom)); }
+      .duel-stage.fleet-mode .duel-stage-header { gap:4px; }
+      .duel-stage.fleet-mode .duel-player-card { padding:3px 4px; gap:4px; border-radius:9px; }
+      .duel-stage.fleet-mode .duel-player-card .game-media-surface { width:27px; height:27px; flex-basis:27px; }
+      .duel-stage.fleet-mode .duel-player-card .game-media-surface.media-active { width:56px; height:32px; flex-basis:56px; }
+      .duel-stage.fleet-mode .duel-stage-title { min-width:62px; gap:0; }
+      .duel-stage.fleet-mode .duel-stage-title .icon { width:19px; height:19px; }
+      .duel-stage.fleet-mode .duel-stage-title strong { font-size:10px; }
+      .duel-stage.fleet-mode .duel-stage-title span:not(.icon) { font-size:8px; }
+      .duel-stage.fleet-mode .duel-stage-body { min-height:0; overflow-x:hidden; overflow-y:auto; align-content:start; gap:3px; padding:1px 0 4px; overscroll-behavior-y:contain; }
+      .duel-stage.fleet-mode .duel-prompt { min-height:20px; display:flex; align-items:center; justify-content:center; flex-wrap:nowrap; gap:4px; line-height:1; overflow:hidden; }
+      .duel-stage.fleet-mode .duel-prompt strong { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:11px; }
+      .duel-stage.fleet-mode .duel-prompt span { flex:0 1 auto; min-width:0; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:8px; }
+      .duel-stage.fleet-mode .duel-stage-footer {
+        position:sticky;
+        z-index:7;
+        bottom:0;
+        min-height:40px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        flex-wrap:nowrap;
+        gap:3px;
+        padding:3px max(4px,env(safe-area-inset-right)) max(3px,var(--safe-bottom)) max(4px,env(safe-area-inset-left));
+        border-top:1px solid var(--line);
+        background:color-mix(in srgb,var(--panel) 96%,transparent);
+        backdrop-filter:blur(10px);
+      }
       .duel-stage.fleet-mode .duel-stage-footer .game-status {
-        width:min(29ch, 100%);
-        min-height:2.35em;
-        display:grid;
-        place-items:center;
-        white-space:pre-line;
-        line-height:1.18;
-        font-size:12px;
+        flex:1 1 auto;
+        width:auto;
+        min-width:0;
+        min-height:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+        line-height:1;
+        font-size:9px;
+        text-align:left;
       }
+      .duel-stage.fleet-mode .duel-stage-actions { flex:0 0 auto; display:flex; align-items:center; flex-wrap:nowrap; gap:2px; }
+      .duel-stage.fleet-mode .duel-stage-actions > button { min-height:32px; padding:3px 7px; font-size:10px; }
+      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls { flex-wrap:nowrap; gap:2px; }
+      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls > span { display:none; }
+      .duel-stage.fleet-mode .duel-stage-actions .game-media-controls button { width:32px; min-width:32px; height:32px; min-height:32px; padding:0; }
       .duel-board.fleet-board-host, .fleet-dual-layout, .fleet-board-panel { overflow:visible; }
-      .fleet-dual-layout { grid-template-columns:repeat(2, minmax(0, 1fr)); gap:4px; }
-      .fleet-board-panel { gap:3px; padding:4px; border-radius:9px; }
+      .duel-board.fleet-board-host { gap:3px; }
+      .fleet-battle-strip { min-height:22px; justify-content:flex-start; flex-wrap:nowrap; gap:3px 6px; overflow-x:auto; scrollbar-width:none; white-space:nowrap; font-size:8px; }
+      .fleet-battle-strip::-webkit-scrollbar { display:none; }
+      .fleet-dual-layout { grid-template-columns:minmax(0,1fr); gap:7px; justify-items:center; }
+      .fleet-board-panel { width:min(100%,520px); gap:3px; padding:5px; border-radius:10px; }
       .fleet-board-panel.is-ready .fleet-board-heading { margin:-4px -4px 0; padding:4px; border-radius:7px 7px 5px 5px; }
       .fleet-board-heading { font-size:10px; }
       .fleet-board-role { gap:2px; padding:1px 3px; font-size:6px; }
@@ -4166,6 +4213,7 @@
     }
     .drawing-tools button.active { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 20%,var(--panel-2)); }
     .drawing-tools button.drawing-stroke-preview-control.active {
+      background:var(--drawing-tool-contrast-bg,var(--panel-2)) !important;
       border-color:var(--accent);
       box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 55%,transparent);
     }
@@ -15060,7 +15108,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.224</small>
+          <small id="serverBrandVersion">v9.6.225</small>
         </span>
       </button>
     </div>
@@ -22687,7 +22735,7 @@
             : `<strong>${escapeGameHtml(opponentName)} is shooting</strong><span>Your highlighted harbour is the target.</span>`;
       const ownRemaining=Number(ownBoard.remainingShips)||0,targetRemaining=Number(targetBoard.remainingShips)||0;
       const ownRole=finished||paused?'':yourTurn?'':'Target',opponentRole=finished||paused?'':yourTurn?'Target':'';
-      const ownClass=finished||paused?'':yourTurn?'':'is-active-target',opponentClass=finished||paused?'':yourTurn?'is-active-target':'';
+      const ownClass=finished||paused?'':yourTurn?'':'is-active-target is-own-target',opponentClass=finished||paused?'':yourTurn?'is-active-target':'';
       elements.duelBoard.innerHTML=`<div class="fleet-battle-strip"><span><strong>${ownRemaining}</strong> yours afloat</span><span><strong>${targetRemaining}</strong> enemy afloat</span>${fleetLastShotHtml(duel)}${fleetThemeSelectHtml()}</div><div class="fleet-dual-layout">${fleetPanelHtml({board:ownBoard,title:'Your harbour',roleLabel:ownRole,roleClass:ownClass,mode:'own',ready:true})}${fleetPanelHtml({board:targetBoard,title:opponentName,roleLabel:opponentRole,roleClass:opponentClass,mode:'target',canAct:canFire,ready:true})}</div>`;
       elements.duelRoundLabel.textContent=`Match ${game.round} · ${finished?'finished':'battle'}`;
     }
