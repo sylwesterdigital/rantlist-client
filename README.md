@@ -1,3 +1,9 @@
+## v0.1.60 / 9.6.221
+- Fix the inactive native **Shared items ready** bar so it is invisible unless a real Share Extension payload is queued.
+- Keep the iOS notification permission prompt: it is required for APNs alerts/sounds and app-icon unread badges.
+- After a successful iOS archive/export, automatically install and relaunch Rantlist on any connected/unlocked physical iOS development device; set `RANTLIST_IOS_INSTALL_CONNECTED=0` to disable this convenience.
+- Share Extension remains provisioning-gated: automatic push-only fallback still applies until the App Group is assigned in Apple Developer.
+
 ## v0.1.59 / 9.6.220
 
 - Fixes iOS release failure when the Apple Developer account has not yet assigned `group.fun.workwork.rantlist` to the app/Share Extension provisioning profiles.

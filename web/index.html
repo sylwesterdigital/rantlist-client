@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.220">
+  <meta name="chat-ui-version" content="9.6.221">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1599,6 +1599,7 @@
       background: color-mix(in srgb, var(--warning, #f59e0b) 10%, var(--panel));
       font-size: 12px;
     }
+    .native-share-pending[hidden] { display: none !important; }
     .native-share-pending-copy { min-width: 0; flex: 1; }
     .native-share-pending-copy strong,
     .native-share-pending-copy span { display: block; }
@@ -14992,7 +14993,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.220</small>
+          <small id="serverBrandVersion">v9.6.221</small>
         </span>
       </button>
     </div>

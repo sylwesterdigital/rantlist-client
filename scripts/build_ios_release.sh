@@ -17,6 +17,7 @@ BUNDLE_ID="${RANTLIST_IOS_BUNDLE_ID:-fun.workwork.rantlist}"
 # full: require App Group provisioning and fail rather than falling back.
 # off: build the APNs/badge-capable containing app without the Share Extension.
 IOS_SHARE_MODE="${RANTLIST_IOS_SHARE_MODE:-auto}"
+INSTALL_CONNECTED="${RANTLIST_IOS_INSTALL_CONNECTED:-1}"
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 warn(){ printf '\033[1;33mWARNING:\033[0m %s\n' "$*" >&2; }
 die(){ printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
@@ -52,6 +53,58 @@ archive_project() {
     DEVELOPMENT_TEAM="$TEAM_ID" RANTLIST_APP_BUNDLE_ID="$BUNDLE_ID" \
     MARKETING_VERSION="$APP_VERSION" CURRENT_PROJECT_VERSION="$BUILD_NUMBER" \
     CODE_SIGN_STYLE=Automatic -allowProvisioningUpdates archive
+}
+
+install_connected_ios_devices() {
+  [[ "$INSTALL_CONNECTED" == "1" ]] || { log "Connected-device install disabled (RANTLIST_IOS_INSTALL_CONNECTED=$INSTALL_CONNECTED)"; return 0; }
+  command -v xcrun >/dev/null 2>&1 || { warn "xcrun is unavailable; skipping connected iPhone install."; return 0; }
+  local app_path="$ARCHIVE/Products/Applications/Rantlist.app"
+  [[ -d "$app_path" ]] || { warn "Archived Rantlist.app not found; skipping connected iPhone install."; return 0; }
+  local devices_json="$BUILD_ROOT/xcdevice-list.json"
+  if ! xcrun xcdevice list --timeout 3 > "$devices_json" 2>/dev/null; then
+    warn "Could not enumerate connected iOS development devices; IPA release will continue."
+    return 0
+  fi
+  local devices
+  devices="$(/usr/bin/python3 - "$devices_json" <<'PYDEV'
+import json, sys
+try:
+    items=json.load(open(sys.argv[1]))
+except Exception:
+    items=[]
+for item in items if isinstance(items,list) else []:
+    if item.get('simulator'):
+        continue
+    if not item.get('available', False):
+        continue
+    platform=str(item.get('platform') or '').lower()
+    if 'iphoneos' not in platform and platform not in ('ios','iphone'):
+        continue
+    ident=str(item.get('identifier') or '').strip()
+    if not ident:
+        continue
+    name=str(item.get('name') or 'iOS device').replace('|',' ')
+    print(f"{ident}|{name}")
+PYDEV
+)"
+  if [[ -z "$devices" ]]; then
+    warn "No connected/unlocked physical iOS development device found; IPA was built but not installed."
+    return 0
+  fi
+  while IFS='|' read -r device_id device_name; do
+    [[ -n "$device_id" ]] || continue
+    log "Installing Rantlist $APP_VERSION build $BUILD_NUMBER on connected device: $device_name ($device_id)"
+    if xcrun devicectl device install app --device "$device_id" "$app_path"; then
+      log "Installed Rantlist on $device_name"
+      if ! xcrun devicectl device process launch --device "$device_id" "$BUNDLE_ID" >/dev/null 2>&1; then
+        warn "Rantlist installed on $device_name but could not be launched automatically."
+      else
+        log "Launched Rantlist on $device_name"
+      fi
+    else
+      warn "Could not install Rantlist on $device_name; IPA release will continue."
+    fi
+  done <<< "$devices"
 }
 
 build_push_only_fallback() {
@@ -100,6 +153,7 @@ IPA="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-iOS.ipa"
 SHA="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-iOS-SHA256.txt"
 cp "$IPA_SRC" "$IPA"
 ( cd "$RELEASE_DIR"; shasum -a 256 "$(basename "$IPA")" > "$(basename "$SHA")"; shasum -a 256 -c "$(basename "$SHA")" )
+install_connected_ios_devices
 [[ "$PERSIST_BUILD_NUMBER" == 1 ]] && printf '%s\n' "$BUILD_NUMBER" > "$BUILD_NUMBER_FILE"
 share_result="$(cat "$BUILD_ROOT/ios-share-result.txt" 2>/dev/null || printf 'unknown')"
 printf '\nRantlist iOS release complete.\nIPA: %s\nSHA: %s\niOS share mode: %s\n' "$IPA" "$SHA" "$share_result"

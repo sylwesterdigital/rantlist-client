@@ -59,6 +59,11 @@ grep -q 'rantlist://share' "$ROOT/mobile/ios/RantlistShare/ShareViewController.s
 grep -q 'RantlistShareSchemeHandler' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file scheme bridge missing" >&2; exit 1; }
 grep -q 'window.rantlistNativeSharedItems' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native share inbox is not delivered to the web client" >&2; exit 1; }
 grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client shared-item destination bar missing" >&2; exit 1; }
+
+grep -q '\.native-share-pending\[hidden\].*display: none !important' "$ROOT/web/index.html" || { echo "Native shared-item pending bar can appear with no queued share payload" >&2; exit 1; }
+grep -q 'RANTLIST_IOS_INSTALL_CONNECTED:-1' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not default to connected-device install" >&2; exit 1; }
+grep -q 'xcrun devicectl device install app' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not install the archived app on connected development devices" >&2; exit 1; }
+grep -q 'xcrun devicectl device process launch' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not relaunch the installed app on connected development devices" >&2; exit 1; }
 grep -q 'window.rantlistNativeSharedItems' "$ROOT/web/index.html" || { echo "Web client native Share Extension receiver missing" >&2; exit 1; }
 grep -q 'window.rantlistNativePushToken' "$ROOT/web/index.html" || { echo "Web client native APNs token receiver missing" >&2; exit 1; }
 ! grep -q 'PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script globally overrides the Share Extension bundle identifier" >&2; exit 1; }

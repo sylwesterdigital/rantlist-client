@@ -1,3 +1,9 @@
+## Changes in v0.1.60
+
+- Native share pending UI now strictly respects `hidden`, eliminating the phantom **Shared items ready** card when no iOS share payload exists.
+- iOS release builds now attempt a best-effort install + launch on connected physical development iPhones after the IPA is exported. Release publication still succeeds if no phone is connected or installation is unavailable.
+- APNs notification permission remains intentional and required for native notifications and icon badges.
+
 ## Changes in v0.1.59
 
 - Fixes the build-48 archive failure caused by stale/missing Apple App Group provisioning for `group.fun.workwork.rantlist`.
