@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.226">
+  <meta name="chat-ui-version" content="9.6.227">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -3720,16 +3720,16 @@
       }
 
       .duel-stage.fleet-mode {
-        --fleet-mobile-grid-size:min(
-          calc(100vw - var(--room-rail-space) - 28px),
-          calc((100dvh - var(--topbar-height) - 190px) / 2)
-        );
-        grid-template-rows:auto minmax(0,1fr) auto;
+        /* JavaScript measures the actual stage after the native/browser chrome is
+           laid out. This conservative value is only the first-paint fallback. */
+        --fleet-mobile-grid-size:min(calc(100vw - var(--room-rail-space) - 24px), 260px);
+        grid-template-rows:44px minmax(0,1fr) auto;
         align-content:stretch;
         width:calc(100% - var(--room-rail-space));
         max-width:calc(100% - var(--room-rail-space));
+        gap:2px;
         overflow:hidden;
-        padding:3px 4px 0;
+        padding:2px 4px 0;
       }
       .duel-stage.fleet-mode > *,
       .duel-stage.fleet-mode .duel-stage-header,
@@ -3740,32 +3740,55 @@
       .duel-stage.fleet-mode .fleet-grid { min-width:0; max-width:100%; }
       .duel-stage.fleet-mode .duel-stage-header {
         width:100%;
-        grid-template-columns:minmax(0,1fr) 68px minmax(0,1fr);
+        height:44px;
+        grid-template-columns:minmax(0,1fr) 96px minmax(0,1fr);
         gap:3px;
         overflow:hidden;
       }
-      .duel-stage.fleet-mode .duel-player-card { width:100%; max-width:100%; overflow:hidden; padding:2px 3px; gap:3px; border-radius:8px; }
-      .duel-stage.fleet-mode .duel-player-card .game-media-surface { width:24px; height:24px; flex:0 0 24px; }
-      .duel-stage.fleet-mode .duel-player-card .game-media-surface.media-active { width:40px; height:26px; flex:0 0 40px; }
+      .duel-stage.fleet-mode .duel-player-card {
+        width:100%;
+        max-width:100%;
+        min-height:40px;
+        overflow:hidden;
+        padding:2px 3px;
+        gap:3px;
+        border-radius:8px;
+      }
+      .duel-stage.fleet-mode .duel-player-card .game-media-surface { width:34px; height:34px; flex:0 0 34px; }
+      .duel-stage.fleet-mode .duel-player-card .game-media-surface.media-active { width:64px; height:36px; flex:0 0 64px; }
       .duel-stage.fleet-mode .duel-player-copy { min-width:0; overflow:hidden; }
-      .duel-stage.fleet-mode .duel-player-copy strong { font-size:10px; }
+      .duel-stage.fleet-mode .duel-player-copy strong { font-size:10px; line-height:1.05; }
       .duel-stage.fleet-mode .duel-player-copy small { display:none; }
-      .duel-stage.fleet-mode .duel-stage-title { min-width:0; gap:0; }
-      .duel-stage.fleet-mode .duel-stage-title .icon { width:17px; height:17px; }
-      .duel-stage.fleet-mode .duel-stage-title strong { font-size:9px; line-height:1; }
-      .duel-stage.fleet-mode .duel-stage-title span:not(.icon) { font-size:7px; line-height:1; }
+      .duel-stage.fleet-mode .duel-stage-title {
+        min-width:0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        gap:3px;
+        white-space:nowrap;
+        overflow:hidden;
+      }
+      .duel-stage.fleet-mode .duel-stage-title .icon { display:none; }
+      .duel-stage.fleet-mode .duel-stage-title strong { flex:0 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:9px; line-height:1; }
+      .duel-stage.fleet-mode .duel-stage-title span:not(.icon) { flex:0 0 auto; font-size:0; line-height:1; }
+      .duel-stage.fleet-mode .duel-stage-title span:not(.icon)::after { content:attr(data-compact); font-size:7px; color:var(--muted); }
       .duel-stage.fleet-mode .duel-stage-body {
         width:100%;
         min-height:0;
-        overflow:hidden;
+        grid-template-rows:auto minmax(0,1fr);
         align-content:stretch;
         justify-items:stretch;
         gap:2px;
         padding:0;
-        overscroll-behavior:none;
+        overflow-x:hidden;
+        overflow-y:auto;
+        overscroll-behavior:contain;
+        scrollbar-width:none;
+        -webkit-overflow-scrolling:touch;
       }
+      .duel-stage.fleet-mode .duel-stage-body::-webkit-scrollbar { display:none; }
       .duel-stage.fleet-mode .duel-prompt {
-        min-height:17px;
+        min-height:16px;
         max-width:100%;
         display:flex;
         align-items:center;
@@ -3817,11 +3840,15 @@
         width:100%;
         height:100%;
         min-height:0;
+        display:grid;
+        grid-template-rows:auto minmax(0,1fr);
+        align-self:stretch;
         gap:2px;
-        overflow:hidden;
+        overflow:visible;
       }
+      .fleet-ready-banner { display:none; }
       .fleet-battle-strip {
-        min-height:17px;
+        min-height:16px;
         justify-content:center;
         flex-wrap:nowrap;
         gap:3px 8px;
@@ -3833,6 +3860,7 @@
       .fleet-battle-strip .fleet-theme-cycle { display:none; }
       .fleet-dual-layout {
         width:100%;
+        height:100%;
         min-height:0;
         grid-template-columns:minmax(0,1fr);
         grid-template-rows:repeat(2,minmax(0,1fr));
@@ -3842,9 +3870,10 @@
         overflow:hidden;
       }
       .fleet-board-panel {
-        width:min(100%, calc(var(--fleet-mobile-grid-size) + 10px));
+        width:min(100%, calc(var(--fleet-mobile-grid-size) + 8px));
         max-width:100%;
         min-height:0;
+        align-self:center;
         gap:2px;
         padding:3px 4px;
         overflow:visible;
@@ -3855,7 +3884,8 @@
       .fleet-board-role { gap:2px; padding:1px 3px; font-size:6px; }
       .fleet-ready-mark { width:10px; height:10px; font-size:7px; }
       .fleet-theme-control, .fleet-template-switch { display:none; }
-      .fleet-cycle-button { display:inline-grid; }
+      .fleet-cycle-button { display:inline-grid; flex:0 0 26px; width:26px; min-width:26px; height:26px; min-height:26px; padding:2px; border-radius:7px; }
+      .fleet-cycle-button svg { width:19px; height:19px; }
       .fleet-grid {
         width:var(--fleet-mobile-grid-size);
         max-width:100%;
@@ -3866,18 +3896,42 @@
       }
       .fleet-axis { font-size:6px; }
       .fleet-cell { min-width:0; max-width:100%; }
-      .fleet-toolbar { max-width:100%; gap:3px; padding:4px; overflow:hidden; }
-      .fleet-toolbar > button:not(.fleet-cycle-button) { min-height:27px; padding:4px 6px; font-size:9px; }
-      .fleet-quota { flex:1 1 238px; min-width:0; flex-wrap:nowrap; gap:2px; overflow-x:auto; scrollbar-width:none; }
-      .fleet-quota::-webkit-scrollbar { display:none; }
-      .fleet-quota-chip { min-height:22px; padding:2px 4px; font-size:8px; }
-      .fleet-quota-chip strong { font-size:9px; }
-      .fleet-quota-check { width:10px; height:10px; font-size:6px; }
-      .fleet-ready-action, .fleet-edit-action { min-width:112px; min-height:29px; font-size:9px; }
-      .fleet-ready-action-mark { width:15px; height:15px; font-size:9px; }
-      .fleet-ready-banner { min-height:29px; padding:4px 6px; font-size:9px; }
-      .fleet-ready-banner .fleet-ready-mark { width:17px; height:17px; font-size:10px; }
-      .fleet-plan-note { font-size:8px; }
+      .fleet-toolbar {
+        max-width:100%;
+        min-height:31px;
+        flex-wrap:nowrap;
+        gap:2px;
+        padding:3px;
+        overflow:hidden;
+      }
+      .fleet-toolbar > button:not(.fleet-cycle-button) { flex:0 0 auto; min-height:26px; padding:3px 5px; font-size:8px; }
+      .fleet-quota { flex:1 1 auto; min-width:0; flex-wrap:nowrap; gap:2px; overflow:hidden; }
+      .fleet-quota-chip { flex:1 1 0; justify-content:center; min-width:0; min-height:21px; padding:2px; gap:1px; font-size:7px; overflow:hidden; }
+      .fleet-quota-chip strong { font-size:8px; }
+      .fleet-quota-check { display:none; }
+      .fleet-ready-action, .fleet-edit-action { order:0; flex:0 0 auto; min-width:54px; min-height:26px; padding-inline:5px; gap:3px; font-size:8px; }
+      .fleet-ready-action-mark { width:13px; height:13px; font-size:8px; }
+      .fleet-ready-banner { min-height:0; padding:0; }
+      .fleet-plan-note {
+        position:absolute !important;
+        width:1px !important;
+        height:1px !important;
+        padding:0 !important;
+        margin:-1px !important;
+        overflow:hidden !important;
+        clip:rect(0 0 0 0) !important;
+        white-space:nowrap !important;
+        border:0 !important;
+      }
+      .duel-stage.fleet-mode.fleet-mobile-scroll .duel-board.fleet-board-host {
+        height:auto;
+        grid-template-rows:auto auto;
+      }
+      .duel-stage.fleet-mode.fleet-mobile-scroll .fleet-dual-layout {
+        height:auto;
+        grid-template-rows:repeat(2,max-content);
+        overflow:visible;
+      }
       .duel-input-form { max-width:100%; grid-template-columns:minmax(0,1fr) auto; }
       .duel-input-form #duelPassButton { grid-column:1 / -1; }
     }
@@ -15190,7 +15244,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.226</small>
+          <small id="serverBrandVersion">v9.6.227</small>
         </span>
       </button>
     </div>
@@ -22735,6 +22789,66 @@
     function fleetShipPhrase(length,count,{extra=false,separate=false}={}){if(Number(length)===1)return`${count} ${extra?'extra ':(separate?'separate ':'')}one-cell ${count===1?'boat':'boats'}`;return`${count} ${extra?'extra ':''}${length}-cell ${count===1?'ship':'ships'}`;}
     function fleetPlanDelta(board){const counts=board?.fleetCounts||{},missing=[],excess=[];for(const [length,required]of FLEET_REQUIREMENTS){const current=Number(counts[length])||0;if(current<required)missing.push({length,count:required-current});if(current>required)excess.push({length,count:current-required});}return{missing,excess};}
     function fleetPlanGuidance(board){const placed=Math.max(0,Number(board?.cellsPlaced)||0),{missing,excess}=fleetPlanDelta(board);if(board?.complete)return{tone:'complete',text:'Fleet complete · press READY'};if(placed>=20||excess.length){const parts=[];if(excess.length)parts.push(`remove ${excess.map(item=>fleetShipPhrase(item.length,item.count,{extra:true})).join(' and ')}`);if(missing.length)parts.push(`add ${missing.map(item=>fleetShipPhrase(item.length,item.count,{separate:item.length===1})).join(' and ')}`);return{tone:'needs-fix',text:`${placed}/20 · ${parts.join(', then ')}`};}return{tone:'',text:`${placed}/20 · joined cells form ships · no touching`};}
+    let fleetBattleFitFrame=0;
+    let fleetBattleResizeObserver=null;
+    let fleetBattleViewportListenersInstalled=false;
+    function fleetBattleUsesMobileLayout(){return window.matchMedia?window.matchMedia('(max-width: 620px)').matches:window.innerWidth<=620;}
+    function fleetBattleMobileCandidateFits(dual){
+      const panels=[...dual.querySelectorAll(':scope > .fleet-board-panel')];
+      if(panels.length<2)return true;
+      const dualRect=dual.getBoundingClientRect(),first=panels[0].getBoundingClientRect(),second=panels[1].getBoundingClientRect();
+      if(!dualRect.width||!dualRect.height)return false;
+      if(first.top<dualRect.top-.75||second.bottom>dualRect.bottom+.75||first.bottom>second.top+.75)return false;
+      for(const panel of panels){
+        const panelRect=panel.getBoundingClientRect(),grid=panel.querySelector('.fleet-grid');
+        if(!grid||panelRect.width>dualRect.width+1)return false;
+        const gridRect=grid.getBoundingClientRect(),style=getComputedStyle(panel),rightInset=(parseFloat(style.paddingRight)||0)+(parseFloat(style.borderRightWidth)||0),bottomInset=(parseFloat(style.paddingBottom)||0)+(parseFloat(style.borderBottomWidth)||0);
+        if(gridRect.right>panelRect.right-rightInset+1||gridRect.bottom>panelRect.bottom-bottomInset+1)return false;
+      }
+      return true;
+    }
+    function fitFleetBattleMobile(){
+      fleetBattleFitFrame=0;
+      const stage=elements.duelStage;
+      if(!stage||stage.hidden||!stage.classList.contains('fleet-mode')||!fleetBattleUsesMobileLayout()){
+        stage?.style.removeProperty('--fleet-mobile-grid-size');
+        stage?.classList.remove('fleet-mobile-scroll');
+        return;
+      }
+      const dual=elements.duelBoard?.querySelector('.fleet-dual-layout');
+      if(!dual||dual.clientWidth<1||dual.clientHeight<1)return;
+      const upper=Math.max(1,Math.min(430,Math.floor(dual.clientWidth-8)));
+      const minimum=Math.min(96,upper);
+      stage.classList.remove('fleet-mobile-scroll');
+      const fits=(size)=>{stage.style.setProperty('--fleet-mobile-grid-size',`${size}px`);return fleetBattleMobileCandidateFits(dual);};
+      if(!fits(minimum)){
+        stage.classList.add('fleet-mobile-scroll');
+        stage.style.setProperty('--fleet-mobile-grid-size',`${Math.max(1,Math.min(260,upper))}px`);
+        return;
+      }
+      let low=minimum,high=upper,best=minimum;
+      while(low<=high){
+        const mid=Math.floor((low+high)/2);
+        if(fits(mid)){best=mid;low=mid+1;}else high=mid-1;
+      }
+      stage.style.setProperty('--fleet-mobile-grid-size',`${best}px`);
+    }
+    function ensureFleetBattleFitObservers(){
+      if(!fleetBattleResizeObserver&&typeof ResizeObserver==='function'){
+        fleetBattleResizeObserver=new ResizeObserver(()=>scheduleFleetBattleMobileFit());
+        fleetBattleResizeObserver.observe(elements.duelStage);
+      }
+      if(!fleetBattleViewportListenersInstalled){
+        fleetBattleViewportListenersInstalled=true;
+        window.addEventListener('resize',scheduleFleetBattleMobileFit,{passive:true});
+        window.visualViewport?.addEventListener('resize',scheduleFleetBattleMobileFit,{passive:true});
+      }
+    }
+    function scheduleFleetBattleMobileFit(){
+      ensureFleetBattleFitObservers();
+      if(fleetBattleFitFrame)cancelAnimationFrame(fleetBattleFitFrame);
+      fleetBattleFitFrame=requestAnimationFrame(fitFleetBattleMobile);
+    }
     function fleetOverQuotaShipIds(ships){const groups=new Map(),result=new Set();for(const ship of ships||[]){const length=Number(ship?.length)||Number(ship?.cells?.length)||0;if(!groups.has(length))groups.set(length,[]);groups.get(length).push(ship);}for(const [length,items]of groups){const required=Number(FLEET_REQUIREMENT_MAP[length])||0;for(const ship of items.slice(required))if(ship?.id)result.add(String(ship.id));}return result;}
     function fleetPlanningDecoyIndexes(seed,count=14){let value=2166136261;for(const character of String(seed||'private-plan')){value^=character.charCodeAt(0);value=Math.imul(value,16777619)>>>0;}const result=new Set();while(result.size<Math.min(28,Math.max(8,count))){value=(Math.imul(value,1664525)+1013904223)>>>0;result.add(value%100);}return result;}
     function fleetGridHtml(board,{mode='own',canAct=false,ready=false,previewSeed=''}={}){
@@ -22800,6 +22914,8 @@
         const readyBanner=locked?'<div class="fleet-ready-banner" role="status" aria-live="polite"><span class="fleet-ready-mark" aria-hidden="true">✓</span><span>Harbour ready · waiting</span></div>':'';
         elements.duelBoard.innerHTML=`<div class="fleet-toolbar${complete&&!locked?' is-complete':''}${locked?' is-locked':''}">${planningControls}<span class="fleet-plan-note ${locked||complete?'complete':planGuidance.tone}" aria-live="polite">${locked?'Locked · tap Edit harbour to change it':complete&&!canAct?'Fleet complete · waiting for connection':escapeGameHtml(planGuidance.text)}</span></div>${readyBanner}<div class="fleet-dual-layout">${fleetPanelHtml({board:ownBoard,title:'Your harbour',roleLabel:locked?'Ready':'Editing',roleClass:locked?'is-ready':'is-planning',roleTone:locked?'ready':'',mode:'plan',ready:locked})}${fleetPanelHtml({board:targetBoard,title:opponent?.nickname||'Opponent',roleLabel:targetBoard.ready?'Ready · private':'Planning · private',roleClass:targetBoard.ready?'is-ready':'',roleTone:targetBoard.ready?'ready':'',mode:'preview',ready:true,previewSeed})}</div>`;
         elements.duelRoundLabel.textContent=`Match ${game.round} · plan`;
+        elements.duelRoundLabel.dataset.compact=`M${game.round} · plan`;
+        scheduleFleetBattleMobileFit();
         return;
       }
       const yourTurn=duel.turnIdentityId===state.identityId,canFire=canAct&&yourTurn,finished=game.status==='finished',paused=!finished&&!canAct;
@@ -22820,6 +22936,8 @@
       const ownClass=finished||paused?'':yourTurn?'':'is-active-target is-own-target',opponentClass=finished||paused?'':yourTurn?'is-active-target':'';
       elements.duelBoard.innerHTML=`<div class="fleet-battle-strip"><span><strong>${ownRemaining}</strong> yours afloat</span><span><strong>${targetRemaining}</strong> enemy afloat</span>${fleetLastShotHtml(duel)}${fleetThemeSelectHtml()}</div><div class="fleet-dual-layout">${fleetPanelHtml({board:ownBoard,title:'Your harbour',roleLabel:ownRole,roleClass:ownClass,mode:'own',ready:true})}${fleetPanelHtml({board:targetBoard,title:opponentName,roleLabel:opponentRole,roleClass:opponentClass,mode:'target',canAct:canFire,ready:true})}</div>`;
       elements.duelRoundLabel.textContent=`Match ${game.round} · ${finished?'finished':'battle'}`;
+      elements.duelRoundLabel.dataset.compact=`M${game.round} · ${finished?'done':'battle'}`;
+      scheduleFleetBattleMobileFit();
     }
     function hangmanFigureHtml(misses=0,maxMisses=7){
       const visible=Math.max(0,Math.min(Number(maxMisses)||7,Number(misses)||0));
@@ -23064,7 +23182,7 @@
       const count=Array.isArray(game?.players)?game.players.length:0;
       return game?.game==='hangman'?count>=2:count===2;
     }
-    function renderDuelStage(){const game=state.activeGame;if(game?.game==='scribble'){elements.duelStage.hidden=true;return;}if(!game||!DUEL_GAME_TYPES.has(game.game)||!duelHasRenderablePlayers(game)){elements.duelStage.hidden=true;updateSessionStageUi();return;}const own=duelOwnPlayer(),opponent=duelOpponentPlayer(),duel=game.duel||{},active=game.status==='active',ownOnline=own?.online!==false,opponentOnline=opponent?.online!==false,isHangman=game.game==='hangman',isHangmanRace=isHangman&&duel.mode==='race',isHangmanParty=isHangmanRace&&(duel.party===true||game.party===true||game.players.length>2),onlinePlayers=game.players.filter(player=>player.online!==false).length,enoughOnline=isHangmanParty?onlinePlayers>=2:opponentOnline,canAct=active&&ownOnline&&enoughOnline,isFleet=game.game==='fleet-battle';renderDuelPlayer(elements.duelPlayerLeft,elements.duelPlayerLeftMedia,elements.duelPlayerLeftAvatar,elements.duelPlayerLeftName,elements.duelPlayerLeftMeta,own,true);renderDuelPlayer(elements.duelPlayerRight,elements.duelPlayerRightMedia,elements.duelPlayerRightAvatar,elements.duelPlayerRightName,elements.duelPlayerRightMeta,opponent,false);elements.duelStageTitle.textContent=gameTitle(game.game);elements.duelStageIcon.className=`icon ${gameIcon(game.game)}`;elements.duelRoundLabel.textContent=`Match ${game.round}${duel.round?` · round ${duel.round}`:''}`;elements.duelPrompt.classList.remove('fleet-turn-yours','fleet-turn-opponent');elements.duelStageStatus.classList.remove('fleet-your-turn','fleet-opponent-turn');elements.duelPrompt.innerHTML='';elements.duelBoard.innerHTML='';setDuelInput();elements.duelStage.classList.toggle('fleet-mode',isFleet);elements.duelStage.classList.toggle('hangman-mode',isHangman);elements.duelStage.classList.toggle('hangman-race-mode',isHangmanRace);elements.duelStage.classList.toggle('hangman-classic-mode',isHangman&&!isHangmanRace);elements.duelBoard.classList.toggle('fleet-board-host',isFleet);const duelChatLabel=elements.duelChatButton.querySelector('span:last-child');if(duelChatLabel)duelChatLabel.textContent='Chat';elements.duelChatButton.title='Return to the channel without leaving the game';if(!isFleet)delete elements.duelStage.dataset.fleetTheme;
+    function renderDuelStage(){const game=state.activeGame;if(game?.game==='scribble'){elements.duelStage.hidden=true;return;}if(!game||!DUEL_GAME_TYPES.has(game.game)||!duelHasRenderablePlayers(game)){elements.duelStage.hidden=true;updateSessionStageUi();return;}const own=duelOwnPlayer(),opponent=duelOpponentPlayer(),duel=game.duel||{},active=game.status==='active',ownOnline=own?.online!==false,opponentOnline=opponent?.online!==false,isHangman=game.game==='hangman',isHangmanRace=isHangman&&duel.mode==='race',isHangmanParty=isHangmanRace&&(duel.party===true||game.party===true||game.players.length>2),onlinePlayers=game.players.filter(player=>player.online!==false).length,enoughOnline=isHangmanParty?onlinePlayers>=2:opponentOnline,canAct=active&&ownOnline&&enoughOnline,isFleet=game.game==='fleet-battle';renderDuelPlayer(elements.duelPlayerLeft,elements.duelPlayerLeftMedia,elements.duelPlayerLeftAvatar,elements.duelPlayerLeftName,elements.duelPlayerLeftMeta,own,true);renderDuelPlayer(elements.duelPlayerRight,elements.duelPlayerRightMedia,elements.duelPlayerRightAvatar,elements.duelPlayerRightName,elements.duelPlayerRightMeta,opponent,false);elements.duelStageTitle.textContent=gameTitle(game.game);elements.duelStageIcon.className=`icon ${gameIcon(game.game)}`;elements.duelRoundLabel.textContent=`Match ${game.round}${duel.round?` · round ${duel.round}`:''}`;elements.duelPrompt.classList.remove('fleet-turn-yours','fleet-turn-opponent');elements.duelStageStatus.classList.remove('fleet-your-turn','fleet-opponent-turn');elements.duelPrompt.innerHTML='';elements.duelBoard.innerHTML='';setDuelInput();elements.duelStage.classList.toggle('fleet-mode',isFleet);elements.duelStage.classList.toggle('hangman-mode',isHangman);elements.duelStage.classList.toggle('hangman-race-mode',isHangmanRace);elements.duelStage.classList.toggle('hangman-classic-mode',isHangman&&!isHangmanRace);elements.duelBoard.classList.toggle('fleet-board-host',isFleet);const duelChatLabel=elements.duelChatButton.querySelector('span:last-child');if(duelChatLabel)duelChatLabel.textContent='Chat';elements.duelChatButton.title='Return to the channel without leaving the game';if(!isFleet){delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelStage.classList.remove('fleet-mobile-scroll');}
       if(game.game==='fleet-battle'){renderFleetBattle(game,duel,canAct);}
       else if(game.game==='rock-paper-scissors'){elements.duelPrompt.innerHTML='<strong>Choose your hand</strong><span>Choices stay private until both players lock one.</span>';const submitted=new Set(duel.submittedBy||[]),locked=submitted.has(state.identityId);elements.duelBoard.innerHTML=`${duelScoreHtml(game)}<div class="duel-choice-grid">${[['rock','✊ Rock'],['paper','✋ Paper'],['scissors','✌ Scissors']].map(([value,label])=>`<button class="duel-choice" type="button" data-duel-value="${value}" ${!canAct||locked?'disabled':''}>${label}</button>`).join('')}</div>${duel.lastResult?`<div class="duel-last-result">${escapeGameHtml(Object.entries(duel.lastResult.choices||{}).map(([id,choice])=>`${duelPlayerByIdentity(id)?.nickname||'Player'}: ${choice}`).join(' · '))}${duel.lastResult.winnerIdentityId?` · ${escapeGameHtml(duelPlayerByIdentity(duel.lastResult.winnerIdentityId)?.nickname||'Player')} won`: ' · tie'}</div>`:''}`;}
       else if(game.game==='guess-number'){const yourTurn=duel.turnIdentityId===state.identityId;elements.duelPrompt.innerHTML=`<strong>Find the shared number</strong><span>${duel.minimum||1} to ${duel.maximum||100} · players alternate guesses.</span>`;const history=[...(duel.guesses||[])].reverse();elements.duelBoard.innerHTML=`<div class="duel-history">${history.length?history.map(entry=>`<div class="duel-history-row"><strong>${escapeGameHtml(duelPlayerByIdentity(entry.identityId)?.nickname||'Player')}</strong><span>${Number(entry.value)}</span><span>${entry.feedback==='higher'?'Go higher':entry.feedback==='lower'?'Go lower':'Correct'}</span></div>`).join(''):'<div class="hint">No guesses yet.</div>'}</div>`;setDuelInput({visible:true,type:'number',placeholder:'1–100',label:'Guess',disabled:!canAct||!yourTurn,min:duel.minimum||1,max:duel.maximum||100,maxLength:3});}
@@ -23127,7 +23245,7 @@
     }
     function submitDuelTextInput(event){event.preventDefault();const value=elements.duelTextInput.value.trim();if(!value)return;sendDuelAction('submit',value);elements.duelTextInput.value='';}
     function openDuelStage(force=false){elements.gameStage.hidden=true;elements.tetrisStage.hidden=true;elements.scribbleStage.hidden=true;elements.brainStage.hidden=true;elements.quizStage.hidden=true;elements.checkersStage.hidden=true;elements.chessStage.hidden=true;elements.drawingStage.hidden=true;if(state.sessionStageMinimized==='duel'&&!force){elements.duelStage.hidden=true;updateSessionStageUi();return;}if(force)state.sessionStageMinimized=null;elements.duelStage.hidden=false;updateSessionStageUi();closeAttachmentTray();closeGamesTray();requestAnimationFrame(()=>elements.duelStage.focus({preventScroll:true}));}
-    function closeDuelStage(clearGame=true){const closingGameId=DUEL_GAME_TYPES.has(state.activeGame?.game)?state.activeGame.id:null;if(closingGameId&&state.activeCall?.embeddedGameId===String(closingGameId))endActiveCall('game closed',false);elements.duelStage.hidden=true;elements.duelStage.classList.remove('fleet-mode','hangman-mode','hangman-race-mode','hangman-classic-mode');delete elements.duelStage.dataset.fleetTheme;elements.duelBoard.classList.remove('fleet-board-host');elements.duelBoard.innerHTML='';elements.duelPrompt.innerHTML='';elements.duelInputForm.hidden=true;if(state.sessionStageMinimized==='duel')state.sessionStageMinimized=null;if(clearGame&&DUEL_GAME_TYPES.has(state.activeGame?.game))state.activeGame=null;updateSessionStageUi();refreshControls();}
+    function closeDuelStage(clearGame=true){const closingGameId=DUEL_GAME_TYPES.has(state.activeGame?.game)?state.activeGame.id:null;if(closingGameId&&state.activeCall?.embeddedGameId===String(closingGameId))endActiveCall('game closed',false);elements.duelStage.hidden=true;elements.duelStage.classList.remove('fleet-mode','hangman-mode','hangman-race-mode','hangman-classic-mode');delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelStage.classList.remove('fleet-mobile-scroll');elements.duelBoard.classList.remove('fleet-board-host');elements.duelBoard.innerHTML='';elements.duelPrompt.innerHTML='';elements.duelInputForm.hidden=true;if(state.sessionStageMinimized==='duel')state.sessionStageMinimized=null;if(clearGame&&DUEL_GAME_TYPES.has(state.activeGame?.game))state.activeGame=null;updateSessionStageUi();refreshControls();}
 
     function tetrisShapeCells(type, rotation=0, offsetX=0, offsetY=0) {
       const rotations=TETRIS_SHAPES[type]||TETRIS_SHAPES.T;

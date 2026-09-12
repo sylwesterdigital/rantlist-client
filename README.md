@@ -1,3 +1,10 @@
+## v0.1.66 / 9.6.227
+
+- Synchronized browser client to **9.6.227 / rantlist-deploy-r255** and protocol **63**.
+- Fleet Battle sizes both mobile square harbours from the real rendered stage instead of a fixed `100dvh` reserve, preventing bottom-row clipping in the iOS WKWebView.
+- Normal planning controls stay on one compact row; the Fleet title/match phase is one line and redundant mobile status copy remains collapsed.
+- Active player video tiles are enlarged to 64×36 CSS pixels; extremely short screens scroll the board area rather than hiding untappable cells.
+
 ## v0.1.65 / 9.6.226
 
 - Synchronized browser client to **9.6.226 / rantlist-deploy-r254** and protocol **63**.

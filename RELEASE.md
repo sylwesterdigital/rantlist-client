@@ -1,3 +1,10 @@
+## Changes in v0.1.66
+
+- Synchronized browser client to **9.6.227 / rantlist-deploy-r255** and protocol **63**.
+- Replaces Fleet Battle's hard-coded mobile height reserve with a measured fit pass driven by the actual stage and `ResizeObserver`; all harbour cells remain square and both stacked boards are reduced together until they fit.
+- Adds an extreme-height vertical-scroll fallback so the lower rows stay reachable instead of being cropped behind the footer.
+- Compacts the planning toolbar/title to one line in the normal state and enlarges active Fleet video surfaces from 40×26 to 64×36 CSS pixels.
+
 ## Changes in v0.1.65
 
 - Synchronized browser client to **9.6.226 / rantlist-deploy-r254** and protocol **63**.
