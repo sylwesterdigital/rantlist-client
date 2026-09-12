@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.227">
+  <meta name="chat-ui-version" content="9.6.228">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -3003,7 +3003,7 @@
     .duel-stage.fleet-mode .duel-prompt { min-height:22px; max-width:980px; display:flex; align-items:baseline; justify-content:center; flex-wrap:wrap; gap:4px 8px; }
     .duel-stage.fleet-mode .duel-prompt strong { display:inline; font-size:14px; }
     .duel-stage.fleet-mode .duel-prompt span { display:inline; margin:0; font-size:11px; }
-    .duel-board.fleet-board-host { width:min(980px, 100%); gap:6px; }
+    .duel-board.fleet-board-host { width:min(1280px, 100%); gap:6px; }
     .fleet-toolbar {
       display:flex;
       align-items:center;
@@ -3129,7 +3129,7 @@
     .fleet-board-role.is-ready-role { border-color:color-mix(in srgb, #fff 44%, var(--success)); background:color-mix(in srgb, var(--success) 84%, #08351d); color:#fff; }
     .fleet-ready-mark { display:grid; place-items:center; width:15px; height:15px; border-radius:50%; background:#fff; color:var(--success); font-size:10px; line-height:1; animation:fleet-ready-pop .55s cubic-bezier(.2,.8,.2,1); }
     @keyframes fleet-ready-pop { 0% { transform:scale(.25) rotate(-25deg); opacity:0; } 70% { transform:scale(1.18) rotate(4deg); } 100% { transform:scale(1) rotate(0); opacity:1; } }
-    .fleet-grid { width:100%; max-width:430px; margin:0 auto; display:grid; grid-template-columns:12px repeat(10, minmax(0, 1fr)); gap:1px; user-select:none; touch-action:manipulation; }
+    .fleet-grid { width:100%; max-width:100%; margin:0 auto; display:grid; grid-template-columns:12px repeat(10, minmax(0, 1fr)); gap:1px; user-select:none; touch-action:manipulation; }
     .fleet-axis { min-width:0; display:grid; place-items:center; color:var(--muted); font:700 7px/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
     .fleet-cell {
       position:relative;
@@ -3780,11 +3780,9 @@
         justify-items:stretch;
         gap:2px;
         padding:0;
-        overflow-x:hidden;
-        overflow-y:auto;
-        overscroll-behavior:contain;
+        overflow:hidden;
+        overscroll-behavior:none;
         scrollbar-width:none;
-        -webkit-overflow-scrolling:touch;
       }
       .duel-stage.fleet-mode .duel-stage-body::-webkit-scrollbar { display:none; }
       .duel-stage.fleet-mode .duel-prompt {
@@ -3863,17 +3861,20 @@
         height:100%;
         min-height:0;
         grid-template-columns:minmax(0,1fr);
-        grid-template-rows:repeat(2,minmax(0,1fr));
-        align-items:center;
+        grid-template-rows:repeat(2,max-content);
+        align-content:center;
+        align-items:start;
         justify-items:center;
         gap:4px;
         overflow:hidden;
       }
       .fleet-board-panel {
-        width:min(100%, calc(var(--fleet-mobile-grid-size) + 8px));
+        width:min(100%, calc(var(--fleet-mobile-grid-size) + 12px));
         max-width:100%;
         min-height:0;
-        align-self:center;
+        align-self:start;
+        align-content:start;
+        grid-template-rows:auto max-content;
         gap:2px;
         padding:3px 4px;
         overflow:visible;
@@ -3886,16 +3887,28 @@
       .fleet-theme-control, .fleet-template-switch { display:none; }
       .fleet-cycle-button { display:inline-grid; flex:0 0 26px; width:26px; min-width:26px; height:26px; min-height:26px; padding:2px; border-radius:7px; }
       .fleet-cycle-button svg { width:19px; height:19px; }
-      .fleet-grid {
+      .duel-stage.fleet-mode .fleet-grid {
+        --fleet-mobile-cell-size:calc((var(--fleet-mobile-grid-size) - 17px) / 10);
         width:var(--fleet-mobile-grid-size);
-        max-width:100%;
+        height:var(--fleet-mobile-grid-size);
+        max-width:none;
+        max-height:none;
         margin:0 auto;
-        grid-template-columns:7px repeat(10,minmax(0,1fr));
+        align-self:start;
+        justify-self:center;
+        grid-template-columns:7px repeat(10,var(--fleet-mobile-cell-size));
+        grid-template-rows:7px repeat(10,var(--fleet-mobile-cell-size));
         gap:1px;
         overflow:hidden;
       }
       .fleet-axis { font-size:6px; }
-      .fleet-cell { min-width:0; max-width:100%; }
+      .fleet-cell {
+        width:var(--fleet-mobile-cell-size);
+        height:var(--fleet-mobile-cell-size);
+        min-width:0;
+        max-width:none;
+        aspect-ratio:1 / 1;
+      }
       .fleet-toolbar {
         max-width:100%;
         min-height:31px;
@@ -3922,15 +3935,6 @@
         clip:rect(0 0 0 0) !important;
         white-space:nowrap !important;
         border:0 !important;
-      }
-      .duel-stage.fleet-mode.fleet-mobile-scroll .duel-board.fleet-board-host {
-        height:auto;
-        grid-template-rows:auto auto;
-      }
-      .duel-stage.fleet-mode.fleet-mobile-scroll .fleet-dual-layout {
-        height:auto;
-        grid-template-rows:repeat(2,max-content);
-        overflow:visible;
       }
       .duel-input-form { max-width:100%; grid-template-columns:minmax(0,1fr) auto; }
       .duel-input-form #duelPassButton { grid-column:1 / -1; }
@@ -15244,7 +15248,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.227</small>
+          <small id="serverBrandVersion">v9.6.228</small>
         </span>
       </button>
     </div>
@@ -21049,7 +21053,7 @@
         version.className = 'development-release-version';
         version.textContent = release.source === 'server'
           ? (release.version ? `@server · v${release.version}` : '@server')
-          : `v${release.version || '?'}`;
+          : `v${release.version || '?'}${release.revision ? ` · ${String(release.revision).replace(/^rantlist-deploy-/, '')}` : ''}`;
 
         const title = document.createElement('strong');
         title.className = 'development-release-title';
@@ -21066,10 +21070,11 @@
         head.append(version, title, date);
         article.append(head);
 
-        if (release.text) {
+        const releaseDetail = release.summary || release.text;
+        if (releaseDetail) {
           const detail = document.createElement('p');
           detail.className = 'development-release-text';
-          detail.textContent = String(release.text);
+          detail.textContent = String(releaseDetail);
           article.append(detail);
         }
 
@@ -22803,6 +22808,9 @@
         const panelRect=panel.getBoundingClientRect(),grid=panel.querySelector('.fleet-grid');
         if(!grid||panelRect.width>dualRect.width+1)return false;
         const gridRect=grid.getBoundingClientRect(),style=getComputedStyle(panel),rightInset=(parseFloat(style.paddingRight)||0)+(parseFloat(style.borderRightWidth)||0),bottomInset=(parseFloat(style.paddingBottom)||0)+(parseFloat(style.borderBottomWidth)||0);
+        if(Math.abs(gridRect.width-gridRect.height)>1)return false;
+        const cell=grid.querySelector('.fleet-cell');
+        if(cell){const cellRect=cell.getBoundingClientRect();if(Math.abs(cellRect.width-cellRect.height)>1)return false;}
         if(gridRect.right>panelRect.right-rightInset+1||gridRect.bottom>panelRect.bottom-bottomInset+1)return false;
       }
       return true;
@@ -22812,21 +22820,15 @@
       const stage=elements.duelStage;
       if(!stage||stage.hidden||!stage.classList.contains('fleet-mode')||!fleetBattleUsesMobileLayout()){
         stage?.style.removeProperty('--fleet-mobile-grid-size');
-        stage?.classList.remove('fleet-mobile-scroll');
         return;
       }
       const dual=elements.duelBoard?.querySelector('.fleet-dual-layout');
       if(!dual||dual.clientWidth<1||dual.clientHeight<1)return;
-      const upper=Math.max(1,Math.min(430,Math.floor(dual.clientWidth-8)));
-      const minimum=Math.min(96,upper);
-      stage.classList.remove('fleet-mobile-scroll');
+      const minimum=18;
+      const upper=Math.max(minimum,Math.min(640,Math.floor(dual.clientWidth-12)));
       const fits=(size)=>{stage.style.setProperty('--fleet-mobile-grid-size',`${size}px`);return fleetBattleMobileCandidateFits(dual);};
-      if(!fits(minimum)){
-        stage.classList.add('fleet-mobile-scroll');
-        stage.style.setProperty('--fleet-mobile-grid-size',`${Math.max(1,Math.min(260,upper))}px`);
-        return;
-      }
       let low=minimum,high=upper,best=minimum;
+      fits(minimum);
       while(low<=high){
         const mid=Math.floor((low+high)/2);
         if(fits(mid)){best=mid;low=mid+1;}else high=mid-1;
@@ -23182,7 +23184,7 @@
       const count=Array.isArray(game?.players)?game.players.length:0;
       return game?.game==='hangman'?count>=2:count===2;
     }
-    function renderDuelStage(){const game=state.activeGame;if(game?.game==='scribble'){elements.duelStage.hidden=true;return;}if(!game||!DUEL_GAME_TYPES.has(game.game)||!duelHasRenderablePlayers(game)){elements.duelStage.hidden=true;updateSessionStageUi();return;}const own=duelOwnPlayer(),opponent=duelOpponentPlayer(),duel=game.duel||{},active=game.status==='active',ownOnline=own?.online!==false,opponentOnline=opponent?.online!==false,isHangman=game.game==='hangman',isHangmanRace=isHangman&&duel.mode==='race',isHangmanParty=isHangmanRace&&(duel.party===true||game.party===true||game.players.length>2),onlinePlayers=game.players.filter(player=>player.online!==false).length,enoughOnline=isHangmanParty?onlinePlayers>=2:opponentOnline,canAct=active&&ownOnline&&enoughOnline,isFleet=game.game==='fleet-battle';renderDuelPlayer(elements.duelPlayerLeft,elements.duelPlayerLeftMedia,elements.duelPlayerLeftAvatar,elements.duelPlayerLeftName,elements.duelPlayerLeftMeta,own,true);renderDuelPlayer(elements.duelPlayerRight,elements.duelPlayerRightMedia,elements.duelPlayerRightAvatar,elements.duelPlayerRightName,elements.duelPlayerRightMeta,opponent,false);elements.duelStageTitle.textContent=gameTitle(game.game);elements.duelStageIcon.className=`icon ${gameIcon(game.game)}`;elements.duelRoundLabel.textContent=`Match ${game.round}${duel.round?` · round ${duel.round}`:''}`;elements.duelPrompt.classList.remove('fleet-turn-yours','fleet-turn-opponent');elements.duelStageStatus.classList.remove('fleet-your-turn','fleet-opponent-turn');elements.duelPrompt.innerHTML='';elements.duelBoard.innerHTML='';setDuelInput();elements.duelStage.classList.toggle('fleet-mode',isFleet);elements.duelStage.classList.toggle('hangman-mode',isHangman);elements.duelStage.classList.toggle('hangman-race-mode',isHangmanRace);elements.duelStage.classList.toggle('hangman-classic-mode',isHangman&&!isHangmanRace);elements.duelBoard.classList.toggle('fleet-board-host',isFleet);const duelChatLabel=elements.duelChatButton.querySelector('span:last-child');if(duelChatLabel)duelChatLabel.textContent='Chat';elements.duelChatButton.title='Return to the channel without leaving the game';if(!isFleet){delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelStage.classList.remove('fleet-mobile-scroll');}
+    function renderDuelStage(){const game=state.activeGame;if(game?.game==='scribble'){elements.duelStage.hidden=true;return;}if(!game||!DUEL_GAME_TYPES.has(game.game)||!duelHasRenderablePlayers(game)){elements.duelStage.hidden=true;updateSessionStageUi();return;}const own=duelOwnPlayer(),opponent=duelOpponentPlayer(),duel=game.duel||{},active=game.status==='active',ownOnline=own?.online!==false,opponentOnline=opponent?.online!==false,isHangman=game.game==='hangman',isHangmanRace=isHangman&&duel.mode==='race',isHangmanParty=isHangmanRace&&(duel.party===true||game.party===true||game.players.length>2),onlinePlayers=game.players.filter(player=>player.online!==false).length,enoughOnline=isHangmanParty?onlinePlayers>=2:opponentOnline,canAct=active&&ownOnline&&enoughOnline,isFleet=game.game==='fleet-battle';renderDuelPlayer(elements.duelPlayerLeft,elements.duelPlayerLeftMedia,elements.duelPlayerLeftAvatar,elements.duelPlayerLeftName,elements.duelPlayerLeftMeta,own,true);renderDuelPlayer(elements.duelPlayerRight,elements.duelPlayerRightMedia,elements.duelPlayerRightAvatar,elements.duelPlayerRightName,elements.duelPlayerRightMeta,opponent,false);elements.duelStageTitle.textContent=gameTitle(game.game);elements.duelStageIcon.className=`icon ${gameIcon(game.game)}`;elements.duelRoundLabel.textContent=`Match ${game.round}${duel.round?` · round ${duel.round}`:''}`;elements.duelPrompt.classList.remove('fleet-turn-yours','fleet-turn-opponent');elements.duelStageStatus.classList.remove('fleet-your-turn','fleet-opponent-turn');elements.duelPrompt.innerHTML='';elements.duelBoard.innerHTML='';setDuelInput();elements.duelStage.classList.toggle('fleet-mode',isFleet);elements.duelStage.classList.toggle('hangman-mode',isHangman);elements.duelStage.classList.toggle('hangman-race-mode',isHangmanRace);elements.duelStage.classList.toggle('hangman-classic-mode',isHangman&&!isHangmanRace);elements.duelBoard.classList.toggle('fleet-board-host',isFleet);const duelChatLabel=elements.duelChatButton.querySelector('span:last-child');if(duelChatLabel)duelChatLabel.textContent='Chat';elements.duelChatButton.title='Return to the channel without leaving the game';if(!isFleet){delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');}
       if(game.game==='fleet-battle'){renderFleetBattle(game,duel,canAct);}
       else if(game.game==='rock-paper-scissors'){elements.duelPrompt.innerHTML='<strong>Choose your hand</strong><span>Choices stay private until both players lock one.</span>';const submitted=new Set(duel.submittedBy||[]),locked=submitted.has(state.identityId);elements.duelBoard.innerHTML=`${duelScoreHtml(game)}<div class="duel-choice-grid">${[['rock','✊ Rock'],['paper','✋ Paper'],['scissors','✌ Scissors']].map(([value,label])=>`<button class="duel-choice" type="button" data-duel-value="${value}" ${!canAct||locked?'disabled':''}>${label}</button>`).join('')}</div>${duel.lastResult?`<div class="duel-last-result">${escapeGameHtml(Object.entries(duel.lastResult.choices||{}).map(([id,choice])=>`${duelPlayerByIdentity(id)?.nickname||'Player'}: ${choice}`).join(' · '))}${duel.lastResult.winnerIdentityId?` · ${escapeGameHtml(duelPlayerByIdentity(duel.lastResult.winnerIdentityId)?.nickname||'Player')} won`: ' · tie'}</div>`:''}`;}
       else if(game.game==='guess-number'){const yourTurn=duel.turnIdentityId===state.identityId;elements.duelPrompt.innerHTML=`<strong>Find the shared number</strong><span>${duel.minimum||1} to ${duel.maximum||100} · players alternate guesses.</span>`;const history=[...(duel.guesses||[])].reverse();elements.duelBoard.innerHTML=`<div class="duel-history">${history.length?history.map(entry=>`<div class="duel-history-row"><strong>${escapeGameHtml(duelPlayerByIdentity(entry.identityId)?.nickname||'Player')}</strong><span>${Number(entry.value)}</span><span>${entry.feedback==='higher'?'Go higher':entry.feedback==='lower'?'Go lower':'Correct'}</span></div>`).join(''):'<div class="hint">No guesses yet.</div>'}</div>`;setDuelInput({visible:true,type:'number',placeholder:'1–100',label:'Guess',disabled:!canAct||!yourTurn,min:duel.minimum||1,max:duel.maximum||100,maxLength:3});}
@@ -23245,7 +23247,7 @@
     }
     function submitDuelTextInput(event){event.preventDefault();const value=elements.duelTextInput.value.trim();if(!value)return;sendDuelAction('submit',value);elements.duelTextInput.value='';}
     function openDuelStage(force=false){elements.gameStage.hidden=true;elements.tetrisStage.hidden=true;elements.scribbleStage.hidden=true;elements.brainStage.hidden=true;elements.quizStage.hidden=true;elements.checkersStage.hidden=true;elements.chessStage.hidden=true;elements.drawingStage.hidden=true;if(state.sessionStageMinimized==='duel'&&!force){elements.duelStage.hidden=true;updateSessionStageUi();return;}if(force)state.sessionStageMinimized=null;elements.duelStage.hidden=false;updateSessionStageUi();closeAttachmentTray();closeGamesTray();requestAnimationFrame(()=>elements.duelStage.focus({preventScroll:true}));}
-    function closeDuelStage(clearGame=true){const closingGameId=DUEL_GAME_TYPES.has(state.activeGame?.game)?state.activeGame.id:null;if(closingGameId&&state.activeCall?.embeddedGameId===String(closingGameId))endActiveCall('game closed',false);elements.duelStage.hidden=true;elements.duelStage.classList.remove('fleet-mode','hangman-mode','hangman-race-mode','hangman-classic-mode');delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelStage.classList.remove('fleet-mobile-scroll');elements.duelBoard.classList.remove('fleet-board-host');elements.duelBoard.innerHTML='';elements.duelPrompt.innerHTML='';elements.duelInputForm.hidden=true;if(state.sessionStageMinimized==='duel')state.sessionStageMinimized=null;if(clearGame&&DUEL_GAME_TYPES.has(state.activeGame?.game))state.activeGame=null;updateSessionStageUi();refreshControls();}
+    function closeDuelStage(clearGame=true){const closingGameId=DUEL_GAME_TYPES.has(state.activeGame?.game)?state.activeGame.id:null;if(closingGameId&&state.activeCall?.embeddedGameId===String(closingGameId))endActiveCall('game closed',false);elements.duelStage.hidden=true;elements.duelStage.classList.remove('fleet-mode','hangman-mode','hangman-race-mode','hangman-classic-mode');delete elements.duelStage.dataset.fleetTheme;delete elements.duelRoundLabel.dataset.compact;elements.duelStage.style.removeProperty('--fleet-mobile-grid-size');elements.duelBoard.classList.remove('fleet-board-host');elements.duelBoard.innerHTML='';elements.duelPrompt.innerHTML='';elements.duelInputForm.hidden=true;if(state.sessionStageMinimized==='duel')state.sessionStageMinimized=null;if(clearGame&&DUEL_GAME_TYPES.has(state.activeGame?.game))state.activeGame=null;updateSessionStageUi();refreshControls();}
 
     function tetrisShapeCells(type, rotation=0, offsetX=0, offsetY=0) {
       const rotations=TETRIS_SHAPES[type]||TETRIS_SHAPES.T;

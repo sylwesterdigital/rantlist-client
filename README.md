@@ -1,3 +1,11 @@
+## v0.1.67 / 9.6.228
+
+- Synchronized browser client to **9.6.228 / rantlist-deploy-r256** and protocol **63**.
+- Fleet Battle mobile harbours use explicit equal row/column tracks from one computed cell size, so every playable cell remains geometrically square instead of stretching vertically.
+- Both complete 10×10 harbours shrink together to the real visible game-stage width and height and remain on screen simultaneously without a board/stage scrolling fallback.
+- Desktop Fleet Battle uses a wider board host and no longer applies the old 430px harbour cap.
+- The Development channel now receives and renders the release revision plus concise release summary together with the detailed changes.
+
 ## v0.1.66 / 9.6.227
 
 - Synchronized browser client to **9.6.227 / rantlist-deploy-r255** and protocol **63**.

@@ -1,3 +1,10 @@
+## Changes in v0.1.67
+
+- Synchronized browser client to **9.6.228 / rantlist-deploy-r256** and protocol **63**.
+- Mobile Fleet Battle fixes the elongated-board regression by defining the ten playable rows and columns from the same computed square cell size.
+- The measured mobile fit now reduces both complete harbours together until they fit the visible stage; there is no mobile board-scroll fallback and row 10 remains visible.
+- Fleet Battle can expand farther on desktop, while the in-app Development release entry now includes both deployment revision and authored summary.
+
 ## Changes in v0.1.66
 
 - Synchronized browser client to **9.6.227 / rantlist-deploy-r255** and protocol **63**.
