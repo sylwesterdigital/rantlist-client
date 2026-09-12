@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.222">
+  <meta name="chat-ui-version" content="9.6.223">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -424,6 +424,23 @@
     .profile-actions .primary { flex: 1 1 120px; }
     .profile-actions button { min-height: var(--control-height); }
     .danger-button { border-color: rgba(255, 107, 122, .55); color: #ffc3ca; }
+    .exit-control {
+      color: color-mix(in srgb, #ffbe5c 92%, var(--text));
+      border-color: color-mix(in srgb, #f59e0b 78%, var(--line)) !important;
+      background: color-mix(in srgb, #f59e0b 22%, var(--panel-2)) !important;
+      box-shadow: inset 0 0 0 1px color-mix(in srgb, #f59e0b 20%, transparent);
+    }
+    .exit-control:hover:not(:disabled) {
+      color: #fff3d6;
+      border-color: #f59e0b !important;
+      background: color-mix(in srgb, #f59e0b 34%, var(--panel-2)) !important;
+    }
+    .return-control {
+      color: color-mix(in srgb, var(--accent) 72%, var(--text));
+      border-color: color-mix(in srgb, var(--accent) 72%, var(--line)) !important;
+      background: color-mix(in srgb, var(--accent) 16%, var(--panel-2)) !important;
+    }
+
     .avatar-editor { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
     .avatar-upload {
       position: relative;
@@ -1676,20 +1693,34 @@
       padding: 8px 1px 3px;
     }
     .attachment-action {
-      width: 70px;
-      min-width: 70px;
-      min-height: 58px;
+      width: 76px;
+      min-width: 76px;
+      min-height: 62px;
       display: grid;
+      grid-template-rows: 26px minmax(0, auto);
       place-items: center;
+      align-content: center;
       gap: 3px;
       padding: 6px 4px;
+      overflow: hidden;
       border: 0;
       border-radius: 12px;
       color: var(--text);
       background: color-mix(in srgb, var(--panel-2) 82%, var(--panel-3));
       font-size: 11px;
+      line-height: 1.05;
+      text-align: center;
     }
-    .attachment-action .icon { width: 24px; height: 24px; }
+    .attachment-action .icon { width: 24px; height: 24px; flex: 0 0 auto; }
+    .attachment-action > span:last-child {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      white-space: normal;
+      text-align: center;
+    }
     .attachment-action:hover:not(:disabled) { background: color-mix(in srgb, var(--accent) 17%, var(--panel-2)); }
     .attachment-action[aria-expanded="true"] {
       color: var(--text);
@@ -4142,9 +4173,18 @@
     }
     .drawing-line-style-preview { width:25px; height:18px; overflow:visible; }
     .drawing-line-style-preview line { stroke:currentColor; stroke-width:5; stroke-linecap:round; }
+    #drawingLineStyleButton {
+      background-color:#f7f7f7;
+      background-image:
+        linear-gradient(45deg, #d8d8d8 25%, transparent 25%, transparent 75%, #d8d8d8 75%),
+        linear-gradient(45deg, #d8d8d8 25%, transparent 25%, transparent 75%, #d8d8d8 75%);
+      background-size:10px 10px;
+      background-position:0 0,5px 5px;
+      border-color:color-mix(in srgb,var(--text) 35%,var(--line));
+    }
     .drawing-main { min-width:0; min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:3px; }
     .drawing-toolbar {
-      min-height:32px; display:flex; align-items:center; gap:3px; padding:2px 3px; overflow-x:auto;
+      min-height:32px; display:flex; flex-wrap:wrap; align-items:center; align-content:center; gap:3px; padding:2px 3px; overflow-x:hidden;
       border:1px solid var(--line); border-radius:8px; background:var(--panel); scrollbar-width:thin;
     }
     .drawing-toolbar button, .drawing-toolbar select, .drawing-toolbar label { min-height:29px; padding-block:2px; white-space:nowrap; }
@@ -4172,7 +4212,11 @@
     .drawing-export-list small { color:var(--muted); margin:0; font-size:12px; }
     .drawing-toolbar input[type="number"] { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:7px; }
     .drawing-toolbar input[type=color] { width:32px; height:29px; padding:1px; }
-    .drawing-action-select { min-width:148px; }
+    .drawing-exit-controls { display:flex; align-items:center; gap:3px; margin-left:auto; flex:0 0 auto; }
+    .drawing-exit-controls button { width:31px; min-width:31px; height:29px; min-height:29px; padding:2px; display:grid; place-items:center; }
+    .drawing-exit-controls .icon { width:18px; height:18px; }
+    #drawingOpponentToggleButton { width:31px; min-width:31px; padding-inline:3px; }
+
     .drawing-toolbar-compact-group { display:flex; align-items:center; gap:4px; flex-wrap:wrap; }
     .drawing-toolbar-compact-group > * { flex:0 0 auto; }
     .drawing-reference-opacity-control {
@@ -4189,7 +4233,7 @@
     .drawing-reference-opacity-control button .icon { width:16px; height:16px; }
     .drawing-reference-image { cursor:grab; }
     .drawing-reference-hit { cursor:grab; }
-    .drawing-stroke-toolbar { margin-left:auto; display:flex; align-items:center; flex:0 0 auto; gap:3px; white-space:nowrap; }
+    .drawing-stroke-toolbar { margin-left:auto; min-width:0; display:flex; align-items:center; flex:0 1 auto; gap:3px; white-space:nowrap; }
     .drawing-stroke-toolbar > button { width:31px; min-width:31px; padding-inline:3px; }
     .drawing-stroke-toolbar .drawing-inline-slider { flex:0 0 auto; }
     .drawing-view-mode-button { min-width:34px; min-height:29px; padding-inline:7px; font-size:18px; }
@@ -4341,8 +4385,18 @@
       .drawing-tools button, .drawing-color-tool { min-height:30px; padding:0; border-radius:5px; font-size:18px; }
       .drawing-tools .icon { width:21px; height:21px; }
       .drawing-main { gap:2px; }
-      .drawing-toolbar { min-height:29px; gap:2px; padding:1px 2px; border-radius:6px; }
+      .drawing-toolbar { min-height:29px; gap:2px; padding:1px 2px; border-radius:6px; overflow:hidden; }
       .drawing-toolbar button, .drawing-toolbar select, .drawing-toolbar label { min-height:27px; max-height:29px; font-size:12px; }
+      .drawing-exit-controls { order:10; margin-left:auto; }
+      .drawing-exit-controls button { width:29px; min-width:29px; height:27px; min-height:27px; }
+      .drawing-stroke-toolbar { order:20; width:100%; flex:1 1 100%; margin-left:0; gap:2px; }
+      .drawing-stroke-toolbar .drawing-canvas-width-tool,
+      .drawing-stroke-toolbar .drawing-inline-slider { min-width:0; flex:1 1 92px; padding-inline:3px; }
+      .drawing-stroke-toolbar .drawing-canvas-width-tool > span,
+      .drawing-stroke-toolbar .drawing-inline-slider > span { font-size:9px; }
+      .drawing-stroke-toolbar input[type="range"] { width:auto; min-width:36px; flex:1 1 44px; }
+      .drawing-stroke-toolbar output { min-width:15px; }
+      .drawing-text-controls { order:30; width:100%; min-width:0; flex:1 1 100%; overflow-x:auto; scrollbar-width:thin; }
       .drawing-bottom-toolbar { min-height:37px; gap:2px; padding:2px max(2px,env(safe-area-inset-right)) max(2px,var(--safe-bottom)) max(2px,env(safe-area-inset-left)); border-radius:6px; }
       .drawing-bottom-group { gap:1px; }
       .drawing-sticker-button { margin-right:3px; box-shadow:3px 0 0 -2px var(--line); }
@@ -4354,7 +4408,6 @@
       .drawing-inline-slider input[type="range"] { width:52px; }
       .drawing-inline-slider input[type="number"] { width:48px; }
       .drawing-view-mode-button { min-width:30px; }
-      .drawing-action-select { min-width:126px; }
       .drawing-canvases.view-vertical { grid-template-columns:1fr; grid-template-rows:1fr 1fr; }
       .drawing-canvases.view-focus-own { grid-template-columns:minmax(0,1fr) minmax(0,3fr); grid-template-rows:1fr; }
       .drawing-paper { min-width:0; min-height:0; }
@@ -4362,7 +4415,7 @@
       .drawing-reference-opacity-control > span:not(.icon) { display:none; }
       .drawing-reference-opacity-control input[type="range"] { width:54px; }
       .drawing-reference-opacity-control output { min-width:28px; }
-      .drawing-stroke-toolbar { margin-left:auto; gap:2px; }
+      .drawing-stroke-toolbar { margin-left:0; gap:2px; }
       .drawing-stroke-toolbar > button { width:28px; min-width:28px; }
       .drawing-canvas-width-tool { min-height:25px; padding:1px 4px; }
       .drawing-canvas-width-tool > span { display:none; }
@@ -8287,6 +8340,7 @@
 
     .icon-tic-tac-toe { --icon: url('/assets/icons/tic-tac-toe.svg'); }
     .icon-drawing { --icon: url('/assets/icons/drawing.svg'); }
+    .icon-drawing1 { --icon: url('/assets/icons/drawing1.svg'); }
     .icon-grab { --icon: url('/assets/icons/grab.svg'); }
     .icon-website { --icon: url('/assets/icons/website.svg'); }
     .icon-linkedin { --icon: url('/assets/icons/linkedin.svg'); }
@@ -14993,7 +15047,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.222</small>
+          <small id="serverBrandVersion">v9.6.223</small>
         </span>
       </button>
     </div>
@@ -15623,7 +15677,7 @@
     <section class="modal-card calendar-card" role="dialog" aria-modal="true" aria-labelledby="calendarTitle">
       <header class="modal-header">
         <div><h2 id="calendarTitle">Calendar</h2><small id="calendarHeaderStatus" class="panel-subtitle">Schedule Rantlist calls</small></div>
-        <button id="calendarCloseButton" class="icon-button" type="button" aria-label="Close calendar"><span class="icon icon-close"></span></button>
+        <button id="calendarCloseButton" class="icon-button exit-control" type="button" aria-label="Close calendar"><span class="icon icon-close"></span></button>
       </header>
       <div class="calendar-shell">
         <aside class="calendar-sidebar">
@@ -16178,7 +16232,7 @@
             <span id="channelTopicText" class="channel-topic-text"></span>
           </span>
           <span class="panel-header-channel-actions" aria-label="Channel actions">
-            <button id="channelLeaveButton" class="icon-button channel-leave-button" type="button" title="Leave direct channel" aria-label="Leave direct channel" hidden><span class="icon icon-remove"></span></button>
+            <button id="channelLeaveButton" class="icon-button channel-leave-button exit-control" type="button" title="Leave direct channel" aria-label="Leave direct channel" hidden><span class="icon icon-remove"></span></button>
             <button id="channelShareButton" class="icon-button channel-share-button" type="button" title="Share channel" aria-label="Share channel" hidden disabled><span class="icon icon-send"></span></button>
             <button id="channelSettingsButton" class="icon-button channel-settings-button" type="button" title="Channel settings" aria-label="Channel settings" hidden disabled><span class="icon icon-config"></span></button>
           </span>
@@ -16272,7 +16326,7 @@
             <button id="pollActionButton" class="attachment-action" type="button"><span class="icon icon-poll"></span><span>Poll</span></button>
             <button id="calendarActionButton" class="attachment-action" type="button"><span class="icon icon-calendar"></span><span>Calendar</span></button>
             <button id="timerActionButton" class="attachment-action" type="button"><span class="icon icon-clock"></span><span>Timer</span></button>
-            <button id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing"></span><span>Drawing</span></button>
+            <button id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing1"></span><span>Drawing</span></button>
             <button id="helenaDrawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing"></span><span>WebGL Draw</span></button>
             <button id="translatorActionButton" class="attachment-action" type="button"><span class="icon icon-translate"></span><span>Translator</span></button>
           </div>
@@ -16738,7 +16792,7 @@
       <div id="gamePlayerRight" class="game-player-card right"><label id="gamePlayerRightSymbol" class="game-player-symbol readonly" title="O"><span id="gamePlayerRightSymbolText">O</span><input id="gamePlayerRightColor" type="color" value="#8b5cf6" aria-label="Choose your Tic-Tac-Toe colour" disabled></label><span id="gamePlayerRightMedia" class="game-media-surface"><video autoplay playsinline></video><span class="call-avatar-fallback"><span id="gamePlayerRightAvatar" class="avatar">?</span></span><span class="call-speaking-indicator" aria-label="Audio activity"><i></i><i></i><i></i><i></i><i></i></span><span class="call-presenting-label" hidden>Presenting</span></span><span class="game-player-copy"><strong id="gamePlayerRightName">Player</strong><small id="gamePlayerRightMeta">O · 0 wins</small></span></div>
     </header>
     <div class="game-stage-body"><div id="ticTacToeBoard" class="tic-board" role="grid" aria-label="Tic-Tac-Toe board"></div></div>
-    <footer class="game-stage-footer"><div id="gameStageStatus" class="game-status" aria-live="polite"></div><div class="game-stage-actions"><button id="gameRematchButton" class="primary" type="button" hidden>Play again</button><button id="gameChatButton" type="button" title="Return to the channel without leaving the game"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="gameLeaveButton" type="button">Leave game</button></div></footer>
+    <footer class="game-stage-footer"><div id="gameStageStatus" class="game-status" aria-live="polite"></div><div class="game-stage-actions"><button id="gameRematchButton" class="primary" type="button" hidden>Play again</button><button id="gameChatButton" type="button" title="Return to the channel without leaving the game"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="gameLeaveButton" class="exit-control" type="button">Leave game</button></div></footer>
   </section>
 
 
@@ -16765,7 +16819,7 @@
     </div>
     <footer class="duel-stage-footer">
       <div id="duelStageStatus" class="game-status" aria-live="polite"></div>
-      <div class="game-stage-actions duel-stage-actions"><button id="duelRematchButton" class="primary" type="button" hidden>Play again</button><button id="duelChatButton" type="button" title="Return to the channel without leaving the game"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="duelLeaveButton" type="button">Leave game</button></div>
+      <div class="game-stage-actions duel-stage-actions"><button id="duelRematchButton" class="primary" type="button" hidden>Play again</button><button id="duelChatButton" type="button" title="Return to the channel without leaving the game"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="duelLeaveButton" class="exit-control" type="button">Leave game</button></div>
     </footer>
   </section>
 
@@ -16852,7 +16906,7 @@
         </section>
       </div>
     </aside>
-    <footer class="scribble-footer"><button id="scribbleChatButton" type="button" title="Return to the channel without leaving Scribble"><span class="icon icon-chat"></span><span>Chat</span></button><button id="scribbleLeaveButton" type="button">Leave game</button></footer>
+    <footer class="scribble-footer"><button id="scribbleChatButton" type="button" title="Return to the channel without leaving Scribble"><span class="icon icon-chat"></span><span>Chat</span></button><button id="scribbleLeaveButton" class="exit-control" type="button">Leave game</button></footer>
   </section>
 
 
@@ -16872,7 +16926,7 @@
         <span class="checkers-player-copy"><strong id="checkersOwnName">You</strong><small id="checkersOwnMeta">12 pieces</small></span>
       </article>
     </div>
-    <footer class="checkers-footer"><div id="checkersStageStatus" class="game-status" aria-live="polite">Select a white-outlined piece.</div><div class="game-stage-actions"><button id="checkersRematchButton" class="primary" type="button" hidden>Play again</button><button id="checkersChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="checkersLeaveButton" type="button">Leave game</button></div></footer>
+    <footer class="checkers-footer"><div id="checkersStageStatus" class="game-status" aria-live="polite">Select a white-outlined piece.</div><div class="game-stage-actions"><button id="checkersRematchButton" class="primary" type="button" hidden>Play again</button><button id="checkersChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="checkersLeaveButton" class="exit-control" type="button">Leave game</button></div></footer>
   </section>
 
   <section id="chessStage" class="game-stage chess-stage" hidden tabindex="-1" aria-label="Chess game">
@@ -16894,7 +16948,7 @@
         <span class="chess-player-copy"><strong id="chessOwnName">You</strong><small id="chessOwnMeta">White · 16 pieces</small></span>
       </article>
     </div>
-    <footer class="chess-footer"><div id="chessStageStatus" class="game-status" aria-live="polite">Select a white-outlined piece.</div><div class="game-stage-actions"><button id="chessRematchButton" class="primary" type="button" hidden>Play again</button><button id="chessChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="chessLeaveButton" type="button">Leave game</button></div></footer>
+    <footer class="chess-footer"><div id="chessStageStatus" class="game-status" aria-live="polite">Select a white-outlined piece.</div><div class="game-stage-actions"><button id="chessRematchButton" class="primary" type="button" hidden>Play again</button><button id="chessChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="chessLeaveButton" class="exit-control" type="button">Leave game</button></div></footer>
     <div id="chessPromotion" class="chess-promotion" hidden role="dialog" aria-modal="true" aria-label="Choose promotion piece"><div class="chess-promotion-card"><strong>Promote pawn to</strong><div class="chess-promotion-options"><button type="button" data-chess-promotion="q" aria-label="Queen">♕</button><button type="button" data-chess-promotion="r" aria-label="Rook">♖</button><button type="button" data-chess-promotion="b" aria-label="Bishop">♗</button><button type="button" data-chess-promotion="n" aria-label="Knight">♘</button></div></div></div>
   </section>
 
@@ -16917,7 +16971,7 @@
         <section id="quizFinalPanel" class="quiz-final-panel" hidden aria-live="polite"></section>
       </main>
     </div>
-    <footer class="quiz-footer"><div id="quizStageStatus" class="game-status" aria-live="polite"></div><div class="game-stage-actions"><button id="quizNextButton" class="primary" type="button" hidden>Next question</button><button id="quizRematchButton" class="primary" type="button" hidden>Play again</button><button id="quizChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="quizLeaveButton" type="button">Leave game</button></div></footer>
+    <footer class="quiz-footer"><div id="quizStageStatus" class="game-status" aria-live="polite"></div><div class="game-stage-actions"><button id="quizNextButton" class="primary" type="button" hidden>Next question</button><button id="quizRematchButton" class="primary" type="button" hidden>Play again</button><button id="quizChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="quizLeaveButton" class="exit-control" type="button">Leave game</button></div></footer>
   </section>
 
   <section id="brainStage" class="game-stage brain-stage" hidden tabindex="-1" aria-label="Brain Training arithmetic handwriting game">
@@ -16947,14 +17001,14 @@
         </section>
       </main>
     </div>
-    <footer class="brain-footer"><div id="brainStageStatus" class="game-status" aria-live="polite"></div><div class="game-stage-actions"><button id="brainRematchButton" class="primary" type="button" hidden>Play again</button><button id="brainChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="brainLeaveButton" type="button">Leave game</button></div></footer>
+    <footer class="brain-footer"><div id="brainStageStatus" class="game-status" aria-live="polite"></div><div class="game-stage-actions"><button id="brainRematchButton" class="primary" type="button" hidden>Play again</button><button id="brainChatButton" type="button"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="brainLeaveButton" class="exit-control" type="button">Leave game</button></div></footer>
     <div id="brainResultOverlay" class="brain-result-overlay" hidden></div>
   </section>
 
   <section id="avatarMakerStage" class="game-stage avatar-maker-stage" hidden tabindex="-1" aria-label="Animated game avatar maker">
     <header class="avatar-maker-header">
       <div class="avatar-maker-title"><span class="icon icon-avatar-maker" aria-hidden="true"></span><span><strong>Avatar Maker</strong><small>Secondary profile picture for games</small></span></div>
-      <div class="avatar-maker-header-actions"><button id="avatarMakerNewButton" type="button"><span class="icon icon-plus" aria-hidden="true"></span><span>New avatar</span></button><button id="avatarMakerGalleryButton" class="avatar-maker-gallery-button" type="button" title="Open avatar gallery" aria-label="Open avatar gallery" aria-expanded="false"><span class="icon icon-photo" aria-hidden="true"></span></button><button id="avatarMakerCloseButton" type="button">Close</button></div>
+      <div class="avatar-maker-header-actions"><button id="avatarMakerNewButton" type="button"><span class="icon icon-plus" aria-hidden="true"></span><span>New avatar</span></button><button id="avatarMakerGalleryButton" class="avatar-maker-gallery-button" type="button" title="Open avatar gallery" aria-label="Open avatar gallery" aria-expanded="false"><span class="icon icon-photo" aria-hidden="true"></span></button><button id="avatarMakerCloseButton" class="exit-control" type="button">Close</button></div>
     </header>
     <div class="avatar-maker-body">
       <main class="avatar-maker-editor">
@@ -17041,7 +17095,7 @@
         <button class="tetris-control-button" type="button" data-tetris-action="pause" title="Pause · P">Pause</button>
       </div>
       <div class="tetris-key-help">J/L or ←/→ move · K or ↑ rotates · M or ↓ lowers · Space drops · Shift+J/L goes to a wall · P pauses</div>
-      <div class="game-stage-actions tetris-stage-actions"><button id="tetrisRematchButton" class="primary" type="button" hidden>Play again</button><button id="tetrisChatButton" type="button" title="Return to the channel without leaving the match"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="tetrisLeaveButton" type="button">Leave match</button></div>
+      <div class="game-stage-actions tetris-stage-actions"><button id="tetrisRematchButton" class="primary" type="button" hidden>Play again</button><button id="tetrisChatButton" type="button" title="Return to the channel without leaving the match"><span class="icon icon-chat" aria-hidden="true"></span><span>Chat</span></button><button id="tetrisLeaveButton" class="exit-control" type="button">Leave match</button></div>
     </footer>
   </section>
 
@@ -17055,7 +17109,7 @@
         <select id="mediaPlaylistSelect" aria-label="Media playlist"><option value="all">All media</option></select>
         <button id="mediaPlaylistNewButton" type="button">New playlist</button>
         <button id="mediaPlaylistDeleteButton" type="button" class="danger-button" hidden>Delete playlist</button>
-        <button id="mediaLibraryCloseButton" class="icon-button" type="button" title="Close Media Library" aria-label="Close Media Library"><span class="icon icon-close" aria-hidden="true"></span></button>
+        <button id="mediaLibraryCloseButton" class="icon-button exit-control" type="button" title="Close Media Library" aria-label="Close Media Library"><span class="icon icon-close" aria-hidden="true"></span></button>
       </header>
       <div class="media-library-toolbar">
         <input id="mediaLibrarySearchInput" class="media-library-search" type="search" placeholder="Search title, artist, album or source" autocomplete="off">
@@ -17114,7 +17168,7 @@
         <h2 id="translatorTitle">Live Translator</h2>
         <span class="translator-window-actions">
           <button id="translatorMinimizeButton" class="icon-button translator-minimize-button" type="button" title="Minimize Translator" aria-label="Minimize Translator"><span aria-hidden="true">—</span></button>
-          <button id="translatorCloseButton" class="icon-button" type="button" title="Close Translator" aria-label="Close Translator"><span class="icon icon-close"></span></button>
+          <button id="translatorCloseButton" class="icon-button exit-control" type="button" title="Close Translator" aria-label="Close Translator"><span class="icon icon-close"></span></button>
         </span>
       </header>
       <nav class="translator-tabbar" aria-label="Translator views and display controls">
@@ -17179,7 +17233,7 @@
       <strong>WebGL Draw</strong>
       <span id="helenaDrawingStatus" class="helena-drawing-status" aria-live="polite">Helena Paint</span>
       <button id="helenaDrawingReloadButton" type="button" title="Reload WebGL Draw" aria-label="Reload WebGL Draw"><span class="icon icon-history" aria-hidden="true"></span></button>
-      <button id="helenaDrawingCloseButton" type="button" title="Close WebGL Draw" aria-label="Close WebGL Draw"><span class="icon icon-close" aria-hidden="true"></span></button>
+      <button id="helenaDrawingCloseButton" class="exit-control" type="button" title="Close WebGL Draw" aria-label="Close WebGL Draw"><span class="icon icon-close" aria-hidden="true"></span></button>
     </header>
     <div class="helena-drawing-frame-shell">
       <iframe id="helenaDrawingFrame" class="helena-drawing-frame" title="Helena Paint WebGL drawing app" data-src="/helena-draw/?embed=rantlist" sandbox="allow-scripts allow-same-origin allow-downloads allow-forms allow-modals allow-popups" allow="clipboard-read; clipboard-write"></iframe>
@@ -17244,14 +17298,7 @@
           </select>
           <select id="drawingBackgroundKind" aria-label="Paper background"><option value="plain">Plain</option><option value="lined">Lines</option><option value="grid">Squares</option><option value="old-paper">Old paper</option><option value="toilet-paper">Toilet paper</option><option value="newspaper">Gazette paper</option></select>
           <label title="Paper colour"><input id="drawingBackgroundColor" type="color" value="#ffffff" aria-label="Paper colour"></label>
-          <button id="drawingChatButton" type="button" title="Return to the channel without leaving Drawing Table" aria-label="Return to channel"><span class="icon icon-chat" aria-hidden="true"></span></button>
-          <select id="drawingActionSelect" class="drawing-action-select" aria-label="Drawing actions">
-            <option value="" selected>Actions · 100%</option>
-            <optgroup label="View">
-              <option value="toggle-opponent">Hide opponent</option>
-            </optgroup>
-            <optgroup label="Session"><option value="switch-chat">Return to channel</option><option value="leave">Leave Drawing Table</option></optgroup>
-          </select>
+          <button id="drawingOpponentToggleButton" type="button" title="Hide opponent" aria-label="Hide opponent"><span class="icon icon-hide" aria-hidden="true"></span></button>
           <input id="drawingImportInput" type="file" accept="application/json,application/gzip,.json,.gz,.json.gz" hidden>
           <input id="drawingReferenceInput" type="file" accept="image/*" hidden>
           <div id="drawingReferenceOpacityControl" class="drawing-reference-opacity-control" role="group" aria-label="Reference image controls" title="Local guide only · not shared or exported" hidden>
@@ -17266,6 +17313,10 @@
             <label class="drawing-inline-slider" title="Dash or dot length"><span>Length</span><input id="drawingDashLength" type="range" min="1" max="60" step="1" value="18" aria-label="Dash or dot length"><output id="drawingDashLengthValue">18</output></label>
             <label class="drawing-inline-slider" title="Dash or dot gap"><span>Gap</span><input id="drawingDashGap" type="range" min="1" max="60" step="1" value="10" aria-label="Dash or dot gap"><output id="drawingDashGapValue">10</output></label>
           </div>
+          <span class="drawing-exit-controls" role="group" aria-label="Drawing session controls">
+            <button id="drawingChatButton" class="return-control" type="button" title="Return to the channel without leaving Drawing Table" aria-label="Return to channel"><span class="icon icon-chat" aria-hidden="true"></span></button>
+            <button id="drawingLeaveButton" class="exit-control" type="button" title="Leave Drawing Table" aria-label="Leave Drawing Table"><span class="icon icon-close" aria-hidden="true"></span></button>
+          </span>
         </div>
         <div id="drawingCanvases" class="drawing-canvases view-split-own-left" data-divider-axis="x">
           <section class="drawing-pane own"><span id="drawingOwnPaneLabel" class="drawing-pane-label"><span id="drawingOwnPaneAvatar" class="drawing-pane-label-avatar"></span><span id="drawingOwnPaneName" class="drawing-pane-label-name">You</span></span><div class="drawing-paper"><svg id="drawingOwnSvg" viewBox="0 0 1200 800" role="img" aria-label="Your drawing canvas"></svg><textarea id="drawingTextEditor" class="drawing-text-editor" maxlength="500" enterkeyhint="enter" aria-label="Drawing text" autocomplete="off" spellcheck="true" rows="1" placeholder="Text" hidden></textarea></div><button id="drawingChallengeDeliveryButton" class="drawing-challenge-delivery-button" type="button" title="Deliver challenge artwork" aria-label="Deliver challenge artwork" hidden><span class="icon icon-drawing-delivery" aria-hidden="true"></span><span>Deliver</span></button></section>
@@ -17438,7 +17489,7 @@
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
-        'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingChatButton', 'drawingActionSelect', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
+        'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
@@ -23846,7 +23897,7 @@
       elements.drawingStage.dataset.transformMode=state.drawingTool==='select'?'true':'false';elements.drawingBackgroundKind.value=ownBg.kind;elements.drawingBackgroundColor.value=ownBg.color;
       const mode=state.drawing.solo?'own':(elements.drawingViewMode.value||'split-own-left');elements.drawingCanvases.className=`drawing-canvases view-${mode}`;elements.drawingCanvases.style.setProperty('--drawing-own-share',`${Math.round(state.drawingCanvasShare*1000)/10}%`);elements.drawingCanvases.dataset.dividerAxis=state.drawing.solo?'':(drawingViewAxis(mode)||'');
       elements.drawingOpponentPane.hidden=state.drawing.solo||state.drawingOpponentHidden;elements.drawingStage.dataset.solo=String(Boolean(state.drawing.solo));elements.drawingStage.dataset.ownLocked=String(drawingOwnLayerLocked());applyDrawingCanvasGestureView(false);requestAnimationFrame(fitDrawingPapers);
-      const opponentAction=elements.drawingActionSelect?.querySelector('option[value="toggle-opponent"]');if(opponentAction){opponentAction.disabled=Boolean(state.drawing.solo);opponentAction.textContent=state.drawing.solo?'Personal drawing only':(state.drawingOpponentHidden?'Show opponent':'Hide opponent');}const leaveAction=elements.drawingActionSelect?.querySelector('option[value="leave"]');if(leaveAction)leaveAction.textContent=state.drawing.solo?'Close drawing':'Leave Drawing Table';elements.drawingStage.dataset.activeTransform=state.drawingTransformAction?.mode||'';
+      if(elements.drawingOpponentToggleButton){const solo=Boolean(state.drawing.solo),showing=Boolean(state.drawingOpponentHidden);elements.drawingOpponentToggleButton.disabled=solo;elements.drawingOpponentToggleButton.title=solo?'Personal drawing only':(showing?'Show opponent':'Hide opponent');elements.drawingOpponentToggleButton.setAttribute('aria-label',elements.drawingOpponentToggleButton.title);const icon=elements.drawingOpponentToggleButton.querySelector('.icon');if(icon)icon.className=`icon ${showing?'icon-show':'icon-hide'}`;}if(elements.drawingLeaveButton){elements.drawingLeaveButton.title=state.drawing.solo?'Close drawing':'Leave Drawing Table';elements.drawingLeaveButton.setAttribute('aria-label',elements.drawingLeaveButton.title);}elements.drawingStage.dataset.activeTransform=state.drawingTransformAction?.mode||'';
       if(state.drawingTransformAction)updateDrawingTransformPrompt();updateDrawingStyleControls();updateDrawingTextControlsVisibility();renderDrawingPlayers();if(state.drawingTool==='cursor')renderDrawingNodes(elements.drawingOwnSvg,selectedDrawingObject());if(state.drawingTextDraft)requestAnimationFrame(positionDrawingTextEditor);
     }
     function drawingPointFromClient(clientX,clientY,svg=elements.drawingOwnSvg){
@@ -24340,7 +24391,7 @@
       const setTextColor=(commit=false)=>{state.drawingTextColor=elements.drawingTextColor.value;writeStorage('chat.drawing.textColor',state.drawingTextColor);if(state.drawingTextDraft){state.drawingTextDraft.colour=state.drawingTextColor;positionDrawingTextEditor();syncDrawingTextDraftToObject();}const selected=selectedDrawingObject();if(selected?.type==='text'&&!state.drawingTextDraft)updateSelectedDrawingStyle('fill',state.drawingTextColor,commit,object=>object.type==='text');};
       elements.drawingTextColor.addEventListener('input',()=>setTextColor(false));elements.drawingTextColor.addEventListener('change',()=>setTextColor(true));elements.drawingTextAlignLeft?.addEventListener('click',()=>setDrawingTextAlign('left',true));elements.drawingTextAlignCenter?.addEventListener('click',()=>setDrawingTextAlign('center',true));elements.drawingTextAlignRight?.addEventListener('click',()=>setDrawingTextAlign('right',true));
       elements.drawingLoadFontsButton.addEventListener('click',async()=>{await loadInstalledFonts();renderDrawingFontGallery();});elements.drawingFontGalleryCloseButton.addEventListener('click',closeDrawingFontGallery);elements.drawingFontGalleryDoneButton.addEventListener('click',closeDrawingFontGallery);document.querySelector('[data-close-drawing-font-gallery="1"]')?.addEventListener('click',closeDrawingFontGallery);elements.drawingLayerTopButton.addEventListener('click',()=>reorderSelectedDrawingObject(1,true));elements.drawingLayerUpButton.addEventListener('click',()=>reorderSelectedDrawingObject(1,false));elements.drawingLayerDownButton.addEventListener('click',()=>reorderSelectedDrawingObject(-1,false));elements.drawingLayerBottomButton.addEventListener('click',()=>reorderSelectedDrawingObject(-1,true));elements.drawingDuplicateButton.addEventListener('click',duplicateSelectedDrawingObject);elements.drawingReferenceButton.addEventListener('click',openDrawingReferencePicker);elements.drawingReferenceInput.addEventListener('change',async()=>{const file=elements.drawingReferenceInput.files?.[0];elements.drawingReferenceInput.value='';if(!file)return;try{await loadDrawingReferenceImage(file);}catch(error){addSystemMessage(error?.message||'Unable to load reference image.',true);}});elements.drawingReferenceOpacity.addEventListener('input',()=>setDrawingReferenceOpacity(elements.drawingReferenceOpacity.value));elements.drawingReferenceRemoveButton.addEventListener('click',removeDrawingReferenceImage);elements.drawingSmoothButton.addEventListener('click',smoothSelectedDrawingPolyline);elements.drawingClearButton.addEventListener('click',clearDrawingLayer);elements.drawingClearCancelButton?.addEventListener('click',closeDrawingClearModal);elements.drawingClearConfirmButton?.addEventListener('click',confirmClearDrawingLayer);document.querySelector('[data-close-drawing-clear="1"]')?.addEventListener('click',closeDrawingClearModal);elements.drawingTextEditor.addEventListener('input',()=>{positionDrawingTextEditor();syncDrawingTextDraftToObject();});elements.drawingTextEditor.addEventListener('keydown',event=>{if((event.key==='Enter'&&(event.metaKey||event.ctrlKey))){event.preventDefault();commitDrawingTextEditor();}else if(event.key==='Escape'){event.preventDefault();cancelDrawingTextEditor();}});window.addEventListener('resize',()=>{fitDrawingPapers();if(state.drawingTextDraft)positionDrawingTextEditor();});
-      elements.drawingUndoButton.addEventListener('click',drawingUndo);elements.drawingRedoButton.addEventListener('click',drawingRedo);elements.drawingSaveStickerButton.addEventListener('click',async()=>{if(elements.drawingSaveStickerButton.disabled)return;elements.drawingSaveStickerButton.disabled=true;try{await saveCurrentDrawingAsSticker();}catch(error){addSystemMessage(error?.message||'Unable to save sticker.',true);}finally{if(state.drawing)updateDrawingStyleControls();}});elements.drawingSaveLocalButton.addEventListener('click',()=>openDrawingLocalModal('save'));elements.drawingOpenLocalButton.addEventListener('click',()=>openDrawingLocalModal('open'));elements.drawingExportButton.addEventListener('click',openDrawingExportModal);elements.drawingSendArtworkButton.addEventListener('click',()=>{if(state.soloDrawingPurpose==='sticker')saveCurrentDrawingAsSticker().catch(error=>addSystemMessage(error?.message||'Unable to save sticker.',true));else openDrawingSendModal();});elements.drawingChallengeDeliveryButton?.addEventListener('click',openDrawingDeliveryModal);elements.drawingDeleteSelectedButton.addEventListener('click',deleteSelectedDrawingObject);elements.drawingChatButton.addEventListener('click',()=>minimizeActiveSession('drawing'));elements.drawingZoomOutButton.addEventListener('click',()=>{state.drawingZoom=clampDrawingZoom(state.drawingZoom-.1);renderDrawingTable();});elements.drawingZoomResetButton.addEventListener('click',resetDrawingCanvasView);elements.drawingCanvasResetButton?.addEventListener('click',resetDrawingCanvasView);elements.drawingZoomInButton.addEventListener('click',()=>{state.drawingZoom=clampDrawingZoom(state.drawingZoom+.1);renderDrawingTable();});elements.drawingViewModeButton.addEventListener('click',cycleDrawingViewMode);elements.drawingViewMode.addEventListener('change',()=>{const mode=elements.drawingViewMode.value;if(mode.startsWith('focus-'))state.drawingCanvasShare=.75;else if(mode.startsWith('split-'))state.drawingCanvasShare=.5;renderDrawingTable();});elements.drawingBackgroundKind.addEventListener('change',setDrawingBackground);elements.drawingBackgroundColor.addEventListener('input',setDrawingBackground);elements.drawingBackgroundColor.addEventListener('change',setDrawingBackground);elements.drawingActionSelect.addEventListener('change',async()=>{const action=elements.drawingActionSelect.value;elements.drawingActionSelect.value='';if(!action)return;try{await runDrawingAction(action)}catch(error){addSystemMessage(error?.message||'Drawing action failed.',true)}finally{if(state.drawing)renderDrawingTable()}});elements.drawingImportInput.addEventListener('change',async()=>{const f=elements.drawingImportInput.files?.[0];elements.drawingImportInput.value='';if(f)await importDrawingFile(f)});
+      elements.drawingUndoButton.addEventListener('click',drawingUndo);elements.drawingRedoButton.addEventListener('click',drawingRedo);elements.drawingSaveStickerButton.addEventListener('click',async()=>{if(elements.drawingSaveStickerButton.disabled)return;elements.drawingSaveStickerButton.disabled=true;try{await saveCurrentDrawingAsSticker();}catch(error){addSystemMessage(error?.message||'Unable to save sticker.',true);}finally{if(state.drawing)updateDrawingStyleControls();}});elements.drawingSaveLocalButton.addEventListener('click',()=>openDrawingLocalModal('save'));elements.drawingOpenLocalButton.addEventListener('click',()=>openDrawingLocalModal('open'));elements.drawingExportButton.addEventListener('click',openDrawingExportModal);elements.drawingSendArtworkButton.addEventListener('click',()=>{if(state.soloDrawingPurpose==='sticker')saveCurrentDrawingAsSticker().catch(error=>addSystemMessage(error?.message||'Unable to save sticker.',true));else openDrawingSendModal();});elements.drawingChallengeDeliveryButton?.addEventListener('click',openDrawingDeliveryModal);elements.drawingDeleteSelectedButton.addEventListener('click',deleteSelectedDrawingObject);elements.drawingOpponentToggleButton?.addEventListener('click',()=>{if(state.drawing?.solo)return;state.drawingOpponentHidden=!state.drawingOpponentHidden;renderDrawingTable();});elements.drawingChatButton.addEventListener('click',()=>minimizeActiveSession('drawing'));elements.drawingLeaveButton?.addEventListener('click',()=>leaveActiveGame('left'));elements.drawingZoomOutButton.addEventListener('click',()=>{state.drawingZoom=clampDrawingZoom(state.drawingZoom-.1);renderDrawingTable();});elements.drawingZoomResetButton.addEventListener('click',resetDrawingCanvasView);elements.drawingCanvasResetButton?.addEventListener('click',resetDrawingCanvasView);elements.drawingZoomInButton.addEventListener('click',()=>{state.drawingZoom=clampDrawingZoom(state.drawingZoom+.1);renderDrawingTable();});elements.drawingViewModeButton.addEventListener('click',cycleDrawingViewMode);elements.drawingViewMode.addEventListener('change',()=>{const mode=elements.drawingViewMode.value;if(mode.startsWith('focus-'))state.drawingCanvasShare=.75;else if(mode.startsWith('split-'))state.drawingCanvasShare=.5;renderDrawingTable();});elements.drawingBackgroundKind.addEventListener('change',setDrawingBackground);elements.drawingBackgroundColor.addEventListener('input',setDrawingBackground);elements.drawingBackgroundColor.addEventListener('change',setDrawingBackground);elements.drawingImportInput.addEventListener('change',async()=>{const f=elements.drawingImportInput.files?.[0];elements.drawingImportInput.value='';if(f)await importDrawingFile(f)});
       elements.drawingExportCloseButton?.addEventListener('click',closeDrawingExportModal);document.querySelector('[data-close-drawing-export="1"]')?.addEventListener('click',closeDrawingExportModal);for(const button of document.querySelectorAll('[data-drawing-export-action]'))button.addEventListener('click',async()=>{const action=button.dataset.drawingExportAction;closeDrawingExportModal();try{await runDrawingAction(action);}catch(error){addSystemMessage(error?.message||'Drawing export failed.',true);}});
       elements.drawingLocalModalClose?.addEventListener('click', closeDrawingLocalModal);
       document.querySelector('[data-close-drawing-local="1"]')?.addEventListener('click', closeDrawingLocalModal);

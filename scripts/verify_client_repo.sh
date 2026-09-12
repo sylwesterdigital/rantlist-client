@@ -61,6 +61,11 @@ grep -q 'window.rantlistNativeSharedItems' "$ROOT/mobile/ios/Rantlist/RantlistAp
 grep -q 'window.rantlistNativeSharedFileChunk' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file chunks are not delivered to WKWebView" >&2; exit 1; }
 grep -q 'attemptAutomaticHandoff()' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not attempt automatic containing-app handoff" >&2; exit 1; }
 grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client shared-item destination bar missing" >&2; exit 1; }
+[[ -f "$ROOT/web/assets/icons/drawing1.svg" ]] || { echo "Drawing attachment icon missing" >&2; exit 1; }
+grep -q 'id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing1"' "$ROOT/web/index.html" || { echo "First Drawing attachment action does not use drawing1.svg" >&2; exit 1; }
+! grep -q 'id="drawingActionSelect"' "$ROOT/web/index.html" || { echo "Obsolete Drawing action select still present" >&2; exit 1; }
+grep -q 'id="drawingLeaveButton" class="exit-control"' "$ROOT/web/index.html" || { echo "Drawing explicit leave/close control missing" >&2; exit 1; }
+grep -q 'drawing-stroke-toolbar { order:20; width:100%; flex:1 1 100%;' "$ROOT/web/index.html" || { echo "Drawing narrow-toolbar stroke wrapping missing" >&2; exit 1; }
 
 grep -q '\.native-share-pending\[hidden\].*display: none !important' "$ROOT/web/index.html" || { echo "Native shared-item pending bar can appear with no queued share payload" >&2; exit 1; }
 grep -q 'RANTLIST_IOS_INSTALL_CONNECTED:-1' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not default to connected-device install" >&2; exit 1; }

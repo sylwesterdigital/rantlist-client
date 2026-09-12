@@ -1,3 +1,10 @@
+## Changes in v0.1.62
+
+- Synchronized browser client to **9.6.223 / rantlist-deploy-r251** and protocol **63**.
+- Attachment-tray cards constrain and wrap long labels, and the first Drawing action uses `drawing1.svg` without changing the WebGL Draw icon.
+- Session/game exit controls use a consistent amber emphasis at the existing size.
+- Drawing removes `drawingActionSelect`, adds explicit opponent/return/leave controls, keeps those exits at the toolbar edge, wraps stroke ranges on narrow screens, and gives the line-style preview a contrast-safe checker surface.
+
 ## Changes in v0.1.61
 
 - Replaces the unreliable `fetch(rantlist-share://...)` browser path with a native `rantlistShare` read request and bounded chunk callbacks (`rantlistNativeSharedFileChunk` / `rantlistNativeSharedFileError`). Shared photos/files are reconstructed as normal browser `File` objects and continue through the existing upload pipeline.

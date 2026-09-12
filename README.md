@@ -1,3 +1,10 @@
+## v0.1.62 / 9.6.223
+- Synchronizes the attachment tray and Drawing readability update from rantlist-deploy-r251.
+- Long attachment labels wrap inside their own cards; the first **Drawing** action uses the supplied `drawing1.svg` while **WebGL Draw** keeps its existing icon.
+- Game/tool exits use the new visible amber exit treatment, and Drawing exposes Return + Close/Leave directly at the top-right instead of hiding them in an Actions menu.
+- Drawing stroke controls wrap on smaller screens and the line-style preview remains visible against a neutral checker surface.
+- Browser source synchronized to rantlist-deploy-r251 / protocol 63.
+
 ## v0.1.61 / 9.6.222
 - Fix iOS Share Extension media delivery: the main app now streams App Group files to WKWebView in bounded chunks instead of relying on custom-scheme Fetch, preventing the observed **Load failed** send failure.
 - Share sheet flow saves immediately and automatically attempts to open Rantlist; when iOS refuses to foreground the containing app, the extension shows only a concise saved-state message and Done.
