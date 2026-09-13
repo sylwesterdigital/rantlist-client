@@ -1,3 +1,10 @@
+## Changes in v0.1.71
+
+- Synchronized browser client to **9.6.232 / rantlist-deploy-r260** and protocol **63**.
+- Replaces blind retries around GitHub Release creation with an explicit transaction: wait for exact tag/commit API visibility, create once, then reconcile remote state before any retry.
+- If GitHub returns an ambiguous 5xx after committing the draft, the workflow reuses that draft instead of repeating the create request; a genuine pre-commit failure retries only after confirmed absence.
+- Adds an offline mock regression verifier for post-commit 500 recovery, confirmed-absent retry and fail-closed indeterminate state, plus shell-syntax verification for the publication scripts.
+
 ## Changes in v0.1.70
 
 - Synchronized browser client to **9.6.231 / rantlist-deploy-r259** and protocol **63**.

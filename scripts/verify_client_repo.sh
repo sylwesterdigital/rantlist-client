@@ -7,7 +7,7 @@ for path in \
   mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
-  scripts/release_signed.sh scripts/publish_github_release.sh scripts/deploy_homepage.sh \
+  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
   scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js; do
   [[ -e "$ROOT/$path" ]] || { echo "Missing $path" >&2; exit 1; }
@@ -17,6 +17,10 @@ done
 for script in "$ROOT"/scripts/*.sh "$ROOT"/scripts/*.js; do
   [[ -x "$script" ]] || { echo "Not executable: $script" >&2; exit 1; }
 done
+for script in "$ROOT"/scripts/*.sh; do
+  bash -n "$script" || { echo "Invalid shell syntax: $script" >&2; exit 1; }
+done
+"$ROOT/scripts/verify_github_release_transaction.sh"
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
 grep -q 'import AVFoundation' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client lacks AVFoundation permission handling" >&2; exit 1; }
@@ -89,6 +93,10 @@ grep -q 'window.rantlistNativeNotificationSettings' "$ROOT/mobile/ios/Rantlist/R
 ! grep -q 'PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script globally overrides the Share Extension bundle identifier" >&2; exit 1; }
 grep -q 'RANTLIST_APP_BUNDLE_ID="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not provide the shared bundle-id base to app + extension targets" >&2; exit 1; }
 grep -q 'RANTLIST_IOS_SHARE_MODE:-auto' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script lacks automatic Share provisioning fallback" >&2; exit 1; }
+grep -q 'create_release_transactionally' "$ROOT/scripts/publish_github_release.sh" || { echo "GitHub release creation is not transaction-aware" >&2; exit 1; }
+grep -q 'wait_for_github_tag' "$ROOT/scripts/publish_github_release.sh" || { echo "GitHub release flow does not wait for pushed-tag API visibility" >&2; exit 1; }
+grep -q 'wait_for_release_resolution' "$ROOT/scripts/publish_github_release.sh" || { echo "GitHub release flow cannot reconcile ambiguous create state" >&2; exit 1; }
+! grep -Eq 'retry_cmd[[:space:]].*gh[[:space:]]+release[[:space:]]+create' "$ROOT/scripts/publish_github_release.sh" || { echo "GitHub release creation still uses a blind retry loop" >&2; exit 1; }
 grep -q 'com.apple.security.application-groups' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not narrowly detect App Group provisioning failure" >&2; exit 1; }
 grep -q 'make_ios_push_only_project.js' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not generate the temporary push-only fallback project" >&2; exit 1; }
 grep -q 'RantlistPushOnly.entitlements' "$ROOT/scripts/make_ios_push_only_project.js" || { echo "Push-only project generator does not preserve APNs entitlements" >&2; exit 1; }

@@ -2,7 +2,7 @@
 # Resumable Rantlist release: sync -> verify -> selected native builds -> GitHub -> mojoworks homepage.
 set -Eeuo pipefail
 IFS=$' \n\t'
-export GIT_PAGER=cat PAGER=cat GH_PAGER=cat GIT_EDITOR=true GIT_SEQUENCE_EDITOR=true GIT_MERGE_AUTOEDIT=no GIT_TERMINAL_PROMPT=0 GH_PROMPT_DISABLED=1 LESS='-FRX'
+export GIT_PAGER=cat PAGER=cat GH_PAGER=cat GIT_EDITOR=true GIT_SEQUENCE_EDITOR=true GIT_MERGE_AUTOEDIT=no GIT_TERMINAL_PROMPT=0 GH_PROMPT_DISABLED=1 NO_COLOR=1 CLICOLOR=0 LESS='-FRX'
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

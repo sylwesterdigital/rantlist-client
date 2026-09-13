@@ -1,3 +1,10 @@
+## v0.1.71 / 9.6.232
+
+- Synchronized browser client to **9.6.232 / rantlist-deploy-r260** and protocol **63**.
+- GitHub Release creation is now transaction-safe: publication waits for the pushed tag to resolve through GitHub's API before creating a draft.
+- An ambiguous HTTP 5xx/lost create response is reconciled by querying the remote release by tag; a second create POST happens only after the API confirms no release exists, preventing duplicate or untagged drafts.
+- Recovered transient failures are logged as clean informational state reconciliation; indeterminate release state fails closed, and the offline verifier covers post-commit 500, confirmed-absent retry and API-indeterminate cases.
+
 ## v0.1.70 / 9.6.231
 
 - Synchronized browser client to **9.6.231 / rantlist-deploy-r259** and protocol **63**.
