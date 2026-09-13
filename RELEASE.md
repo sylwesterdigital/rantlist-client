@@ -1,3 +1,9 @@
+## v0.1.79 / 9.6.240
+
+- Synchronized browser client to **9.6.240 / rantlist-deploy-r268** and protocol **63**.
+- Removes the Stories photo-darkening shade and moves zoom/rotate/reset controls into the viewer top bar.
+- Adds explicit mini-player Close, mini/full mutual visibility, a centered desktop full player and single-owner audio playback across chat tracks and Media Library.
+
 ## v0.1.78 / 9.6.239
 
 - Synchronized browser client to **9.6.239 / rantlist-deploy-r267** and protocol **63**.

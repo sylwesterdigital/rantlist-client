@@ -126,6 +126,12 @@ grep -q 'NSApp.dockTile.badgeLabel' "$ROOT/macos/RantlistApp.swift" || { echo "m
 grep -q 'id="composerBorderStyleSelect"' "$ROOT/web/index.html" || { echo "Message composer border Appearance control missing" >&2; exit 1; }
 grep -q 'data-composer-border="rainbow"' "$ROOT/web/index.html" || { echo "Message composer animated border treatments missing" >&2; exit 1; }
 grep -q 'message-viewport.has-media-mini-player #messageList' "$ROOT/web/index.html" || { echo "Media mini-player is not docked to the message viewport with timeline clearance" >&2; exit 1; }
+grep -q 'id="mediaMiniCloseButton"' "$ROOT/web/index.html" || { echo "Media mini-player close control missing" >&2; exit 1; }
+grep -q "const showMiniPlayer = hasItem && elements.mediaPlayerOverlay.hidden" "$ROOT/web/index.html" || { echo "Media mini/full visibility ownership missing" >&2; exit 1; }
+grep -q "if (elements.mediaLibraryAudio) players.add(elements.mediaLibraryAudio);" "$ROOT/web/index.html" || { echo "Media Library audio is not part of exclusive chat playback" >&2; exit 1; }
+grep -q 'top:50%; left:50%; right:auto; bottom:auto; transform:translate(-50%,-50%)' "$ROOT/web/index.html" || { echo "Desktop Media Player is not centered" >&2; exit 1; }
+! grep -q 'media-story-shade' "$ROOT/web/index.html" || { echo "Stories viewer still darkens media with obsolete full-screen shade" >&2; exit 1; }
+grep -q 'topbar.append(back, transformControls, position)' "$ROOT/web/index.html" || { echo "Stories image transform controls are not integrated into top bar" >&2; exit 1; }
 grep -q 'appIconBadgeSelect' "$ROOT/web/index.html" || { echo "Native unread badge Config control missing" >&2; exit 1; }
 grep -q 'mediaAiModeSelect' "$ROOT/web/index.html" || { echo "Experimental image AI Config control missing" >&2; exit 1; }
 ! grep -RIn 'HETZNER_INFERENCE_API_KEY=' "$ROOT" --exclude='RELEASE.md' --exclude='README.md' --exclude='verify_client_repo.sh' >/dev/null 2>&1 || { echo "Public client must not contain a Hetzner API key setting" >&2; exit 1; }

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.239">
+  <meta name="chat-ui-version" content="9.6.240">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -6698,28 +6698,29 @@
     .media-story-stage.media-story-image-inspect { cursor: grab; }
     .media-story-stage.media-story-image-inspect.dragging { cursor: grabbing; }
     .media-story-transform-controls {
-      position: absolute;
-      z-index: 4;
-      top: max(62px, calc(env(safe-area-inset-top) + 54px));
-      left: 50%;
-      transform: translateX(-50%);
+      position: relative;
+      z-index: 1;
+      min-width: 0;
+      max-width: 100%;
+      justify-self: center;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 5px;
-      padding: 5px;
+      padding: 4px;
       border: 1px solid rgba(255,255,255,.28);
       border-radius: 999px;
-      background: rgba(0,0,0,.42);
+      background: rgba(0,0,0,.32);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       pointer-events: auto;
     }
     .media-story-transform-controls[hidden] { display: none !important; }
     .media-story-transform-button {
-      width: 36px;
-      min-width: 36px;
-      height: 36px;
-      min-height: 36px;
+      width: 34px;
+      min-width: 34px;
+      height: 34px;
+      min-height: 34px;
       padding: 0;
       border: 0;
       border-radius: 50%;
@@ -6791,7 +6792,7 @@
     .media-story-ai-panel-head strong { flex: 1; }
     .media-story-ai-close { width: 30px; height: 30px; min-height: 30px; padding: 0; border-radius: 50%; display: grid; place-items: center; }
     .media-story-transform-readout {
-      min-width: 74px;
+      min-width: 64px;
       padding: 0 4px;
       color: rgba(255,255,255,.92);
       font-size: 11px;
@@ -6804,13 +6805,6 @@
     .media-story-stage.story-enter-previous .media-story-media { animation: media-story-enter-previous .18s ease-out; }
     @keyframes media-story-enter-next { from { opacity: .35; transform: translateY(7%); } to { opacity: 1; transform: translateY(0); } }
     @keyframes media-story-enter-previous { from { opacity: .35; transform: translateY(-7%); } to { opacity: 1; transform: translateY(0); } }
-    .media-story-shade {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      pointer-events: none;
-      background: linear-gradient(to bottom, rgba(0,0,0,.58), transparent 24%, transparent 55%, rgba(0,0,0,.74));
-    }
     .media-story-topbar {
       position: absolute;
       z-index: 3;
@@ -6843,7 +6837,6 @@
       text-decoration: none;
     }
     .media-story-back { font-weight: 800; }
-    .media-story-title { min-width: 0; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
     .media-story-position { white-space: nowrap; font-weight: 800; font-variant-numeric: tabular-nums; }
     .media-story-right-rail {
       position: absolute;
@@ -6973,6 +6966,11 @@
       .media-story-topbar { min-height: 52px; }
       .media-story-right-rail { bottom: max(124px, calc(var(--safe-bottom, 0px) + 104px)); }
       .media-story-bottom { right: max(74px, calc(env(safe-area-inset-right) + 62px)); }
+    }
+    @media (max-width: 430px) {
+      .media-story-transform-readout { display:none; }
+      .media-story-transform-controls { gap:3px; padding:3px; }
+      .media-story-transform-button { width:32px; min-width:32px; height:32px; min-height:32px; }
     }
     @media (prefers-reduced-motion: reduce) {
       .media-story-stage.story-enter-next .media-story-media,
@@ -15254,6 +15252,13 @@
     .media-mini-player[hidden] { display:none !important; }
     .media-mini-player button { min-height:26px; height:26px; padding:3px 7px; border-radius:7px; }
     .media-mini-player .media-mini-title { min-width:0; max-width:120px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-align:left; }
+    .media-mini-close {
+      position:absolute; top:-7px; right:-7px; z-index:2;
+      width:21px; min-width:21px; height:21px; min-height:21px; padding:0 !important;
+      display:grid; place-items:center; border-radius:50% !important; border:1px solid var(--line);
+      background:var(--panel); color:var(--muted); font-size:15px; line-height:1; box-shadow:0 3px 10px rgba(0,0,0,.2);
+    }
+    .media-mini-close:hover { color:var(--text); border-color:var(--accent); }
     .media-mini-waveform { flex:1 1 86px; min-width:46px; height:24px; gap:1px; padding:1px 0; color:var(--text); }
     .media-mini-waveform .voice-note-bar { max-width:3px; height:calc(3px + (17px * var(--voice-peak, .1))); }
     .media-mini-time { flex:0 0 auto; color:var(--muted); font-size:9px; font-variant-numeric:tabular-nums; }
@@ -15291,7 +15296,7 @@
     .media-library-empty { padding:28px; text-align:center; color:var(--muted); }
     .media-library-status { color:var(--muted); font-size:10px; min-height:16px; }
 
-    .media-player-overlay { position:fixed; z-index:1265; right:16px; bottom:16px; width:min(820px,calc(100vw - 32px)); max-width:calc(100vw - 32px); max-height:min(720px,calc(100dvh - 32px)); box-sizing:border-box; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--text); box-shadow:var(--shadow); overflow:hidden; display:grid; grid-template-rows:auto minmax(0,1fr); }
+    .media-player-overlay { position:fixed; z-index:1265; top:50%; left:50%; right:auto; bottom:auto; transform:translate(-50%,-50%); width:min(820px,calc(100vw - 32px)); max-width:calc(100vw - 32px); max-height:min(720px,calc(100dvh - 32px)); box-sizing:border-box; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--text); box-shadow:var(--shadow); overflow:hidden; display:grid; grid-template-rows:auto minmax(0,1fr); }
     .media-player-overlay[hidden] { display:none !important; }
     .media-player-head { display:flex; align-items:center; gap:8px; min-width:0; padding:8px 10px; border-bottom:1px solid var(--line); }
     .media-player-head strong { flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
@@ -15328,7 +15333,7 @@
     @media (max-width:820px) {
       .media-library-toolbar { grid-template-columns:1fr auto; }
       .media-library-toolbar .media-library-view-buttons { grid-column:auto; }
-      .media-player-overlay { top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,var(--safe-bottom,0px)); width:auto; max-width:none; max-height:none; }
+      .media-player-overlay { top:max(8px,env(safe-area-inset-top)); left:max(8px,env(safe-area-inset-left)); right:max(8px,env(safe-area-inset-right)); bottom:max(8px,var(--safe-bottom,0px)); transform:none; width:auto; max-width:none; max-height:none; }
       .media-player-body { grid-template-columns:1fr; overflow-y:auto; overflow-x:hidden; }
       .media-player-main { overflow:visible; }
       .media-player-overlay.has-cover .media-player-art { height:min(32dvh,260px); aspect-ratio:auto; }
@@ -15463,7 +15468,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.239</small>
+          <small id="serverBrandVersion">v9.6.240</small>
         </span>
       </button>
     </div>
@@ -16714,6 +16719,7 @@
             <button id="mediaMiniTitleButton" class="media-mini-title" type="button" title="Open current media">Media</button>
             <div id="mediaMiniWaveform" class="media-mini-waveform voice-note-waveform" role="slider" tabindex="0" aria-label="Current media playback position"></div>
             <span id="mediaMiniTime" class="media-mini-time">0:00</span>
+            <button id="mediaMiniCloseButton" class="media-mini-close" type="button" title="Close media player" aria-label="Close media player">×</button>
           </div>
           <div id="messageList" aria-live="polite"></div>
           <button id="messageToBottomButton" class="message-to-bottom-button" data-button-presentation-ignore type="button" title="Jump to latest message" aria-label="Jump to latest message" hidden><span class="icon icon-bottom" aria-hidden="true"></span><span class="message-to-bottom-count" aria-hidden="true"></span></button>
@@ -17919,7 +17925,7 @@
 
     const elements = Object.fromEntries(
       [
-        'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
+        'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
         'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
@@ -18761,6 +18767,7 @@
       elements.mediaPlaylistDeleteButton.addEventListener('click', deleteSelectedMediaLibraryPlaylist);
       elements.mediaMiniPlayPauseButton.addEventListener('click', toggleMediaLibraryPlayback);
       elements.mediaMiniTitleButton.addEventListener('click', showMediaPlayerOverlay);
+      elements.mediaMiniCloseButton.addEventListener('click', closeMediaPlayer);
       elements.mediaPlayerHideButton.addEventListener('click', hideMediaPlayerOverlay);
       elements.mediaPlayerPlayPauseButton.addEventListener('click', toggleMediaLibraryPlayback);
       elements.mediaPlayerSeek.addEventListener('input', seekMediaPlayerFromRange);
@@ -18768,7 +18775,7 @@
       wireMediaLibraryWaveformSeek(elements.mediaMiniWaveform);
       elements.mediaPlayerCaptionsButton.addEventListener('click', toggleMediaPlayerCaptions);
       elements.mediaPlayerDownloadSrtButton.addEventListener('click', downloadMediaPlayerSrt);
-      elements.mediaLibraryAudio.addEventListener('play', () => { renderMediaPlayer(); renderMediaLibrary(); });
+      elements.mediaLibraryAudio.addEventListener('play', () => { pauseOtherAudioPlayers(elements.mediaLibraryAudio); renderMediaPlayer(); renderMediaLibrary(); });
       elements.mediaLibraryAudio.addEventListener('pause', () => { renderMediaPlayer(); renderMediaLibrary(); });
       elements.mediaLibraryAudio.addEventListener('timeupdate', updateMediaPlayerTimeUi);
       elements.mediaLibraryAudio.addEventListener('durationchange', updateMediaPlayerTimeUi);
@@ -26937,7 +26944,9 @@
     }
 
     function pauseOtherAudioPlayers(activeAudio) {
-      for (const audio of elements.messageList?.querySelectorAll?.('audio[data-voice-note-audio="1"]') || []) {
+      const players = new Set(elements.messageList?.querySelectorAll?.('audio[data-voice-note-audio="1"]') || []);
+      if (elements.mediaLibraryAudio) players.add(elements.mediaLibraryAudio);
+      for (const audio of players) {
         if (audio !== activeAudio && !audio.paused) audio.pause();
       }
     }
@@ -27429,7 +27438,7 @@
       const current = viewer.items[viewer.index];
       const timeText = current?.serverTime ? formatTime(current.serverTime) : '';
       const interactionHint = current?.isVideo
-        ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Channel media')
+        ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Tap video to pause or play')
         : (viewer.items.length > 1 ? 'Swipe up/down · pinch/drag to inspect · +/− and rotate controls' : 'Pinch/drag to inspect · +/− and rotate controls');
       viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${interactionHint}`;
       syncMediaStoryViewerReactions(current?.messageId || '');
@@ -27618,9 +27627,6 @@
       stage.className = 'media-story-stage';
       stage.setAttribute('aria-label', 'Swipe up or down to move between channel media; pinch, drag or use controls to inspect images');
 
-      const shade = document.createElement('div');
-      shade.className = 'media-story-shade';
-
       const topbar = document.createElement('header');
       topbar.className = 'media-story-topbar';
       const back = document.createElement('button');
@@ -27629,12 +27635,8 @@
       back.textContent = '←';
       back.title = 'Back to chat';
       back.setAttribute('aria-label', 'Back to chat');
-      const title = document.createElement('div');
-      title.className = 'media-story-title';
-      title.textContent = 'Channel media';
       const position = document.createElement('div');
       position.className = 'media-story-position';
-      topbar.append(back, title, position);
 
       const transformControls = document.createElement('div');
       transformControls.className = 'media-story-transform-controls';
@@ -27674,6 +27676,8 @@
       resetTransform.title = 'Fit and reset image';
       resetTransform.setAttribute('aria-label', 'Fit and reset image');
       transformControls.append(zoomOut, zoomIn, rotateLeft, transformReadout, rotateRight, resetTransform);
+
+      topbar.append(back, transformControls, position);
 
       const rail = document.createElement('aside');
       rail.className = 'media-story-right-rail';
@@ -27781,11 +27785,11 @@
       playState.className = 'media-story-play-state';
       playState.textContent = '▶';
 
-      root.append(stage, shade, topbar, transformControls, rail, aiTrigger, aiPanel, bottom, playState);
+      root.append(stage, topbar, rail, aiTrigger, aiPanel, bottom, playState);
       document.body.append(root);
 
       const viewer = {
-        root, stage, back, title, position, previous, next, like, likeCount, edit, share, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
+        root, stage, back, position, previous, next, like, likeCount, edit, share, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
         transformControls, zoomOut, zoomIn, rotateLeft, rotateRight, resetTransform, transformReadout,
         avatar, author, caption, meta, playState,
         items: [], index: 0, currentMedia: null, currentBackdropMedia: null, muted: readStorage('chat.media.story.muted') !== 'false',
@@ -28216,7 +28220,7 @@
       }
       const timeText = item.serverTime ? formatTime(item.serverTime) : '';
       const interactionHint = item.isVideo
-        ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Channel media')
+        ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Tap video to pause or play')
         : (viewer.items.length > 1 ? 'Swipe up/down · pinch/drag to inspect · +/− and rotate controls' : 'Pinch/drag to inspect · +/− and rotate controls');
       viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${interactionHint}`;
       viewer.download.href = item.downloadUrl || item.src;
@@ -33278,10 +33282,27 @@
     function showMediaPlayerOverlay() {
       if (!state.mediaPlayerItem) return;
       elements.mediaPlayerOverlay.hidden = false;
+      renderMediaPlayer();
     }
 
     function hideMediaPlayerOverlay() {
       elements.mediaPlayerOverlay.hidden = true;
+      renderMediaPlayer();
+    }
+
+    function closeMediaPlayer() {
+      const audio = elements.mediaLibraryAudio;
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      state.mediaPlayerItem = null;
+      state.mediaPlayerTranscriptSegments = [];
+      state.mediaPlayerTranscriptSrt = '';
+      state.mediaPlayerActiveSegmentIndex = -1;
+      elements.mediaPlayerOverlay.hidden = true;
+      renderMediaPlayerTranscript();
+      renderMediaPlayer();
+      renderMediaLibrary();
     }
 
     function startMediaLibraryItem(item, expand = true) {
@@ -33399,8 +33420,9 @@
       const item = state.mediaPlayerItem;
       const audio = elements.mediaLibraryAudio;
       const hasItem = Boolean(item?.messageId);
-      elements.mediaMiniPlayer.hidden = !hasItem;
-      elements.messageViewport?.classList.toggle('has-media-mini-player', hasItem);
+      const showMiniPlayer = hasItem && elements.mediaPlayerOverlay.hidden;
+      elements.mediaMiniPlayer.hidden = !showMiniPlayer;
+      elements.messageViewport?.classList.toggle('has-media-mini-player', showMiniPlayer);
       if (!hasItem) {
         elements.mediaPlayerOverlay.hidden = true;
         return;

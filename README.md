@@ -1,3 +1,11 @@
+## v0.1.79 / 9.6.240
+
+- Synchronized browser client to **9.6.240 / rantlist-deploy-r268** and protocol **63**.
+- Stories / Shorts no longer darkens photos with a full-height vertical gradient; image transform controls are centered inside the existing top bar.
+- The persistent media mini-player now has a close control and is hidden whenever the expanded player is open.
+- The desktop expanded player is centered, and minimizing it restores the mini-player.
+- Inline chat audio/voice tracks and the persistent Media Library player are mutually exclusive, so starting one pauses the other.
+
 ## v0.1.78 / 9.6.239
 
 - Synchronized browser client to **9.6.239 / rantlist-deploy-r267** and protocol **63**.
