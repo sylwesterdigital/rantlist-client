@@ -12,6 +12,7 @@ private let nativeShareScheme = "rantlist-share"
 
 private extension Notification.Name {
     static let rantlistPushTokenDidUpdate = Notification.Name("RantlistPushTokenDidUpdate")
+    static let rantlistPushBadgeNeedsSync = Notification.Name("RantlistPushBadgeNeedsSync")
     static let rantlistSharedInboxDidUpdate = Notification.Name("RantlistSharedInboxDidUpdate")
     static let rantlistOpenRoom = Notification.Name("RantlistOpenRoom")
 }
@@ -215,7 +216,16 @@ final class RantlistAppDelegate: NSObject, UIApplicationDelegate, UNUserNotifica
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.banner, .sound, .badge])
+        let isRantlistPush = notification.request.content.userInfo["rantlist"] != nil
+        if isRantlistPush {
+            // While the app is foregrounded, the WKWebView immediately asks the
+            // server for the authoritative unread total. Never let a delayed APNs
+            // payload overwrite that newer state with an older badge value.
+            NotificationCenter.default.post(name: .rantlistPushBadgeNeedsSync, object: nil)
+            completionHandler([.banner, .sound])
+        } else {
+            completionHandler([.banner, .sound, .badge])
+        }
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter,
@@ -447,6 +457,7 @@ private struct RantlistWebView: UIViewRepresentable {
             center.addObserver(self, selector: #selector(applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
             center.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
             center.addObserver(self, selector: #selector(pushTokenDidUpdate), name: .rantlistPushTokenDidUpdate, object: nil)
+            center.addObserver(self, selector: #selector(pushBadgeNeedsSync), name: .rantlistPushBadgeNeedsSync, object: nil)
             center.addObserver(self, selector: #selector(sharedInboxDidUpdate), name: .rantlistSharedInboxDidUpdate, object: nil)
             center.addObserver(self, selector: #selector(openPendingRoom), name: .rantlistOpenRoom, object: nil)
         }
@@ -655,6 +666,13 @@ private struct RantlistWebView: UIViewRepresentable {
         }
 
         @objc private func pushTokenDidUpdate() { deliverNativePushToken() }
+        @objc private func pushBadgeNeedsSync() {
+            guard shellState.hasLoadedUI else { return }
+            webView?.evaluateJavaScript(
+                "window.rantlistNativePushBadgeNeedsSync && window.rantlistNativePushBadgeNeedsSync();",
+                completionHandler: nil
+            )
+        }
         @objc private func sharedInboxDidUpdate() { deliverPendingShares() }
         @objc private func openPendingRoom() { deliverPendingRoom() }
 

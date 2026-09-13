@@ -107,6 +107,10 @@ grep -q "appIconBadgeMode: \['off', 'direct', 'all'\].* : 'all'" "$ROOT/web/inde
 grep -q 'UIApplication.didEnterBackgroundNotification' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS app background lifecycle observer missing" >&2; exit 1; }
 grep -q 'UIApplication.willResignActiveNotification' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS app inactive lifecycle observer missing" >&2; exit 1; }
 grep -q 'window.rantlistNativeNotificationSettings' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS notification settings are not reported to the web client" >&2; exit 1; }
+grep -q 'rantlistPushBadgeNeedsSync' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS foreground push badge resync observer missing" >&2; exit 1; }
+grep -q 'completionHandler(\[.banner, .sound\])' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS foreground Rantlist push still applies remote badge state" >&2; exit 1; }
+grep -q 'window.rantlistNativePushBadgeNeedsSync' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS foreground notification does not request authoritative badge resync" >&2; exit 1; }
+grep -q 'window.rantlistNativePushBadgeNeedsSync' "$ROOT/web/index.html" || { echo "Web client authoritative foreground badge resync bridge missing" >&2; exit 1; }
 ! grep -q 'PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script globally overrides the Share Extension bundle identifier" >&2; exit 1; }
 grep -q 'RANTLIST_APP_BUNDLE_ID="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not provide the shared bundle-id base to app + extension targets" >&2; exit 1; }
 grep -q 'RANTLIST_IOS_SHARE_MODE:-auto' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script lacks automatic Share provisioning fallback" >&2; exit 1; }
