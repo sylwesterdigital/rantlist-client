@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.238">
+  <meta name="chat-ui-version" content="9.6.239">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -9598,6 +9598,7 @@
       overflow: hidden;
       padding-top: 0;
     }
+    .public-profile-body.is-editing { grid-template-rows: auto auto minmax(0, 1fr); }
     .public-profile-static {
       display: grid;
       grid-template-columns: minmax(250px, .9fr) minmax(0, 1.6fr);
@@ -9628,9 +9629,19 @@
     .public-profile-section > h3 { margin: 0; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
     .public-profile-media-scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 2px 2px 10px; }
     .public-profile-media { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
-    .public-profile-media button { position: relative; aspect-ratio: 1; overflow: hidden; background: var(--panel-2); border: 0; border-radius: 5px; padding: 0; cursor: pointer; }
+    .public-profile-media-item { position: relative; min-width: 0; aspect-ratio: 1; }
+    .public-profile-media-open { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; background: var(--panel-2); border: 0; border-radius: 5px; padding: 0; cursor: pointer; }
     .public-profile-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .public-profile-media .video-badge { position: absolute; right: 6px; top: 5px; font-size: 13px; color: #fff; text-shadow: 0 1px 3px #000; }
+    .public-profile-header-actions { display: flex; align-items: center; gap: 6px; }
+    .public-profile-edit-toggle { min-height: 34px; padding: 5px 11px; font-weight: 800; }
+    .public-profile-edit-banner { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 10px; border: 1px solid color-mix(in srgb, var(--accent) 58%, var(--line)); border-radius: 10px; background: color-mix(in srgb, var(--accent) 9%, var(--panel-2)); }
+    .public-profile-edit-banner-copy { min-width: 0; display: grid; gap: 2px; }
+    .public-profile-edit-banner-copy strong { font-size: 12px; }
+    .public-profile-edit-banner-copy small { color: var(--muted); line-height: 1.35; }
+    .public-profile-edit-details { flex: 0 0 auto; min-height: 34px; white-space: nowrap; }
+    .public-profile-media-remove { position: absolute; z-index: 3; right: 5px; bottom: 5px; min-height: 28px; padding: 4px 7px; border: 1px solid color-mix(in srgb, var(--danger) 72%, #fff); border-radius: 999px; background: color-mix(in srgb, var(--danger) 88%, #21040a); color: #fff; font-size: 10px; font-weight: 850; box-shadow: 0 3px 12px rgba(0,0,0,.32); }
+    .public-profile-media-remove:hover:not(:disabled) { filter: brightness(1.08); }
     .public-profile-channels { display: flex; flex-wrap: wrap; gap: 6px; max-height: 68px; overflow: auto; }
     .public-profile-channel { padding: 5px 8px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel-2); font-size: 11px; }
     .public-profile-details { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px 10px; }
@@ -9675,6 +9686,8 @@
       .public-profile-bio { font-size: 12px; max-height: 42px; overflow: hidden; }
       .public-profile-details { grid-template-columns: repeat(2,minmax(0,1fr)); }
       .public-profile-media { grid-template-columns: repeat(3,minmax(0,1fr)); }
+      .public-profile-edit-banner { align-items: stretch; flex-direction: column; }
+      .public-profile-edit-details { width: 100%; }
       .public-profile-media-card { width: 100vw; height: var(--app-height, 100dvh); border-radius: 0; }
       .public-profile-media-layout { grid-template-columns: 1fr; grid-template-rows: minmax(42%, 58%) minmax(0,1fr); }
       .public-profile-comments { border-left: 0; border-top: 1px solid var(--line); }
@@ -15450,7 +15463,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.238</small>
+          <small id="serverBrandVersion">v9.6.239</small>
         </span>
       </button>
     </div>
@@ -17161,7 +17174,7 @@
   <div id="publicProfileModal" class="modal-layer" hidden>
     <div class="modal-backdrop" data-close-public-profile="1"></div>
     <section class="modal-card public-profile-card" role="dialog" aria-modal="true" aria-labelledby="publicProfileName">
-      <header class="modal-header public-profile-header"><span></span><button id="publicProfileCloseButton" class="icon-button" type="button" aria-label="Close profile"><span class="icon icon-close"></span></button></header>
+      <header class="modal-header public-profile-header"><span></span><div class="public-profile-header-actions"><button id="publicProfileEditButton" class="public-profile-edit-toggle" type="button" hidden aria-pressed="false">Edit</button><button id="publicProfileCloseButton" class="icon-button" type="button" aria-label="Close profile"><span class="icon icon-close"></span></button></div></header>
       <div id="publicProfileBody" class="modal-body public-profile-body">
         <div class="public-profile-loading">Loading profile…</div>
       </div>
@@ -17917,7 +17930,7 @@
         'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu', 'mediaAiModal', 'mediaAiForm', 'mediaAiCloseButton', 'mediaAiCancelButton', 'mediaAiPresetSelect', 'mediaAiPromptInput', 'mediaAiCurrent', 'mediaAiStatus', 'mediaAiRunButton', 'transcriptAiModal', 'transcriptAiForm', 'transcriptAiCloseButton', 'transcriptAiCancelButton', 'transcriptAiPresetSelect', 'transcriptAiPromptInput', 'transcriptAiCurrent', 'transcriptAiStatus', 'transcriptAiRunButton',
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
-        'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
+        'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
@@ -18014,6 +18027,8 @@
       outgoingFriendRequests: new Map(),
       activeFriendRequestId: null,
       activeProfileViewIdentityId: null,
+      activeProfileViewSnapshot: null,
+      publicProfileEditMode: false,
       activeProfileMediaId: null,
       messageListPinnedToBottom: true,
       messageScrollAnchor: null,
@@ -19810,6 +19825,7 @@
       elements.callAllRoomInput.addEventListener('change', renderCallUsers);
       elements.acceptCallButton.addEventListener('click', acceptIncomingCall);
       elements.rejectCallButton.addEventListener('click', rejectIncomingCall);
+      elements.publicProfileEditButton.addEventListener('click', toggleOwnPublicProfileEditMode);
       elements.publicProfileCloseButton.addEventListener('click', closePublicProfile);
       elements.publicProfileModal.addEventListener('pointerdown', (event) => {
         if (event.target?.dataset?.closePublicProfile === '1') closePublicProfile();
@@ -20478,6 +20494,12 @@
 
         case 'profile.media.comments.result':
           if (message.messageId === state.activeProfileMediaId) renderPublicProfileMediaComments(message);
+          break;
+        case 'profile.media.hidden':
+          if (message.messageId === state.activeProfileMediaId) closePublicProfileMedia();
+          if (message.identityId === state.identityId && state.activeProfileViewIdentityId === state.identityId) {
+            sendJson({ type: 'profile.view', identityId: state.identityId });
+          }
           break;
 
         case 'profile.updated':
@@ -38300,8 +38322,14 @@
 
     function openPublicProfile(identityId) {
       const target = String(identityId || '').trim();
-      if (!target || target === state.identityId || !state.registered) return false;
+      if (!target || !state.registered) return false;
       state.activeProfileViewIdentityId = target;
+      state.activeProfileViewSnapshot = null;
+      state.publicProfileEditMode = false;
+      elements.publicProfileEditButton.hidden = true;
+      elements.publicProfileEditButton.setAttribute('aria-pressed', 'false');
+      elements.publicProfileEditButton.textContent = 'Edit';
+      elements.publicProfileBody.classList.remove('is-editing');
       elements.publicProfileBody.innerHTML = '<div class="public-profile-loading">Loading profile…</div>';
       elements.publicProfileModal.hidden = false;
       sendJson({ type: 'profile.view', identityId: target });
@@ -38311,8 +38339,54 @@
     function closePublicProfile() {
       closePublicProfileMedia();
       state.activeProfileViewIdentityId = null;
+      state.activeProfileViewSnapshot = null;
+      state.publicProfileEditMode = false;
+      elements.publicProfileEditButton.hidden = true;
+      elements.publicProfileEditButton.setAttribute('aria-pressed', 'false');
+      elements.publicProfileEditButton.textContent = 'Edit';
       elements.publicProfileModal.hidden = true;
+      elements.publicProfileBody.classList.remove('is-editing');
       elements.publicProfileBody.textContent = '';
+    }
+
+    function toggleOwnPublicProfileEditMode() {
+      if (state.activeProfileViewIdentityId !== state.identityId || !state.activeProfileViewSnapshot) return;
+      state.publicProfileEditMode = !state.publicProfileEditMode;
+      renderPublicProfile(state.activeProfileViewSnapshot);
+    }
+
+    async function openOwnProfileEditorFromViewer() {
+      if (state.activeProfileViewIdentityId !== state.identityId) return false;
+      const profileId = state.selfUser?.identityId || state.identityId;
+      try {
+        if (profileId && !state.profiles.some((profile) => profile.id === profileId) && state.selfUser) {
+          await updateRememberedProfileFromServer(state.selfUser);
+        }
+        if (profileId && state.profiles.some((profile) => profile.id === profileId)) {
+          selectSavedProfile(profileId, { commitScale: false });
+        }
+        closePublicProfile();
+        openProfileOverlay();
+        requestAnimationFrame(() => elements.profileAvatarPreview?.scrollIntoView?.({ block: 'nearest' }));
+        return true;
+      } catch (error) {
+        console.warn('Could not open the current profile editor.', error);
+        addSystemMessage('The profile editor could not be opened.', true);
+        return false;
+      }
+    }
+
+    function hideOwnPublicProfileMedia(item, button = null) {
+      if (!item?.id || state.activeProfileViewIdentityId !== state.identityId) return false;
+      const label = String(item.name || 'this media').trim();
+      if (!window.confirm(`Remove ${label} from your profile gallery? The original chat message and file stay in the channel.`)) return false;
+      if (button) { button.disabled = true; button.textContent = 'Removing…'; }
+      if (!sendJson({ type: 'profile.media.hide', messageId: item.id })) {
+        if (button) { button.disabled = false; button.textContent = 'Remove'; }
+        addSystemMessage('The profile gallery could not be updated while disconnected.', true);
+        return false;
+      }
+      return true;
     }
 
     function appendPublicProfileDetail(container, label, value, href = '') {
@@ -38339,9 +38413,17 @@
 
     function renderPublicProfile(profileMessage) {
       if (!profileMessage?.profile) return;
+      state.activeProfileViewSnapshot = profileMessage;
       const profile = profileMessage.profile;
       const metadata = profile.metadata || {};
+      const ownProfile = String(profile.identityId || profileMessage.identityId || '') === String(state.identityId || '');
+      if (!ownProfile) state.publicProfileEditMode = false;
+      elements.publicProfileEditButton.hidden = !ownProfile;
+      elements.publicProfileEditButton.textContent = state.publicProfileEditMode ? 'Done' : 'Edit';
+      elements.publicProfileEditButton.setAttribute('aria-pressed', String(ownProfile && state.publicProfileEditMode));
+      elements.publicProfileEditButton.title = ownProfile ? (state.publicProfileEditMode ? 'Finish editing your public profile' : 'Edit your profile') : '';
       const body = elements.publicProfileBody;
+      body.classList.toggle('is-editing', ownProfile && state.publicProfileEditMode);
       body.textContent = '';
 
       const staticArea = document.createElement('div');
@@ -38434,6 +38516,25 @@
       staticArea.append(summary);
       body.append(staticArea);
 
+      if (ownProfile && state.publicProfileEditMode) {
+        const editBanner = document.createElement('section');
+        editBanner.className = 'public-profile-edit-banner';
+        const editCopy = document.createElement('div');
+        editCopy.className = 'public-profile-edit-banner-copy';
+        const editTitle = document.createElement('strong');
+        editTitle.textContent = 'Editing your profile';
+        const editHint = document.createElement('small');
+        editHint.textContent = 'Remove gallery items here without deleting their chat messages. Use Profile details to change your picture, status or bio.';
+        editCopy.append(editTitle, editHint);
+        const detailsButton = document.createElement('button');
+        detailsButton.type = 'button';
+        detailsButton.className = 'public-profile-edit-details primary';
+        detailsButton.textContent = 'Profile details';
+        detailsButton.addEventListener('click', openOwnProfileEditorFromViewer);
+        editBanner.append(editCopy, detailsButton);
+        body.append(editBanner);
+      }
+
       const mediaScroll = document.createElement('section');
       mediaScroll.className = 'public-profile-media-scroll public-profile-section';
       const mediaHeading = document.createElement('h3');
@@ -38444,8 +38545,11 @@
         const grid = document.createElement('div');
         grid.className = 'public-profile-media';
         for (const item of media.slice(0, 30)) {
+          const itemShell = document.createElement('div');
+          itemShell.className = 'public-profile-media-item';
           const button = document.createElement('button');
           button.type = 'button';
+          button.className = 'public-profile-media-open';
           button.title = item.room ? `${item.name || 'Media'} · #${item.room}` : (item.name || 'Media');
           const image = document.createElement('img');
           image.loading = 'lazy';
@@ -38460,7 +38564,21 @@
             button.append(badge);
           }
           button.addEventListener('click', () => openPublicProfileMedia(item));
-          grid.append(button);
+          itemShell.append(button);
+          if (ownProfile && state.publicProfileEditMode) {
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'public-profile-media-remove';
+            remove.textContent = 'Remove';
+            remove.title = 'Remove from your profile gallery without deleting the channel message';
+            remove.addEventListener('click', (event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              hideOwnPublicProfileMedia(item, remove);
+            });
+            itemShell.append(remove);
+          }
+          grid.append(itemShell);
         }
         mediaScroll.append(grid);
       } else {
@@ -39125,7 +39243,11 @@
         dot.className = 'presence-dot';
         button.append(avatar, dot);
         const callPeerKey = decorateChannelUserBadgeForCall(button, user);
-        if (!isOwnUser(user)) {
+        if (isOwnUser(user)) {
+          button.title = `${user.nickname}${user.metadata?.status ? ` · ${user.metadata.status}` : ''} · View your profile`;
+          button.setAttribute('aria-label', button.title);
+          button.addEventListener('click', () => openPublicProfile(user.identityId));
+        } else {
           button.addEventListener('click', () => selectDirectUser(user));
           button.addEventListener('contextmenu', (event) => {
             event.preventDefault();

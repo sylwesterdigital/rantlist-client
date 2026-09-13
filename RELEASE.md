@@ -1,3 +1,9 @@
+## v0.1.78 / 9.6.239
+
+- Synchronized browser client to **9.6.239 / rantlist-deploy-r267** and protocol **63**.
+- Own channel-member avatar now opens self profile inspection with Edit/Done controls.
+- Profile media can be removed from the public gallery without deleting the source chat message, while picture/status/bio editing continues through the existing validated Profile editor.
+
 ## v0.1.77 / 9.6.238
 
 - Synchronized browser client to **9.6.238 / rantlist-deploy-r266** and protocol **63**.

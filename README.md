@@ -1,3 +1,10 @@
+## v0.1.78 / 9.6.239
+
+- Synchronized browser client to **9.6.239 / rantlist-deploy-r267** and protocol **63**.
+- Clicking your own avatar in the channel member rail now opens the same public profile view other authorized users see.
+- A self-only Edit mode links to the existing Profile editor for picture/status/bio changes and adds non-destructive per-item profile-gallery removal.
+- Removed gallery media stays in the original channel message/file; only profile visibility is changed server-side.
+
 ## v0.1.77 / 9.6.238
 
 - Synchronized browser client to **9.6.238 / rantlist-deploy-r266** and protocol **63**.
