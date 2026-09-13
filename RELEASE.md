@@ -1,3 +1,10 @@
+## Changes in v0.1.70
+
+- Synchronized browser client to **9.6.231 / rantlist-deploy-r259** and protocol **63**.
+- Fixes missing iOS app-icon unread counts caused by a backgrounded WKWebView still being treated as actively viewing its current room while its WebSocket remained connected.
+- Fresh native installs enable **Private + channel messages** badges by default, without overriding users who explicitly chose Off or Private-only.
+- Adds native lifecycle and notification-permission diagnostics plus foreground authoritative badge resynchronization so APNs/provider or iOS Settings failures are visible.
+
 ## Changes in v0.1.69
 
 - Synchronized browser client to **9.6.230 / rantlist-deploy-r258** and protocol **63**.

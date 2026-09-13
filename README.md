@@ -1,3 +1,10 @@
+## v0.1.70 / 9.6.231
+
+- Synchronized browser client to **9.6.231 / rantlist-deploy-r259** and protocol **63**.
+- Fresh native installs default the app-icon unread badge to **Private + channel messages** while preserving an explicitly saved Off or Private-only preference.
+- The iOS wrapper reports active/inactive/background lifecycle to the authenticated push bridge so a backgrounded WKWebView cannot make a channel look read and suppress unread counts or APNs.
+- Returning to the foreground re-synchronizes the authoritative unread count; Config now reports iOS notification/Badge permission problems and whether the server says APNs delivery is ready.
+
 ## v0.1.69 / 9.6.230
 
 - Synchronized browser client to **9.6.230 / rantlist-deploy-r258** and protocol **63**.

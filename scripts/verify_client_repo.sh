@@ -80,6 +80,12 @@ grep -q 'window.rantlistNativeSharedItems' "$ROOT/web/index.html" || { echo "Web
 grep -q 'window.rantlistNativeSharedFileChunk' "$ROOT/web/index.html" || { echo "Web client native shared-file chunk receiver missing" >&2; exit 1; }
 grep -q "action: 'read'" "$ROOT/web/index.html" || { echo "Web client does not request shared files through the native bridge" >&2; exit 1; }
 grep -q 'window.rantlistNativePushToken' "$ROOT/web/index.html" || { echo "Web client native APNs token receiver missing" >&2; exit 1; }
+grep -q 'window.rantlistNativeAppState' "$ROOT/web/index.html" || { echo "Web client native foreground/background push state bridge missing" >&2; exit 1; }
+grep -q 'window.rantlistNativeNotificationSettings' "$ROOT/web/index.html" || { echo "Web client native notification permission diagnostic bridge missing" >&2; exit 1; }
+grep -q "appIconBadgeMode: \['off', 'direct', 'all'\].* : 'all'" "$ROOT/web/index.html" || { echo "Fresh native unread badge default is not enabled" >&2; exit 1; }
+grep -q 'UIApplication.didEnterBackgroundNotification' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS app background lifecycle observer missing" >&2; exit 1; }
+grep -q 'UIApplication.willResignActiveNotification' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS app inactive lifecycle observer missing" >&2; exit 1; }
+grep -q 'window.rantlistNativeNotificationSettings' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS notification settings are not reported to the web client" >&2; exit 1; }
 ! grep -q 'PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script globally overrides the Share Extension bundle identifier" >&2; exit 1; }
 grep -q 'RANTLIST_APP_BUNDLE_ID="$BUNDLE_ID"' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script does not provide the shared bundle-id base to app + extension targets" >&2; exit 1; }
 grep -q 'RANTLIST_IOS_SHARE_MODE:-auto' "$ROOT/scripts/build_ios_release.sh" || { echo "iOS release script lacks automatic Share provisioning fallback" >&2; exit 1; }

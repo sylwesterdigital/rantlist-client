@@ -415,6 +415,8 @@ private struct RantlistWebView: UIViewRepresentable {
             center.addObserver(self, selector: #selector(keyboardDidShow), name: UIResponder.keyboardDidShowNotification, object: nil)
             center.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
             center.addObserver(self, selector: #selector(keyboardDidHide), name: UIResponder.keyboardDidHideNotification, object: nil)
+            center.addObserver(self, selector: #selector(applicationWillResignActive), name: UIApplication.willResignActiveNotification, object: nil)
+            center.addObserver(self, selector: #selector(applicationDidEnterBackground), name: UIApplication.didEnterBackgroundNotification, object: nil)
             center.addObserver(self, selector: #selector(applicationDidBecomeActive), name: UIApplication.didBecomeActiveNotification, object: nil)
             center.addObserver(self, selector: #selector(pushTokenDidUpdate), name: .rantlistPushTokenDidUpdate, object: nil)
             center.addObserver(self, selector: #selector(sharedInboxDidUpdate), name: .rantlistSharedInboxDidUpdate, object: nil)
@@ -547,6 +549,54 @@ private struct RantlistWebView: UIViewRepresentable {
             )
         }
 
+        private func deliverNativeApplicationState(_ explicitState: String? = nil) {
+            guard shellState.hasLoadedUI else { return }
+            let state: String
+            if let explicitState {
+                state = explicitState
+            } else {
+                switch UIApplication.shared.applicationState {
+                case .active: state = "active"
+                case .background: state = "background"
+                case .inactive: state = "inactive"
+                @unknown default: state = "inactive"
+                }
+            }
+            guard let stateJSON = jsonLiteral(state) else { return }
+            webView?.evaluateJavaScript(
+                "window.rantlistNativeAppState && window.rantlistNativeAppState(\(stateJSON));",
+                completionHandler: nil
+            )
+        }
+
+        private func deliverNativeNotificationSettings() {
+            guard shellState.hasLoadedUI else { return }
+            UNUserNotificationCenter.current().getNotificationSettings { [weak self] settings in
+                let authorization: String
+                switch settings.authorizationStatus {
+                case .authorized: authorization = "authorized"
+                case .provisional: authorization = "provisional"
+                case .ephemeral: authorization = "ephemeral"
+                case .denied: authorization = "denied"
+                case .notDetermined: authorization = "notDetermined"
+                @unknown default: authorization = "unknown"
+                }
+                let payload: [String: Any] = [
+                    "authorization": authorization,
+                    "badgeEnabled": settings.badgeSetting == .enabled,
+                ]
+                DispatchQueue.main.async {
+                    guard let self,
+                          self.shellState.hasLoadedUI,
+                          let settingsJSON = self.jsonLiteral(payload) else { return }
+                    self.webView?.evaluateJavaScript(
+                        "window.rantlistNativeNotificationSettings && window.rantlistNativeNotificationSettings(\(settingsJSON));",
+                        completionHandler: nil
+                    )
+                }
+            }
+        }
+
         private func deliverPendingShares() {
             guard shellState.hasLoadedUI else { return }
             let payload = NativeShareInbox.pendingPayload()
@@ -620,11 +670,21 @@ private struct RantlistWebView: UIViewRepresentable {
             webView.load(URLRequest(url: appURL, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 30))
         }
 
+        @objc private func applicationWillResignActive() {
+            deliverNativeApplicationState("inactive")
+        }
+
+        @objc private func applicationDidEnterBackground() {
+            deliverNativeApplicationState("background")
+        }
+
         @objc private func applicationDidBecomeActive() {
             DispatchQueue.main.async { [weak self] in
                 guard let self else { return }
                 if self.shellState.hasLoadedUI {
+                    self.deliverNativeApplicationState("active")
                     self.deliverNativePushToken()
+                    self.deliverNativeNotificationSettings()
                     self.deliverPendingShares()
                     self.deliverPendingRoom()
                 } else {
@@ -671,7 +731,9 @@ private struct RantlistWebView: UIViewRepresentable {
             guard trusted(webView.url) else { return }
             shellState.hasLoadedUI = true
             shellState.phase = .ready
+            deliverNativeApplicationState()
             deliverNativePushToken()
+            deliverNativeNotificationSettings()
             deliverPendingShares()
             deliverPendingRoom()
         }

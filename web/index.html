@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.230">
+  <meta name="chat-ui-version" content="9.6.231">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15273,7 +15273,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.230</small>
+          <small id="serverBrandVersion">v9.6.231</small>
         </span>
       </button>
     </div>
@@ -15484,7 +15484,7 @@
               <option value="all">Private + channel messages</option>
             </select>
           </div>
-          <p class="hint">Native iOS/macOS only. Updates while the app is running; iOS background/terminated delivery requires APNs and is not enabled yet.</p>
+          <p class="hint" id="appIconBadgeHint">Native app badge. Fresh installs default to Private + channel messages unless you explicitly choose Off; iOS background/terminated delivery uses APNs when notifications, Badges and the server provider are available.</p>
           <label class="config-toggle-row" for="mobileRoomRailToggleInput">
             <span>Channel rail</span>
             <input id="mobileRoomRailToggleInput" type="checkbox" role="switch">
@@ -17706,7 +17706,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18048,11 +18048,15 @@
       toolbarBorders: readStorage('chat.ui.toolbarBorders') !== 'off',
       interfaceBorders: readStorage('chat.ui.interfaceBorders') !== 'off',
       mobileTypingFocus: readStorage('chat.mobile.maximizeTyping') === 'on',
-      appIconBadgeMode: ['direct', 'all'].includes(readStorage('chat.native.badgeMode')) ? readStorage('chat.native.badgeMode') : 'off',
+      appIconBadgeMode: ['off', 'direct', 'all'].includes(readStorage('chat.native.badgeMode')) ? readStorage('chat.native.badgeMode') : 'all',
       nativePushToken: null,
       nativePushEnvironment: 'production',
       nativePushRegisteredToken: null,
       nativePushAuthoritativeCount: null,
+      nativePushDeliveryReady: null,
+      nativeAppState: 'active',
+      nativeNotificationAuthorization: 'unknown',
+      nativeNotificationBadgeEnabled: null,
       nativeSharedGroups: [],
       nativeShareSending: false,
       mobileRoomRailToggle: readStorage('chat.mobile.roomRailToggle') !== 'off',
@@ -19996,12 +20000,17 @@
 
         case 'push.device.registered':
           state.nativePushRegisteredToken = state.nativePushToken;
+          state.nativePushDeliveryReady = message.deliveryReady === true;
+          if (message.appState) state.nativeAppState = ['background','inactive'].includes(message.appState) ? message.appState : 'active';
+          renderNativePushStatus();
           break;
 
         case 'push.device.unregistered':
           state.nativePushRegisteredToken = null;
           state.nativePushAuthoritativeCount = 0;
+          state.nativePushDeliveryReady = null;
           syncNativeAppBadge();
+          renderNativePushStatus();
           break;
 
         case 'push.badge.sync':
@@ -43752,8 +43761,58 @@
         token: state.nativePushToken,
         environment: state.nativePushEnvironment === 'sandbox' ? 'sandbox' : 'production',
         badgeMode: state.appIconBadgeMode,
+        appState: ['background','inactive'].includes(state.nativeAppState) ? state.nativeAppState : 'active',
       });
     }
+
+    function renderNativePushStatus() {
+      const hint = elements.appIconBadgeHint;
+      if (!hint) return;
+      if (!isRantlistIOSApp()) {
+        hint.textContent = 'Native app badge. iOS background/terminated delivery uses APNs; macOS updates its Dock badge while the app is running.';
+        return;
+      }
+      if (state.nativeNotificationAuthorization === 'denied') {
+        hint.textContent = 'iOS notifications are denied in Settings. Enable Notifications and Badges for Rantlist to receive background alerts or an app-icon count.';
+        return;
+      }
+      if (state.nativeNotificationBadgeEnabled === false) {
+        hint.textContent = 'iOS notifications are available, but Badges are disabled in Settings for Rantlist. Enable Badges to show the app-icon unread count.';
+        return;
+      }
+      if (state.nativePushToken && state.nativePushDeliveryReady === false) {
+        hint.textContent = 'This iPhone is registered, but the server reports APNs is not configured. Foreground counts can sync; background/terminated delivery cannot.';
+        return;
+      }
+      if (state.nativePushToken && state.nativePushDeliveryReady === true) {
+        hint.textContent = 'iOS APNs registration is ready. Background/terminated badges follow the selected unread mode; direct messages and mentions can also alert.';
+        return;
+      }
+      hint.textContent = 'Waiting for the native iOS notification registration status. Fresh installs default to Private + channel messages unless you explicitly choose Off.';
+    }
+
+    window.rantlistNativeNotificationSettings = (rawSettings = {}) => {
+      const authorization = String(rawSettings?.authorization || 'unknown');
+      state.nativeNotificationAuthorization = ['authorized','provisional','ephemeral','denied','notDetermined'].includes(authorization) ? authorization : 'unknown';
+      state.nativeNotificationBadgeEnabled = typeof rawSettings?.badgeEnabled === 'boolean' ? rawSettings.badgeEnabled : null;
+      renderNativePushStatus();
+      return true;
+    };
+
+    window.rantlistNativeAppState = (rawState = 'active') => {
+      const next = rawState === 'background' ? 'background' : (rawState === 'inactive' ? 'inactive' : 'active');
+      state.nativeAppState = next;
+      if (state.registered && state.nativePushToken) {
+        sendJson({ type: 'push.app.state', state: next });
+        if (next === 'active') sendJson({ type: 'push.badge.query', mode: state.appIconBadgeMode });
+      }
+      return true;
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (!isRantlistIOSApp()) return;
+      window.rantlistNativeAppState(document.hidden ? 'background' : 'active');
+    });
 
     window.rantlistNativePushToken = (rawToken, rawEnvironment = 'production') => {
       const token = normalizeNativePushToken(rawToken);
@@ -44006,6 +44065,7 @@
       state.nativePushAuthoritativeCount = null;
       syncNativeAppBadge();
       registerNativePushDevice();
+      renderNativePushStatus();
       if (state.registered && state.nativePushToken) sendJson({ type: 'push.badge.query', mode: state.appIconBadgeMode });
     }
 
