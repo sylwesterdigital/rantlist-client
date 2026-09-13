@@ -3,7 +3,7 @@ import UIKit
 import UniformTypeIdentifiers
 
 private let appGroupIdentifier = "group.fun.workwork.rantlist"
-private let shareWebSocketURL = URL(string: "wss://rantlist.me/ws?uiVersion=9.6.235&protocolVersion=63&nativeShare=1")!
+private let shareWebSocketURL = URL(string: "wss://rantlist.me/ws?uiVersion=9.6.236&protocolVersion=63&nativeShare=1")!
 
 private struct ShareManifest: Codable {
     struct Item: Codable {

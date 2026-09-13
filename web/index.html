@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.235">
+  <meta name="chat-ui-version" content="9.6.236">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15339,6 +15339,100 @@
       .media-transcript-segment { grid-template-columns:44px minmax(0,1fr); gap:5px; padding:6px 5px; }
     }
 
+
+    /* r264: live composer preview and desktop side inspectors. */
+    .composer-style-config {
+      display: grid;
+      grid-template-columns: minmax(145px, .85fr) minmax(175px, 1.15fr);
+      align-items: end;
+      gap: 10px;
+      margin-bottom: var(--space-3);
+    }
+    .composer-style-control,
+    .composer-style-preview {
+      min-width: 0;
+      display: grid;
+      gap: var(--space-2);
+    }
+    .composer-style-control > label,
+    .composer-style-preview > span {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .composer-style-control > select {
+      width: 100%;
+      min-width: 0;
+      padding: 5px 8px;
+    }
+    .composer-style-preview-shell {
+      width: 100%;
+      min-height: 36px;
+      padding: 4px 7px;
+      pointer-events: none;
+      gap: 6px;
+    }
+    .composer-style-preview-plus,
+    .composer-style-preview-camera,
+    .composer-style-preview-mic {
+      flex: 0 0 22px;
+      width: 22px;
+      height: 22px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: var(--muted);
+      font-weight: 800;
+      font-size: 13px;
+    }
+    .composer-style-preview-plus { font-size: 20px; font-weight: 400; }
+    .composer-style-preview-input {
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+
+    @media (min-width: 1100px) {
+      :root { --desktop-side-inspector-width: clamp(390px, 31vw, 520px); }
+
+      :root[data-side-inspector="config"] .topbar,
+      :root[data-side-inspector="config"] #workspace,
+      :root[data-side-inspector="config"] .mobile-nav,
+      :root[data-side-inspector="profile"] .topbar,
+      :root[data-side-inspector="profile"] #workspace,
+      :root[data-side-inspector="profile"] .mobile-nav {
+        width: calc(100% - var(--room-rail-space) - var(--desktop-side-inspector-width));
+      }
+
+      .config-drawer {
+        grid-template-columns: minmax(0, 1fr) var(--desktop-side-inspector-width);
+        background: transparent !important;
+      }
+      .config-drawer .config-card {
+        width: 100%;
+        max-width: none;
+      }
+      .profile-overlay {
+        grid-template-columns: minmax(0, 1fr) var(--desktop-side-inspector-width);
+        background: transparent;
+      }
+      .profile-dialog {
+        width: 100%;
+        max-width: none;
+      }
+      .config-backdrop,
+      .profile-backdrop {
+        background: transparent !important;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .composer-style-config { grid-template-columns: 1fr; }
+    }
+
 </style>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
 </head>
@@ -15353,7 +15447,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.235</small>
+          <small id="serverBrandVersion">v9.6.236</small>
         </span>
       </button>
     </div>
@@ -15494,21 +15588,32 @@
             <input id="bubbleOutlineOpacityInput" type="range" min="0" max="100" step="5" value="0" aria-label="Speech bubble outline opacity">
             <small class="hint">0% removes the border completely. Increase only if you want a visible edge around bubbles.</small>
           </div>
-          <div class="config-row">
-            <label for="composerBorderStyleSelect">Message composer border</label>
-            <select id="composerBorderStyleSelect">
-              <option value="plain">Theme default</option>
-              <option value="glow">Slow glow</option>
-              <option value="gradient">Rotating gradient</option>
-              <option value="rainbow">Rainbow orbit</option>
-              <option value="fade">Fade in / out</option>
-              <option value="dashed">Dashed</option>
-              <option value="dotted">Dotted</option>
-              <option value="blink">Blinking amber</option>
-              <option value="high-vis">High-vis amber</option>
-            </select>
+          <div class="composer-style-config">
+            <div class="composer-style-control">
+              <label for="composerBorderStyleSelect">Message composer border</label>
+              <select id="composerBorderStyleSelect">
+                <option value="plain">Theme default</option>
+                <option value="glow">Slow glow</option>
+                <option value="gradient">Rotating gradient</option>
+                <option value="rainbow">Rainbow orbit</option>
+                <option value="fade">Fade in / out</option>
+                <option value="dashed">Dashed</option>
+                <option value="dotted">Dotted</option>
+                <option value="blink">Blinking amber</option>
+                <option value="high-vis">High-vis amber</option>
+              </select>
+            </div>
+            <div class="composer-style-preview" aria-label="Message composer border preview">
+              <span>Preview</span>
+              <div class="composer-shell composer-style-preview-shell" aria-hidden="true">
+                <span class="composer-style-preview-plus">+</span>
+                <span class="composer-style-preview-input">Message</span>
+                <span class="composer-style-preview-camera">▣</span>
+                <span class="composer-style-preview-mic">⌁</span>
+              </div>
+            </div>
           </div>
-          <p class="hint">Decorate only the message-input shell. Animated choices automatically become static when the operating system requests Reduced Motion.</p>
+          <p class="hint">Select on the left and preview the exact resting composer treatment on the right. Animated choices automatically become static when the operating system requests Reduced Motion.</p>
           <div id="themeEditor" class="theme-editor" aria-label="Custom theme colours and opacity"></div>
           <div class="config-row theme-name-row">
             <label for="themeNameInput">Custom theme name</label>
@@ -44914,6 +45019,16 @@
       }
     }
 
+    function setDesktopSideInspector(kind = '') {
+      const safeKind = kind === 'config' || kind === 'profile' ? kind : '';
+      if (safeKind) document.documentElement.dataset.sideInspector = safeKind;
+      else delete document.documentElement.dataset.sideInspector;
+      requestAnimationFrame(() => {
+        syncViewportHeight(true);
+        if (elements.workspace?.classList.contains('floating') && window.innerWidth > 850) clampAllPanels();
+      });
+    }
+
     function openProfileOverlay() {
       state.profileUiScalePreviewBaseline = currentProfileUiScale();
       closeReactionPickers();
@@ -44922,6 +45037,7 @@
       if (!elements.channelSettingsDrawer.hidden) closeChannelSettings(false);
       elements.profilePanel.hidden = false;
       elements.profilePanel.setAttribute('aria-hidden', 'false');
+      setDesktopSideInspector('profile');
       if (elements.profileSharedMediaNotice) elements.profileSharedMediaNotice.hidden = state.registered || !hasPendingSharedMediaLink();
       elements.profileInvitePinInput.value = state.pendingExternalInvitePin || '';
       elements.profileDialogBody.scrollTop = 0;
@@ -44939,6 +45055,7 @@
       if (Number.isFinite(Number(baselineScale))) applyProfileUiScale(baselineScale, { persist: true });
       elements.profilePanel.hidden = true;
       elements.profilePanel.setAttribute('aria-hidden', 'true');
+      if (document.documentElement.dataset.sideInspector === 'profile') setDesktopSideInspector('');
       if (restoreFocus) elements.profileMenuButton.focus({ preventScroll: true });
       syncViewportHeight(true);
     }
@@ -45357,8 +45474,10 @@
 
     function openConfig() {
       closeReactionPickers();
+      if (!elements.profilePanel.hidden) closeProfileOverlay(false);
       elements.configDrawer.hidden = false;
       elements.configDrawer.setAttribute('aria-hidden', 'false');
+      setDesktopSideInspector('config');
       renderThemeEditor();
       renderUiFontOptions();
       renderLocalFontAccessState();
@@ -45374,6 +45493,7 @@
     function closeConfig() {
       elements.configDrawer.hidden = true;
       elements.configDrawer.setAttribute('aria-hidden', 'true');
+      if (document.documentElement.dataset.sideInspector === 'config') setDesktopSideInspector('');
       elements.configButton.focus({ preventScroll: true });
       syncViewportHeight(true);
     }

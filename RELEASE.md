@@ -1,3 +1,9 @@
+## Changes in v0.1.75
+
+- Synchronized browser client to **9.6.236 / rantlist-deploy-r264** and protocol **63**.
+- Added a live same-row Config preview for message-composer border treatments.
+- Added responsive desktop side-inspector layout for Config and editable Profile without covering the chat workspace.
+
 ## Changes in v0.1.74
 
 - Synchronized browser client to **9.6.235 / rantlist-deploy-r263** and protocol **63**.

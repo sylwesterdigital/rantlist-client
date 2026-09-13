@@ -1,3 +1,10 @@
+## v0.1.75 / 9.6.236
+
+- Synchronized browser client to **9.6.236 / rantlist-deploy-r264** and protocol **63**.
+- Config now pairs the message-composer border selector with a live same-row preview.
+- Wide desktop Config and editable Profile panels reserve a right-side inspector column so Chat, Users and Calls stay visible instead of being covered.
+- Narrow/mobile behavior remains unchanged.
+
 ## v0.1.74 / 9.6.235
 
 - Synchronized browser client to **9.6.235 / rantlist-deploy-r263** and protocol **63**.
