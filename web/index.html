@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.236">
+  <meta name="chat-ui-version" content="9.6.238">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -861,6 +861,9 @@
     .ai-builder-gallery-thumb { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; display: grid; place-items: center; padding: 0; appearance: none; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel) 86%, var(--bg)); color: var(--muted); cursor: pointer; }
     .ai-builder-gallery-thumb img { width: 100%; height: 100%; display: block; object-fit: cover; }
     .ai-builder-gallery-thumb .icon { width: 28px; height: 28px; opacity: .62; }
+    .ai-builder-gallery-thumb-state { max-width: 88%; text-align: center; color: var(--muted); font-size: 10px; line-height: 1.3; }
+    .ai-builder-gallery-thumb-state.rendering { color: var(--accent); }
+    .ai-builder-gallery-thumb-state.failed { color: var(--warning); }
     .ai-builder-gallery-item strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ai-builder-gallery-item small { color: var(--muted); line-height: 1.35; }
     .ai-builder-gallery-actions { display: flex; gap: 7px; flex-wrap: wrap; }
@@ -15447,7 +15450,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.236</small>
+          <small id="serverBrandVersion">v9.6.238</small>
         </span>
       </button>
     </div>
@@ -15755,6 +15758,20 @@
             <select id="hetznerAiModelSelect" aria-describedby="hetznerAiModelHint"></select>
           </div>
           <p id="hetznerAiModelHint" class="hint">Choose the model for normal /ai text chat. With a Hetzner Qwen model, an immediately preceding multi-photo batch can also be compared in one /ai request. Local Llama is text-only.</p>
+          <div class="config-row" data-config-feature="media-ai">
+            <label for="mediaAiModeSelect">Experimental image AI</label>
+            <select id="mediaAiModeSelect">
+              <option value="off">Off</option>
+              <option value="manual">On request</option>
+              <option value="auto">Automatic description</option>
+            </select>
+          </div>
+          <p id="mediaAiConfigHint" class="hint">Per-device setting · checking experimental image AI…</p>
+          <div class="config-row" data-config-feature="media-ai-timeout">
+            <label for="mediaAiTimeoutInput">Image AI timeout</label>
+            <span class="config-inline-range"><input id="mediaAiTimeoutInput" type="number" min="15" max="300" step="5" value="180" inputmode="numeric" aria-describedby="mediaAiTimeoutHint"><span>sec</span></span>
+          </div>
+          <p id="mediaAiTimeoutHint" class="hint">Per-device setting · 15–300 seconds · default 180 seconds. Saved automatically and applied to each image-analysis request.</p>
           <label class="config-toggle-row" data-config-feature="chat-ai" for="chatAiContextInput">
             <span>Recent context</span>
             <input id="chatAiContextInput" type="checkbox" role="switch">
@@ -15779,20 +15796,6 @@
           <div class="config-actions">
             <button id="chatAiBuilderGalleryButton" type="button"><span class="icon icon-preview"></span><span>Open AI Slop Gallery</span></button>
           </div>
-          <div class="config-row" data-config-feature="media-ai">
-            <label for="mediaAiModeSelect">Experimental image AI</label>
-            <select id="mediaAiModeSelect">
-              <option value="off">Off</option>
-              <option value="manual">On request</option>
-              <option value="auto">Automatic description</option>
-            </select>
-          </div>
-          <p id="mediaAiConfigHint" class="hint">Server status: checking experimental image AI…</p>
-          <div class="config-row" data-config-feature="media-ai-timeout">
-            <label for="mediaAiTimeoutInput">Image AI timeout</label>
-            <span class="config-inline-range"><input id="mediaAiTimeoutInput" type="number" min="15" max="300" step="5" value="180" inputmode="numeric" aria-describedby="mediaAiTimeoutHint"><span>sec</span></span>
-          </div>
-          <p id="mediaAiTimeoutHint" class="hint">Per-device setting · 15–300 seconds · default 180 seconds. Saved automatically and applied to each image-analysis request.</p>
         </section>
         <section class="config-section">
           <h3>Media</h3>
@@ -34983,14 +34986,16 @@
             run: () => showMediaPreview(binding.preview, file, binding.button, { autoplay: isAudioFile }),
           });
         }
-        if (isMediaAiImageFile(file) && messageId && state.mediaAiMode !== 'off') {
+        if (isMediaAiImageFile(file) && messageId) {
+          const imageAiReady = state.mediaAiMode !== 'off' && state.capabilities.mediaAi === true;
           actions.push({
             label: 'Image AI',
-            title: state.capabilities.mediaAi ? 'Analyze image with experimental AI' : 'Image AI is not configured on this server',
+            title: state.mediaAiMode === 'off'
+              ? 'Image AI is off on this device · open Config to enable it'
+              : (state.capabilities.mediaAi ? 'Analyze image with experimental AI' : 'Image AI is not configured on this server · open Config for status'),
             icon: 'icon-brain',
             separator: actions.length > 0,
-            disabled: !state.capabilities.mediaAi,
-            run: () => openMediaAiModal(messageId),
+            run: () => imageAiReady ? openMediaAiModal(messageId) : openMediaAiConfigFromMessage(),
           });
         }
         if (isTranscribableAudioFile(file) && messageId) {
@@ -42500,10 +42505,22 @@
         const thumb = document.createElement('button'); thumb.type = 'button'; thumb.className = 'ai-builder-gallery-thumb'; thumb.title = `Open ${item.title || 'AI Builder page'}`; thumb.addEventListener('click', openArtifact);
         if (String(item.thumbnailUrl || '').startsWith('/media/')) {
           const image = document.createElement('img'); image.src = item.thumbnailUrl; image.alt = `Preview of ${item.title || 'AI Builder page'}`; image.loading = 'lazy'; image.decoding = 'async';
-          image.addEventListener('error', () => { thumb.innerHTML = '<span class="icon icon-preview" aria-hidden="true"></span>'; });
+          image.addEventListener('error', () => {
+            thumb.innerHTML = '<span class="icon icon-preview" aria-hidden="true"></span><span class="ai-builder-gallery-thumb-state failed">Preview could not be loaded</span>';
+          });
           thumb.append(image);
         } else {
-          thumb.innerHTML = '<span class="icon icon-preview" aria-hidden="true"></span>';
+          const stateLabel = document.createElement('span');
+          const thumbnailState = String(item.thumbnailState || 'pending');
+          stateLabel.className = `ai-builder-gallery-thumb-state ${thumbnailState}`;
+          stateLabel.textContent = thumbnailState === 'rendering' ? 'Rendering preview…' : (thumbnailState === 'failed' ? 'Preview failed · tap to retry' : 'Preview queued');
+          const icon = document.createElement('span'); icon.className = 'icon icon-preview'; icon.setAttribute('aria-hidden', 'true');
+          thumb.append(icon, stateLabel);
+          if (thumbnailState === 'failed') {
+            thumb.removeEventListener('click', openArtifact);
+            thumb.title = `Retry preview for ${item.title || 'AI Builder page'}`;
+            thumb.addEventListener('click', () => sendJson({ type: 'ai.builder.gallery.thumbnail.retry', artifactId: item.id }));
+          }
         }
         const title = document.createElement('strong'); title.textContent = item.title || 'AI Builder page';
         const meta = document.createElement('small'); meta.textContent = `${Number(item.htmlChars || 0).toLocaleString()} HTML characters · ${item.updatedAt ? new Date(item.updatedAt).toLocaleString() : 'saved'}`;
@@ -42784,9 +42801,12 @@
         const activeModel = selectedHetznerTaskModel();
         const model = activeModel ? ` · ${activeModel}` : '';
         const requestMode = state.capabilities.mediaAiRequestMode === 'standard-openai-compatible' ? ' · standard OpenAI-compatible API mode' : '';
+        const localMode = state.mediaAiMode === 'off'
+          ? 'Off on this device'
+          : (state.mediaAiMode === 'auto' ? 'Automatic description on this device' : 'On request on this device');
         elements.mediaAiConfigHint.textContent = available
-          ? `Server status: ready · ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}${requestMode}.`
-          : 'Server status: not configured · add HETZNER_INFERENCE_API_KEY to /etc/rantlist-chat.env, then restart the service.';
+          ? `${localMode} · server ready · ${state.capabilities.mediaAiProvider || 'Hetzner Experiments'}${model}${requestMode}.`
+          : `${localMode} · server not configured · add HETZNER_INFERENCE_API_KEY to /etc/rantlist-chat.env, then restart the service.`;
       }
       if (elements.mediaAiTimeoutInput) {
         elements.mediaAiTimeoutInput.value = String(timeoutSeconds);
@@ -42795,6 +42815,16 @@
       if (elements.mediaAiTimeoutHint) {
         elements.mediaAiTimeoutHint.textContent = `Per-device setting · 15–300 seconds · current ${timeoutSeconds}s. Saved automatically and sent with each image-analysis request.`;
       }
+    }
+
+    function openMediaAiConfigFromMessage() {
+      openConfig();
+      requestAnimationFrame(() => {
+        const control = elements.mediaAiModeSelect;
+        if (!control) return;
+        control.scrollIntoView({ block: 'center', inline: 'nearest' });
+        control.focus({ preventScroll: true });
+      });
     }
 
     function ensureMediaAiNode(messageId) {

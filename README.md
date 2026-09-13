@@ -1,3 +1,15 @@
+## v0.1.77 / 9.6.238
+
+- Synchronized browser client to **9.6.238 / rantlist-deploy-r266** and protocol **63**.
+- AI Slop Gallery cards now expose thumbnail render state and a direct retry action instead of silently showing an empty preview when the server-side Playwright derivative is missing.
+- The server deployment now functionally smoke-tests the isolated Builder HTML thumbnail path as the production `www-data` user before activation, and missing saved previews self-heal after restart or Gallery open.
+
+## v0.1.76 / 9.6.237
+
+- Synchronized browser client to **9.6.237 / rantlist-deploy-r265** and protocol **63**.
+- Supported image More menus always expose **Image AI**; when the per-device mode is Off, tapping it opens Config directly at the setting instead of silently hiding the action.
+- Experimental image AI and its timeout now appear immediately below the AI model, with explicit per-device mode and server-readiness status.
+
 ## v0.1.75 / 9.6.236
 
 - Synchronized browser client to **9.6.236 / rantlist-deploy-r264** and protocol **63**.
