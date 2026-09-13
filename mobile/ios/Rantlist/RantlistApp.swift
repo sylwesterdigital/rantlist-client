@@ -27,6 +27,34 @@ private final class NativeBridgeState {
     var pendingRoom: String?
 }
 
+private enum NativeShareSessionStore {
+    private static func sessionURL(createParent: Bool = false) -> URL? {
+        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroupIdentifier) else { return nil }
+        let directory = container.appendingPathComponent("Library/Application Support/RantlistShareSession", isDirectory: true)
+        if createParent { try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true) }
+        return directory.appendingPathComponent("session-v1.json", isDirectory: false)
+    }
+
+    static func save(_ body: [String: Any]) {
+        guard let identityId = body["identityId"] as? String,
+              identityId.range(of: "^[A-Za-z0-9_-]{16,80}$", options: .regularExpression) != nil,
+              let nickname = body["nickname"] as? String,
+              !nickname.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        var payload = body
+        payload.removeValue(forKey: "action")
+        payload["savedAt"] = Date().timeIntervalSince1970
+        guard JSONSerialization.isValidJSONObject(payload),
+              let data = try? JSONSerialization.data(withJSONObject: payload),
+              let url = sessionURL(createParent: true) else { return }
+        try? data.write(to: url, options: .atomic)
+    }
+
+    static func clear() {
+        guard let url = sessionURL() else { return }
+        try? FileManager.default.removeItem(at: url)
+    }
+}
+
 private struct NativeShareManifest: Codable {
     struct Item: Codable {
         let id: String
@@ -438,6 +466,14 @@ private struct RantlistWebView: UIViewRepresentable {
             if message.name == "rantlistShare" {
                 guard let body = message.body as? [String: Any],
                       let action = body["action"] as? String else { return }
+                if action == "session" {
+                    NativeShareSessionStore.save(body)
+                    return
+                }
+                if action == "clearSession" {
+                    NativeShareSessionStore.clear()
+                    return
+                }
                 if action == "consume", let ids = body["ids"] as? [String] {
                     NativeShareInbox.consume(ids: ids)
                     return

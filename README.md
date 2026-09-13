@@ -1,3 +1,10 @@
+## v0.1.72 / 9.6.233
+
+- Synchronized browser client to **9.6.233 / rantlist-deploy-r261** and protocol **63**.
+- The iOS Share Extension now opens a native searchable **Channels / People** picker and sends directly to the selected Rantlist destination; the old “open the app to choose where to send it” bridge is removed from the normal flow.
+- The host app caches only safe recipient/session metadata in the App Group for immediate picker rendering, and Send stays disabled until the extension refreshes authoritative destinations through its own ephemeral non-presence Rantlist connection.
+- Shared text/links use the normal persisted message path and files reuse the existing validated chunk upload pipeline with explicit server acknowledgements; the old pending-share inbox is retained only for interrupted-share recovery.
+
 ## v0.1.71 / 9.6.232
 
 - Synchronized browser client to **9.6.232 / rantlist-deploy-r260** and protocol **63**.

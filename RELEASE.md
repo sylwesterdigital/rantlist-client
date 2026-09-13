@@ -1,3 +1,10 @@
+## Changes in v0.1.72
+
+- Synchronized browser client to **9.6.233 / rantlist-deploy-r261** and protocol **63**.
+- Replaces the iOS Share Extension bridge page with a real native destination picker for Rantlist channels and people, so sharing completes from the system share sheet without reopening the app.
+- Adds App Group session/destination caching for instant rendering plus a live ephemeral WebSocket refresh before Send is enabled; the share connection is isolated from normal presence and cannot replace the main app session.
+- Text/link sends and file uploads wait for server-authoritative acknowledgements, while staged App Group data remains available only as recovery if a share is interrupted.
+
 ## Changes in v0.1.71
 
 - Synchronized browser client to **9.6.232 / rantlist-deploy-r260** and protocol **63**.

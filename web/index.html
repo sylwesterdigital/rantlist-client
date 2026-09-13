@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.232">
+  <meta name="chat-ui-version" content="9.6.233">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15273,7 +15273,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.232</small>
+          <small id="serverBrandVersion">v9.6.233</small>
         </span>
       </button>
     </div>
@@ -19980,6 +19980,7 @@
           registerNativePushDevice();
           writeStorage('chat.activeProfileId', state.identityId);
           state.desiredProfile = { nickname: message.user.nickname, metadata: message.user.metadata || {} };
+          syncNativeShareSession(true);
           updateRememberedProfileFromServer(message.user);
           setConnectionState('online', `Connected as ${message.user.nickname}`);
           renderIdentity();
@@ -20301,6 +20302,7 @@
           state.globalUsers = Array.isArray(message.users) ? message.users : [];
           for (const user of state.globalUsers) cacheUserAppearance(user);
           renderUsers();
+          syncNativeShareSession();
           break;
 
         case 'social.snapshot':
@@ -20339,6 +20341,7 @@
           applyChatBackground();
           renderChatBackgroundEditor();
           renderNativeSharePendingBar();
+          syncNativeShareSession();
 
           if (state.pendingInitialRoomJoin && state.registered && !state.currentRoom) {
             state.pendingInitialRoomJoin = false;
@@ -41287,6 +41290,7 @@
 
     function completeLocalSignOff() {
       state.registered = false;
+      syncNativeShareSession(true);
       syncNativeAppBadge();
       state.isAdmin = false;
       state.signingOff = false;
@@ -43823,6 +43827,89 @@
       registerNativePushDevice();
       return true;
     };
+
+    let nativeShareSessionFingerprint = '';
+    function nativeShareBridgeHandler() {
+      const handler = window.webkit?.messageHandlers?.rantlistShare;
+      return handler && typeof handler.postMessage === 'function' ? handler : null;
+    }
+    function nativeShareProfileMetadata() {
+      const metadata = state.selfUser?.metadata || state.desiredProfile?.metadata || {};
+      const result = {};
+      for (const key of ['avatar', 'color', 'status']) {
+        const value = typeof metadata?.[key] === 'string' ? metadata[key].trim() : '';
+        if (value) result[key] = value.slice(0, key === 'status' ? 120 : 2048);
+      }
+      return result;
+    }
+    function syncNativeShareSession(force = false) {
+      const handler = nativeShareBridgeHandler();
+      if (!handler || !isRantlistIOSApp()) return false;
+      if (!state.registered || !state.identityId || !state.selfUser?.nickname) {
+        if (nativeShareSessionFingerprint !== 'signed-out' || force) {
+          try { handler.postMessage({ action: 'clearSession' }); } catch {}
+          nativeShareSessionFingerprint = 'signed-out';
+        }
+        return false;
+      }
+      const rooms = (state.rooms || [])
+        .filter((room) => room && !room.archived && !room.readOnly)
+        .map((room) => ({
+          roomKey: String(room.roomKey || normalizeRoomKey(room.name) || ''),
+          name: String(room.name || '').slice(0, 80),
+          direct: room.direct === true,
+          directLabel: String(room.directLabel || '').slice(0, 80),
+          directParticipants: (Array.isArray(room.directParticipants) ? room.directParticipants : [])
+            .filter((participant) => participant?.identityId && participant.identityId !== state.identityId)
+            .slice(0, 1)
+            .map((participant) => ({
+              identityId: String(participant.identityId).slice(0, 80),
+              nickname: String(participant.nickname || 'User').slice(0, 80),
+              avatar: typeof participant.metadata?.avatar === 'string' ? participant.metadata.avatar.slice(0, 4096) : '',
+              color: typeof participant.metadata?.color === 'string' ? participant.metadata.color.slice(0, 32) : '',
+              status: typeof participant.metadata?.status === 'string' ? participant.metadata.status.slice(0, 120) : '',
+            })),
+          hidden: room.hidden === true,
+          pinned: room.pinned === true,
+        }))
+        .filter((room) => room.roomKey && room.name);
+      const usersByIdentity = new Map();
+      for (const user of state.globalUsers || []) {
+        const identityId = String(user?.identityId || '').trim();
+        const nickname = String(user?.nickname || '').trim();
+        if (!identityId || !nickname || identityId === state.identityId) continue;
+        const existing = usersByIdentity.get(identityId);
+        const metadata = user?.metadata || {};
+        const candidate = {
+          identityId,
+          nickname: nickname.slice(0, 80),
+          avatar: typeof metadata.avatar === 'string' ? metadata.avatar.slice(0, 4096) : '',
+          color: typeof metadata.color === 'string' ? metadata.color.slice(0, 32) : '',
+          status: typeof metadata.status === 'string' ? metadata.status.slice(0, 120) : '',
+        };
+        if (!existing || (!existing.avatar && candidate.avatar)) usersByIdentity.set(identityId, candidate);
+      }
+      const payload = {
+        action: 'session',
+        schema: 1,
+        identityId: state.identityId,
+        nickname: state.selfUser.nickname,
+        metadata: nativeShareProfileMetadata(),
+        uiVersion: CLIENT_VERSION.uiVersion,
+        protocolVersion: CLIENT_VERSION.protocolVersion,
+        rooms,
+        users: [...usersByIdentity.values()].sort((a, b) => a.nickname.localeCompare(b.nickname)),
+      };
+      const fingerprint = JSON.stringify(payload);
+      if (!force && fingerprint === nativeShareSessionFingerprint) return true;
+      try {
+        handler.postMessage(payload);
+        nativeShareSessionFingerprint = fingerprint;
+        return true;
+      } catch {
+        return false;
+      }
+    }
 
     const nativeSharedFileRequests = new Map();
 

@@ -59,12 +59,29 @@ grep -q 'RantlistShare.appex' "$ROOT/mobile/ios/Rantlist.xcodeproj/project.pbxpr
 grep -q 'com.apple.share-services' "$ROOT/mobile/ios/RantlistShare/Info.plist" || { echo "iOS Share Extension point identifier missing" >&2; exit 1; }
 grep -q 'group.fun.workwork.rantlist' "$ROOT/mobile/ios/RantlistShare/RantlistShare.entitlements" || { echo "Share Extension App Group entitlement missing" >&2; exit 1; }
 grep -q 'loadFileRepresentation' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not copy shared media into the App Group inbox" >&2; exit 1; }
-grep -q 'rantlist://share' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension best-effort app handoff missing" >&2; exit 1; }
-grep -q 'deliverSharedFile(requestID:' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file chunk bridge missing" >&2; exit 1; }
-grep -q 'window.rantlistNativeSharedItems' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native share inbox is not delivered to the web client" >&2; exit 1; }
-grep -q 'window.rantlistNativeSharedFileChunk' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file chunks are not delivered to WKWebView" >&2; exit 1; }
-grep -q 'attemptAutomaticHandoff()' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not attempt automatic containing-app handoff" >&2; exit 1; }
-grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client shared-item destination bar missing" >&2; exit 1; }
+if command -v swiftc >/dev/null 2>&1; then
+  swiftc -frontend -parse "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" >/dev/null || { echo "iOS host Swift source does not parse" >&2; exit 1; }
+  swiftc -frontend -parse "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" >/dev/null || { echo "Share Extension Swift source does not parse" >&2; exit 1; }
+fi
+grep -q '"clientRole": "ios-share-extension"' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not request its isolated server role" >&2; exit 1; }
+grep -q 'recipientServiceReady' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension can enable Send before authoritative destinations are ready" >&2; exit 1; }
+! grep -q 'extensionContext?.open' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension still attempts to launch the containing app" >&2; exit 1; }
+grep -q 'RantlistShareSession' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Host app does not persist the native Share Extension session snapshot" >&2; exit 1; }
+grep -q 'session-v1.json' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not read the atomic App Group session snapshot" >&2; exit 1; }
+grep -q 'data.write(to: url, options: .atomic)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Host app Share Extension session snapshot is not atomic" >&2; exit 1; }
+grep -q 'NativeShareSessionStore.save(body)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Host app does not update the Share Extension session snapshot" >&2; exit 1; }
+grep -q 'URLSessionWebSocketTask' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not use the direct Rantlist WebSocket transport" >&2; exit 1; }
+grep -q 'native.share.destination' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension destination selection protocol missing" >&2; exit 1; }
+grep -q 'native.share.text' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension direct text send protocol missing" >&2; exit 1; }
+grep -q 'native.share.file.sent' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not await authoritative file-send confirmation" >&2; exit 1; }
+grep -q 'UISegmentedControl(items: \["Channels", "People"\])' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension channel/people destination chooser missing" >&2; exit 1; }
+! grep -q 'rantlist://share' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension regressed to containing-app deep-link handoff" >&2; exit 1; }
+! grep -q 'Open the app to choose where to send it' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension still contains the obsolete bridge-page instruction" >&2; exit 1; }
+grep -q 'deliverSharedFile(requestID:' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file recovery bridge missing" >&2; exit 1; }
+grep -q 'window.rantlistNativeSharedItems' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native share inbox recovery is not delivered to the web client" >&2; exit 1; }
+grep -q 'window.rantlistNativeSharedFileChunk' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file recovery chunks are not delivered to WKWebView" >&2; exit 1; }
+grep -q 'function syncNativeShareSession' "$ROOT/web/index.html" || { echo "Web client does not synchronize Share Extension identity/destination state" >&2; exit 1; }
+grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client shared-item recovery bar missing" >&2; exit 1; }
 [[ -f "$ROOT/web/assets/icons/drawing1.svg" ]] || { echo "Drawing attachment icon missing" >&2; exit 1; }
 grep -q 'id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing1"' "$ROOT/web/index.html" || { echo "First Drawing attachment action does not use drawing1.svg" >&2; exit 1; }
 ! grep -q 'id="drawingActionSelect"' "$ROOT/web/index.html" || { echo "Obsolete Drawing action select still present" >&2; exit 1; }
