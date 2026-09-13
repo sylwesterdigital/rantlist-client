@@ -1,3 +1,16 @@
+## Changes in v0.1.74
+
+- Synchronized browser client to **9.6.235 / rantlist-deploy-r263** and protocol **63**.
+- Adds a persistent Appearance control for composer-shell border treatments: slow glow, rotating accent gradient, rainbow orbit, fade, dashed, dotted, blinking amber and high-vis amber.
+- All animated composer-border effects respect Reduced Motion while preserving a visible static border.
+- Moves the persistent Media Library mini-player from the global top bar to the message viewport, reserving timeline clearance and simplifying the transport progressively on narrow screens.
+
+## Changes in v0.1.73
+
+- Synchronized browser client to **9.6.234 / rantlist-deploy-r262** and protocol **63**.
+- Separates durable iOS direct/mention alert pushes from app-icon badge state so late alert delivery cannot reapply an already-read count.
+- Badge snapshots are collapsible and non-stored, and foreground delivery forces an authoritative unread resynchronization instead of trusting stale APNs badge values.
+
 ## Changes in v0.1.72
 
 - Synchronized browser client to **9.6.233 / rantlist-deploy-r261** and protocol **63**.

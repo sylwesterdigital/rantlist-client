@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.234">
+  <meta name="chat-ui-version" content="9.6.235">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -63,6 +63,8 @@
       root.style.setProperty('--link-preview-mobile-thumbnail-height', `${Math.round(94 * linkPreviewScale)}px`);
       const storedBubbleMood = localStorage.getItem('chat.ui.bubbleMood');
       root.dataset.bubbleMood = ['solid', 'soft', 'aurora', 'organic'].includes(storedBubbleMood) ? storedBubbleMood : 'soft';
+      const storedComposerBorder = localStorage.getItem('chat.ui.composerBorder');
+      root.dataset.composerBorder = ['plain', 'glow', 'gradient', 'rainbow', 'fade', 'dashed', 'dotted', 'blink', 'high-vis'].includes(storedComposerBorder) ? storedComposerBorder : 'plain';
       const storedBubbleOutlineOpacity = Math.max(0, Math.min(100, Number(localStorage.getItem('chat.ui.bubbleOutlineOpacity') || 0)));
       root.style.setProperty('--message-outline-percent', `${storedBubbleOutlineOpacity}%`);
       const storedAccessibilityScale = Math.max(75, Math.min(200, Number(localStorage.getItem('chat.ui.accessibilityScale') || 100)));
@@ -1624,7 +1626,9 @@
     .native-share-pending-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
     .native-share-pending button { min-height: 30px; }
     .composer-shell {
+      --composer-shell-surface: color-mix(in srgb, var(--panel-2) 72%, var(--panel-3));
       min-width: 0;
+      position: relative;
       display: flex;
       align-items: center;
       gap: 2px;
@@ -1632,12 +1636,84 @@
       padding: 3px 4px;
       border: 1px solid var(--line);
       border-radius: 27px;
-      background: color-mix(in srgb, var(--panel-2) 72%, var(--panel-3));
-      transition: border-color .15s ease, box-shadow .15s ease;
+      background: var(--composer-shell-surface);
+      transition: border-color .15s ease, box-shadow .15s ease, background .2s ease;
     }
     .composer-shell:focus-within {
       border-color: color-mix(in srgb, var(--accent) 70%, var(--line));
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent);
+    }
+    @property --composer-border-angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+    :root[data-composer-border="glow"] .composer-shell {
+      border-color: color-mix(in srgb, var(--accent) 78%, var(--line));
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 16%, transparent), 0 0 14px color-mix(in srgb, var(--accent) 26%, transparent);
+      animation: composer-border-glow 3.8s ease-in-out infinite;
+    }
+    :root[data-composer-border="gradient"] .composer-shell,
+    :root[data-composer-border="rainbow"] .composer-shell {
+      border: 2px solid transparent;
+      background:
+        linear-gradient(var(--composer-shell-surface), var(--composer-shell-surface)) padding-box,
+        conic-gradient(from var(--composer-border-angle), var(--accent), var(--accent-2), var(--accent-3), var(--accent)) border-box;
+      animation: composer-border-orbit 8s linear infinite;
+    }
+    :root[data-composer-border="rainbow"] .composer-shell {
+      background:
+        linear-gradient(var(--composer-shell-surface), var(--composer-shell-surface)) padding-box,
+        conic-gradient(from var(--composer-border-angle), #ff315b, #ff9f1c, #ffe66d, #34d399, #22d3ee, #60a5fa, #a78bfa, #f472b6, #ff315b) border-box;
+      box-shadow: 0 0 12px rgba(96,165,250,.13);
+      animation-duration: 10s;
+    }
+    :root[data-composer-border="gradient"] .composer-shell:focus-within,
+    :root[data-composer-border="rainbow"] .composer-shell:focus-within {
+      border-color: transparent;
+      box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 12%, transparent), 0 0 14px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    :root[data-composer-border="fade"] .composer-shell {
+      border: 2px solid color-mix(in srgb, var(--accent) 82%, var(--line));
+      animation: composer-border-fade 2.8s ease-in-out infinite;
+    }
+    :root[data-composer-border="dashed"] .composer-shell {
+      border: 2px dashed color-mix(in srgb, var(--accent) 86%, var(--text));
+    }
+    :root[data-composer-border="dotted"] .composer-shell {
+      border: 2px dotted color-mix(in srgb, var(--accent) 88%, var(--text));
+    }
+    :root[data-composer-border="blink"] .composer-shell {
+      border: 2px solid #ffb000;
+      animation: composer-border-blink 1.35s steps(2, end) infinite;
+    }
+    :root[data-composer-border="high-vis"] .composer-shell {
+      border: 3px solid #ffb000;
+      background: color-mix(in srgb, #ffb000 9%, var(--composer-shell-surface));
+      box-shadow: 0 0 0 2px rgba(255,122,0,.38), 0 0 18px rgba(255,176,0,.34);
+    }
+    @keyframes composer-border-glow {
+      0%,100% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 12%, transparent), 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent); }
+      50% { box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 24%, transparent), 0 0 20px color-mix(in srgb, var(--accent) 38%, transparent); }
+    }
+    @keyframes composer-border-orbit { to { --composer-border-angle: 360deg; } }
+    @keyframes composer-border-fade {
+      0%,100% { border-color: color-mix(in srgb, var(--accent) 36%, var(--line)); box-shadow: 0 0 0 0 transparent; }
+      50% { border-color: color-mix(in srgb, var(--accent) 96%, var(--text)); box-shadow: 0 0 13px color-mix(in srgb, var(--accent) 30%, transparent); }
+    }
+    @keyframes composer-border-blink {
+      0%,44% { border-color: #ffb000; box-shadow: 0 0 12px rgba(255,176,0,.38); }
+      45%,100% { border-color: color-mix(in srgb, #ff7a00 28%, transparent); box-shadow: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      :root[data-composer-border="glow"] .composer-shell,
+      :root[data-composer-border="gradient"] .composer-shell,
+      :root[data-composer-border="rainbow"] .composer-shell,
+      :root[data-composer-border="fade"] .composer-shell,
+      :root[data-composer-border="blink"] .composer-shell { animation: none !important; }
+      :root[data-composer-border="gradient"] .composer-shell,
+      :root[data-composer-border="rainbow"] .composer-shell { --composer-border-angle: 35deg; }
+      :root[data-composer-border="blink"] .composer-shell { border-color: #ffb000; box-shadow: 0 0 10px rgba(255,176,0,.24); }
     }
     .composer-shell > .composer-icon-button,
     .composer-shell > .composer-games-button {
@@ -15152,9 +15228,13 @@
 
     /* r233 personal media library + persistent player */
     .media-mini-player {
-      display:flex; align-items:center; gap:5px; min-width:0; max-width:min(360px,42vw); height:34px;
-      padding:3px 5px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2);
+      position:absolute; z-index:18; top:8px; right:10px;
+      display:flex; align-items:center; gap:5px; min-width:0; width:min(430px,72%); max-width:calc(100% - 20px); height:36px;
+      padding:4px 6px; border:1px solid color-mix(in srgb,var(--accent) 28%,var(--line)); border-radius:12px;
+      background:color-mix(in srgb,var(--panel-2) 90%,transparent); box-shadow:0 6px 22px rgba(0,0,0,.16);
+      backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
     }
+    .message-viewport.has-media-mini-player #messageList { padding-top:56px; }
     .media-mini-player[hidden] { display:none !important; }
     .media-mini-player button { min-height:26px; height:26px; padding:3px 7px; border-radius:7px; }
     .media-mini-player .media-mini-title { min-width:0; max-width:120px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; text-align:left; }
@@ -15240,11 +15320,11 @@
       .media-player-transcript-list { max-height:42dvh; }
       .media-player-controls { grid-template-columns:auto minmax(80px,1fr) auto; }
       .media-player-controls #mediaPlayerCaptionsButton { grid-column:1 / -1; justify-self:start; }
-      .media-mini-player { max-width:50vw; }
+      .media-mini-player { left:8px; right:8px; width:auto; max-width:none; }
       .media-mini-title { display:none; }
     }
     @media (max-width:560px) {
-      .media-mini-player { max-width:46vw; }
+      .media-mini-player { left:6px; right:6px; top:6px; width:auto; max-width:none; }
       .media-mini-time { display:none; }
       .media-mini-waveform { min-width:42px; }
       .media-library-card { width:calc(100vw - 12px); height:calc(100dvh - 12px); }
@@ -15273,17 +15353,11 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.234</small>
+          <small id="serverBrandVersion">v9.6.235</small>
         </span>
       </button>
     </div>
     <div class="spacer"></div>
-    <div id="mediaMiniPlayer" class="media-mini-player" hidden aria-label="Media player">
-      <button id="mediaMiniPlayPauseButton" type="button" aria-label="Play or pause current media">▶</button>
-      <button id="mediaMiniTitleButton" class="media-mini-title" type="button" title="Open current media">Media</button>
-      <div id="mediaMiniWaveform" class="media-mini-waveform voice-note-waveform" role="slider" tabindex="0" aria-label="Current media playback position"></div>
-      <span id="mediaMiniTime" class="media-mini-time">0:00</span>
-    </div>
     <button id="topMediaButton" class="toolbar-button topbar-icon-button" type="button" aria-label="Open Media Library" title="Media Library" hidden><span class="icon icon-media" aria-hidden="true"></span></button>
     <button id="topTranslatorButton" class="toolbar-button topbar-icon-button" type="button" aria-label="Open Live Translator" title="Live Translator"><span class="icon icon-translate" aria-hidden="true"></span></button>
     <button id="appearanceCycleButton" class="toolbar-button topbar-icon-button appearance-cycle-button" type="button" aria-label="Cycle appearance preset" title="Next appearance preset"><span class="appearance-cycle-glyph" aria-hidden="true"></span></button>
@@ -15420,6 +15494,21 @@
             <input id="bubbleOutlineOpacityInput" type="range" min="0" max="100" step="5" value="0" aria-label="Speech bubble outline opacity">
             <small class="hint">0% removes the border completely. Increase only if you want a visible edge around bubbles.</small>
           </div>
+          <div class="config-row">
+            <label for="composerBorderStyleSelect">Message composer border</label>
+            <select id="composerBorderStyleSelect">
+              <option value="plain">Theme default</option>
+              <option value="glow">Slow glow</option>
+              <option value="gradient">Rotating gradient</option>
+              <option value="rainbow">Rainbow orbit</option>
+              <option value="fade">Fade in / out</option>
+              <option value="dashed">Dashed</option>
+              <option value="dotted">Dotted</option>
+              <option value="blink">Blinking amber</option>
+              <option value="high-vis">High-vis amber</option>
+            </select>
+          </div>
+          <p class="hint">Decorate only the message-input shell. Animated choices automatically become static when the operating system requests Reduced Motion.</p>
           <div id="themeEditor" class="theme-editor" aria-label="Custom theme colours and opacity"></div>
           <div class="config-row theme-name-row">
             <label for="themeNameInput">Custom theme name</label>
@@ -16499,6 +16588,12 @@
         <span id="channelUserRailWorkspaceHome" class="channel-user-rail-home" aria-hidden="true"></span>
         <div class="panel-body">
         <div id="messageViewport" class="message-viewport">
+          <div id="mediaMiniPlayer" class="media-mini-player" hidden aria-label="Media player">
+            <button id="mediaMiniPlayPauseButton" type="button" aria-label="Play or pause current media">▶</button>
+            <button id="mediaMiniTitleButton" class="media-mini-title" type="button" title="Open current media">Media</button>
+            <div id="mediaMiniWaveform" class="media-mini-waveform voice-note-waveform" role="slider" tabindex="0" aria-label="Current media playback position"></div>
+            <span id="mediaMiniTime" class="media-mini-time">0:00</span>
+          </div>
           <div id="messageList" aria-live="polite"></div>
           <button id="messageToBottomButton" class="message-to-bottom-button" data-button-presentation-ignore type="button" title="Jump to latest message" aria-label="Jump to latest message" hidden><span class="icon icon-bottom" aria-hidden="true"></span><span class="message-to-bottom-count" aria-hidden="true"></span></button>
           <div id="messageTargetOverlay" class="message-target-overlay" hidden aria-live="polite">
@@ -17706,7 +17801,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18064,6 +18159,7 @@
       mobileRoomRailResizeBound: false,
       bubbleMood: ['solid', 'soft', 'aurora', 'organic'].includes(readStorage('chat.ui.bubbleMood')) ? readStorage('chat.ui.bubbleMood') : 'soft',
       bubbleOutlineOpacity: Math.max(0, Math.min(100, Number(readStorage('chat.ui.bubbleOutlineOpacity') || 0))),
+      composerBorderStyle: ['plain', 'glow', 'gradient', 'rainbow', 'fade', 'dashed', 'dotted', 'blink', 'high-vis'].includes(readStorage('chat.ui.composerBorder')) ? readStorage('chat.ui.composerBorder') : 'plain',
       messagePadding: Math.max(0, Math.min(16, Number(readStorage('chat.messages.padding') || 5))),
       mediaControlSize: Math.max(20, Math.min(34, Number(readStorage('chat.media.controlSize') || 24))),
       mediaControlOpacity: Math.max(35, Math.min(100, Number(readStorage('chat.media.controlOpacity') || 68))),
@@ -18702,6 +18798,11 @@
       });
       elements.bubbleOutlineOpacityInput.addEventListener('change', () => {
         updateThemeStatus(`Bubble outline set to ${state.bubbleOutlineOpacity}%.`);
+      });
+      elements.composerBorderStyleSelect.addEventListener('change', () => {
+        state.composerBorderStyle = normalizeComposerBorderStyle(elements.composerBorderStyleSelect.value);
+        applyComposerBorderPreference();
+        updateThemeStatus(`Message composer border set to ${composerBorderStyleLabel(state.composerBorderStyle)}.`);
       });
       elements.uiFontSelect.addEventListener('change', () => {
         state.uiFont = elements.uiFontSelect.value;
@@ -33169,6 +33270,7 @@
       const audio = elements.mediaLibraryAudio;
       const hasItem = Boolean(item?.messageId);
       elements.mediaMiniPlayer.hidden = !hasItem;
+      elements.messageViewport?.classList.toggle('has-media-mini-player', hasItem);
       if (!hasItem) {
         elements.mediaPlayerOverlay.hidden = true;
         return;
@@ -43409,6 +43511,7 @@
       if (!['compact', 'comfortable'].includes(state.uiDensity)) state.uiDensity = 'compact';
       state.bubbleMood = normalizeBubbleMood(state.bubbleMood);
       state.bubbleOutlineOpacity = normalizeBubbleOutlineOpacity(state.bubbleOutlineOpacity);
+      state.composerBorderStyle = normalizeComposerBorderStyle(state.composerBorderStyle);
       if (!['reveal', 'immediate'].includes(state.mediaDisplayMode)) state.mediaDisplayMode = 'immediate';
       if (!['classic', 'stories'].includes(state.mediaStoryMode)) state.mediaStoryMode = 'stories';
       if (!['off', 'manual', 'auto'].includes(state.voiceTranscriptionMode)) state.voiceTranscriptionMode = 'manual';
@@ -43426,6 +43529,7 @@
       applyMobileRoomRailTogglePreference({ persist: false });
       applyBubbleMoodPreference({ persist: false });
       applyBubbleOutlinePreference({ persist: false });
+      applyComposerBorderPreference({ persist: false });
       if (elements.mediaDisplaySelect) elements.mediaDisplaySelect.value = state.mediaDisplayMode;
       if (elements.mediaViewerModeSelect) elements.mediaViewerModeSelect.value = state.mediaStoryMode;
       applyRoomRailVisibility();
@@ -43659,6 +43763,24 @@
       if (elements.bubbleOutlineOpacityInput) elements.bubbleOutlineOpacityInput.value = String(state.bubbleOutlineOpacity);
       if (elements.bubbleOutlineOpacityValue) elements.bubbleOutlineOpacityValue.textContent = `${state.bubbleOutlineOpacity}%`;
       if (options.persist !== false) writeStorage('chat.ui.bubbleOutlineOpacity', state.bubbleOutlineOpacity);
+    }
+
+    function normalizeComposerBorderStyle(value) {
+      return ['plain', 'glow', 'gradient', 'rainbow', 'fade', 'dashed', 'dotted', 'blink', 'high-vis'].includes(value) ? value : 'plain';
+    }
+
+    function composerBorderStyleLabel(value = state.composerBorderStyle) {
+      return ({
+        plain: 'Theme default', glow: 'Slow glow', gradient: 'Rotating gradient', rainbow: 'Rainbow orbit',
+        fade: 'Fade in / out', dashed: 'Dashed', dotted: 'Dotted', blink: 'Blinking amber', 'high-vis': 'High-vis amber'
+      })[normalizeComposerBorderStyle(value)];
+    }
+
+    function applyComposerBorderPreference(options = {}) {
+      state.composerBorderStyle = normalizeComposerBorderStyle(state.composerBorderStyle);
+      document.documentElement.dataset.composerBorder = state.composerBorderStyle;
+      if (elements.composerBorderStyleSelect) elements.composerBorderStyleSelect.value = state.composerBorderStyle;
+      if (options.persist !== false) writeStorage('chat.ui.composerBorder', state.composerBorderStyle);
     }
 
     function applyMessagePaddingPreference() {

@@ -123,6 +123,9 @@ grep -q 'make_ios_push_only_project.js' "$ROOT/scripts/build_ios_release.sh" || 
 grep -q 'RantlistPushOnly.entitlements' "$ROOT/scripts/make_ios_push_only_project.js" || { echo "Push-only project generator does not preserve APNs entitlements" >&2; exit 1; }
 grep -q 'config.userContentController.add(self, name: "rantlistBadge")' "$ROOT/macos/RantlistApp.swift" || { echo "macOS unread badge bridge missing" >&2; exit 1; }
 grep -q 'NSApp.dockTile.badgeLabel' "$ROOT/macos/RantlistApp.swift" || { echo "macOS Dock badge update missing" >&2; exit 1; }
+grep -q 'id="composerBorderStyleSelect"' "$ROOT/web/index.html" || { echo "Message composer border Appearance control missing" >&2; exit 1; }
+grep -q 'data-composer-border="rainbow"' "$ROOT/web/index.html" || { echo "Message composer animated border treatments missing" >&2; exit 1; }
+grep -q 'message-viewport.has-media-mini-player #messageList' "$ROOT/web/index.html" || { echo "Media mini-player is not docked to the message viewport with timeline clearance" >&2; exit 1; }
 grep -q 'appIconBadgeSelect' "$ROOT/web/index.html" || { echo "Native unread badge Config control missing" >&2; exit 1; }
 grep -q 'mediaAiModeSelect' "$ROOT/web/index.html" || { echo "Experimental image AI Config control missing" >&2; exit 1; }
 ! grep -RIn 'HETZNER_INFERENCE_API_KEY=' "$ROOT" --exclude='RELEASE.md' --exclude='README.md' --exclude='verify_client_repo.sh' >/dev/null 2>&1 || { echo "Public client must not contain a Hetzner API key setting" >&2; exit 1; }
