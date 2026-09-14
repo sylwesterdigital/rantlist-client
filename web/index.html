@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.240">
+  <meta name="chat-ui-version" content="9.6.241">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15468,7 +15468,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.240</small>
+          <small id="serverBrandVersion">v9.6.241</small>
         </span>
       </button>
     </div>
@@ -32640,7 +32640,7 @@
         sourceLanguage: TRANSLATOR_LANGUAGE_LABELS[value.sourceLanguage] ? value.sourceLanguage : 'auto',
         targetLanguage: TRANSLATOR_LANGUAGE_LABELS[value.targetLanguage] && value.targetLanguage !== 'auto' ? value.targetLanguage : 'en',
         engine: ['auto', 'local', 'api'].includes(value.engine) ? value.engine : 'auto',
-        origin: ['voice', 'message', 'transcript', 'text'].includes(value.origin) ? value.origin : 'voice',
+        origin: ['voice', 'message', 'transcript', 'text', 'image-ai'].includes(value.origin) ? value.origin : 'voice',
         sourceHistory,
         targetHistory,
       };
@@ -32665,7 +32665,7 @@
       if (!state.translatorArchiveId) {
         state.translatorArchiveId = globalThis.crypto?.randomUUID?.() || `translator-archive-${Date.now()}-${Math.random().toString(16).slice(2)}`;
         state.translatorSessionStartedAt = Date.now();
-        state.translatorSessionOrigin = ['voice', 'message', 'transcript', 'text'].includes(origin) ? origin : 'voice';
+        state.translatorSessionOrigin = ['voice', 'message', 'transcript', 'text', 'image-ai'].includes(origin) ? origin : 'voice';
       }
       return state.translatorArchiveId;
     }
@@ -33813,7 +33813,7 @@
       persistTranslatorSessionSnapshot();
       state.translatorArchiveId = null;
       state.translatorSessionStartedAt = 0;
-      state.translatorSessionOrigin = ['message', 'transcript', 'text'].includes(origin) ? origin : 'message';
+      state.translatorSessionOrigin = ['message', 'transcript', 'text', 'image-ai'].includes(origin) ? origin : 'message';
       state.translatorSourceHistory = [];
       state.translatorTargetHistory = [];
       state.translatorLatestTranslation = '';
@@ -43039,6 +43039,25 @@
       return button;
     }
 
+    function mediaAiTranslateButton(textValue) {
+      const text = normalizeMediaAiDisplayText(textValue);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'media-ai-copy-button media-ai-translate-button';
+      button.disabled = !text || state.capabilities.liveTranslator !== true;
+      button.title = state.capabilities.liveTranslator === true
+        ? 'Translate this extracted image text with Live Translator'
+        : 'Translator is not available on this server';
+      button.setAttribute('aria-label', button.title);
+      button.innerHTML = '<span class="icon icon-translate" aria-hidden="true"></span><span>Translate</span>';
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (!text || state.capabilities.liveTranslator !== true) return;
+        openTranslatorWithText(text, { origin: 'image-ai' });
+      });
+      return button;
+    }
+
     function appendMediaAiHistory(container, ai, options = {}) {
       const entries = mediaAiHistoryEntries(ai);
       const showPrompt = options.showPrompt !== false;
@@ -43071,6 +43090,7 @@
           actions.append(
             mediaAiCopyButton('Text', 'Copy analysis as plain text', normalizeMediaAiDisplayText(entry.response)),
             mediaAiCopyButton('Markdown', 'Copy original analysis as Markdown', entry.response),
+            mediaAiTranslateButton(entry.response),
           );
           card.append(actions);
         }

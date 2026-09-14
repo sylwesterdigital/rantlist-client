@@ -1,3 +1,9 @@
+## v0.1.80 / 9.6.241
+
+- Synchronized browser client to **9.6.241 / rantlist-deploy-r269** and protocol **63**.
+- Adds a **Translate** action to completed Image AI/OCR result cards next to the existing Text and Markdown copy actions.
+- Image AI output is normalized to plain text and routed through the existing Live Translator workflow, including provider/language controls, bounded translation batches and saved sessions with `image-ai` source provenance.
+
 ## v0.1.79 / 9.6.240
 
 - Synchronized browser client to **9.6.240 / rantlist-deploy-r268** and protocol **63**.
