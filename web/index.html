@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.255">
-  <meta name="chat-protocol-version" content="68">
+  <meta name="chat-ui-version" content="9.6.257">
+  <meta name="chat-protocol-version" content="69">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -1509,6 +1509,7 @@
     .icon-gif { --icon: url('/assets/icons/gif.svg'); }
     .icon-sticker { --icon: url('/assets/icons/sticker.svg'); }
     .icon-game { --icon: url('/assets/icons/game.svg'); }
+    .icon-slop { --icon: url('/assets/icons/slop.svg'); }
     .icon-tetris { --icon: url('/assets/icons/tetris.svg'); }
     .icon-fleet-battle { --icon: url('/assets/icons/fleet-battle.svg'); }
     .icon-rock-paper-scissors { --icon: url('/assets/icons/rock-paper-scissors.svg'); }
@@ -15613,7 +15614,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.255</small>
+          <small id="serverBrandVersion">v9.6.257</small>
         </span>
       </button>
     </div>
@@ -16947,6 +16948,7 @@
           <div id="stickerTray" class="sticker-tray" role="region" aria-label="Sticker picker"><div id="stickerList" class="sticker-list"></div><span id="stickerStatus" class="sticker-status" aria-live="polite"></span></div>
           <div id="gifTray" class="gif-tray" role="region" aria-label="GIF picker"><div id="gifList" class="gif-list"></div><span id="gifQuotaStatus" class="gif-quota-status" aria-live="polite"></span></div>
           <div id="gamesTray" class="games-tray" role="region" aria-label="Games gallery">
+            <button id="aiSlopGalleryGameButton" class="game-gallery-card" data-button-presentation-ignore type="button" title="AI Slop Gallery · saved AI-built games"><span class="icon icon-slop"></span><span class="game-gallery-copy"><strong>AI Slop Gallery</strong><small>Saved AI games</small></span></button>
             <button id="ticTacToeGameButton" class="game-gallery-card" data-button-presentation-ignore type="button" title="Tic-Tac-Toe · two players"><span class="icon icon-tic-tac-toe"></span><span class="game-gallery-copy"><strong>Tic-Tac-Toe</strong><small>Two players</small></span></button>
             <button id="fleetBattleGameButton" class="game-gallery-card" data-button-presentation-ignore type="button" title="Fleet Battle · plan, fire and sink"><span class="icon icon-fleet-battle"></span><span class="game-gallery-copy"><strong>Fleet Battle</strong><small>Plan · fire · sink</small></span></button>
             <button id="rockPaperScissorsGameButton" class="game-gallery-card" data-button-presentation-ignore type="button" title="Rock Paper Scissors · hidden choices"><span class="icon icon-rock-paper-scissors"></span><span class="game-gallery-copy"><strong>Rock Paper Scissors</strong><small>First to 3</small></span></button>
@@ -18129,7 +18131,7 @@
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
-        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
+        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
@@ -19989,6 +19991,7 @@
       elements.attachMenuButton.addEventListener('click', toggleAttachmentTray);
       elements.stickerActionButton.addEventListener('click', toggleStickerTray);
       elements.gamesMenuButton.addEventListener('click', toggleGamesTray);
+      elements.aiSlopGalleryGameButton.addEventListener('click', () => { closeGamesTray(); openAiBuilderGallery(); });
       elements.ticTacToeGameButton.addEventListener('click', openTicTacToeSetup);
       elements.fleetBattleGameButton.addEventListener('click', () => openDuelSetup('fleet-battle'));
       elements.rockPaperScissorsGameButton.addEventListener('click', () => openDuelSetup('rock-paper-scissors'));
@@ -20813,6 +20816,23 @@
 
         case 'ai.builder.gallery.saved':
           addSystemMessage(`Saved “${message.item?.title || 'AI Builder page'}” to AI Slop Gallery.`);
+          sendJson({ type: 'ai.builder.gallery.list' });
+          break;
+
+        case 'ai.builder.gallery.published': {
+          const publicUrl = aiBuilderPublicUrl(message.item);
+          if (state.aiBuilderActive && (state.aiBuilderActive.artifactId === message.item?.id || state.aiBuilderActive.sourceMessageId === message.item?.sourceMessageId)) {
+            state.aiBuilderActive = { ...state.aiBuilderActive, artifactId: message.item?.id || state.aiBuilderActive.artifactId, publicUrl, publishedAt: message.item?.publishedAt || Date.now() };
+            syncAiBuilderPublishButton();
+          }
+          addSystemMessage(publicUrl ? `Published “${message.item?.title || 'AI Builder game'}” at ${new URL(publicUrl, window.location.origin).href}` : 'AI Builder game published.');
+          sendJson({ type: 'ai.builder.gallery.list' });
+          break;
+        }
+
+        case 'ai.builder.gallery.unpublished':
+          if (state.aiBuilderActive && state.aiBuilderActive.artifactId === message.artifactId) { state.aiBuilderActive.publicUrl = ''; state.aiBuilderActive.publishedAt = null; syncAiBuilderPublishButton(); }
+          addSystemMessage('AI Builder game unpublished. Its public URL is no longer available.');
           sendJson({ type: 'ai.builder.gallery.list' });
           break;
 
@@ -43303,7 +43323,7 @@
       return {
         title: String(raw.title || 'AI Builder page').slice(0, 120), html,
         prompt: String(raw.prompt || ''), requesterIdentityId: String(raw.requesterIdentityId || ''), id: String(raw.id || ''),
-        threadId: String(raw.threadId || ''),
+        threadId: String(raw.threadId || ''), publicUrl: String(raw.publicUrl || ''), publishedAt: Number(raw.publishedAt) || null,
       };
     }
 
@@ -43453,12 +43473,13 @@
       let layer = document.getElementById('aiBuilderLayer');
       if (!layer) {
         layer = document.createElement('section'); layer.id = 'aiBuilderLayer'; layer.className = 'ai-builder-layer'; layer.hidden = true; layer.setAttribute('aria-hidden', 'true');
-        layer.innerHTML = `<header class="ai-builder-toolbar"><strong id="aiBuilderOverlayTitle">AI Builder</strong><span id="aiBuilderThreadStatus" class="ai-builder-thread-state">New Builder thread</span><button id="aiBuilderOverlayLayout" class="ai-builder-layout-toggle" type="button">Full</button><button id="aiBuilderOverlaySave" type="button">Save to Slop Gallery</button><button id="aiBuilderOverlayDownload" type="button">Download HTML</button><button id="aiBuilderOverlayGallery" type="button">Gallery</button><button id="aiBuilderOverlayClose" type="button">Close</button></header><div class="ai-builder-stage"><iframe id="aiBuilderFrame" class="ai-builder-frame" sandbox="allow-scripts" credentialless referrerpolicy="no-referrer" title="AI Builder preview"></iframe></div>`;
+        layer.innerHTML = `<header class="ai-builder-toolbar"><strong id="aiBuilderOverlayTitle">AI Builder</strong><span id="aiBuilderThreadStatus" class="ai-builder-thread-state">New Builder thread</span><button id="aiBuilderOverlayLayout" class="ai-builder-layout-toggle" type="button">Full</button><button id="aiBuilderOverlaySave" type="button">Save to Slop Gallery</button><button id="aiBuilderOverlayPublish" type="button">Publish</button><button id="aiBuilderOverlayDownload" type="button">Download HTML</button><button id="aiBuilderOverlayGallery" type="button">Gallery</button><button id="aiBuilderOverlayClose" type="button">Close</button></header><div class="ai-builder-stage"><iframe id="aiBuilderFrame" class="ai-builder-frame" sandbox="allow-scripts" credentialless referrerpolicy="no-referrer" title="AI Builder preview"></iframe></div>`;
         document.body.append(layer);
         layer.querySelector('#aiBuilderOverlayClose').addEventListener('click', closeAiBuilderOverlay);
         layer.querySelector('#aiBuilderOverlayGallery').addEventListener('click', openAiBuilderGallery);
         layer.querySelector('#aiBuilderOverlayLayout').addEventListener('click', toggleAiBuilderLayout);
         layer.querySelector('#aiBuilderOverlaySave').addEventListener('click', () => { const sourceMessageId = state.aiBuilderActive?.sourceMessageId; if (!sourceMessageId) return addSystemMessage('Open a channel AI Builder result before saving it.', true); sendJson({ type: 'ai.builder.gallery.save', sourceMessageId }); });
+        layer.querySelector('#aiBuilderOverlayPublish').addEventListener('click', () => publishAiBuilderActive());
         layer.querySelector('#aiBuilderOverlayDownload').addEventListener('click', () => { const active = state.aiBuilderActive; if (!active?.html) return; const blob = new Blob([active.html], { type: 'text/html;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = aiBuilderSafeFileName(active.title); document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); });
         window.addEventListener('message', handleAiBuilderRuntimeMessage);
       }
@@ -43488,20 +43509,59 @@
       const actions = document.createElement('div'); actions.className = 'ai-builder-card-actions';
       const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open'; open.addEventListener('click', () => openAiBuilderArtifact(builder, sourceMessageId));
       const save = document.createElement('button'); save.type = 'button'; save.textContent = 'Save'; save.addEventListener('click', () => sendJson({ type: 'ai.builder.gallery.save', sourceMessageId }));
+      const publish = document.createElement('button'); publish.type = 'button'; publish.textContent = 'Publish'; publish.hidden = Boolean(builder.requesterIdentityId && builder.requesterIdentityId !== state.identityId); publish.title = 'Publish this AI-built game at a public rantlist.me URL'; publish.addEventListener('click', () => sendJson({ type: 'ai.builder.gallery.publish', sourceMessageId }));
       const download = document.createElement('button'); download.type = 'button'; download.textContent = 'Download HTML'; download.addEventListener('click', () => { const blob = new Blob([builder.html], { type: 'text/html;charset=utf-8' }); const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = aiBuilderSafeFileName(builder.title); document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000); });
       const gallery = document.createElement('button'); gallery.type = 'button'; gallery.textContent = 'Gallery'; gallery.addEventListener('click', openAiBuilderGallery);
-      actions.append(open, save, download, gallery); card.append(head, actions); article.querySelector('.message-text')?.insertAdjacentElement('afterend', card);
+      actions.append(open, save, publish, download, gallery); card.append(head, actions); article.querySelector('.message-text')?.insertAdjacentElement('afterend', card);
     }
 
     function openAiBuilderArtifact(rawBuilder, sourceMessageId = null, artifactId = null) {
       const builder = normalizeAiBuilder(rawBuilder); if (!builder) return; const { layer } = ensureAiBuilderUi();
       const storageNamespace = aiBuilderRuntimeStorageNamespace(builder, sourceMessageId, artifactId);
       state.aiBuilderActive = { ...builder, sourceMessageId: sourceMessageId || null, artifactId: artifactId || builder.id || null, storageNamespace };
-      layer.querySelector('#aiBuilderOverlayTitle').textContent = builder.title || 'AI Builder'; layer.querySelector('#aiBuilderOverlaySave').disabled = !sourceMessageId;
+      layer.querySelector('#aiBuilderOverlayTitle').textContent = builder.title || 'AI Builder'; layer.querySelector('#aiBuilderOverlaySave').disabled = !sourceMessageId; syncAiBuilderPublishButton();
       layer.classList.remove('fullscreen');
       const layoutButton = layer.querySelector('#aiBuilderOverlayLayout'); if (layoutButton) layoutButton.textContent = 'Full';
       layer.querySelector('#aiBuilderFrame').srcdoc = aiBuilderSandboxDocument(builder.html, storageNamespace); layer.hidden = false; layer.setAttribute('aria-hidden', 'false');
       syncAiBuilderThreadStatus();
+    }
+
+    function aiBuilderPublicUrl(item) {
+      const value = String(item?.publicUrl || '').trim();
+      if (!value.startsWith('/public/games/')) return '';
+      return value;
+    }
+
+    function syncAiBuilderPublishButton() {
+      const button = document.getElementById('aiBuilderOverlayPublish');
+      if (!button) return;
+      const active = state.aiBuilderActive;
+      const creator = !active?.requesterIdentityId || active.requesterIdentityId === state.identityId;
+      const publicUrl = aiBuilderPublicUrl(active);
+      button.disabled = !active?.sourceMessageId && !active?.artifactId;
+      button.hidden = !creator;
+      button.textContent = publicUrl ? 'Unpublish' : 'Publish';
+      button.title = publicUrl ? `Remove public game ${publicUrl}` : 'Publish this AI-built game at a public rantlist.me URL';
+    }
+
+    function publishAiBuilderActive() {
+      const active = state.aiBuilderActive;
+      if (!active) return;
+      if (active.requesterIdentityId && active.requesterIdentityId !== state.identityId) return addSystemMessage('Only the user who created this AI Builder game can publish it.', true);
+      const publicUrl = aiBuilderPublicUrl(active);
+      const payload = active.artifactId ? { artifactId: active.artifactId } : { sourceMessageId: active.sourceMessageId };
+      if (!payload.artifactId && !payload.sourceMessageId) return addSystemMessage('Open one of your AI Builder results before publishing it.', true);
+      sendJson({ type: publicUrl ? 'ai.builder.gallery.unpublish' : 'ai.builder.gallery.publish', ...payload });
+    }
+
+    function copyAiBuilderPublicUrl(publicUrl) {
+      const relative = String(publicUrl || '').trim();
+      if (!relative.startsWith('/public/games/')) return;
+      const absolute = new URL(relative, window.location.origin).href;
+      navigator.clipboard?.writeText(absolute).then(
+        () => addSystemMessage(`Copied public game link: ${absolute}`),
+        () => addSystemMessage(`Public game: ${absolute}`)
+      );
     }
 
     function closeAiBuilderOverlay() {
@@ -43544,11 +43604,19 @@
           }
         }
         const title = document.createElement('strong'); title.textContent = item.title || 'AI Builder page';
-        const meta = document.createElement('small'); meta.textContent = `${Number(item.htmlChars || 0).toLocaleString()} HTML characters · ${item.updatedAt ? new Date(item.updatedAt).toLocaleString() : 'saved'}`;
+        const publicUrl = aiBuilderPublicUrl(item);
+        const meta = document.createElement('small'); meta.textContent = `${Number(item.htmlChars || 0).toLocaleString()} HTML characters · ${item.updatedAt ? new Date(item.updatedAt).toLocaleString() : 'saved'}${publicUrl ? ' · Published' : ''}`;
         const prompt = document.createElement('small'); prompt.textContent = String(item.prompt || '').slice(0, 220); const actions = document.createElement('div'); actions.className = 'ai-builder-gallery-actions';
         const open = document.createElement('button'); open.type = 'button'; open.textContent = 'Open'; open.addEventListener('click', openArtifact);
-        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Delete'; remove.addEventListener('click', () => { if (confirm(`Delete “${item.title || 'this page'}” from AI Slop Gallery?`)) sendJson({ type: 'ai.builder.gallery.delete', artifactId: item.id }); });
-        actions.append(open, remove); card.append(thumb, title, meta, prompt, actions); list.append(card);
+        const publish = document.createElement('button'); publish.type = 'button'; publish.textContent = publicUrl ? 'Unpublish' : 'Publish'; publish.hidden = item.publishable === false; publish.addEventListener('click', () => sendJson({ type: publicUrl ? 'ai.builder.gallery.unpublish' : 'ai.builder.gallery.publish', artifactId: item.id }));
+        actions.append(open, publish);
+        if (publicUrl) {
+          const viewPublic = document.createElement('button'); viewPublic.type = 'button'; viewPublic.textContent = 'Open public'; viewPublic.addEventListener('click', () => window.open(publicUrl, '_blank', 'noopener,noreferrer'));
+          const copyPublic = document.createElement('button'); copyPublic.type = 'button'; copyPublic.textContent = 'Copy link'; copyPublic.addEventListener('click', () => copyAiBuilderPublicUrl(publicUrl));
+          actions.append(viewPublic, copyPublic);
+        }
+        const remove = document.createElement('button'); remove.type = 'button'; remove.textContent = 'Delete'; remove.addEventListener('click', () => { if (confirm(`Delete “${item.title || 'this page'}” from AI Slop Gallery?${publicUrl ? ' Its public URL will stop working.' : ''}`)) sendJson({ type: 'ai.builder.gallery.delete', artifactId: item.id }); });
+        actions.append(remove); card.append(thumb, title, meta, prompt, actions); list.append(card);
       }
     }
 

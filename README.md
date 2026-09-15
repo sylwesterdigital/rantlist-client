@@ -1,3 +1,14 @@
+## v0.1.96 / Rantlist 9.6.257
+- Synchronizes browser/native clients with `rantlist-deploy-r285` / protocol 69.
+- Adds the supplied AI Slop Gallery icon as the first Games tray destination, before Tic-Tac-Toe, so saved AI-built games are always directly reachable.
+- Adds creator-only Publish/Unpublish controls for AI Builder games and public `/public/games/<uid>` links, with published generated code kept inside the server's opaque-origin network-disabled sandbox.
+
+## v0.1.95 / Rantlist 9.6.256
+- Synchronizes browser/native clients with `rantlist-deploy-r284` / protocol 68.
+- Corrects OpenAI Builder failure reporting so a rejected page never claims that Rantlist automatically bought continuation/repair Responses.
+- Keeps one explicit Builder command to one paid OpenAI Response and reports private token/cost usage even if executable-page validation rejects the result.
+- Distinguishes paid-output-limit exhaustion from other invalid Builder HTML and gives the appropriate retry guidance.
+
 ## v0.1.94 / Rantlist 9.6.255
 - Synchronizes browser/native clients with `rantlist-deploy-r283` / protocol 68.
 - Expands user-controlled OpenAI paid output/reasoning limits to 1,024–128,000 tokens; fresh installs use 16,384 while existing saved choices remain unchanged.
