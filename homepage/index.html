@@ -65,6 +65,7 @@
   </section>
 
   <footer class="footer"><div><strong>Rantlist</strong><br>Created by <a href="https://workwork.fun">WORKWORK.FUN</a></div><div><a href="https://github.com/sylwesterdigital/rantlist-client">Open source client</a> · <a href="https://rantlist.me">rantlist.me</a> · <a href="https://mojoworks.xyz/labs/rantlist/">Project page</a></div></footer>
+<section class="release-note" aria-label="Long-running OpenAI"><h2>Frontier AI requests can run for minutes</h2><p>Rantlist 9.6.251 moves OpenAI BYOK text generation to the Responses background workflow, reports live provider progress, and clears stale running status on completion or failure. Privacy mode uses a bounded store:false polling window; an explicit Extended OpenAI jobs option enables the 15-minute stock wait for work expected to exceed 10 minutes.</p></section>
 <section class="release-note" aria-label="Secure OpenAI BYOK"><h2>Your OpenAI key now uses native secure storage</h2><p>Rantlist 9.6.250 moves iOS/macOS BYOK keys to Apple Keychain and Android keys behind Android Keystore encryption. Browser keys are memory-only and are no longer persisted in localStorage.</p></section>
 <section class="release-note" aria-label="OpenAI BYOK"><h2>Bring your own OpenAI API key</h2><p>Rantlist 9.6.249 lets each user privately configure their own OpenAI key, choose GPT-6 Astra or GPT-5.6 models, and see per-call token and estimated USD usage without sharing one platform-wide credential.</p></section>
 </main>

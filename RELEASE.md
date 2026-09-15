@@ -1,3 +1,9 @@
+## v0.1.90 / Rantlist 9.6.251
+- Synchronizes the browser client with server 9.6.251 / `rantlist-deploy-r279` / protocol 65.
+- OpenAI BYOK frontier requests use Responses background execution and status polling, with a 15-minute stock wait instead of the previous two-minute abort.
+- The composer now receives terminal completed/failed queue events and clears “AI request running” after success or failure; running GPT-6 Astra requests show provider status and elapsed time.
+- Existing Keychain/Android Keystore/browser-memory BYOK credential storage remains unchanged. Privacy mode uses `store:false` and a 9-minute polling cap; the explicit **Extended OpenAI jobs (>10 min)** per-device option uses `store:true` so OpenAI can retain/retrieve long-running background responses, with the provider-retention tradeoff shown in Config.
+
 ## v0.1.89 / Rantlist 9.6.250
 - Synchronizes the browser client with server 9.6.250 / `rantlist-deploy-r278` / protocol 64.
 - Moves iOS/macOS OpenAI BYOK credentials into Apple Keychain and Android credentials behind AES-GCM keys generated in Android Keystore; no OpenAI key is persisted in WebView `localStorage`.

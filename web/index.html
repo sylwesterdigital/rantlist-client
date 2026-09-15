@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.250">
-  <meta name="chat-protocol-version" content="64">
+  <meta name="chat-ui-version" content="9.6.251">
+  <meta name="chat-protocol-version" content="65">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -15584,7 +15584,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.250</small>
+          <small id="serverBrandVersion">v9.6.251</small>
         </span>
       </button>
     </div>
@@ -15902,6 +15902,11 @@
             <button id="openAiWalletResetButton" type="button">Reset local spend</button>
           </div>
           <p id="openAiApiKeyHint" class="hint">Native apps use Keychain/Keystore; browsers keep the key only in page memory. The key is never written to WebView/browser localStorage and is sent only for your OpenAI request.</p>
+          <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiDurableBackgroundInput">
+            <span>Extended OpenAI jobs (&gt;10 min)</span>
+            <input id="openAiDurableBackgroundInput" type="checkbox" aria-describedby="openAiDurableBackgroundHint">
+          </label>
+          <p id="openAiDurableBackgroundHint" class="hint">Off keeps background responses privacy-first with store:false. Enable only when you want long jobs to remain retrievable beyond OpenAI's short background polling window.</p>
           <p id="openAiWalletHint" class="hint">OpenAI wallet: no calls tracked on this device yet.</p>
           <div class="config-row" data-config-feature="media-ai">
             <label for="mediaAiModeSelect">Experimental image AI</label>
@@ -18059,7 +18064,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18448,6 +18453,7 @@
       openAiEphemeralApiKey: '',
       openAiApiKeyConfigured: false,
       openAiCredentialStorage: 'memory',
+      openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
       openAiSpendUsd: Math.max(0, Number(readStorage('chat.ai.openai.spendUsd')) || 0),
       openAiInputTokens: Math.max(0, Number(readStorage('chat.ai.openai.inputTokens')) || 0),
       openAiOutputTokens: Math.max(0, Number(readStorage('chat.ai.openai.outputTokens')) || 0),
@@ -19338,6 +19344,12 @@
           renderChatAiSettings();
         }
       });
+      elements.openAiDurableBackgroundInput?.addEventListener('change', () => {
+        state.openAiDurableBackground = elements.openAiDurableBackgroundInput.checked === true;
+        writeStorage('chat.ai.openai.durableBackground', state.openAiDurableBackground ? 'on' : 'off');
+        renderChatAiSettings();
+      });
+
       elements.openAiWalletResetButton?.addEventListener('click', () => {
         state.openAiSpendUsd = 0; state.openAiInputTokens = 0; state.openAiOutputTokens = 0; state.openAiRequests = 0;
         writeStorage('chat.ai.openai.spendUsd', '0'); writeStorage('chat.ai.openai.inputTokens', '0'); writeStorage('chat.ai.openai.outputTokens', '0'); writeStorage('chat.ai.openai.requests', '0');
@@ -20783,8 +20795,18 @@
           const stage = String(message.stage || 'queued');
           const position = Math.max(0, Number(message.position) || 0);
           const depth = Math.max(0, Number(message.depth) || 0);
+          if (stage === 'completed' || stage === 'failed') {
+            if (elements.uploadStatus && /^AI request |^OpenAI |^GPT-/i.test(String(elements.uploadStatus.textContent || ''))) elements.uploadStatus.textContent = '';
+            break;
+          }
+          const provider = String(message.provider || '');
+          const model = String(message.model || '');
+          const providerStatus = String(message.providerStatus || '').replaceAll('_', ' ');
+          const elapsedSeconds = Math.max(0, Math.floor((Number(message.elapsedMs) || 0) / 1000));
+          const elapsed = elapsedSeconds >= 60 ? `${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s` : (elapsedSeconds ? `${elapsedSeconds}s` : '');
+          const modelName = provider === 'openai' ? (chatAiModelOptionLabel(model).split(' · ')[0] || 'OpenAI') : '';
           const detail = stage === 'running'
-            ? `AI request running${depth > 1 ? ` · ${depth - 1} queued` : ''}`
+            ? `${modelName ? `${modelName} · ` : ''}AI request running${providerStatus ? ` · ${providerStatus}` : ''}${elapsed ? ` · ${elapsed}` : ''}${depth > 1 ? ` · ${depth - 1} queued` : ''}`
             : `AI request queued${position ? ` · position ${position}` : ''}${depth ? ` / ${depth}` : ''}`;
           if (elements.uploadStatus) elements.uploadStatus.textContent = detail;
           break;
@@ -22040,6 +22062,7 @@
         aiContext: state.chatAiContextEnabled === true,
         aiModel: commandModel,
         aiApiKey,
+        aiOpenAiStore: isOpenAiByokModel(commandModel) && state.openAiDurableBackground === true,
         aiBuilder: useBuilder,
         aiBuilderThreadContext: useBuilder && Boolean(activeThreadId),
         aiBuilderThreadId: useBuilder && activeThreadId ? activeThreadId : undefined,
@@ -43402,6 +43425,13 @@
       if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.disabled = !byokEnabled;
       if (elements.openAiApiKeySaveButton) elements.openAiApiKeySaveButton.disabled = !byokEnabled;
       if (elements.openAiApiKeyClearButton) elements.openAiApiKeyClearButton.disabled = !state.openAiApiKeyConfigured;
+      if (elements.openAiDurableBackgroundInput) {
+        elements.openAiDurableBackgroundInput.checked = state.openAiDurableBackground === true;
+        elements.openAiDurableBackgroundInput.disabled = !byokEnabled;
+      }
+      if (elements.openAiDurableBackgroundHint) elements.openAiDurableBackgroundHint.textContent = state.openAiDurableBackground
+        ? 'Extended mode: Rantlist sends store:true for your OpenAI background response so it can remain retrievable for long-running work. OpenAI may retain that response for at least 30 days. Your API key still uses Keychain/Keystore or browser memory and is not stored with the response.'
+        : 'Privacy mode: Rantlist sends store:false. OpenAI documents roughly a 10-minute temporary background polling window, so Rantlist limits privacy-mode waits to 9 minutes. Enable extended mode only when you want longer jobs and accept provider-side response retention.';
       if (elements.openAiApiKeyHint) elements.openAiApiKeyHint.textContent = !byokEnabled
         ? 'OpenAI BYOK is disabled by this server.'
         : state.openAiApiKeyConfigured
@@ -43947,6 +43977,7 @@
         prompt: cleanPrompt,
         model,
         aiApiKey,
+        aiOpenAiStore: isOpenAiByokModel(model) && state.openAiDurableBackground === true,
       });
     }
 
