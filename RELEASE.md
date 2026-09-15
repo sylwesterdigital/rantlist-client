@@ -1,3 +1,10 @@
+## v0.1.82 / 9.6.243
+
+- Synchronized browser client to **9.6.243 / rantlist-deploy-r271** and protocol **63**.
+- Adds the explicit per-link yt-dlp chooser with quality/size estimates, live quota information and separate confirmations for sources over 3 and 7 hours.
+- Expands the default long-media policy to a 24-hour ceiling while preserving server-side quota revalidation, reserved capacity and administrator-controlled limits.
+- Adds fair per-identity scheduling across yt-dlp inspection/download/transcription, Translator, `/ai` and Image AI; Translator preserves valid same-user queued jobs while another translation is active, and `/ai` exposes queue/running state.
+
 ## v0.1.81 / 9.6.242
 
 - Synchronized browser client to **9.6.242 / rantlist-deploy-r270** and protocol **63**.

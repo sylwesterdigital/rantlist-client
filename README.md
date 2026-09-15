@@ -1,3 +1,10 @@
+## v0.1.82 / 9.6.243
+
+- Synchronized browser client to **9.6.243 / rantlist-deploy-r271** and protocol **63**.
+- URL-only links supported by a site-specific yt-dlp extractor now open a centered per-link import chooser with encoding quality, estimated output size, source duration/extractor and the current profile storage quota before queueing.
+- Imports above 3 hours require confirmation and imports above 7 hours require a second stronger confirmation; the server default ceiling is 24 hours with administrator-configurable byte/duration limits.
+- yt-dlp inspection/download/transcription, Translator, `/ai` and Image AI use bounded fair multi-user scheduling so one profile cannot occupy every worker; accepted `/ai` jobs report queued/running state rather than appearing to fail silently.
+
 ## v0.1.81 / 9.6.242
 
 - Synchronized browser client to **9.6.242 / rantlist-deploy-r270** and protocol **63**.

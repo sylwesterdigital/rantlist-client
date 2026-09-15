@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.242">
+  <meta name="chat-ui-version" content="9.6.243">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -4877,6 +4877,32 @@
       background: var(--panel);
       box-shadow: var(--shadow);
     }
+    .youtube-import-card { width:min(560px,100%); }
+    .youtube-import-body { display:grid; gap:12px; overflow:auto; padding:14px; }
+    .youtube-import-source { display:grid; gap:4px; padding:10px 11px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); }
+    .youtube-import-source strong { font-size:15px; line-height:1.25; }
+    .youtube-import-source span { color:var(--muted); font-size:11px; }
+    .youtube-import-quota { display:grid; gap:6px; padding:10px 11px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); }
+    .youtube-import-quota > div:first-child { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+    .youtube-import-quota > div:first-child span { color:var(--muted); font-size:11px; white-space:nowrap; }
+    .youtube-import-quota-track { height:8px; overflow:hidden; border-radius:999px; background:color-mix(in srgb,var(--line) 74%,transparent); }
+    .youtube-import-quota-track span { display:block; height:100%; width:0; border-radius:inherit; background:var(--accent); transition:width .18s ease; }
+    .youtube-import-quota small { color:var(--muted); line-height:1.35; }
+    .youtube-import-quality-row { display:grid; grid-template-columns:minmax(120px,.7fr) minmax(0,1.3fr); align-items:center; gap:10px; }
+    .youtube-import-quality-row select { width:100%; }
+    .youtube-import-estimate { min-height:38px; display:grid; align-content:center; gap:3px; padding:8px 10px; border:1px solid var(--line); border-radius:9px; background:color-mix(in srgb,var(--accent) 6%,var(--panel-2)); font-size:12px; }
+    .youtube-import-estimate strong { font-size:13px; }
+    .youtube-import-confirm { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:start; gap:8px; padding:9px 10px; border:1px solid color-mix(in srgb,var(--warning,#e8a93a) 65%,var(--line)); border-radius:9px; background:color-mix(in srgb,var(--warning,#e8a93a) 10%,var(--panel-2)); }
+    .youtube-import-confirm.warning { border-color:color-mix(in srgb,var(--danger) 65%,var(--line)); background:color-mix(in srgb,var(--danger) 8%,var(--panel-2)); }
+    .youtube-import-confirm input { margin-top:2px; }
+    .youtube-import-actions { display:flex; justify-content:flex-end; gap:7px; }
+    @media (max-width:620px) {
+      .youtube-import-card { width:100%; max-height:calc(var(--app-height,100dvh) - 18px); }
+      .youtube-import-quality-row { grid-template-columns:1fr; gap:5px; }
+      .youtube-import-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); }
+      .youtube-import-actions button { min-width:0; padding-inline:6px; }
+    }
+
     .modal-header {
       position: relative;
       min-height: 46px;
@@ -15485,7 +15511,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.242</small>
+          <small id="serverBrandVersion">v9.6.243</small>
         </span>
       </button>
     </div>
@@ -15834,14 +15860,10 @@
         </section>
         <section class="config-section">
           <h3>Media</h3>
-          <label class="config-toggle-row" data-config-feature="youtube-audio-import" for="youtubeAudioImportInput">
-            <span>Media-link audio import</span>
-            <input id="youtubeAudioImportInput" type="checkbox" role="switch">
-          </label>
           <div class="config-row" data-config-feature="youtube-audio-import">
-            <label for="youtubeAudioImportQualitySelect">Import audio quality</label>
+            <label for="youtubeAudioImportQualitySelect">Default yt-dlp quality</label>
             <select id="youtubeAudioImportQualitySelect">
-              <option value="preserve">Preserve source · recommended</option>
+              <option value="preserve">Preserve source</option>
               <option value="aac256">AAC/M4A · 256 kbps</option>
               <option value="aac192">AAC/M4A · 192 kbps</option>
               <option value="aac128">AAC/M4A · 128 kbps</option>
@@ -15849,17 +15871,7 @@
               <option value="aac64">AAC/M4A · 64 kbps · data saver</option>
             </select>
           </div>
-          <div class="config-row" data-config-feature="youtube-audio-import">
-            <label for="youtubeAudioImportMaxMiBSelect">Import size limit</label>
-            <select id="youtubeAudioImportMaxMiBSelect">
-              <option value="16">16 MiB</option>
-              <option value="32">32 MiB</option>
-              <option value="64">64 MiB</option>
-              <option value="96">96 MiB</option>
-              <option value="128">128 MiB · recommended for long audio</option>
-            </select>
-          </div>
-          <p id="youtubeAudioImportHint" class="hint">Off by default. Preserve source keeps the extractor's audio without another lossy encode when possible. Optional AAC/M4A targets are available for predictable compatibility/size. Supported media and audio-site pages (including single-track collection pages) import bounded audio plus a local transcript; multi-track collections and unsupported links are posted normally. No AI provider is used.</p>
+          <p id="youtubeAudioImportHint" class="hint">When a URL-only message is supported by a site-specific yt-dlp extractor, Rantlist first opens a centered import chooser with quality, estimated size, current storage quota and long-media confirmation. Unsupported URLs post normally. The default above only preselects a quality; every import still requires confirmation.</p>
           <div class="config-row">
             <label for="mediaDisplaySelect">Media previews</label>
             <select id="mediaDisplaySelect">
@@ -17567,6 +17579,23 @@
 
   <div id="gameMediaControls" class="game-media-controls" hidden aria-label="Game video and voice controls"><span id="gameMediaStatus">Connecting video…</span><button id="gameMediaMuteButton" type="button" title="Mute microphone" aria-label="Mute microphone"><span class="icon icon-mic"></span></button><button id="gameMediaCameraButton" type="button" title="Turn camera off" aria-label="Turn camera off"><span class="icon icon-video"></span></button><button id="gameMediaEndButton" class="danger-button" type="button" title="Leave video and voice" aria-label="Leave video and voice"><span class="icon icon-call-exit"></span></button></div>
 
+  <div id="youtubeImportModal" class="modal-layer" hidden>
+    <div id="youtubeImportBackdrop" class="modal-backdrop"></div>
+    <section class="modal-card youtube-import-card" role="dialog" aria-modal="true" aria-labelledby="youtubeImportTitle">
+      <header class="modal-header"><h2 id="youtubeImportTitle">Import media</h2><button id="youtubeImportCloseButton" class="icon-button" type="button" aria-label="Close"><span class="icon icon-close"></span></button></header>
+      <div class="modal-body youtube-import-body">
+        <div class="youtube-import-source"><strong id="youtubeImportMediaTitle">Media</strong><span id="youtubeImportMeta"></span></div>
+        <div class="youtube-import-quota"><div><strong>Storage</strong><span id="youtubeImportQuotaText"></span></div><div class="youtube-import-quota-track"><span id="youtubeImportQuotaBar"></span></div><small id="youtubeImportQuotaHint"></small></div>
+        <label class="youtube-import-quality-row"><span>Encoding quality</span><select id="youtubeImportQualitySelect"></select></label>
+        <div id="youtubeImportEstimate" class="youtube-import-estimate"></div>
+        <label id="youtubeImportLongConfirmRow" class="youtube-import-confirm" hidden><input id="youtubeImportLongConfirm" type="checkbox"><span id="youtubeImportLongConfirmText">I want to import this long item.</span></label>
+        <label id="youtubeImportVeryLongConfirmRow" class="youtube-import-confirm warning" hidden><input id="youtubeImportVeryLongConfirm" type="checkbox"><span id="youtubeImportVeryLongConfirmText">I understand this very long import may occupy the queue for a long time.</span></label>
+        <p id="youtubeImportQueueHint" class="hint"></p>
+      </div>
+      <footer class="modal-footer youtube-import-actions"><button id="youtubeImportPostLinkButton" type="button">Post link</button><button id="youtubeImportCancelButton" type="button">Cancel</button><button id="youtubeImportConfirmButton" class="primary" type="button">Queue import</button></footer>
+    </section>
+  </div>
+
   <div id="mediaLibraryModal" class="modal-layer" hidden>
     <div class="modal-backdrop" data-close-media-library="1"></div>
     <section class="modal-card media-library-card" role="dialog" aria-modal="true" aria-labelledby="mediaLibraryTitle">
@@ -17946,7 +17975,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18329,9 +18358,9 @@
       mediaAiTimeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(readStorage('chat.media.aiTimeoutSeconds')) || 180))),
       hetznerAiModel: String(readStorage('chat.ai.model') || '').trim(),
       chatAiContextEnabled: readStorage('chat.ai.context') === 'on',
-      youtubeAudioImportEnabled: readStorage('chat.youtube.audioImport') === 'on',
+      youtubeAudioImportEnabled: true,
       youtubeAudioImportQuality: ['preserve', 'aac256', 'aac192', 'aac128', 'aac96', 'aac64'].includes(readStorage('chat.youtube.audioImportQuality')) ? readStorage('chat.youtube.audioImportQuality') : 'preserve',
-      youtubeAudioImportMaxMiB: [16, 32, 64, 96, 128].includes(Number(readStorage('chat.youtube.audioImportMaxMiB'))) ? Number(readStorage('chat.youtube.audioImportMaxMiB')) : 128,
+      youtubeImportOffer: null,
       chatAiPromptHistoryEnabled: readStorage('chat.ai.promptHistory') === 'on',
       chatAiPromptHistoryCursor: null,
       chatAiPromptHistoryDraft: '',
@@ -19063,6 +19092,35 @@
           writeStorage('chat.youtube.audioImportQuality', selected);
         }
         renderChatAiSettings();
+      });
+      elements.youtubeImportQualitySelect?.addEventListener('change', updateYoutubeImportOfferEstimate);
+      elements.youtubeImportLongConfirm?.addEventListener('change', updateYoutubeImportOfferEstimate);
+      elements.youtubeImportVeryLongConfirm?.addEventListener('change', updateYoutubeImportOfferEstimate);
+      elements.youtubeImportCloseButton?.addEventListener('click', () => closeYoutubeImportModal(true));
+      elements.youtubeImportCancelButton?.addEventListener('click', () => closeYoutubeImportModal(true));
+      elements.youtubeImportBackdrop?.addEventListener('click', () => closeYoutubeImportModal(true));
+      elements.youtubeImportPostLinkButton?.addEventListener('click', () => {
+        const offerId = String(state.youtubeImportOffer?.offerId || '');
+        if (!offerId) return closeYoutubeImportModal(false);
+        sendJson({ type: 'youtube.audio.import.post-link', offerId });
+        closeYoutubeImportModal(false);
+      });
+      elements.youtubeImportConfirmButton?.addEventListener('click', () => {
+        const offer = state.youtubeImportOffer;
+        if (!offer?.offerId) return;
+        const quality = String(elements.youtubeImportQualitySelect?.value || state.youtubeAudioImportQuality || 'preserve');
+        const sent = sendJson({
+          type: 'youtube.audio.import.confirm',
+          offerId: offer.offerId,
+          quality,
+          confirmLong: elements.youtubeImportLongConfirm?.checked === true,
+          confirmVeryLong: elements.youtubeImportVeryLongConfirm?.checked === true,
+        });
+        if (sent) {
+          state.youtubeAudioImportQuality = quality;
+          writeStorage('chat.youtube.audioImportQuality', quality);
+          closeYoutubeImportModal(false);
+        }
       });
       elements.youtubeAudioImportMaxMiBSelect?.addEventListener('change', () => {
         const selected = Number(elements.youtubeAudioImportMaxMiBSelect.value);
@@ -20437,6 +20495,21 @@
         case 'media.library.item':
           applyMediaLibraryItemDetail(message);
           break;
+        case 'youtube.audio.import.offer':
+          openYoutubeImportOffer(message);
+          break;
+
+        case 'chat.ai.queue.status': {
+          const stage = String(message.stage || 'queued');
+          const position = Math.max(0, Number(message.position) || 0);
+          const depth = Math.max(0, Number(message.depth) || 0);
+          const detail = stage === 'running'
+            ? `AI request running${depth > 1 ? ` · ${depth - 1} queued` : ''}`
+            : `AI request queued${position ? ` · position ${position}` : ''}${depth ? ` / ${depth}` : ''}`;
+          if (elements.uploadStatus) elements.uploadStatus.textContent = detail;
+          break;
+        }
+
         case 'youtube.audio.import.status': {
           const stage = String(message.stage || 'processing');
           const detail = String(message.detail || '').trim();
@@ -21682,6 +21755,89 @@
       return parsed.href;
     }
 
+    function closeYoutubeImportModal(notifyServer = true) {
+      const offerId = String(state.youtubeImportOffer?.offerId || '');
+      state.youtubeImportOffer = null;
+      if (elements.youtubeImportModal) elements.youtubeImportModal.hidden = true;
+      if (notifyServer && offerId) sendJson({ type: 'youtube.audio.import.cancel', offerId });
+    }
+
+    function updateYoutubeImportOfferEstimate() {
+      const offer = state.youtubeImportOffer;
+      if (!offer || !elements.youtubeImportQualitySelect) return;
+      const selected = (Array.isArray(offer.qualities) ? offer.qualities : []).find((item) => item?.id === elements.youtubeImportQualitySelect.value);
+      const duration = Math.max(0, Number(offer.durationSeconds) || 0);
+      const estimated = Math.max(0, Number(selected?.estimatedBytes) || 0);
+      const remaining = offer.storage?.quotaBytes > 0 ? Math.max(0, Number(offer.storage.remainingBytes) || 0) : null;
+      if (elements.youtubeImportEstimate) {
+        const size = estimated ? `Estimated output ${formatBytes(estimated)}` : 'Output size will be measured during download';
+        const bitrate = selected?.preserveSource ? 'source audio/container preserved when possible' : `${Math.max(0, Number(selected?.bitrateKbps) || 0)} kbps AAC/M4A`;
+        elements.youtubeImportEstimate.innerHTML = `<strong>${escapeHtml(size)}</strong><span>${escapeHtml(bitrate)}${duration ? ` · ${escapeHtml(formatDuration(duration * 1000))}` : ''}</span>`;
+      }
+      const overQuota = remaining != null && estimated > 0 && estimated > remaining;
+      const overServer = estimated > 0 && Number(offer.serverMaxBytes) > 0 && estimated > Number(offer.serverMaxBytes);
+      const overDuration = duration > Math.max(0, Number(offer.maxDurationSeconds) || 0);
+      const needsLong = offer.longConfirmationRequired === true;
+      const needsVeryLong = offer.veryLongConfirmationRequired === true;
+      if (elements.youtubeImportConfirmButton) {
+        elements.youtubeImportConfirmButton.disabled = !selected || selected.allowed === false || overQuota || overServer || overDuration
+          || (needsLong && !elements.youtubeImportLongConfirm?.checked)
+          || (needsVeryLong && !elements.youtubeImportVeryLongConfirm?.checked);
+      }
+      if (elements.youtubeImportQueueHint) {
+        const parts = [];
+        if (overDuration) parts.push(`Server maximum is ${formatDuration(Number(offer.maxDurationSeconds) * 1000)}.`);
+        else if (overQuota) parts.push('This quality is larger than your currently available storage quota.');
+        else if (selected?.allowed === false) parts.push('This quality is unavailable under current server/quota limits.');
+        else parts.push(`Queued imports are shared fairly between users; up to ${Math.max(1, Number(state.capabilities.youtubeAudioImportConcurrency) || 1)} run at once.`);
+        if (needsVeryLong) parts.push('Very long media requires both confirmations.');
+        else if (needsLong) parts.push('Long media requires confirmation before queueing.');
+        elements.youtubeImportQueueHint.textContent = parts.join(' ');
+      }
+    }
+
+    function openYoutubeImportOffer(message) {
+      state.youtubeImportOffer = message;
+      if (!elements.youtubeImportModal) return;
+      const duration = Math.max(0, Number(message.durationSeconds) || 0);
+      elements.youtubeImportMediaTitle.textContent = String(message.title || 'Media import');
+      elements.youtubeImportMeta.textContent = `${String(message.extractor || 'yt-dlp')}${duration ? ` · ${formatDuration(duration * 1000)}` : ''}`;
+      const storage = message.storage && typeof message.storage === 'object' ? message.storage : {};
+      const used = Math.max(0, Number(storage.usedBytes) || 0);
+      const reserved = Math.max(0, Number(storage.reservedBytes) || 0);
+      const quota = Math.max(0, Number(storage.quotaBytes) || 0);
+      const remaining = quota > 0 ? Math.max(0, Number(storage.remainingBytes) || 0) : null;
+      elements.youtubeImportQuotaText.textContent = quota > 0 ? `${formatBytes(used)} / ${formatBytes(quota)}` : `${formatBytes(used)} · unlimited`;
+      elements.youtubeImportQuotaBar.style.width = quota > 0 ? `${Math.min(100, used / quota * 100).toFixed(2)}%` : '0%';
+      elements.youtubeImportQuotaHint.textContent = quota > 0
+        ? `${formatBytes(remaining)} available${reserved ? ` · ${formatBytes(reserved)} reserved by active uploads/imports` : ''}`
+        : `${reserved ? `${formatBytes(reserved)} currently reserved · ` : ''}administrator quota is unlimited`;
+      elements.youtubeImportQualitySelect.innerHTML = '';
+      const qualities = Array.isArray(message.qualities) ? message.qualities : [];
+      for (const item of qualities) {
+        const option = document.createElement('option');
+        option.value = String(item.id || '');
+        const estimate = Math.max(0, Number(item.estimatedBytes) || 0);
+        option.textContent = `${item.label || item.id}${estimate ? ` · ~${formatBytes(estimate)}` : ''}`;
+        option.disabled = item.allowed === false;
+        elements.youtubeImportQualitySelect.append(option);
+      }
+      const preferred = String(message.preferredQuality || state.youtubeAudioImportQuality || 'preserve');
+      const preferredOption = [...elements.youtubeImportQualitySelect.options].find((option) => option.value === preferred && !option.disabled);
+      const firstAllowed = [...elements.youtubeImportQualitySelect.options].find((option) => !option.disabled);
+      if (preferredOption) elements.youtubeImportQualitySelect.value = preferredOption.value;
+      else if (firstAllowed) elements.youtubeImportQualitySelect.value = firstAllowed.value;
+      elements.youtubeImportLongConfirm.checked = false;
+      elements.youtubeImportVeryLongConfirm.checked = false;
+      elements.youtubeImportLongConfirmRow.hidden = message.longConfirmationRequired !== true;
+      elements.youtubeImportVeryLongConfirmRow.hidden = message.veryLongConfirmationRequired !== true;
+      if (message.longConfirmationRequired === true) elements.youtubeImportLongConfirmText.textContent = `This item is ${formatDuration(duration * 1000)}. Queue this long import.`;
+      if (message.veryLongConfirmationRequired === true) elements.youtubeImportVeryLongConfirmText.textContent = `This item is over 7 hours. I understand it may use substantial bandwidth, storage and queue time.`;
+      elements.youtubeImportModal.hidden = false;
+      updateYoutubeImportOfferEstimate();
+      setTimeout(() => elements.youtubeImportQualitySelect?.focus(), 0);
+    }
+
     function sendCurrentText() {
       const text = elements.messageInput.value.trim();
       if (!text || !canSend()) return;
@@ -21691,11 +21847,11 @@
         return;
       }
 
-      const mediaUrl = !state.messageReplyDraft && state.youtubeAudioImportEnabled === true && state.capabilities.youtubeAudioImport === true
+      const mediaUrl = !state.messageReplyDraft && state.capabilities.youtubeAudioImport === true
         ? mediaUrlOnly(text)
         : '';
       if (mediaUrl) {
-        const sent = sendJson({ type: 'youtube.audio.import', url: mediaUrl, expiresInMs: state.outgoingExpiresInMs, maxBytes: Math.round(state.youtubeAudioImportMaxMiB * 1024 * 1024), quality: state.youtubeAudioImportQuality });
+        const sent = sendJson({ type: 'youtube.audio.inspect', url: mediaUrl, expiresInMs: state.outgoingExpiresInMs, preferredQuality: state.youtubeAudioImportQuality });
         if (sent) {
           stopTyping(true);
           elements.messageInput.value = '';
@@ -42861,42 +43017,25 @@
           ? `YouTube summaries ready · /ai summary <YouTube URL> · ${requestMode} · ${authenticatedSession ? 'authenticated server session ready' : 'anonymous server session'} · captions first${audioFallback ? ' · audio transcription fallback ready' : ' · audio fallback unavailable'}${ytDlpVersion ? ` · yt-dlp ${ytDlpVersion}` : ''}${ytDlpJsRuntime ? ` · ${ytDlpJsRuntime}` : ''}.`
           : 'YouTube transcript summaries are not available on this server. Normal /ai and webpage retrieval are unaffected.';
       }
-      if (elements.youtubeAudioImportInput) {
+      if (elements.youtubeAudioImportQualitySelect || elements.youtubeAudioImportHint) {
         const importAvailable = state.capabilities.youtubeAudioImport === true;
         const serverMaxBytes = Math.max(0, Number(state.capabilities.youtubeAudioImportMaxBytes) || 0);
         const maxDurationSeconds = Math.max(0, Number(state.capabilities.youtubeAudioImportMaxDurationSeconds) || 0);
-        const serverMaxMiB = serverMaxBytes ? Math.max(8, Math.floor(serverMaxBytes / 1024 / 1024)) : 0;
-        const allowedSizes = [16, 32, 64, 96, 128].filter((value) => !serverMaxMiB || value <= serverMaxMiB);
-        if (allowedSizes.length && !allowedSizes.includes(state.youtubeAudioImportMaxMiB)) {
-          state.youtubeAudioImportMaxMiB = allowedSizes.at(-1);
-        }
-        elements.youtubeAudioImportInput.checked = state.youtubeAudioImportEnabled === true;
-        elements.youtubeAudioImportInput.disabled = !importAvailable;
+        const concurrency = Math.max(1, Number(state.capabilities.youtubeAudioImportConcurrency) || 1);
+        const maxQueue = Math.max(1, Number(state.capabilities.youtubeAudioImportMaxQueue) || 1);
         if (elements.youtubeAudioImportQualitySelect) {
           const serverQualities = Array.isArray(state.capabilities.youtubeAudioImportQualities) ? state.capabilities.youtubeAudioImportQualities.map((item) => String(item?.id || '')) : [];
           if (serverQualities.length && !serverQualities.includes(state.youtubeAudioImportQuality)) state.youtubeAudioImportQuality = String(state.capabilities.youtubeAudioImportDefaultQuality || 'preserve');
           elements.youtubeAudioImportQualitySelect.value = state.youtubeAudioImportQuality;
-          elements.youtubeAudioImportQualitySelect.disabled = !importAvailable || state.youtubeAudioImportEnabled !== true;
+          elements.youtubeAudioImportQualitySelect.disabled = !importAvailable;
           for (const option of elements.youtubeAudioImportQualitySelect.options) option.disabled = Boolean(serverQualities.length && !serverQualities.includes(option.value));
         }
-        if (elements.youtubeAudioImportMaxMiBSelect) {
-          elements.youtubeAudioImportMaxMiBSelect.value = String(state.youtubeAudioImportMaxMiB);
-          elements.youtubeAudioImportMaxMiBSelect.disabled = !importAvailable || state.youtubeAudioImportEnabled !== true;
-          for (const option of elements.youtubeAudioImportMaxMiBSelect.options) {
-            option.disabled = Boolean(serverMaxMiB && Number(option.value) > serverMaxMiB);
-          }
-        }
         if (elements.youtubeAudioImportHint) {
-          const selectedBytes = Math.min(serverMaxBytes || Number.MAX_SAFE_INTEGER, state.youtubeAudioImportMaxMiB * 1024 * 1024);
-          const sizeLabel = Number.isFinite(selectedBytes) && selectedBytes > 0 ? ` · selected ${formatBytes(selectedBytes)}` : '';
-          const serverLimitLabel = serverMaxBytes ? ` · server max ${formatBytes(serverMaxBytes)}` : '';
-          const durationLabel = maxDurationSeconds ? ` · up to ${formatDuration(maxDurationSeconds * 1000)}` : '';
-          const qualityLabel = state.youtubeAudioImportQuality === 'preserve' ? 'preserve source/no re-encode' : `${state.youtubeAudioImportQuality.replace('aac', '')} kbps AAC/M4A`;
+          const durationLabel = maxDurationSeconds ? `up to ${formatDuration(maxDurationSeconds * 1000)}` : 'administrator duration limit';
+          const serverLimitLabel = serverMaxBytes ? `server final-file ceiling ${formatBytes(serverMaxBytes)}` : 'server final-file ceiling';
           elements.youtubeAudioImportHint.textContent = !importAvailable
-            ? 'Non-AI video-link audio import is unavailable because the server download/transcription runtime is not ready.'
-            : (state.youtubeAudioImportEnabled
-              ? `On · ${qualityLabel} · URL-only messages are checked against supported yt-dlp site extractors; supported media imports audio + local transcript${sizeLabel}${durationLabel}${serverLimitLabel}, while other links post normally.`
-              : `Off · URLs are sent as normal chat links. Enable this to import supported yt-dlp media/audio-site URL-only messages as audio + local transcript. Default quality: preserve source/no re-encode${durationLabel}${serverLimitLabel}. No AI provider is used.`);
+            ? 'yt-dlp link import is unavailable because the server download/transcription runtime is not ready. URLs are posted normally.'
+            : `Ready · URL-only messages supported by a site-specific yt-dlp extractor open an import chooser every time. The chooser shows quality/estimated size and your current quota; ${durationLabel}; ${serverLimitLabel}; ${concurrency} concurrent imports with a fair shared queue of ${maxQueue}. Unsupported URLs post normally.`;
         }
       }
       if (elements.chatAiPromptHistoryInput) {
