@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.245">
+  <meta name="chat-ui-version" content="9.6.246">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1187,18 +1187,15 @@
       overflow: hidden;
     }
     .voice-note-player.has-track-copy {
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: 48px minmax(0, 1fr);
       align-items: stretch;
-      gap: 5px;
-    }
-    .voice-note-player.has-cover:not(.has-track-copy) { grid-template-columns: 56px minmax(0, 1fr); }
-    .audio-track-summary-row {
-      min-width: 0;
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr);
-      align-items: center;
       gap: 9px;
     }
+    .voice-note-player.has-track-copy.has-cover {
+      grid-template-columns: clamp(94px, 24%, 112px) minmax(0, 1fr);
+      gap: 10px;
+    }
+    .voice-note-player.has-cover:not(.has-track-copy) { grid-template-columns: 56px minmax(0, 1fr); }
     .audio-cover-thumb {
       position: absolute;
       inset: 0;
@@ -1241,6 +1238,7 @@
       font-size: 10px;
       color: var(--message-muted-ink);
     }
+    .voice-note-player.has-track-copy .voice-note-body { align-content: center; }
     .voice-note-player.has-track-copy .voice-note-waveform { height: 34px; }
     .voice-note-toggle {
       position: relative;
@@ -1264,6 +1262,14 @@
       min-width: 56px;
       border-radius: 10px;
       box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--message-ink) 13%, transparent);
+    }
+    .voice-note-player.has-track-copy .voice-note-toggle.has-cover-art {
+      width: 100%;
+      height: auto;
+      min-width: 0;
+      aspect-ratio: 1;
+      align-self: center;
+      border-radius: 14px;
     }
     .voice-note-toggle.has-cover-art::after {
       content: '';
@@ -7708,6 +7714,44 @@
       gap: 0;
       padding-block: 5px;
     }
+    .media-placeholder.is-audio .media-transcript.is-collapsed {
+      grid-column: 2;
+      width: auto;
+      min-width: 0;
+      justify-self: start;
+      align-self: center;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 2px;
+      border-left: 0;
+      background: transparent;
+      white-space: nowrap;
+    }
+    .media-placeholder.is-audio .media-transcript.is-collapsed .media-transcript-header {
+      justify-content: flex-start;
+      gap: 3px;
+    }
+    .media-placeholder.is-audio .media-transcript.is-collapsed .media-transcript-summary {
+      color: var(--message-muted-ink, var(--muted));
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 700;
+    }
+    .media-placeholder.is-audio .media-transcript.is-collapsed .media-transcript-toggle {
+      width: auto;
+      height: auto;
+      min-width: 0;
+      min-height: 0;
+      padding: 0 2px;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: var(--message-muted-ink, var(--muted));
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .media-placeholder.is-audio .media-transcript:not(.is-collapsed) { grid-column: 1 / -1; }
     .media-transcript-text {
       display: block;
       max-height: 33vh;
@@ -7821,12 +7865,13 @@
       width: min(460px, 78vw);
       min-width: min(270px, 72vw);
       display: grid;
-      grid-template-columns: minmax(0, 1fr);
+      grid-template-columns: auto minmax(0, 1fr);
       align-items: start;
-      gap: 3px;
+      column-gap: 10px;
+      row-gap: 3px;
     }
     .media-placeholder.is-audio .media-preview {
-      grid-column: 1;
+      grid-column: 1 / -1;
       display: block;
       width: 100%;
       justify-items: start;
@@ -7837,13 +7882,13 @@
       border: 0;
       background: transparent;
     }
-    .media-placeholder.is-audio .media-inline-caption,
-    .media-placeholder.is-audio .media-transcript { grid-column: 1; }
+    .media-placeholder.is-audio .media-inline-caption { grid-column: 1; }
+    .media-placeholder.is-audio .media-transcript { grid-column: 1 / -1; }
     .media-placeholder.is-audio .media-inline-caption.is-source-caption { margin: 0; padding: 0 2px; }
     @media (max-width: 520px) {
       .media-placeholder.is-audio { gap: 2px; }
       .media-placeholder.is-audio .media-transcript { padding-block: 5px; }
-      .media-placeholder.is-audio .media-transcript.is-collapsed { padding-block: 4px; }
+      .media-placeholder.is-audio .media-transcript.is-collapsed { padding-block: 0; }
     }
     .transcribe-button.processing .icon { animation: pulse 1s ease-in-out infinite; }
 
@@ -15538,7 +15583,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.245</small>
+          <small id="serverBrandVersion">v9.6.246</small>
         </span>
       </button>
     </div>
@@ -27316,7 +27361,6 @@
 
       const body = document.createElement('div');
       body.className = 'voice-note-body';
-      let summaryRow = null;
       if (!isVoice) {
         const display = audioTrackDisplay(file);
         const copy = document.createElement('div');
@@ -27333,9 +27377,7 @@
           detail.title = display.detail;
           copy.append(detail);
         }
-        summaryRow = document.createElement('div');
-        summaryRow.className = 'audio-track-summary-row';
-        summaryRow.append(toggle, copy);
+        body.append(copy);
       }
 
       const playbackRow = document.createElement('div');
@@ -27357,8 +27399,7 @@
       const peaks = normalizeAudioWaveformPeaks(file.waveformPeaks);
       setAudioWaveformBars(track, peaks, peaks.length < 8);
       if (peaks.length >= 8) track.dataset.waveformReady = '1';
-      if (summaryRow) player.append(summaryRow, body);
-      else player.append(toggle, body);
+      player.append(toggle, body);
       content.append(player, audio, debugPanel);
 
       attachAudioDiagnostics(audio, playbackFile, debugPanel);
@@ -43717,7 +43758,7 @@
 
         const summary = document.createElement('span');
         summary.className = 'media-transcript-summary';
-        summary.textContent = summaryText;
+        summary.textContent = collapsed && file.transcript ? 'Transcript' : summaryText;
 
         const toggle = document.createElement('button');
         toggle.type = 'button';

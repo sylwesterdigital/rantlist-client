@@ -1,3 +1,10 @@
+## v0.1.85 / 9.6.246
+
+- Synchronized browser client to **9.6.246 / rantlist-deploy-r274** and protocol **63**.
+- Imported audio artwork/play control is now a dedicated enlarged first column while title/detail, waveform and timing stay grouped in the adjacent body column.
+- The SVG waveform keeps pointer/drag/keyboard seeking but naturally uses the remaining width beside the larger artwork.
+- Completed collapsed transcripts are reduced to a compact **Transcript +** disclosure beside **Source**; the full transcript panel appears only when expanded.
+
 ## v0.1.84 / 9.6.245
 
 - Synchronized browser client to **9.6.245 / rantlist-deploy-r273** and protocol **63**.

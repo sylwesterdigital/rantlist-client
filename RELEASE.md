@@ -1,3 +1,10 @@
+## v0.1.85 / 9.6.246
+
+- Synchronized browser client to **9.6.246 / rantlist-deploy-r274** and protocol **63**.
+- Gives imported audio artwork/playback a responsive 94–112 px first column and moves title/detail into `voice-note-body` above the waveform.
+- Preserves the single-SVG waveform renderer, separate current/total timing and all existing seek interactions.
+- Collapses completed transcripts into a lightweight inline disclosure on the Source metadata row instead of a shaded transcript rectangle.
+
 ## v0.1.84 / 9.6.245
 
 - Synchronized browser client to **9.6.245 / rantlist-deploy-r273** and protocol **63**.
