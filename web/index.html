@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.253">
-  <meta name="chat-protocol-version" content="67">
+  <meta name="chat-ui-version" content="9.6.254">
+  <meta name="chat-protocol-version" content="68">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -784,6 +784,32 @@
     .message-time, .message-label { color: var(--message-muted-ink); font-size: 11px; }
     .message-label { font-weight: 700; }
     .message-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .message.ai-long-output:not(.ai-long-expanded) .message-text {
+      max-height: 30rem;
+      overflow: hidden;
+      -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+    }
+    .message.ai-long-expanded .message-text { max-height: none; -webkit-mask-image: none; mask-image: none; }
+    .ai-long-output-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 7px;
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px solid var(--message-control-border);
+    }
+    .ai-long-output-tools button {
+      min-height: 28px;
+      padding: 4px 9px;
+      border: 1px solid var(--message-control-border);
+      border-radius: 7px;
+      background: var(--message-control-surface);
+      color: var(--message-ink);
+      cursor: pointer;
+    }
+    .ai-long-output-size { color: var(--message-muted-ink); font-size: 11px; }
     .message-reply-quote {
       width: min(100%, 560px);
       min-width: 0;
@@ -15587,7 +15613,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.253</small>
+          <small id="serverBrandVersion">v9.6.254</small>
         </span>
       </button>
     </div>
@@ -18243,6 +18269,11 @@
         chatAiOpenAiPricing: {},
         chatAiOpenAiPricingAsOf: '2026-09-15',
         chatAiOpenAiMaxOutputTokens: 8192,
+        chatAiOpenAiImageGeneration: true,
+        chatAiOpenAiImageModel: 'gpt-image-2.5-sunburst',
+        chatAiAttachmentMaxFiles: 8,
+        chatAiAttachmentMaxFileBytes: 8 * 1024 * 1024,
+        chatAiAttachmentMaxTotalBytes: 20 * 1024 * 1024,
         chatAiLocalLlama: false,
         chatAiLocalLlamaModel: 'local/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf',
         chatAiLocalLlamaTextOnly: true,
@@ -18478,6 +18509,8 @@
       openAiMaxOutputTokens: [1024, 2048, 4096, 8192].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 2048,
       openAiConfirmAstra: readStorage('chat.ai.openai.confirmAstra') !== 'off',
       openAiActiveCommandMessageId: '',
+      pendingAiAttachmentBatchId: '',
+      pendingAiAttachmentCount: 0,
       openAiSpendUsd: Math.max(0, Number(readStorage('chat.ai.openai.spendUsd')) || 0),
       openAiInputTokens: Math.max(0, Number(readStorage('chat.ai.openai.inputTokens')) || 0),
       openAiOutputTokens: Math.max(0, Number(readStorage('chat.ai.openai.outputTokens')) || 0),
@@ -20828,7 +20861,8 @@
           state.openAiSpendUsd += cost; state.openAiInputTokens += inputTokens; state.openAiOutputTokens += outputTokens; state.openAiRequests += requests;
           writeStorage('chat.ai.openai.spendUsd', String(state.openAiSpendUsd)); writeStorage('chat.ai.openai.inputTokens', String(state.openAiInputTokens)); writeStorage('chat.ai.openai.outputTokens', String(state.openAiOutputTokens)); writeStorage('chat.ai.openai.requests', String(state.openAiRequests));
           renderChatAiSettings();
-          addSystemMessage(`OpenAI ${message.model || 'request'} · ${requests} paid response${requests === 1 ? '' : 's'} · ${inputTokens.toLocaleString()} input + ${outputTokens.toLocaleString()} output tokens · estimated $${cost.toFixed(6)} · local total $${state.openAiSpendUsd.toFixed(6)}.`);
+          const imageCostNote = message.imageGeneration === true ? ` · image generation (${message.imageModel || 'OpenAI image model'}) is billed separately by OpenAI and is not included in this token-only estimate` : '';
+          addSystemMessage(`OpenAI ${message.model || 'request'} · ${requests} paid response${requests === 1 ? '' : 's'} · ${inputTokens.toLocaleString()} input + ${outputTokens.toLocaleString()} output tokens · estimated text-model $${cost.toFixed(6)}${imageCostNote} · local text-model total $${state.openAiSpendUsd.toFixed(6)}.`);
           break;
         }
 
@@ -22099,9 +22133,14 @@
       // because the local sidecar intentionally has a much smaller context budget.
       const useBuilder = explicitBuilder || state.chatAiBuilderEnabled === true || Boolean(activeThreadId);
       const commandModel = selectedAiModelForCommand(text);
+      const imageGeneration = /^\/ai\s+image(?:\s|$)/i.test(String(text || ''));
+      if (imageGeneration && !isOpenAiByokModel(commandModel)) {
+        addSystemMessage('/ai image requires an OpenAI model selected under Config → Experimental AI.', true);
+        return { aiBlocked: true };
+      }
       let aiApiKey;
       if (isOpenAiByokModel(commandModel)) {
-        if (!confirmPaidOpenAiRequest(commandModel, useBuilder ? 'Builder request' : 'request')) return { aiBlocked: true };
+        if (!confirmPaidOpenAiRequest(commandModel, imageGeneration ? 'image-generation request' : (useBuilder ? 'Builder request' : 'request'), { imageGeneration })) return { aiBlocked: true };
         if (!state.openAiApiKeyConfigured) {
           addSystemMessage('OpenAI model selected, but no API key is configured. Open Config → Experimental AI and save your key first.', true);
           return { aiBlocked: true };
@@ -22125,7 +22164,8 @@
         aiApiKey,
         aiOpenAiStore: isOpenAiByokModel(commandModel) && state.openAiDurableBackground === true,
         aiOpenAiMaxOutputTokens: isOpenAiByokModel(commandModel) ? normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens) : undefined,
-        aiBuilder: useBuilder,
+        aiAttachmentBatchId: state.pendingAiAttachmentBatchId || undefined,
+        aiBuilder: imageGeneration ? false : useBuilder,
         aiBuilderThreadContext: useBuilder && Boolean(activeThreadId),
         aiBuilderThreadId: useBuilder && activeThreadId ? activeThreadId : undefined,
       };
@@ -22261,6 +22301,10 @@
 
       if (sent) {
         rememberChatAiPrompt(text);
+        if (/^\/ai(?:\s|$)/i.test(text)) {
+          state.pendingAiAttachmentBatchId = '';
+          state.pendingAiAttachmentCount = 0;
+        }
         stopTyping(true);
         playSound('sent');
         elements.messageInput.value = '';
@@ -26155,7 +26199,43 @@
       pdf: 'application/pdf',
       txt: 'text/plain',
       json: 'application/json',
+      jsonl: 'application/json',
       csv: 'text/csv',
+      tsv: 'text/tab-separated-values',
+      md: 'text/markdown',
+      markdown: 'text/markdown',
+      js: 'text/javascript',
+      mjs: 'text/javascript',
+      cjs: 'text/javascript',
+      jsx: 'text/javascript',
+      ts: 'text/plain',
+      tsx: 'text/plain',
+      py: 'text/x-python',
+      rb: 'text/plain',
+      php: 'text/plain',
+      java: 'text/plain',
+      kt: 'text/plain',
+      swift: 'text/plain',
+      go: 'text/plain',
+      rs: 'text/plain',
+      c: 'text/plain',
+      cc: 'text/plain',
+      cpp: 'text/plain',
+      h: 'text/plain',
+      hpp: 'text/plain',
+      cs: 'text/plain',
+      sh: 'text/x-shellscript',
+      bash: 'text/x-shellscript',
+      zsh: 'text/x-shellscript',
+      sql: 'text/plain',
+      html: 'text/html',
+      css: 'text/css',
+      xml: 'application/xml',
+      yaml: 'application/yaml',
+      yml: 'application/yaml',
+      toml: 'text/plain',
+      ini: 'text/plain',
+      log: 'text/plain',
       zip: 'application/zip',
       hpaint: 'application/zip',
       helenapaint: 'application/zip',
@@ -26241,7 +26321,18 @@
       debugLog('info', 'composer', 'files-selected', { source: options.source || 'unknown', classes });
       const sendOptions = { ...options };
       delete sendOptions.source;
-      return sendFiles(normalized, sendOptions);
+      const preparingAi = /^\/ai(?:\s|$)/i.test(String(elements.messageInput?.value || '').trim());
+      if (preparingAi) {
+        if (!state.pendingAiAttachmentBatchId) state.pendingAiAttachmentBatchId = createId().replace(/-/g, '_');
+        sendOptions.batchId = state.pendingAiAttachmentBatchId;
+      }
+      const sent = await sendFiles(normalized, sendOptions);
+      if (sent && preparingAi) {
+        state.pendingAiAttachmentCount += normalized.length;
+        const maxFiles = Math.max(1, Number(state.capabilities.chatAiAttachmentMaxFiles) || 8);
+        addSystemMessage(`${state.pendingAiAttachmentCount} file${state.pendingAiAttachmentCount === 1 ? '' : 's'} attached to the next /ai request${state.pendingAiAttachmentCount >= maxFiles ? ` · server limit ${maxFiles}` : ''}.`);
+      }
+      return sent;
     }
 
     function createOutgoingMediaUploadPreview(file, transferId, options = {}) {
@@ -26341,10 +26432,11 @@
       if (!files.length || !canSend() || state.uploading) return false;
 
       const selectedFiles = [...files];
+      const explicitBatchId = String(options.batchId || '').trim() || null;
       const imageBatchFiles = selectedFiles.filter((file) => state.capabilities.safeImageMimes.includes(composerFileMime(file)));
-      const mediaBatchId = !options.batchId && imageBatchFiles.length > 1 && imageBatchFiles.length === selectedFiles.length
+      const mediaBatchId = !explicitBatchId && imageBatchFiles.length > 1 && imageBatchFiles.length === selectedFiles.length
         ? createId().replace(/-/g, '_')
-        : (String(options.batchId || '').trim() || null);
+        : explicitBatchId;
 
       const kind = options.kind === 'voice'
         ? 'voice'
@@ -26421,7 +26513,7 @@
               kind,
               durationMs: kind === 'voice' ? Math.round(Number(options.durationMs) || 0) : null,
               caption: typeof options.caption === 'string' ? options.caption.slice(0, 8000) : '',
-              batchId: mediaBatchId && state.capabilities.safeImageMimes.includes(composerFileMime(file)) ? mediaBatchId : null,
+              batchId: explicitBatchId || (mediaBatchId && state.capabilities.safeImageMimes.includes(composerFileMime(file)) ? mediaBatchId : null),
               videoCaptionBurn: isVideoUpload && options.videoCaptionBurn?.enabled === true ? options.videoCaptionBurn : null,
               expiresInMs: options.ignoreExpiry ? null : state.outgoingExpiresInMs,
               offset,
@@ -35065,6 +35157,47 @@
       return button;
     }
 
+    function renderAiLongOutputControls(article, message) {
+      if (!article || !isChatAiUser(message?.from) || message?.aiBuilder) return;
+      const answer = chatAiAnswerTextForClipboard(message?.text);
+      if (answer.length < 6000) return;
+      article.classList.add('ai-long-output');
+      const tools = document.createElement('div');
+      tools.className = 'ai-long-output-tools';
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.textContent = 'Show full output';
+      toggle.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const expanded = article.classList.toggle('ai-long-expanded');
+        toggle.textContent = expanded ? 'Collapse output' : 'Show full output';
+        if (expanded) scheduleMessageGroupPostLayoutReflow();
+      });
+      const download = document.createElement('button');
+      download.type = 'button';
+      download.textContent = 'Download .txt';
+      download.title = 'Download the complete AI answer';
+      download.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const blob = new Blob([answer], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        const stamp = new Date(Number(message?.serverTime) || Date.now()).toISOString().replace(/[:.]/g, '-');
+        anchor.href = url;
+        anchor.download = `rantlist-ai-${stamp}.txt`;
+        anchor.style.display = 'none';
+        document.body.append(anchor);
+        anchor.click();
+        anchor.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      });
+      const size = document.createElement('span');
+      size.className = 'ai-long-output-size';
+      size.textContent = `${answer.length.toLocaleString()} characters · Copy copies the complete output`;
+      tools.append(toggle, download, size);
+      article.append(tools);
+    }
+
     function currentRoomIsTwoPersonDirect() {
       const room = currentRoomRecord();
       const direct = state.currentRoomDirect || room?.direct === true;
@@ -35145,6 +35278,7 @@
       body.className = 'message-text';
       body.textContent = message.text;
       article.append(body);
+      renderAiLongOutputControls(article, message);
       renderAiBuilderCard(article, message.aiBuilder, message.id);
       renderAiYoutubeTranscriptCard(article, message.aiYoutubeTranscript, message.id);
       renderAiResponseTiming(article, message.aiElapsedMs, Boolean(message.aiBuilder), message.aiProvider, message.aiModel);
@@ -37909,6 +38043,10 @@
         expiresInMs: state.outgoingExpiresInMs || null,
         ...aiOptions,
       })) {
+        if (/^\/ai(?:\s|$)/i.test(text)) {
+          state.pendingAiAttachmentBatchId = '';
+          state.pendingAiAttachmentCount = 0;
+        }
         elements.callSideChatInput.value = '';
       }
     }
@@ -43521,12 +43659,17 @@
       return outputRate > 0 ? (normalizedOpenAiMaxOutputTokens(tokens) * outputRate / 1_000_000) : null;
     }
 
-    function confirmPaidOpenAiRequest(model, purpose = 'request') {
-      if (model !== 'gpt-6-astra' || state.openAiConfirmAstra !== true) return true;
+    function confirmPaidOpenAiRequest(model, purpose = 'request', options = {}) {
+      const imageGeneration = options?.imageGeneration === true;
+      if (model !== 'gpt-6-astra' || state.openAiConfirmAstra !== true) {
+        if (!imageGeneration) return true;
+        return window.confirm(`This ${purpose} will create one paid OpenAI response and invoke ${state.capabilities.chatAiOpenAiImageModel || 'the OpenAI image model'}. Image-generation charges are additional to text-model token charges. Continue?`);
+      }
       const cap = normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens);
       const outputCeiling = openAiOutputCostCeiling(model, cap);
-      const priceText = outputCeiling == null ? '' : ` At current advertised rates, the output-only ceiling is about $${outputCeiling.toFixed(4)}; input tokens are additional.`;
-      return window.confirm(`GPT-6 Astra is a high-cost model. This ${purpose} is capped at ${cap.toLocaleString()} total output/reasoning tokens and Rantlist will create at most one paid OpenAI response.${priceText} Continue?`);
+      const priceText = outputCeiling == null ? '' : ` At current advertised rates, the text-model output-only ceiling is about $${outputCeiling.toFixed(4)}; input tokens are additional.`;
+      const imageText = imageGeneration ? ` This also invokes ${state.capabilities.chatAiOpenAiImageModel || 'the OpenAI image model'}; image-generation charges are additional and are not included in that token estimate.` : '';
+      return window.confirm(`GPT-6 Astra is a high-cost model. This ${purpose} is capped at ${cap.toLocaleString()} total output/reasoning tokens and Rantlist will create at most one paid OpenAI response.${priceText}${imageText} Continue?`);
     }
 
     function renderChatAiSettings() {

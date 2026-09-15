@@ -1,3 +1,10 @@
+## v0.1.93 / Rantlist 9.6.254
+- Synchronizes browser/native clients with `rantlist-deploy-r282` / protocol 68.
+- Keeps complete long AI answers in the message model while collapsing only their visual presentation; Show full output, Copy and Download .txt operate on the complete answer.
+- Lets `/ai` commands carry a bounded batch of text, source-code, PDF and image attachments, including multimodal OpenAI BYOK input.
+- Adds `/ai image <prompt>` for OpenAI BYOK and renders generated PNG output through the normal Rantlist protected media/medium-preview pipeline.
+- Retains r281 paid-call guardrails, cancellation, secure Keychain/Keystore BYOK storage and fresh-install profile import/identity continuity.
+
 ## v0.1.92 / Rantlist 9.6.253
 - Synchronizes the browser/native clients with `rantlist-deploy-r281` / protocol 67.
 - Fixes OpenAI queue-status rendering and exposes cancellable long-running status without client error floods.
