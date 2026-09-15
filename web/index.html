@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.243">
+  <meta name="chat-ui-version" content="9.6.244">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1199,11 +1199,9 @@
     }
     .voice-note-body { min-width: 0; display: grid; gap: 3px; align-items: center; }
     .voice-note-playback-row {
+      position: relative;
       min-width: 0;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 8px;
+      display: block;
     }
     .audio-track-copy { min-width: 0; display: grid; gap: 1px; line-height: 1.15; }
     .audio-track-title {
@@ -1265,42 +1263,61 @@
       filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .65));
     }
     .voice-note-waveform {
+      position: relative;
+      width: 100%;
       height: 38px;
       min-width: 0;
-      display: flex;
-      align-items: center;
-      gap: 1px;
-      padding: 2px 0;
+      display: block;
+      box-sizing: border-box;
+      padding: 2px 5px;
       cursor: pointer;
       touch-action: none;
       user-select: none;
       outline: none;
+      overflow: hidden;
     }
     .voice-note-waveform:focus-visible {
       border-radius: 7px;
       box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 65%, transparent);
     }
-    .voice-note-bar {
-      flex: 1 1 1px;
-      min-width: 1px;
-      max-width: 4px;
-      height: calc(4px + (30px * var(--voice-peak, .1)));
-      border-radius: 999px;
-      background: currentColor;
-      opacity: .28;
-      transition: opacity .08s linear, transform .08s linear;
-      transform-origin: center;
+    .voice-note-waveform-svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      pointer-events: none;
+      color: inherit;
     }
-    .voice-note-bar.played { opacity: .95; }
-    .voice-note-waveform.is-pending .voice-note-bar { opacity: .18; }
+    .voice-note-waveform-svg .waveform-unplayed,
+    .voice-note-waveform-svg .waveform-played {
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      stroke-linecap: round;
+      vector-effect: non-scaling-stroke;
+    }
+    .voice-note-waveform-svg .waveform-unplayed { opacity: .28; }
+    .voice-note-waveform-svg .waveform-played { opacity: .95; }
+    .voice-note-waveform.is-pending .voice-note-waveform-svg .waveform-unplayed,
+    .voice-note-waveform.is-pending .voice-note-waveform-svg .waveform-played { opacity: .18; }
     .voice-note-time {
-      min-width: 66px;
-      max-width: 82px;
-      text-align: right;
-      color: var(--message-muted-ink);
-      font-size: 11px;
+      position: absolute;
+      z-index: 2;
+      left: 50%;
+      top: 50%;
+      max-width: calc(100% - 18px);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      text-align: center;
+      color: var(--message-ink);
+      font-size: clamp(10.5px, 1.15vw, 12.5px);
+      font-weight: 850;
+      line-height: 1;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
+      -webkit-text-stroke: 2.2px color-mix(in srgb, var(--message-control-surface) 96%, transparent);
+      paint-order: stroke fill;
+      text-shadow: 0 1px 2px color-mix(in srgb, #000 22%, transparent);
     }
     .voice-note-player.is-playing .voice-note-toggle {
       background: color-mix(in srgb, var(--accent) 28%, transparent);
@@ -6867,7 +6884,7 @@
     .media-story-right-rail {
       position: absolute;
       z-index: 3;
-      top: 50%;
+      top: var(--media-story-rail-center-y, 50%);
       right: max(10px, env(safe-area-inset-right));
       bottom: auto;
       transform: translateY(-50%);
@@ -15303,7 +15320,6 @@
     }
     .media-mini-close:hover { color:var(--text); border-color:var(--accent); }
     .media-mini-waveform { flex:1 1 86px; min-width:46px; height:24px; gap:1px; padding:1px 0; color:var(--text); }
-    .media-mini-waveform .voice-note-bar { max-width:3px; height:calc(3px + (17px * var(--voice-peak, .1))); }
     .media-mini-time { flex:0 0 auto; color:var(--muted); font-size:9px; font-variant-numeric:tabular-nums; }
     .media-library-card { width:min(1120px,calc(100vw - 28px)); height:min(820px,calc(100dvh - 28px)); display:grid; grid-template-rows:auto auto minmax(0,1fr) auto; overflow:hidden; }
     .media-library-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -15332,7 +15348,6 @@
     .media-library-title { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-weight:800; cursor:pointer; }
     .media-library-meta { min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; color:var(--muted); font-size:10px; }
     .media-library-item-waveform { height:24px; min-width:0; gap:1px; padding:1px 0; color:var(--text); }
-    .media-library-item-waveform .voice-note-bar { max-width:3px; height:calc(3px + (17px * var(--voice-peak, .1))); }
     .media-library-actions { display:flex; gap:5px; align-items:center; flex-wrap:wrap; padding-top:3px; }
     .media-library-actions a, .media-library-actions button, .media-library-actions select { font-size:9px; min-height:27px; padding:4px 6px; }
     .media-library-items[data-view="list"] .media-library-actions { padding:6px 8px 6px 0; justify-content:flex-end; }
@@ -15361,7 +15376,6 @@
     .media-player-captions-button .icon { width:20px; height:20px; }
     .media-player-seek-input { display:none; }
     .media-player-waveform { min-width:0; height:38px; gap:1px; padding:2px 0; color:var(--text); }
-    .media-player-waveform .voice-note-bar { height:calc(4px + (30px * var(--voice-peak, .1))); }
     .media-player-time { color:var(--muted); font-size:9px; font-variant-numeric:tabular-nums; white-space:nowrap; }
     .media-player-transcript { min-width:0; min-height:0; max-width:100%; overflow:hidden; border-left:1px solid var(--line); display:grid; grid-template-rows:auto minmax(0,1fr); }
     .media-player-transcript-head { display:flex; gap:6px; align-items:center; min-width:0; padding:9px; border-bottom:1px solid var(--line); }
@@ -15511,7 +15525,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.243</small>
+          <small id="serverBrandVersion">v9.6.244</small>
         </span>
       </button>
     </div>
@@ -27032,16 +27046,69 @@
       return Array.from({ length: count }, () => 0.09);
     }
 
+    let voiceWaveformSerial = 0;
+    function audioWaveformPath(values) {
+      const peaks = Array.isArray(values) && values.length ? values : audioWaveformFallback();
+      const count = Math.max(1, peaks.length);
+      const slot = 1000 / count;
+      const commands = [];
+      for (let index = 0; index < count; index += 1) {
+        const peak = Math.max(0.055, Math.min(1, Number(peaks[index]) || 0));
+        const halfHeight = 5 + (peak * 42);
+        const x = (index + .5) * slot;
+        commands.push(`M${x.toFixed(2)} ${(50 - halfHeight).toFixed(2)}V${(50 + halfHeight).toFixed(2)}`);
+      }
+      return commands.join('');
+    }
+
+    function ensureAudioWaveformSvg(track) {
+      let svg = track.querySelector(':scope > .voice-note-waveform-svg');
+      if (svg) return svg;
+      const namespace = 'http://www.w3.org/2000/svg';
+      svg = document.createElementNS(namespace, 'svg');
+      svg.classList.add('voice-note-waveform-svg');
+      svg.setAttribute('viewBox', '0 0 1000 100');
+      svg.setAttribute('preserveAspectRatio', 'none');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.setAttribute('focusable', 'false');
+      const defs = document.createElementNS(namespace, 'defs');
+      const clip = document.createElementNS(namespace, 'clipPath');
+      const clipId = `voice-waveform-clip-${++voiceWaveformSerial}`;
+      clip.id = clipId;
+      const clipRect = document.createElementNS(namespace, 'rect');
+      clipRect.classList.add('voice-note-waveform-progress-clip');
+      clipRect.setAttribute('x', '0');
+      clipRect.setAttribute('y', '0');
+      clipRect.setAttribute('width', '0');
+      clipRect.setAttribute('height', '100');
+      clip.append(clipRect);
+      defs.append(clip);
+      const unplayed = document.createElementNS(namespace, 'path');
+      unplayed.classList.add('waveform-unplayed');
+      const played = document.createElementNS(namespace, 'path');
+      played.classList.add('waveform-played');
+      played.setAttribute('clip-path', `url(#${clipId})`);
+      svg.append(defs, unplayed, played);
+      track.replaceChildren(svg);
+      return svg;
+    }
+
+    function updateAudioWaveformVisualProgress(track, ratio = 0) {
+      if (!track) return;
+      const safeRatio = Math.max(0, Math.min(1, Number(ratio) || 0));
+      track.dataset.waveformProgress = String(safeRatio);
+      const svg = ensureAudioWaveformSvg(track);
+      svg.querySelector('.voice-note-waveform-progress-clip')?.setAttribute('width', String(safeRatio * 1000));
+    }
+
     function setAudioWaveformBars(track, peaks, pending = false) {
       const values = peaks.length >= 8 ? peaks : audioWaveformFallback();
-      track.textContent = '';
       track.classList.toggle('is-pending', pending || peaks.length < 8);
-      for (const peak of values) {
-        const bar = document.createElement('span');
-        bar.className = 'voice-note-bar';
-        bar.style.setProperty('--voice-peak', String(Math.max(0.055, Math.min(1, peak))));
-        track.append(bar);
-      }
+      const svg = ensureAudioWaveformSvg(track);
+      const path = audioWaveformPath(values);
+      svg.querySelector('.waveform-unplayed')?.setAttribute('d', path);
+      svg.querySelector('.waveform-played')?.setAttribute('d', path);
+      updateAudioWaveformVisualProgress(track, Number(track.dataset.waveformProgress) || 0);
     }
 
     function updateAudioWaveformProgress(audio, player, track, timeLabel, file) {
@@ -27050,9 +27117,7 @@
         : Math.max(0, Number(file.durationMs) || 0) / 1000;
       const current = Math.max(0, Number(audio.currentTime) || 0);
       const ratio = duration > 0 ? Math.max(0, Math.min(1, current / duration)) : 0;
-      const bars = [...track.querySelectorAll('.voice-note-bar')];
-      const playedCount = Math.round(ratio * bars.length);
-      bars.forEach((bar, index) => bar.classList.toggle('played', index < playedCount));
+      updateAudioWaveformVisualProgress(track, ratio);
       const playing = !audio.paused && !audio.ended;
       player.classList.toggle('is-playing', playing);
       const toggle = player.querySelector('.voice-note-toggle');
@@ -27671,10 +27736,30 @@
       } catch {}
     }
 
+    function fitChannelMediaStoryRightRail(viewer = state.mediaStoryViewer) {
+      if (!viewer || viewer.root.hidden || !viewer.rail?.isConnected) return false;
+      const stageRect = viewer.stage.getBoundingClientRect();
+      if (!stageRect.height) return false;
+      const topRect = viewer.topbar?.getBoundingClientRect?.();
+      const bottomRect = viewer.bottom?.getBoundingClientRect?.();
+      let upper = stageRect.top + 8;
+      let lower = stageRect.bottom - 8;
+      if (topRect?.height) upper = Math.max(upper, Math.min(stageRect.bottom, topRect.bottom + 8));
+      if (bottomRect?.height) lower = Math.min(lower, Math.max(stageRect.top, bottomRect.top - 8));
+      if (lower - upper < Math.min(180, stageRect.height * .36)) {
+        upper = stageRect.top + 8;
+        lower = stageRect.bottom - 8;
+      }
+      const center = Math.max(0, Math.min(stageRect.height, ((upper + lower) / 2) - stageRect.top));
+      viewer.rail.style.setProperty('--media-story-rail-center-y', `${Math.round(center)}px`);
+      return true;
+    }
+
     function fitChannelMediaStoryForeground() {
       const viewer = state.mediaStoryViewer;
       const media = viewer?.currentMedia;
       if (!viewer || viewer.root.hidden || !(media instanceof HTMLImageElement || media instanceof HTMLVideoElement)) return false;
+      fitChannelMediaStoryRightRail(viewer);
       const sourceWidth = media instanceof HTMLVideoElement ? Number(media.videoWidth) : Number(media.naturalWidth);
       const sourceHeight = media instanceof HTMLVideoElement ? Number(media.videoHeight) : Number(media.naturalHeight);
       if (!sourceWidth || !sourceHeight) return false;
@@ -27964,7 +28049,7 @@
       document.body.append(root);
 
       const viewer = {
-        root, stage, back, position, previous, next, like, likeCount, edit, share, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
+        root, stage, topbar, rail, bottom, back, position, previous, next, like, likeCount, edit, share, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
         transformControls, zoomOut, zoomIn, rotateLeft, rotateRight, resetTransform, transformReadout,
         avatar, author, caption, meta, playState,
         items: [], index: 0, currentMedia: null, currentBackdropMedia: null, muted: readStorage('chat.media.story.muted') !== 'false',
@@ -28398,6 +28483,7 @@
         ? (viewer.items.length > 1 ? 'Swipe up/down · two-finger/trackpad swipe also works' : 'Tap video to pause or play')
         : (viewer.items.length > 1 ? 'Swipe up/down · pinch/drag to inspect · +/− and rotate controls' : 'Pinch/drag to inspect · +/− and rotate controls');
       viewer.meta.textContent = `${timeText}${timeText ? ' · ' : ''}${interactionHint}`;
+      requestAnimationFrame(() => fitChannelMediaStoryRightRail(viewer));
       viewer.download.href = item.downloadUrl || item.src;
       viewer.download.download = item.name || 'media';
       viewer.edit.hidden = item.isVideo;
@@ -33532,9 +33618,7 @@
     function updateMediaLibraryWaveformProgress(track, ratio, currentMs = 0, durationMs = 0) {
       if (!track) return;
       const safeRatio = Math.max(0, Math.min(1, Number(ratio) || 0));
-      const bars = [...track.querySelectorAll('.voice-note-bar')];
-      const playedCount = Math.round(safeRatio * bars.length);
-      bars.forEach((bar, index) => bar.classList.toggle('played', index < playedCount));
+      updateAudioWaveformVisualProgress(track, safeRatio);
       track.setAttribute('aria-valuemin', '0');
       track.setAttribute('aria-valuemax', String(Math.max(0, Math.round((Number(durationMs) || 0) / 1000))));
       track.setAttribute('aria-valuenow', String(Math.max(0, Math.round((Number(currentMs) || 0) / 1000))));

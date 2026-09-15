@@ -1,3 +1,10 @@
+## v0.1.83 / 9.6.244
+
+- Synchronized browser client to **9.6.244 / rantlist-deploy-r272** and protocol **63**.
+- Reworks message and Media Library audio waveforms into a lightweight scalable SVG renderer with one clipped progress layer.
+- Centers the current/total audio clock over the waveform without intercepting taps or drag-seek gestures.
+- Refines Stories / Shorts action-rail positioning against the actually unobstructed vertical media lane.
+
 ## v0.1.82 / 9.6.243
 
 - Synchronized browser client to **9.6.243 / rantlist-deploy-r271** and protocol **63**.

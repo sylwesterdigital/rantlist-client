@@ -1,3 +1,10 @@
+## v0.1.83 / 9.6.244
+
+- Synchronized browser client to **9.6.244 / rantlist-deploy-r272** and protocol **63**.
+- Audio/voice playback time is centered over the waveform with a high-contrast pointer-transparent label, preventing right-edge clipping while keeping the full waveform seekable.
+- Waveforms use a compact SVG path with a clipped played layer instead of dozens of per-peak DOM bars, reducing timeline and Media Library rendering work.
+- Stories / Shorts right-side actions now center in the measured unobstructed lane between top controls and bottom metadata.
+
 ## v0.1.82 / 9.6.243
 
 - Synchronized browser client to **9.6.243 / rantlist-deploy-r271** and protocol **63**.
