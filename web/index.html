@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.246">
+  <meta name="chat-ui-version" content="9.6.247">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -8002,6 +8002,7 @@
       gap: 4px;
       margin-left: auto;
     }
+    .panel-header-channel-actions > [hidden] { display: none !important; }
 
     .channel-settings-button {
       width: 30px;
@@ -15249,32 +15250,32 @@
       background: var(--accent);
     }
     .media-video-seek::-webkit-slider-thumb {
-      width: 18px;
-      height: 18px;
-      margin-top: -7px;
+      width: 6px;
+      height: 6px;
+      margin-top: -1px;
       appearance: none;
       -webkit-appearance: none;
       border: 0;
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(255,255,255,.94), 0 2px 7px rgba(0,0,0,.28);
+      box-shadow: none;
       opacity: 1;
-      transition: transform .12s ease, box-shadow .12s ease;
+      transition: transform .12s ease;
     }
     .media-video-seek::-moz-range-thumb {
-      width: 18px;
-      height: 18px;
+      width: 6px;
+      height: 6px;
       border: 0;
       border-radius: 50%;
       background: var(--accent);
-      box-shadow: 0 0 0 3px rgba(255,255,255,.94), 0 2px 7px rgba(0,0,0,.28);
+      box-shadow: none;
       opacity: 1;
-      transition: transform .12s ease, box-shadow .12s ease;
+      transition: transform .12s ease;
     }
     .media-video-seek:hover::-webkit-slider-thumb,
-    .media-video-seek:focus-visible::-webkit-slider-thumb { transform: scale(1.08); box-shadow: 0 0 0 4px rgba(255,255,255,.98), 0 2px 8px rgba(0,0,0,.34); }
+    .media-video-seek:focus-visible::-webkit-slider-thumb { transform: scale(1.2); box-shadow: none; }
     .media-video-seek:hover::-moz-range-thumb,
-    .media-video-seek:focus-visible::-moz-range-thumb { transform: scale(1.08); box-shadow: 0 0 0 4px rgba(255,255,255,.98), 0 2px 8px rgba(0,0,0,.34); }
+    .media-video-seek:focus-visible::-moz-range-thumb { transform: scale(1.2); box-shadow: none; }
     .media-video-seek:disabled { cursor: default; opacity: .45; }
     .media-video-time {
       min-width: 103px;
@@ -15297,8 +15298,8 @@
     .media-story-video-timeline .media-video-seek::-moz-range-track {
       background: linear-gradient(90deg, #fff 0 var(--media-video-progress), rgba(255,255,255,.28) var(--media-video-progress) 100%);
     }
-    .media-story-video-timeline .media-video-seek::-webkit-slider-thumb { background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.36), 0 2px 8px rgba(0,0,0,.42); }
-    .media-story-video-timeline .media-video-seek::-moz-range-thumb { background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.36), 0 2px 8px rgba(0,0,0,.42); }
+    .media-story-video-timeline .media-video-seek::-webkit-slider-thumb { background: #fff; box-shadow: none; }
+    .media-story-video-timeline .media-video-seek::-moz-range-thumb { background: #fff; box-shadow: none; }
     .media-story-viewer.has-video-timeline .media-story-bottom {
       bottom: max(31px, calc(var(--safe-bottom, 0px) + 27px));
     }
@@ -15583,7 +15584,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.246</small>
+          <small id="serverBrandVersion">v9.6.247</small>
         </span>
       </button>
     </div>
@@ -36031,6 +36032,7 @@
     }
 
     function leaveCurrentDirectChannel() {
+      if (elements.channelLeaveButton.hidden || elements.channelLeaveButton.disabled) return;
       if (!state.currentRoom || !(state.currentRoomDirect || currentRoomRecord()?.direct)) return;
       const label = state.currentRoomDirectLabel || directRoomDisplayName(currentRoomRecord());
       if (!window.confirm(`Leave the direct channel with ${label}?`)) return;
@@ -38543,6 +38545,26 @@
       return filteredRoomsForSearch().filter((room) => explicitHiddenScope || room.hidden !== true);
     }
 
+    function syncChannelHeaderActions() {
+      const room = currentRoomRecord();
+      const blocked = Boolean(state.versionBlocked || state.reloadPending);
+      const socketOpen = state.socket?.readyState === WebSocket.OPEN;
+      const currentIsDirect = Boolean(state.currentRoom && (state.currentRoomDirect || room?.direct === true));
+      const canLeaveDirect = Boolean(state.registered && socketOpen && !blocked && currentIsDirect);
+      const canShareChannel = Boolean(state.registered && socketOpen && !blocked && state.currentRoom && !currentIsDirect);
+      const canOpenSettings = Boolean(state.registered && socketOpen && !blocked && state.currentRoom && !currentIsDirect && canManageCurrentRoom());
+
+      elements.channelLeaveButton.hidden = !canLeaveDirect;
+      elements.channelLeaveButton.disabled = !canLeaveDirect;
+      elements.channelShareButton.hidden = !canShareChannel;
+      elements.channelShareButton.disabled = !canShareChannel;
+      elements.channelSettingsButton.hidden = !canOpenSettings;
+      elements.channelSettingsButton.disabled = !canOpenSettings;
+
+      const actionGroup = elements.channelLeaveButton.closest('.panel-header-channel-actions');
+      if (actionGroup) actionGroup.hidden = !(canLeaveDirect || canShareChannel || canOpenSettings);
+    }
+
     function renderRooms() {
       elements.roomList.textContent = '';
       const visibleRooms = filteredRoomsForRail();
@@ -38618,9 +38640,7 @@
         ].filter(Boolean).join(' · ');
       elements.currentRoomMeta.textContent = currentMeta;
       elements.currentRoomLabel.title = state.currentRoom ? `${currentLabel}${currentMeta ? ` · ${currentMeta}` : ''}` : 'No room selected';
-      elements.channelLeaveButton.hidden = !currentIsDirect;
-      const mayManage = !currentIsDirect && canManageCurrentRoom();
-      elements.channelSettingsButton.hidden = !mayManage;
+      syncChannelHeaderActions();
       elements.channelSettingsRoomLabel.textContent = state.currentRoom ? `#${state.currentRoom}` : 'No channel selected';
       elements.channelSettingsOwnerLabel.textContent = state.currentRoom
         ? `Created by ${currentOwner ? `@${currentOwner}` : (current?.permanent ? '@server' : '@unknown')}`
@@ -39856,14 +39876,13 @@
       elements.roomInput.disabled = !state.registered || blocked;
       elements.roomButton.disabled = !state.registered || blocked;
       elements.roomCreateButton.disabled = !state.registered || blocked;
-      const mayManageCurrentRoom = canManageCurrentRoom();
-      elements.channelShareButton.hidden = !state.registered || !state.currentRoom || state.currentRoomDirect;
-      elements.channelShareButton.disabled = !state.registered || !state.currentRoom || state.currentRoomDirect || blocked;
-      elements.channelSettingsButton.hidden = !mayManageCurrentRoom;
-      elements.channelSettingsButton.disabled = !state.registered || !state.currentRoom || !mayManageCurrentRoom || blocked;
+      syncChannelHeaderActions();
       syncChannelTopicRowVisibility();
-      if (elements.channelSettingsButton.disabled && !elements.channelSettingsDrawer.hidden) {
+      if (elements.channelSettingsButton.hidden && !elements.channelSettingsDrawer.hidden) {
         closeChannelSettings(false);
+      }
+      if (elements.channelShareButton.hidden && !elements.externalInviteModal.hidden) {
+        closeExternalInviteModal();
       }
       elements.profileButton.disabled = !socketOpen || state.signingOff || state.isAdmin;
       elements.signOffButton.disabled = !state.registered || !socketOpen || state.signingOff;
@@ -46310,6 +46329,7 @@
     }
 
     function openExternalInviteModal() {
+      if (elements.channelShareButton.hidden || elements.channelShareButton.disabled) return;
       if (!state.registered || !state.currentRoom || state.currentRoomDirect) return;
       elements.externalInviteTargetSelect.textContent = '';
       const channelOption = document.createElement('option');
@@ -46782,6 +46802,7 @@
 
 
     function openChannelSettings() {
+      if (elements.channelSettingsButton.hidden || elements.channelSettingsButton.disabled) return;
       if (!state.currentRoom) {
         addSystemMessage('Join a channel first.', true);
         return;

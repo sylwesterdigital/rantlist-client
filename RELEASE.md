@@ -1,3 +1,10 @@
+## v0.1.86 / 9.6.247
+
+- Synchronized browser client to **9.6.247 / rantlist-deploy-r275** and protocol **63**.
+- Hides unavailable channel-topic Leave, Share and Settings controls, including the action group when it has no executable actions.
+- Keeps matching handler guards so hidden actions cannot be invoked after permissions/connectivity change.
+- Reduces the video seek thumb from 18 px to 6 px, removes outline/ring styling and preserves the full range-input interaction area.
+
 ## v0.1.85 / 9.6.246
 
 - Synchronized browser client to **9.6.246 / rantlist-deploy-r274** and protocol **63**.

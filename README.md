@@ -1,3 +1,10 @@
+## v0.1.86 / 9.6.247
+
+- Synchronized browser client to **9.6.247 / rantlist-deploy-r275** and protocol **63**.
+- Channel-topic Leave, Share and Settings actions disappear whenever the current session cannot actually execute them instead of remaining as disabled controls.
+- The empty channel-action group is removed from layout and the action handlers use the same availability contract.
+- Video scrubbers keep their existing touch/drag lane but use a compact 6 px borderless visual thumb without the former high-contrast ring.
+
 ## v0.1.85 / 9.6.246
 
 - Synchronized browser client to **9.6.246 / rantlist-deploy-r274** and protocol **63**.
