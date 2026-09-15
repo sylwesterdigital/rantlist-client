@@ -1,3 +1,10 @@
+## v0.1.94 / Rantlist 9.6.255
+- Synchronizes browser/native clients with `rantlist-deploy-r283` / protocol 68.
+- Expands user-controlled OpenAI paid output/reasoning limits to 1,024–128,000 tokens; fresh installs use 16,384 while existing saved choices remain unchanged.
+- Separates long OpenAI answer retention from the older Hetzner text ceiling, preventing a provider-complete code/document response from being cut again locally.
+- Marks `max_output_tokens` responses as partial: Copy/download contain every character returned by OpenAI, the status marker is excluded from the file, and partial filenames are explicit.
+- Keeps one explicit command to at most one paid OpenAI Response; there is no automatic paid continuation.
+
 ## v0.1.93 / Rantlist 9.6.254
 - Synchronizes browser/native clients with `rantlist-deploy-r282` / protocol 68.
 - Keeps complete long AI answers in the message model while collapsing only their visual presentation; Show full output, Copy and Download .txt operate on the complete answer.

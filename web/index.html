@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.254">
+  <meta name="chat-ui-version" content="9.6.255">
   <meta name="chat-protocol-version" content="68">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15613,7 +15613,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.254</small>
+          <small id="serverBrandVersion">v9.6.255</small>
         </span>
       </button>
     </div>
@@ -15939,10 +15939,14 @@
           <div class="config-row" data-config-feature="openai-byok">
             <label for="openAiMaxOutputTokensSelect">Paid output limit</label>
             <select id="openAiMaxOutputTokensSelect" aria-describedby="openAiCostGuardHint">
-              <option value="1024">1,024 tokens</option>
-              <option value="2048">2,048 tokens · recommended</option>
+              <option value="1024">1,024 tokens · very short</option>
+              <option value="2048">2,048 tokens · economy / may truncate</option>
               <option value="4096">4,096 tokens</option>
               <option value="8192">8,192 tokens</option>
+              <option value="16384">16,384 tokens · long-answer default</option>
+              <option value="32768">32,768 tokens</option>
+              <option value="65536">65,536 tokens · high cost</option>
+              <option value="128000">128,000 tokens · model maximum / very high cost</option>
             </select>
           </div>
           <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiConfirmAstraInput">
@@ -18506,7 +18510,7 @@
       openAiApiKeyConfigured: false,
       openAiCredentialStorage: 'memory',
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
-      openAiMaxOutputTokens: [1024, 2048, 4096, 8192].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 2048,
+      openAiMaxOutputTokens: [1024, 2048, 4096, 8192, 16384, 32768, 65536, 128000].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 16384,
       openAiConfirmAstra: readStorage('chat.ai.openai.confirmAstra') !== 'off',
       openAiActiveCommandMessageId: '',
       pendingAiAttachmentBatchId: '',
@@ -35124,8 +35128,17 @@
       reflowMessageGroups();
     }
 
+    const CHAT_AI_OUTPUT_LIMIT_MARKER = '[AI output limit reached.]';
+
+    function chatAiOutputLimitReached(text) {
+      return String(text || '').trimEnd().endsWith(CHAT_AI_OUTPUT_LIMIT_MARKER);
+    }
+
     function chatAiAnswerTextForClipboard(text) {
-      return String(text || '').replace(/^@[^\n]+\n/, '').trim();
+      return String(text || '')
+        .replace(/^@[^\n]+\n/, '')
+        .replace(/\n*\[AI output limit reached\.\]\s*$/, '')
+        .trim();
     }
 
     function createChatAiCopyButton(message) {
@@ -35160,8 +35173,10 @@
     function renderAiLongOutputControls(article, message) {
       if (!article || !isChatAiUser(message?.from) || message?.aiBuilder) return;
       const answer = chatAiAnswerTextForClipboard(message?.text);
-      if (answer.length < 6000) return;
+      const outputLimitReached = chatAiOutputLimitReached(message?.text);
+      if (answer.length < 6000 && !outputLimitReached) return;
       article.classList.add('ai-long-output');
+      if (outputLimitReached) article.classList.add('ai-output-limited');
       const tools = document.createElement('div');
       tools.className = 'ai-long-output-tools';
       const toggle = document.createElement('button');
@@ -35175,8 +35190,8 @@
       });
       const download = document.createElement('button');
       download.type = 'button';
-      download.textContent = 'Download .txt';
-      download.title = 'Download the complete AI answer';
+      download.textContent = outputLimitReached ? 'Download partial .txt' : 'Download .txt';
+      download.title = outputLimitReached ? 'Download every character OpenAI returned before the paid output cap' : 'Download the complete AI answer';
       download.addEventListener('click', (event) => {
         event.stopPropagation();
         const blob = new Blob([answer], { type: 'text/plain;charset=utf-8' });
@@ -35184,7 +35199,7 @@
         const anchor = document.createElement('a');
         const stamp = new Date(Number(message?.serverTime) || Date.now()).toISOString().replace(/[:.]/g, '-');
         anchor.href = url;
-        anchor.download = `rantlist-ai-${stamp}.txt`;
+        anchor.download = `rantlist-ai-${stamp}${outputLimitReached ? '-partial' : ''}.txt`;
         anchor.style.display = 'none';
         document.body.append(anchor);
         anchor.click();
@@ -35193,7 +35208,9 @@
       });
       const size = document.createElement('span');
       size.className = 'ai-long-output-size';
-      size.textContent = `${answer.length.toLocaleString()} characters · Copy copies the complete output`;
+      size.textContent = outputLimitReached
+        ? `${answer.length.toLocaleString()} characters · Partial: provider hit your paid output/reasoning cap. Copy/download contain every character OpenAI returned; raise Paid output limit and retry for a longer single response.`
+        : `${answer.length.toLocaleString()} characters · Copy copies the complete output`;
       tools.append(toggle, download, size);
       article.append(tools);
     }
@@ -43648,8 +43665,8 @@
     }
 
     function normalizedOpenAiMaxOutputTokens(value) {
-      const advertisedMax = Math.max(512, Math.min(8192, Number(state.capabilities.chatAiOpenAiMaxOutputTokens) || 8192));
-      const requested = Number(value) || 2048;
+      const advertisedMax = Math.max(512, Math.min(128000, Number(state.capabilities.chatAiOpenAiMaxOutputTokens) || 128000));
+      const requested = Number(value) || 16384;
       return Math.max(512, Math.min(advertisedMax, requested));
     }
 
@@ -43697,7 +43714,7 @@
       if (elements.openAiCostGuardHint) {
         const selected = selectedAiInferenceModel();
         const ceiling = isOpenAiByokModel(selected) ? openAiOutputCostCeiling(selected, state.openAiMaxOutputTokens) : null;
-        elements.openAiCostGuardHint.textContent = `Per-command paid output cap: ${state.openAiMaxOutputTokens.toLocaleString()} tokens (visible + reasoning). OpenAI BYOK never auto-continues or auto-repairs with another paid response.${ceiling == null ? '' : ` For ${aiInferenceModelLabel(selected).split(' · ')[0]}, the output-only ceiling is about $${ceiling.toFixed(4)}; input tokens are additional.`}`;
+        elements.openAiCostGuardHint.textContent = `Per-command paid output cap: ${state.openAiMaxOutputTokens.toLocaleString()} tokens (visible + reasoning). 1k–2k is for short/economy answers and can truncate code/documents; 16k is the fresh-install long-answer default. OpenAI BYOK never auto-continues or auto-repairs with another paid response.${ceiling == null ? '' : ` For ${aiInferenceModelLabel(selected).split(' · ')[0]}, the output-only ceiling is about $${ceiling.toFixed(4)}; input tokens are additional.`}`;
       }
       if (elements.openAiApiKeyHint) elements.openAiApiKeyHint.textContent = !byokEnabled
         ? 'OpenAI BYOK is disabled by this server.'
