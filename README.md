@@ -1,3 +1,9 @@
+## v0.1.88 / Rantlist 9.6.249
+- Synchronizes the browser client with server 9.6.249 / `rantlist-deploy-r277` / protocol 64.
+- Adds per-user OpenAI BYOK configuration for GPT-6 Astra and GPT-5.6 Sol/Terra/Luna, with private per-call token/cost reporting and a resettable local spend estimate.
+- No OpenAI credential is included in this public client package; every user supplies and controls their own key locally.
+- Native release automation covers macOS, iOS and Android; the existing iOS build path installs/relaunches on connected development devices when available.
+
 ## v0.1.87 / 9.6.248
 
 - Synchronized browser client to **9.6.248 / rantlist-deploy-r276** and protocol **63**.

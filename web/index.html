@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.248">
-  <meta name="chat-protocol-version" content="63">
+  <meta name="chat-ui-version" content="9.6.249">
+  <meta name="chat-protocol-version" content="64">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -15584,7 +15584,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.248</small>
+          <small id="serverBrandVersion">v9.6.249</small>
         </span>
       </button>
     </div>
@@ -15891,7 +15891,18 @@
             <label for="hetznerAiModelSelect">AI model</label>
             <select id="hetznerAiModelSelect" aria-describedby="hetznerAiModelHint"></select>
           </div>
-          <p id="hetznerAiModelHint" class="hint">Choose the model for normal /ai text chat. With a Hetzner Qwen model, an immediately preceding multi-photo batch can also be compared in one /ai request. Local Llama is text-only.</p>
+          <p id="hetznerAiModelHint" class="hint">Choose the model for normal /ai text chat. Hetzner and Local Llama use server-managed inference; OpenAI models require your own key.</p>
+          <div class="config-row" data-config-feature="openai-byok">
+            <label for="openAiApiKeyInput">OpenAI API key</label>
+            <input id="openAiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" aria-describedby="openAiApiKeyHint">
+          </div>
+          <div class="config-actions" data-config-feature="openai-byok">
+            <button id="openAiApiKeySaveButton" type="button">Save key on this device</button>
+            <button id="openAiApiKeyClearButton" type="button">Clear key</button>
+            <button id="openAiWalletResetButton" type="button">Reset local spend</button>
+          </div>
+          <p id="openAiApiKeyHint" class="hint">The key is stored only in this client and sent over WSS only when you select an OpenAI model. It is never written to shared chat/server storage.</p>
+          <p id="openAiWalletHint" class="hint">OpenAI wallet: no calls tracked on this device yet.</p>
           <div class="config-row" data-config-feature="media-ai">
             <label for="mediaAiModeSelect">Experimental image AI</label>
             <select id="mediaAiModeSelect">
@@ -18048,7 +18059,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18201,7 +18212,11 @@
         mediaAiProvider: 'Hetzner Experiments',
         mediaAiModel: '',
         hetznerInferenceModels: ['Qwen/Qwen3.6-35B-A3B-FP8', 'Qwen3.8-27B'],
-        chatAiModels: ['Qwen/Qwen3.6-35B-A3B-FP8', 'Qwen3.8-27B'],
+        chatAiModels: ['Qwen/Qwen3.6-35B-A3B-FP8', 'Qwen3.8-27B', 'gpt-6-astra', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'],
+        chatAiOpenAiByok: true,
+        chatAiOpenAiModels: ['gpt-6-astra', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'],
+        chatAiOpenAiPricing: {},
+        chatAiOpenAiPricingAsOf: '2026-09-15',
         chatAiLocalLlama: false,
         chatAiLocalLlamaModel: 'local/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf',
         chatAiLocalLlamaTextOnly: true,
@@ -18430,6 +18445,11 @@
       mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
       mediaAiTimeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(readStorage('chat.media.aiTimeoutSeconds')) || 180))),
       hetznerAiModel: String(readStorage('chat.ai.model') || '').trim(),
+      openAiApiKey: String(readStorage('chat.ai.openai.apiKey') || '').trim(),
+      openAiSpendUsd: Math.max(0, Number(readStorage('chat.ai.openai.spendUsd')) || 0),
+      openAiInputTokens: Math.max(0, Number(readStorage('chat.ai.openai.inputTokens')) || 0),
+      openAiOutputTokens: Math.max(0, Number(readStorage('chat.ai.openai.outputTokens')) || 0),
+      openAiRequests: Math.max(0, Number(readStorage('chat.ai.openai.requests')) || 0),
       chatAiContextEnabled: readStorage('chat.ai.context') === 'on',
       youtubeAudioImportEnabled: true,
       youtubeAudioImportQuality: ['preserve', 'aac256', 'aac192', 'aac128', 'aac96', 'aac64'].includes(readStorage('chat.youtube.audioImportQuality')) ? readStorage('chat.youtube.audioImportQuality') : 'preserve',
@@ -19147,6 +19167,27 @@
         writeStorage('chat.ai.model', state.hetznerAiModel);
         renderChatAiSettings();
         renderMediaAiSettings();
+      });
+      elements.openAiApiKeySaveButton?.addEventListener('click', () => {
+        const key = String(elements.openAiApiKeyInput?.value || '').trim();
+        if (key.length < 20 || /\s/.test(key)) return addSystemMessage('Enter a valid OpenAI API key before saving.', true);
+        state.openAiApiKey = key;
+        writeStorage('chat.ai.openai.apiKey', key);
+        if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.value = '';
+        renderChatAiSettings();
+        addSystemMessage('OpenAI API key saved on this device.');
+      });
+      elements.openAiApiKeyClearButton?.addEventListener('click', () => {
+        state.openAiApiKey = '';
+        writeStorage('chat.ai.openai.apiKey', '');
+        if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.value = '';
+        renderChatAiSettings();
+        addSystemMessage('OpenAI API key cleared from this device.');
+      });
+      elements.openAiWalletResetButton?.addEventListener('click', () => {
+        state.openAiSpendUsd = 0; state.openAiInputTokens = 0; state.openAiOutputTokens = 0; state.openAiRequests = 0;
+        writeStorage('chat.ai.openai.spendUsd', '0'); writeStorage('chat.ai.openai.inputTokens', '0'); writeStorage('chat.ai.openai.outputTokens', '0'); writeStorage('chat.ai.openai.requests', '0');
+        renderChatAiSettings();
       });
       elements.chatAiContextInput.addEventListener('change', () => {
         state.chatAiContextEnabled = elements.chatAiContextInput.checked === true;
@@ -20572,6 +20613,18 @@
           openYoutubeImportOffer(message);
           break;
 
+        case 'chat.ai.openai.usage': {
+          const cost = Math.max(0, Number(message.costUsd) || 0);
+          const inputTokens = Math.max(0, Number(message.inputTokens) || 0);
+          const outputTokens = Math.max(0, Number(message.outputTokens) || 0);
+          const requests = Math.max(1, Number(message.requests) || 1);
+          state.openAiSpendUsd += cost; state.openAiInputTokens += inputTokens; state.openAiOutputTokens += outputTokens; state.openAiRequests += requests;
+          writeStorage('chat.ai.openai.spendUsd', String(state.openAiSpendUsd)); writeStorage('chat.ai.openai.inputTokens', String(state.openAiInputTokens)); writeStorage('chat.ai.openai.outputTokens', String(state.openAiOutputTokens)); writeStorage('chat.ai.openai.requests', String(state.openAiRequests));
+          renderChatAiSettings();
+          addSystemMessage(`OpenAI ${message.model || 'request'} · ${inputTokens.toLocaleString()} input + ${outputTokens.toLocaleString()} output tokens · estimated $${cost.toFixed(6)} · local total $${state.openAiSpendUsd.toFixed(6)}.`);
+          break;
+        }
+
         case 'chat.ai.queue.status': {
           const stage = String(message.stage || 'queued');
           const position = Math.max(0, Number(message.position) || 0);
@@ -21809,9 +21862,15 @@
       // best-effort compact Builder attempt; thread continuation remains Qwen-only
       // because the local sidecar intentionally has a much smaller context budget.
       const useBuilder = explicitBuilder || state.chatAiBuilderEnabled === true || Boolean(activeThreadId);
+      const commandModel = selectedAiModelForCommand(text);
+      if (isOpenAiByokModel(commandModel) && !state.openAiApiKey) {
+        addSystemMessage('OpenAI model selected, but no API key is saved. Open Config → Experimental AI and save your key first.', true);
+        return { aiBlocked: true };
+      }
       return {
         aiContext: state.chatAiContextEnabled === true,
-        aiModel: selectedAiModelForCommand(text),
+        aiModel: commandModel,
+        aiApiKey: isOpenAiByokModel(commandModel) ? state.openAiApiKey : undefined,
         aiBuilder: useBuilder,
         aiBuilderThreadContext: useBuilder && Boolean(activeThreadId),
         aiBuilderThreadId: useBuilder && activeThreadId ? activeThreadId : undefined,
@@ -21935,13 +21994,15 @@
         return;
       }
 
+      const aiOptions = outgoingAiOptions(text);
+      if (aiOptions.aiBlocked) return;
       const sent = sendJson({
         type: 'message.room',
         text,
         expiresInMs: state.outgoingExpiresInMs,
         replyTo: state.messageReplyDraft?.messageId || undefined,
         mentionTo: state.composerMentionTarget?.identityId || undefined,
-        ...outgoingAiOptions(text),
+        ...aiOptions,
       });
 
       if (sent) {
@@ -37586,11 +37647,13 @@
       event.preventDefault();
       const text = elements.callSideChatInput.value.trim();
       if (!text || !canSend()) return;
+      const aiOptions = outgoingAiOptions(text);
+      if (aiOptions.aiBlocked) return;
       if (sendJson({
         type: 'message.room',
         text,
         expiresInMs: state.outgoingExpiresInMs || null,
-        ...outgoingAiOptions(text),
+        ...aiOptions,
       })) {
         elements.callSideChatInput.value = '';
       }
@@ -42910,6 +42973,7 @@
 
     function aiResponseProviderLabel(provider, model) {
       if (String(provider || '') === 'local-llama' || isLocalLlamaModel(model)) return 'Llama 3.1 · local';
+      if (String(provider || '') === 'openai' || isOpenAiByokModel(model)) return `${model || 'OpenAI'} · BYOK`;
       if (String(model || '') === 'Qwen3.8-27B') return 'Qwen 3.8 · Hetzner';
       if (String(model || '') === 'Qwen/Qwen3.6-35B-A3B-FP8') return 'Qwen 3.6 · Hetzner';
       return String(provider || '') === 'hetzner' ? 'Hetzner' : '';
@@ -43092,6 +43156,10 @@
       return String(model || '') === String(state.capabilities.chatAiLocalLlamaModel || 'local/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf');
     }
 
+    function isOpenAiByokModel(model) {
+      return Array.isArray(state.capabilities.chatAiOpenAiModels) && state.capabilities.chatAiOpenAiModels.includes(String(model || ''));
+    }
+
     function selectedHetznerTaskModel() {
       const hetznerModels = availableHetznerInferenceModels();
       const selected = selectedAiInferenceModel();
@@ -43121,6 +43189,10 @@
       if (isLocalLlamaModel(model)) return state.capabilities.chatAiLocalLlama === true
         ? 'Llama 3.1 · 8B Q4_K_M · local server'
         : 'Llama 3.1 · 8B Q4_K_M · local server · sidecar unavailable';
+      if (model === 'gpt-6-astra') return 'GPT-6 Astra · OpenAI · your API key';
+      if (model === 'gpt-5.6-sol') return 'GPT-5.6 Sol · OpenAI · your API key';
+      if (model === 'gpt-5.6-terra') return 'GPT-5.6 Terra · OpenAI · your API key';
+      if (model === 'gpt-5.6-luna') return 'GPT-5.6 Luna · OpenAI · your API key';
       return model;
     }
 
@@ -43135,7 +43207,9 @@
         option.textContent = aiInferenceModelLabel(model);
         option.title = isLocalLlamaModel(model) && state.capabilities.chatAiLocalLlama !== true
           ? 'Isolated Local Llama sidecar is not healthy on the server yet.'
-          : model;
+          : isOpenAiByokModel(model)
+            ? (state.openAiApiKey ? 'Uses your locally saved OpenAI API key.' : 'Requires your own OpenAI API key below.')
+            : model;
         option.disabled = isLocalLlamaModel(model) && state.capabilities.chatAiLocalLlama !== true;
         elements.hetznerAiModelSelect.append(option);
       }
@@ -43144,15 +43218,30 @@
       if (elements.hetznerAiModelHint) {
         const configuredDefault = defaultAiInferenceModel();
         elements.hetznerAiModelHint.textContent = isLocalLlamaModel(selected)
-          ? `Normal /ai text chat and /ai build use the local Meta-Llama 3.1 8B GGUF through the isolated Rantlist sidecar. Builder is best-effort on this small local model and is intended for compact self-contained HTML/CSS/JavaScript pages. The separate Flask application is not used or modified. /ai summary, image AI and multi-image comparison still require ${selectedHetznerTaskModel() || 'a Hetzner Qwen model'}.`
-          : (selected
-            ? `Normal /ai text chat uses ${selected}. Send a multi-photo batch, then immediately ask /ai compare these images to pass the ordered batch to Qwen. YouTube summaries, Builder and image AI also use Hetzner Qwen. Saved locally; server default is ${configuredDefault || 'not reported'}.${state.capabilities.chatAiLocalLlama === true ? '' : ' Local Llama is listed above but remains disabled until the isolated loopback sidecar passes its safe health check.'}`
-            : 'No AI model is currently advertised by the server.');
+          ? `Normal /ai text chat and /ai build use the local Meta-Llama 3.1 8B GGUF through the isolated Rantlist sidecar. /ai summary, image AI and multi-image comparison still require ${selectedHetznerTaskModel() || 'a Hetzner Qwen model'}.`
+          : isOpenAiByokModel(selected)
+            ? `Normal /ai text chat and Builder use ${selected} through OpenAI with your own API key. The key is attached only to your request and is not persisted by the server. YouTube summary and Image AI remain on the server Hetzner path.`
+            : (selected
+              ? `Normal /ai text chat uses ${selected}. Send a multi-photo batch, then immediately ask /ai compare these images to pass the ordered batch to Qwen. YouTube summaries, Builder and image AI also use Hetzner Qwen. Saved locally; server default is ${configuredDefault || 'not reported'}.${state.capabilities.chatAiLocalLlama === true ? '' : ' Local Llama is listed above but remains disabled until the isolated loopback sidecar passes its safe health check.'}`
+              : 'No AI model is currently advertised by the server.');
       }
     }
 
     function renderChatAiSettings() {
       renderHetznerAiModelSettings();
+      const byokEnabled = state.capabilities.chatAiOpenAiByok === true;
+      if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.disabled = !byokEnabled;
+      if (elements.openAiApiKeySaveButton) elements.openAiApiKeySaveButton.disabled = !byokEnabled;
+      if (elements.openAiApiKeyClearButton) elements.openAiApiKeyClearButton.disabled = !state.openAiApiKey;
+      if (elements.openAiApiKeyHint) elements.openAiApiKeyHint.textContent = !byokEnabled
+        ? 'OpenAI BYOK is disabled by this server.'
+        : state.openAiApiKey
+          ? 'Key saved on this device. It is sent over WSS only with your OpenAI request and never persisted by the server.'
+          : 'No key saved. OpenAI model requests are blocked until you provide your own API key.';
+      if (elements.openAiWalletHint) {
+        const pricingDate = String(state.capabilities.chatAiOpenAiPricingAsOf || '2026-09-15');
+        elements.openAiWalletHint.textContent = `Local OpenAI spend estimate: $${state.openAiSpendUsd.toFixed(6)} · ${state.openAiRequests} request${state.openAiRequests === 1 ? '' : 's'} · ${state.openAiInputTokens.toLocaleString()} input / ${state.openAiOutputTokens.toLocaleString()} output tokens · rates ${pricingDate}. OpenAI does not expose remaining prepaid credit to ordinary project API keys; account billing remains authoritative.`;
+      }
       if (!elements.chatAiContextInput) return;
       elements.chatAiContextInput.checked = state.chatAiContextEnabled === true;
       const available = state.capabilities.chatAi === true;
@@ -43666,11 +43755,17 @@
       if (!transcriptAiAvailableForMessage(data)) return false;
       const cleanPrompt = String(prompt || '').trim().slice(0, 1200);
       if (!cleanPrompt) return false;
+      const model = selectedAiInferenceModel();
+      if (isOpenAiByokModel(model) && !state.openAiApiKey) {
+        addSystemMessage('Transcript AI needs your OpenAI API key. Open Config → Experimental AI and save your key first.', true);
+        return false;
+      }
       return sendJson({
         type: 'transcript.ai.request',
         messageId: String(messageId || ''),
         prompt: cleanPrompt,
-        model: selectedAiInferenceModel(),
+        model,
+        aiApiKey: isOpenAiByokModel(model) ? state.openAiApiKey : undefined,
       });
     }
 
