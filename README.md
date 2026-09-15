@@ -1,3 +1,10 @@
+## v0.1.87 / 9.6.248
+
+- Synchronized browser client to **9.6.248 / rantlist-deploy-r276** and protocol **63**.
+- Restores the video seek thumb to a clearly visible 13 px size while keeping the full 22 px click/drag lane and borderless styling.
+- Uses a tiny center highlight and soft shadow instead of the former heavy ring, with a slightly clearer 5 px progress track.
+- Applies the same scrubber treatment to Stories video playback.
+
 ## v0.1.86 / 9.6.247
 
 - Synchronized browser client to **9.6.247 / rantlist-deploy-r275** and protocol **63**.

@@ -1,3 +1,9 @@
+## v0.1.87 / 9.6.248
+
+- Synchronized browser client to **9.6.248 / rantlist-deploy-r276** and protocol **63**.
+- Corrects the over-reduced r275 video scrubber: 13 px visible thumb, 22 px interaction lane, borderless center-highlight treatment, and a 5 px progress rail.
+- Keeps track-click seeking, drag seeking, keyboard control and Stories parity unchanged.
+
 ## v0.1.86 / 9.6.247
 
 - Synchronized browser client to **9.6.247 / rantlist-deploy-r275** and protocol **63**.

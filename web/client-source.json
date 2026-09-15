@@ -1,6 +1,6 @@
 {
-  "sourceVersion": "9.6.247",
-  "sourceRevision": "rantlist-deploy-r275",
+  "sourceVersion": "9.6.248",
+  "sourceRevision": "rantlist-deploy-r276",
   "sourceKind": "sanitized-browser-client",
   "versionAuthority": "stage/chat",
   "serverCodeIncluded": false

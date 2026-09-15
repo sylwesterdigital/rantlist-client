@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.247">
+  <meta name="chat-ui-version" content="9.6.248">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15230,14 +15230,14 @@
       outline: none;
     }
     .media-video-seek::-webkit-slider-runnable-track {
-      height: 4px;
+      height: 5px;
       border-radius: 999px;
       background: linear-gradient(90deg,
         var(--accent) 0 var(--media-video-progress),
         color-mix(in srgb, var(--message-muted-ink, var(--muted)) 38%, transparent) var(--media-video-progress) 100%);
     }
     .media-video-seek::-moz-range-track {
-      height: 4px;
+      height: 5px;
       border: 0;
       border-radius: 999px;
       background: linear-gradient(90deg,
@@ -15245,37 +15245,37 @@
         color-mix(in srgb, var(--message-muted-ink, var(--muted)) 38%, transparent) var(--media-video-progress) 100%);
     }
     .media-video-seek::-moz-range-progress {
-      height: 4px;
+      height: 5px;
       border-radius: 999px;
       background: var(--accent);
     }
     .media-video-seek::-webkit-slider-thumb {
-      width: 6px;
-      height: 6px;
-      margin-top: -1px;
+      width: 13px;
+      height: 13px;
+      margin-top: -4px;
       appearance: none;
       -webkit-appearance: none;
       border: 0;
       border-radius: 50%;
-      background: var(--accent);
-      box-shadow: none;
+      background: radial-gradient(circle at 50% 50%, #fff 0 2px, var(--accent) 2.5px 100%);
+      box-shadow: 0 2px 5px rgba(0,0,0,.22);
       opacity: 1;
-      transition: transform .12s ease;
+      transition: transform .12s ease, box-shadow .12s ease;
     }
     .media-video-seek::-moz-range-thumb {
-      width: 6px;
-      height: 6px;
+      width: 13px;
+      height: 13px;
       border: 0;
       border-radius: 50%;
-      background: var(--accent);
-      box-shadow: none;
+      background: radial-gradient(circle at 50% 50%, #fff 0 2px, var(--accent) 2.5px 100%);
+      box-shadow: 0 2px 5px rgba(0,0,0,.22);
       opacity: 1;
-      transition: transform .12s ease;
+      transition: transform .12s ease, box-shadow .12s ease;
     }
     .media-video-seek:hover::-webkit-slider-thumb,
-    .media-video-seek:focus-visible::-webkit-slider-thumb { transform: scale(1.2); box-shadow: none; }
+    .media-video-seek:focus-visible::-webkit-slider-thumb { transform: scale(1.12); box-shadow: 0 2px 7px rgba(0,0,0,.28); }
     .media-video-seek:hover::-moz-range-thumb,
-    .media-video-seek:focus-visible::-moz-range-thumb { transform: scale(1.2); box-shadow: none; }
+    .media-video-seek:focus-visible::-moz-range-thumb { transform: scale(1.12); box-shadow: 0 2px 7px rgba(0,0,0,.28); }
     .media-video-seek:disabled { cursor: default; opacity: .45; }
     .media-video-time {
       min-width: 103px;
@@ -15298,8 +15298,8 @@
     .media-story-video-timeline .media-video-seek::-moz-range-track {
       background: linear-gradient(90deg, #fff 0 var(--media-video-progress), rgba(255,255,255,.28) var(--media-video-progress) 100%);
     }
-    .media-story-video-timeline .media-video-seek::-webkit-slider-thumb { background: #fff; box-shadow: none; }
-    .media-story-video-timeline .media-video-seek::-moz-range-thumb { background: #fff; box-shadow: none; }
+    .media-story-video-timeline .media-video-seek::-webkit-slider-thumb { background: radial-gradient(circle at 50% 50%, var(--accent) 0 2px, #fff 2.5px 100%); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+    .media-story-video-timeline .media-video-seek::-moz-range-thumb { background: radial-gradient(circle at 50% 50%, var(--accent) 0 2px, #fff 2.5px 100%); box-shadow: 0 2px 6px rgba(0,0,0,.3); }
     .media-story-viewer.has-video-timeline .media-story-bottom {
       bottom: max(31px, calc(var(--safe-bottom, 0px) + 27px));
     }
@@ -15584,7 +15584,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.247</small>
+          <small id="serverBrandVersion">v9.6.248</small>
         </span>
       </button>
     </div>
