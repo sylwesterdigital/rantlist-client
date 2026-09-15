@@ -1,3 +1,10 @@
+## v0.1.84 / 9.6.245
+
+- Synchronized browser client to **9.6.245 / rantlist-deploy-r273** and protocol **63**.
+- Reorganizes imported audio into a cover/metadata summary row, a full-width SVG waveform row, and a separate compact timing row.
+- Keeps the performant single-path waveform renderer while removing the hard-to-read stroked timing overlay.
+- Full-width waveform seeking remains available by pointer, drag and keyboard.
+
 ## v0.1.83 / 9.6.244
 
 - Synchronized browser client to **9.6.244 / rantlist-deploy-r272** and protocol **63**.

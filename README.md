@@ -1,3 +1,10 @@
+## v0.1.84 / 9.6.245
+
+- Synchronized browser client to **9.6.245 / rantlist-deploy-r273** and protocol **63**.
+- Imported audio cards keep cover/play control and title/detail together in one compact first row.
+- The SVG stripe waveform now uses the full audio-bubble width while preserving pointer, drag and keyboard seeking.
+- Current/total playback time is restored to a small separate row below the waveform instead of being overlaid on the peaks.
+
 ## v0.1.83 / 9.6.244
 
 - Synchronized browser client to **9.6.244 / rantlist-deploy-r272** and protocol **63**.

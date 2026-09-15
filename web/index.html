@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.244">
+  <meta name="chat-ui-version" content="9.6.245">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1186,7 +1186,19 @@
       color: var(--message-ink);
       overflow: hidden;
     }
-    .voice-note-player.has-cover { grid-template-columns: 56px minmax(0, 1fr); }
+    .voice-note-player.has-track-copy {
+      grid-template-columns: minmax(0, 1fr);
+      align-items: stretch;
+      gap: 5px;
+    }
+    .voice-note-player.has-cover:not(.has-track-copy) { grid-template-columns: 56px minmax(0, 1fr); }
+    .audio-track-summary-row {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+    }
     .audio-cover-thumb {
       position: absolute;
       inset: 0;
@@ -1199,9 +1211,17 @@
     }
     .voice-note-body { min-width: 0; display: grid; gap: 3px; align-items: center; }
     .voice-note-playback-row {
-      position: relative;
       min-width: 0;
+      width: 100%;
       display: block;
+    }
+    .voice-note-timing-row {
+      min-width: 0;
+      min-height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0 4px;
     }
     .audio-track-copy { min-width: 0; display: grid; gap: 1px; line-height: 1.15; }
     .audio-track-title {
@@ -1221,7 +1241,7 @@
       font-size: 10px;
       color: var(--message-muted-ink);
     }
-    .voice-note-player.has-track-copy .voice-note-waveform { height: 30px; }
+    .voice-note-player.has-track-copy .voice-note-waveform { height: 34px; }
     .voice-note-toggle {
       position: relative;
       width: 38px;
@@ -1301,23 +1321,16 @@
     .voice-note-waveform.is-pending .voice-note-waveform-svg .waveform-unplayed,
     .voice-note-waveform.is-pending .voice-note-waveform-svg .waveform-played { opacity: .18; }
     .voice-note-time {
-      position: absolute;
-      z-index: 2;
-      left: 50%;
-      top: 50%;
-      max-width: calc(100% - 18px);
-      transform: translate(-50%, -50%);
+      position: static;
+      max-width: 100%;
       pointer-events: none;
-      text-align: center;
-      color: var(--message-ink);
-      font-size: clamp(10.5px, 1.15vw, 12.5px);
-      font-weight: 850;
-      line-height: 1;
+      text-align: right;
+      color: var(--message-muted-ink);
+      font-size: 10px;
+      font-weight: 700;
+      line-height: 1.15;
       font-variant-numeric: tabular-nums;
       white-space: nowrap;
-      -webkit-text-stroke: 2.2px color-mix(in srgb, var(--message-control-surface) 96%, transparent);
-      paint-order: stroke fill;
-      text-shadow: 0 1px 2px color-mix(in srgb, #000 22%, transparent);
     }
     .voice-note-player.is-playing .voice-note-toggle {
       background: color-mix(in srgb, var(--accent) 28%, transparent);
@@ -15525,7 +15538,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.244</small>
+          <small id="serverBrandVersion">v9.6.245</small>
         </span>
       </button>
     </div>
@@ -27303,6 +27316,7 @@
 
       const body = document.createElement('div');
       body.className = 'voice-note-body';
+      let summaryRow = null;
       if (!isVoice) {
         const display = audioTrackDisplay(file);
         const copy = document.createElement('div');
@@ -27319,7 +27333,9 @@
           detail.title = display.detail;
           copy.append(detail);
         }
-        body.append(copy);
+        summaryRow = document.createElement('div');
+        summaryRow.className = 'audio-track-summary-row';
+        summaryRow.append(toggle, copy);
       }
 
       const playbackRow = document.createElement('div');
@@ -27332,13 +27348,17 @@
 
       const timeLabel = document.createElement('span');
       timeLabel.className = 'voice-note-time';
-      playbackRow.append(track, timeLabel);
-      body.append(playbackRow);
+      const timingRow = document.createElement('div');
+      timingRow.className = 'voice-note-timing-row';
+      timingRow.append(timeLabel);
+      playbackRow.append(track);
+      body.append(playbackRow, timingRow);
 
       const peaks = normalizeAudioWaveformPeaks(file.waveformPeaks);
       setAudioWaveformBars(track, peaks, peaks.length < 8);
       if (peaks.length >= 8) track.dataset.waveformReady = '1';
-      player.append(toggle, body);
+      if (summaryRow) player.append(summaryRow, body);
+      else player.append(toggle, body);
       content.append(player, audio, debugPanel);
 
       attachAudioDiagnostics(audio, playbackFile, debugPanel);
