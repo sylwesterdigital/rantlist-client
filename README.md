@@ -1,3 +1,10 @@
+## v0.1.92 / Rantlist 9.6.253
+- Synchronizes the browser/native clients with `rantlist-deploy-r281` / protocol 67.
+- Fixes OpenAI queue-status rendering and exposes cancellable long-running status without client error floods.
+- Enforces the selected OpenAI paid output/reasoning token ceiling server-side and guarantees one explicit user command creates at most one paid OpenAI Response; GPT-6 Astra confirmation remains enabled by default.
+- Keeps Import JSON available on a fresh install, restores exported UUID identity, and prevents a persisted nickname from silently becoming a second UUID.
+- Retains Apple Keychain on iOS/macOS, Android Keystore-backed encryption, and page-memory-only browser OpenAI credentials.
+
 ## v0.1.90 / Rantlist 9.6.251
 - Synchronizes the browser client with server 9.6.251 / `rantlist-deploy-r279` / protocol 65.
 - OpenAI BYOK frontier requests use Responses background execution and status polling, with a 15-minute stock wait instead of the previous two-minute abort.

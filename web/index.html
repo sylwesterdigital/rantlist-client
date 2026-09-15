@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.251">
-  <meta name="chat-protocol-version" content="65">
+  <meta name="chat-ui-version" content="9.6.253">
+  <meta name="chat-protocol-version" content="67">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -4854,6 +4854,9 @@
     }
     .lobby-welcome li + li { margin-top: 4px; }
     #uploadStatus { display: block; min-height: 0; margin: 3px 4px 0; }
+    .ai-request-status-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
+    .ai-request-status-row #uploadStatus { flex: 1 1 auto; min-width: 0; }
+    #aiRequestCancelButton { flex: 0 0 auto; min-height: 28px; padding: 3px 9px; font-size: 0.8rem; }
     .voice-recording-bar { margin-top: 6px; }
 
     .modal-layer {
@@ -15584,7 +15587,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.251</small>
+          <small id="serverBrandVersion">v9.6.253</small>
         </span>
       </button>
     </div>
@@ -15907,6 +15910,20 @@
             <input id="openAiDurableBackgroundInput" type="checkbox" aria-describedby="openAiDurableBackgroundHint">
           </label>
           <p id="openAiDurableBackgroundHint" class="hint">Off keeps background responses privacy-first with store:false. Enable only when you want long jobs to remain retrievable beyond OpenAI's short background polling window.</p>
+          <div class="config-row" data-config-feature="openai-byok">
+            <label for="openAiMaxOutputTokensSelect">Paid output limit</label>
+            <select id="openAiMaxOutputTokensSelect" aria-describedby="openAiCostGuardHint">
+              <option value="1024">1,024 tokens</option>
+              <option value="2048">2,048 tokens · recommended</option>
+              <option value="4096">4,096 tokens</option>
+              <option value="8192">8,192 tokens</option>
+            </select>
+          </div>
+          <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiConfirmAstraInput">
+            <span>Confirm paid GPT-6 Astra requests</span>
+            <input id="openAiConfirmAstraInput" type="checkbox" role="switch" aria-describedby="openAiCostGuardHint">
+          </label>
+          <p id="openAiCostGuardHint" class="hint">One /ai command creates at most one paid OpenAI response. The output cap includes visible and reasoning tokens; input tokens are billed separately.</p>
           <p id="openAiWalletHint" class="hint">OpenAI wallet: no calls tracked on this device yet.</p>
           <div class="config-row" data-config-feature="media-ai">
             <label for="mediaAiModeSelect">Experimental image AI</label>
@@ -16925,7 +16942,10 @@
             <button id="voiceStopButton" class="icon-button voice-stop" type="button" title="Stop and send" aria-label="Stop and send"><span class="icon icon-stop"></span></button>
             <button id="voiceCancelButton" class="icon-button voice-cancel" type="button" title="Cancel" aria-label="Cancel"><span class="icon icon-cancel"></span></button>
           </div>
-          <span id="uploadStatus" class="hint"></span>
+          <div class="ai-request-status-row">
+            <span id="uploadStatus" class="hint"></span>
+            <button id="aiRequestCancelButton" type="button" hidden>Stop AI</button>
+          </div>
         </form>
         </div>
       </div>
@@ -18064,7 +18084,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18083,7 +18103,7 @@
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
-        'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'sendButton', 'uploadStatus', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
+        'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'sendButton', 'uploadStatus', 'aiRequestCancelButton', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
         'clearTargetButton', 'channelUserRailHeaderHome', 'channelUserRailWorkspaceHome', 'channelUserRail', 'channelUserRailList', 'userSearchInput', 'userSortSelect', 'userFilterSelect', 'userList', 'userCount',
         'callsPanel', 'callStatus', 'startChannelAudioCallButton', 'startChannelVideoCallButton', 'joinChannelCallButton', 'callChannelSpaceStatus', 'startAudioCallButton', 'startVideoCallButton', 'callAllRoomInput', 'callUserList',
         'pollModal', 'pollForm', 'pollCloseButton', 'pollCancelButton', 'pollQuestionInput', 'pollOptionsEditor', 'pollAddOptionButton', 'pollMultipleInput', 'pollSendButton',
@@ -18222,6 +18242,7 @@
         chatAiOpenAiModels: ['gpt-6-astra', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'],
         chatAiOpenAiPricing: {},
         chatAiOpenAiPricingAsOf: '2026-09-15',
+        chatAiOpenAiMaxOutputTokens: 8192,
         chatAiLocalLlama: false,
         chatAiLocalLlamaModel: 'local/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf',
         chatAiLocalLlamaTextOnly: true,
@@ -18454,6 +18475,9 @@
       openAiApiKeyConfigured: false,
       openAiCredentialStorage: 'memory',
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
+      openAiMaxOutputTokens: [1024, 2048, 4096, 8192].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 2048,
+      openAiConfirmAstra: readStorage('chat.ai.openai.confirmAstra') !== 'off',
+      openAiActiveCommandMessageId: '',
       openAiSpendUsd: Math.max(0, Number(readStorage('chat.ai.openai.spendUsd')) || 0),
       openAiInputTokens: Math.max(0, Number(readStorage('chat.ai.openai.inputTokens')) || 0),
       openAiOutputTokens: Math.max(0, Number(readStorage('chat.ai.openai.outputTokens')) || 0),
@@ -19348,6 +19372,23 @@
         state.openAiDurableBackground = elements.openAiDurableBackgroundInput.checked === true;
         writeStorage('chat.ai.openai.durableBackground', state.openAiDurableBackground ? 'on' : 'off');
         renderChatAiSettings();
+      });
+      elements.openAiMaxOutputTokensSelect?.addEventListener('change', () => {
+        state.openAiMaxOutputTokens = normalizedOpenAiMaxOutputTokens(elements.openAiMaxOutputTokensSelect.value);
+        writeStorage('chat.ai.openai.maxOutputTokens', String(state.openAiMaxOutputTokens));
+        renderChatAiSettings();
+      });
+      elements.openAiConfirmAstraInput?.addEventListener('change', () => {
+        state.openAiConfirmAstra = elements.openAiConfirmAstraInput.checked === true;
+        writeStorage('chat.ai.openai.confirmAstra', state.openAiConfirmAstra ? 'on' : 'off');
+      });
+      elements.aiRequestCancelButton?.addEventListener('click', () => {
+        const commandMessageId = String(state.openAiActiveCommandMessageId || '').trim();
+        if (!commandMessageId) return;
+        if (sendJson({ type: 'chat.ai.cancel', commandMessageId })) {
+          elements.aiRequestCancelButton.disabled = true;
+          if (elements.uploadStatus) elements.uploadStatus.textContent = 'Cancelling OpenAI request…';
+        }
       });
 
       elements.openAiWalletResetButton?.addEventListener('click', () => {
@@ -20787,7 +20828,7 @@
           state.openAiSpendUsd += cost; state.openAiInputTokens += inputTokens; state.openAiOutputTokens += outputTokens; state.openAiRequests += requests;
           writeStorage('chat.ai.openai.spendUsd', String(state.openAiSpendUsd)); writeStorage('chat.ai.openai.inputTokens', String(state.openAiInputTokens)); writeStorage('chat.ai.openai.outputTokens', String(state.openAiOutputTokens)); writeStorage('chat.ai.openai.requests', String(state.openAiRequests));
           renderChatAiSettings();
-          addSystemMessage(`OpenAI ${message.model || 'request'} · ${inputTokens.toLocaleString()} input + ${outputTokens.toLocaleString()} output tokens · estimated $${cost.toFixed(6)} · local total $${state.openAiSpendUsd.toFixed(6)}.`);
+          addSystemMessage(`OpenAI ${message.model || 'request'} · ${requests} paid response${requests === 1 ? '' : 's'} · ${inputTokens.toLocaleString()} input + ${outputTokens.toLocaleString()} output tokens · estimated $${cost.toFixed(6)} · local total $${state.openAiSpendUsd.toFixed(6)}.`);
           break;
         }
 
@@ -20795,20 +20836,35 @@
           const stage = String(message.stage || 'queued');
           const position = Math.max(0, Number(message.position) || 0);
           const depth = Math.max(0, Number(message.depth) || 0);
-          if (stage === 'completed' || stage === 'failed') {
-            if (elements.uploadStatus && /^AI request |^OpenAI |^GPT-/i.test(String(elements.uploadStatus.textContent || ''))) elements.uploadStatus.textContent = '';
-            break;
-          }
           const provider = String(message.provider || '');
           const model = String(message.model || '');
+          const commandMessageId = String(message.commandMessageId || '').trim();
           const providerStatus = String(message.providerStatus || '').replaceAll('_', ' ');
+          if (stage === 'completed' || stage === 'failed') {
+            if (!commandMessageId || commandMessageId === state.openAiActiveCommandMessageId) state.openAiActiveCommandMessageId = '';
+            if (elements.aiRequestCancelButton) { elements.aiRequestCancelButton.hidden = true; elements.aiRequestCancelButton.disabled = false; }
+            if (elements.uploadStatus && /^AI request |^OpenAI |^GPT-/i.test(String(elements.uploadStatus.textContent || ''))) elements.uploadStatus.textContent = '';
+            if (stage === 'failed' && providerStatus === 'cancelled') addSystemMessage('OpenAI request cancelled.');
+            break;
+          }
           const elapsedSeconds = Math.max(0, Math.floor((Number(message.elapsedMs) || 0) / 1000));
           const elapsed = elapsedSeconds >= 60 ? `${Math.floor(elapsedSeconds / 60)}m ${elapsedSeconds % 60}s` : (elapsedSeconds ? `${elapsedSeconds}s` : '');
-          const modelName = provider === 'openai' ? (chatAiModelOptionLabel(model).split(' · ')[0] || 'OpenAI') : '';
+          const modelName = provider === 'openai' ? (aiInferenceModelLabel(model).split(' · ')[0] || 'OpenAI') : '';
           const detail = stage === 'running'
             ? `${modelName ? `${modelName} · ` : ''}AI request running${providerStatus ? ` · ${providerStatus}` : ''}${elapsed ? ` · ${elapsed}` : ''}${depth > 1 ? ` · ${depth - 1} queued` : ''}`
-            : `AI request queued${position ? ` · position ${position}` : ''}${depth ? ` / ${depth}` : ''}`;
+            : `${modelName ? `${modelName} · ` : ''}AI request queued${position ? ` · position ${position}` : ''}${depth ? ` / ${depth}` : ''}`;
+          if (provider === 'openai' && commandMessageId) {
+            state.openAiActiveCommandMessageId = commandMessageId;
+            if (elements.aiRequestCancelButton) { elements.aiRequestCancelButton.hidden = false; elements.aiRequestCancelButton.disabled = false; }
+          }
           if (elements.uploadStatus) elements.uploadStatus.textContent = detail;
+          break;
+        }
+
+        case 'chat.ai.cancel.ok': {
+          if (String(message.commandMessageId || '') === state.openAiActiveCommandMessageId && elements.uploadStatus) {
+            elements.uploadStatus.textContent = message.state === 'running' ? 'OpenAI cancellation requested…' : 'OpenAI request cancelled.';
+          }
           break;
         }
 
@@ -21680,7 +21736,11 @@
           if(String(message.code||'').startsWith('brain_')){setBrainActionPending(false);if(state.activeGame?.game==='brain')renderBrainStage();}
                     if(String(message.code||'').startsWith('drawing_')&&state.drawingChallengeSubmitting){state.drawingChallengeSubmitting=false;updateDrawingChallengeDeliveryUi();}
           playSound('error');
-          if (message.code === 'nickname_in_use' || message.code === 'invalid_nickname') {
+          if (message.code === 'identity_conflict') {
+            setProfileTransferStatus(message.message || 'This nickname belongs to another saved identity. Import the original profile JSON backup.', 'error');
+            openProfileOverlay();
+          }
+          if (message.code === 'nickname_in_use' || message.code === 'invalid_nickname' || message.code === 'identity_conflict') {
             state.registered = false;
             state.autoLogin = false;
             writeStorage('chat.autoLogin', 'off');
@@ -22041,6 +22101,7 @@
       const commandModel = selectedAiModelForCommand(text);
       let aiApiKey;
       if (isOpenAiByokModel(commandModel)) {
+        if (!confirmPaidOpenAiRequest(commandModel, useBuilder ? 'Builder request' : 'request')) return { aiBlocked: true };
         if (!state.openAiApiKeyConfigured) {
           addSystemMessage('OpenAI model selected, but no API key is configured. Open Config → Experimental AI and save your key first.', true);
           return { aiBlocked: true };
@@ -22063,6 +22124,7 @@
         aiModel: commandModel,
         aiApiKey,
         aiOpenAiStore: isOpenAiByokModel(commandModel) && state.openAiDurableBackground === true,
+        aiOpenAiMaxOutputTokens: isOpenAiByokModel(commandModel) ? normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens) : undefined,
         aiBuilder: useBuilder,
         aiBuilderThreadContext: useBuilder && Boolean(activeThreadId),
         aiBuilderThreadId: useBuilder && activeThreadId ? activeThreadId : undefined,
@@ -38563,7 +38625,8 @@
       const hasProfiles = state.profiles.length > 0;
       const selected = state.profiles.find((profile) => profile.id === state.selectedProfileId) || null;
 
-      elements.profilePickerField.hidden = !hasProfiles;
+      // Profile restore must remain reachable on a completely fresh install.
+      elements.profilePickerField.hidden = false;
 
       if (!state.registered || !state.selfUser) {
         elements.profileState.textContent = selected ? `@${selected.nickname}` : 'new profile';
@@ -42143,6 +42206,10 @@
       };
     }
 
+    function normalizedLocalProfileNickname(value) {
+      return String(value || '').normalize('NFKC').replace(/\s+/g, ' ').trim().toLocaleLowerCase();
+    }
+
     async function importProfileFile(file) {
       if (!file) return;
       if (file.size > 2 * 1024 * 1024) throw new Error('Profile JSON must be smaller than 2 MB.');
@@ -42154,6 +42221,20 @@
       }
       const imported = normalizeImportedProfileDocument(documentValue);
       const existing = state.profiles.find((item) => item.id === imported.id);
+      const sameNicknameDifferentIdentity = state.profiles.find((item) => item.id !== imported.id && normalizedLocalProfileNickname(item.nickname) === normalizedLocalProfileNickname(imported.nickname));
+      if (sameNicknameDifferentIdentity) {
+        if (state.registered && state.selfUser?.identityId === sameNicknameDifferentIdentity.id) {
+          throw new Error(`“${imported.nickname}” is currently signed in under a different local identity. Sign off first, then import the backup so Rantlist can replace the duplicate safely.`);
+        }
+        const replaceDuplicate = window.confirm(
+          `A local profile named “${sameNicknameDifferentIdentity.nickname}” already exists with a different identity UUID.\n\nExisting: ${sameNicknameDifferentIdentity.id}\nBackup: ${imported.id}\n\nReplace the local duplicate with the imported backup identity? This prevents the same local user name from being saved twice with different UUIDs.`
+        );
+        if (!replaceDuplicate) {
+          setProfileTransferStatus('Import cancelled. The same-name local profile was not changed.');
+          return;
+        }
+        await removeStoredProfile(sameNicknameDifferentIdentity.id);
+      }
       if (existing) {
         const replace = window.confirm(
           `A saved profile with the same identity already exists:\n\n${existing.nickname || 'Unnamed profile'}\n${existing.id}\n\nReplace the local saved copy with the imported profile? Your current signed-in session will not change until you choose Save and sign in.`
@@ -42202,6 +42283,15 @@
       }
 
       const existing = state.profiles.find((profile) => profile.id === state.selectedProfileId);
+      if (!existing) {
+        const duplicate = state.profiles.find((profile) => normalizedLocalProfileNickname(profile.nickname) === normalizedLocalProfileNickname(nickname));
+        if (duplicate) {
+          selectSavedProfile(duplicate.id);
+          setProfileTransferStatus(`A local profile named “${duplicate.nickname}” already exists. Rantlist selected its existing identity ${duplicate.id} instead of creating a second UUID.`, 'success');
+          addSystemMessage(`Using the existing @${duplicate.nickname} profile instead of creating a duplicate identity.`);
+          return;
+        }
+      }
       const stored = await saveStoredProfile({
         id: existing?.id || createId(),
         nickname,
@@ -43419,6 +43509,26 @@
       }
     }
 
+    function normalizedOpenAiMaxOutputTokens(value) {
+      const advertisedMax = Math.max(512, Math.min(8192, Number(state.capabilities.chatAiOpenAiMaxOutputTokens) || 8192));
+      const requested = Number(value) || 2048;
+      return Math.max(512, Math.min(advertisedMax, requested));
+    }
+
+    function openAiOutputCostCeiling(model, tokens = state.openAiMaxOutputTokens) {
+      const pricing = state.capabilities.chatAiOpenAiPricing?.[String(model || '')];
+      const outputRate = Math.max(0, Number(pricing?.output) || 0);
+      return outputRate > 0 ? (normalizedOpenAiMaxOutputTokens(tokens) * outputRate / 1_000_000) : null;
+    }
+
+    function confirmPaidOpenAiRequest(model, purpose = 'request') {
+      if (model !== 'gpt-6-astra' || state.openAiConfirmAstra !== true) return true;
+      const cap = normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens);
+      const outputCeiling = openAiOutputCostCeiling(model, cap);
+      const priceText = outputCeiling == null ? '' : ` At current advertised rates, the output-only ceiling is about $${outputCeiling.toFixed(4)}; input tokens are additional.`;
+      return window.confirm(`GPT-6 Astra is a high-cost model. This ${purpose} is capped at ${cap.toLocaleString()} total output/reasoning tokens and Rantlist will create at most one paid OpenAI response.${priceText} Continue?`);
+    }
+
     function renderChatAiSettings() {
       renderHetznerAiModelSettings();
       const byokEnabled = state.capabilities.chatAiOpenAiByok === true;
@@ -43432,6 +43542,20 @@
       if (elements.openAiDurableBackgroundHint) elements.openAiDurableBackgroundHint.textContent = state.openAiDurableBackground
         ? 'Extended mode: Rantlist sends store:true for your OpenAI background response so it can remain retrievable for long-running work. OpenAI may retain that response for at least 30 days. Your API key still uses Keychain/Keystore or browser memory and is not stored with the response.'
         : 'Privacy mode: Rantlist sends store:false. OpenAI documents roughly a 10-minute temporary background polling window, so Rantlist limits privacy-mode waits to 9 minutes. Enable extended mode only when you want longer jobs and accept provider-side response retention.';
+      state.openAiMaxOutputTokens = normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens);
+      if (elements.openAiMaxOutputTokensSelect) {
+        elements.openAiMaxOutputTokensSelect.value = String(state.openAiMaxOutputTokens);
+        elements.openAiMaxOutputTokensSelect.disabled = !byokEnabled;
+      }
+      if (elements.openAiConfirmAstraInput) {
+        elements.openAiConfirmAstraInput.checked = state.openAiConfirmAstra === true;
+        elements.openAiConfirmAstraInput.disabled = !byokEnabled;
+      }
+      if (elements.openAiCostGuardHint) {
+        const selected = selectedAiInferenceModel();
+        const ceiling = isOpenAiByokModel(selected) ? openAiOutputCostCeiling(selected, state.openAiMaxOutputTokens) : null;
+        elements.openAiCostGuardHint.textContent = `Per-command paid output cap: ${state.openAiMaxOutputTokens.toLocaleString()} tokens (visible + reasoning). OpenAI BYOK never auto-continues or auto-repairs with another paid response.${ceiling == null ? '' : ` For ${aiInferenceModelLabel(selected).split(' · ')[0]}, the output-only ceiling is about $${ceiling.toFixed(4)}; input tokens are additional.`}`;
+      }
       if (elements.openAiApiKeyHint) elements.openAiApiKeyHint.textContent = !byokEnabled
         ? 'OpenAI BYOK is disabled by this server.'
         : state.openAiApiKeyConfigured
@@ -43961,6 +44085,7 @@
       const model = selectedAiInferenceModel();
       let aiApiKey;
       if (isOpenAiByokModel(model)) {
+        if (!confirmPaidOpenAiRequest(model, 'transcript analysis')) return false;
         if (!state.openAiApiKeyConfigured) {
           addSystemMessage('Transcript AI needs your OpenAI API key. Open Config → Experimental AI and save your key first.', true);
           return false;
@@ -43978,6 +44103,7 @@
         model,
         aiApiKey,
         aiOpenAiStore: isOpenAiByokModel(model) && state.openAiDurableBackground === true,
+        aiOpenAiMaxOutputTokens: isOpenAiByokModel(model) ? normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens) : undefined,
       });
     }
 
