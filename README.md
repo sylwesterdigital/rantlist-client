@@ -1,3 +1,8 @@
+## v0.1.97 / Rantlist 9.6.258
+- Synchronizes browser/native clients with `rantlist-deploy-r286` / protocol 69.
+- Published AI-game deep links now always expose an app-owned **← Back to chat** control above the sandboxed game, including inside the iOS/macOS/Android shells.
+- Returning from `/public/games/<uid>` explicitly loads the Rantlist root, so the user is not dependent on hidden browser history or native browser chrome.
+
 ## v0.1.96 / Rantlist 9.6.257
 - Synchronizes browser/native clients with `rantlist-deploy-r285` / protocol 69.
 - Adds the supplied AI Slop Gallery icon as the first Games tray destination, before Tic-Tac-Toe, so saved AI-built games are always directly reachable.
