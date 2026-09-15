@@ -1,3 +1,10 @@
+## v0.1.81 / 9.6.242
+
+- Synchronized browser client to **9.6.242 / rantlist-deploy-r270** and protocol **63**.
+- Improves inline/Stories video scrubbing with a visible custom range thumb and centers the Stories action rail.
+- Adds self-profile storage usage/quota display backed by the server-authoritative per-identity upload quota.
+- The default quota is 15 GiB, administrator-configurable (0 = unlimited), with concurrent in-flight reservations enforced server-side.
+
 ## v0.1.80 / 9.6.241
 
 - Synchronized browser client to **9.6.241 / rantlist-deploy-r269** and protocol **63**.

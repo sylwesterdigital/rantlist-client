@@ -1,3 +1,10 @@
+## v0.1.81 / 9.6.242
+
+- Synchronized browser client to **9.6.242 / rantlist-deploy-r270** and protocol **63**.
+- Video preview timelines use a larger, always-visible high-contrast scrubber thumb without the browser-default black outline.
+- Stories / Shorts action controls are centered vertically against the media viewport.
+- Your own profile shows original upload storage usage and remaining quota. The server default is 15 GiB per identity, administrators can change it or choose unlimited, and concurrent uploads cannot bypass the limit.
+
 ## v0.1.80 / 9.6.241
 
 - Synchronized browser client to **9.6.241 / rantlist-deploy-r269** and protocol **63**.

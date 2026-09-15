@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.241">
+  <meta name="chat-ui-version" content="9.6.242">
   <meta name="chat-protocol-version" content="63">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -6841,8 +6841,10 @@
     .media-story-right-rail {
       position: absolute;
       z-index: 3;
+      top: 50%;
       right: max(10px, env(safe-area-inset-right));
-      bottom: max(112px, calc(var(--safe-bottom, 0px) + 96px));
+      bottom: auto;
+      transform: translateY(-50%);
       display: grid;
       justify-items: center;
       gap: 10px;
@@ -6964,7 +6966,6 @@
     @media (max-width: 850px) and (orientation: portrait) {
       .media-story-media { max-width: 100%; max-height: 100%; object-fit: contain; }
       .media-story-topbar { min-height: 52px; }
-      .media-story-right-rail { bottom: max(124px, calc(var(--safe-bottom, 0px) + 104px)); }
       .media-story-bottom { right: max(74px, calc(env(safe-area-inset-right) + 62px)); }
     }
     @media (max-width: 430px) {
@@ -9619,6 +9620,13 @@
     .public-profile-status { grid-area: status; color: var(--muted); font-weight: 700; }
     .public-profile-bio { grid-area: bio; margin: 3px 0 0; max-width: 52ch; white-space: pre-wrap; }
     .public-profile-summary { min-width: 0; display: grid; gap: 9px; }
+    .public-profile-storage { display: grid; gap: 5px; padding: 8px 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--panel-2); }
+    .public-profile-storage-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .public-profile-storage-head strong { font-size: 12px; }
+    .public-profile-storage-head span { color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .public-profile-storage-track { height: 7px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--line) 72%, transparent); }
+    .public-profile-storage-track span { display: block; height: 100%; min-width: 0; border-radius: inherit; background: var(--accent); transition: width .18s ease; }
+    .public-profile-storage small { color: var(--muted); font-size: 10px; line-height: 1.3; }
     .public-profile-friends { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: thin; }
     .public-profile-friend { flex: 0 0 auto; width: 52px; display: grid; justify-items: center; gap: 3px; border: 0; background: transparent; padding: 0; color: var(--text); }
     .public-profile-friend .avatar { width: 42px; height: 42px; border-radius: 50%; overflow: hidden; }
@@ -15109,7 +15117,7 @@
       --media-video-progress: 0%;
       width: 100%;
       min-width: 0;
-      height: 14px;
+      height: 22px;
       margin: 0;
       padding: 0;
       appearance: none;
@@ -15117,46 +15125,55 @@
       background: transparent;
       cursor: pointer;
       touch-action: manipulation;
+      outline: none;
     }
     .media-video-seek::-webkit-slider-runnable-track {
-      height: 3px;
+      height: 4px;
       border-radius: 999px;
       background: linear-gradient(90deg,
         var(--accent) 0 var(--media-video-progress),
-        color-mix(in srgb, var(--message-muted-ink, var(--muted)) 34%, transparent) var(--media-video-progress) 100%);
+        color-mix(in srgb, var(--message-muted-ink, var(--muted)) 38%, transparent) var(--media-video-progress) 100%);
     }
     .media-video-seek::-moz-range-track {
-      height: 3px;
+      height: 4px;
+      border: 0;
       border-radius: 999px;
       background: linear-gradient(90deg,
         var(--accent) 0 var(--media-video-progress),
-        color-mix(in srgb, var(--message-muted-ink, var(--muted)) 34%, transparent) var(--media-video-progress) 100%);
+        color-mix(in srgb, var(--message-muted-ink, var(--muted)) 38%, transparent) var(--media-video-progress) 100%);
+    }
+    .media-video-seek::-moz-range-progress {
+      height: 4px;
+      border-radius: 999px;
+      background: var(--accent);
     }
     .media-video-seek::-webkit-slider-thumb {
-      width: 10px;
-      height: 10px;
-      margin-top: -3.5px;
+      width: 18px;
+      height: 18px;
+      margin-top: -7px;
       appearance: none;
       -webkit-appearance: none;
-      border: 1px solid color-mix(in srgb, var(--accent) 70%, #fff);
+      border: 0;
       border-radius: 50%;
       background: var(--accent);
-      opacity: .22;
-      transition: opacity .12s ease, transform .12s ease;
+      box-shadow: 0 0 0 3px rgba(255,255,255,.94), 0 2px 7px rgba(0,0,0,.28);
+      opacity: 1;
+      transition: transform .12s ease, box-shadow .12s ease;
     }
     .media-video-seek::-moz-range-thumb {
-      width: 10px;
-      height: 10px;
-      border: 1px solid color-mix(in srgb, var(--accent) 70%, #fff);
+      width: 18px;
+      height: 18px;
+      border: 0;
       border-radius: 50%;
       background: var(--accent);
-      opacity: .22;
-      transition: opacity .12s ease, transform .12s ease;
+      box-shadow: 0 0 0 3px rgba(255,255,255,.94), 0 2px 7px rgba(0,0,0,.28);
+      opacity: 1;
+      transition: transform .12s ease, box-shadow .12s ease;
     }
     .media-video-seek:hover::-webkit-slider-thumb,
-    .media-video-seek:focus-visible::-webkit-slider-thumb { opacity: 1; transform: scale(1.05); }
+    .media-video-seek:focus-visible::-webkit-slider-thumb { transform: scale(1.08); box-shadow: 0 0 0 4px rgba(255,255,255,.98), 0 2px 8px rgba(0,0,0,.34); }
     .media-video-seek:hover::-moz-range-thumb,
-    .media-video-seek:focus-visible::-moz-range-thumb { opacity: 1; transform: scale(1.05); }
+    .media-video-seek:focus-visible::-moz-range-thumb { transform: scale(1.08); box-shadow: 0 0 0 4px rgba(255,255,255,.98), 0 2px 8px rgba(0,0,0,.34); }
     .media-video-seek:disabled { cursor: default; opacity: .45; }
     .media-video-time {
       min-width: 103px;
@@ -15179,8 +15196,8 @@
     .media-story-video-timeline .media-video-seek::-moz-range-track {
       background: linear-gradient(90deg, #fff 0 var(--media-video-progress), rgba(255,255,255,.28) var(--media-video-progress) 100%);
     }
-    .media-story-video-timeline .media-video-seek::-webkit-slider-thumb { background: #fff; border-color: #fff; }
-    .media-story-video-timeline .media-video-seek::-moz-range-thumb { background: #fff; border-color: #fff; }
+    .media-story-video-timeline .media-video-seek::-webkit-slider-thumb { background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.36), 0 2px 8px rgba(0,0,0,.42); }
+    .media-story-video-timeline .media-video-seek::-moz-range-thumb { background: #fff; box-shadow: 0 0 0 3px rgba(0,0,0,.36), 0 2px 8px rgba(0,0,0,.42); }
     .media-story-viewer.has-video-timeline .media-story-bottom {
       bottom: max(31px, calc(var(--safe-bottom, 0px) + 27px));
     }
@@ -15468,7 +15485,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.241</small>
+          <small id="serverBrandVersion">v9.6.242</small>
         </span>
       </button>
     </div>
@@ -16517,6 +16534,7 @@
             <div class="field"><label for="serverGithubUrlInput">Open-source GitHub repository</label><input id="serverGithubUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://github.com/…"></div>
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
+            <div class="field"><label for="serverUserUploadQuotaInput">Per-user upload quota, GiB</label><input id="serverUserUploadQuotaInput" type="number" min="0" max="10240" step="1" inputmode="numeric"><small class="hint">Applies to original message uploads across channels and direct chats. Default is 15 GiB. Enter 0 for unlimited; lowering the quota never deletes existing files.</small></div>
             <div class="server-settings-version">
               <span>UI <code id="serverUiVersionValue">9.6.73</code></span>
               <span>Server <code id="serverRuntimeVersionValue">9.6.73</code></span>
@@ -17941,7 +17959,7 @@
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarPreview', 'profileAvatarInput', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
-        'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
+        'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
         'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
@@ -18703,6 +18721,7 @@
         if (button) removeServerAccessBan(button.dataset.banId);
       });
       elements.serverNameInput.addEventListener('input', () => setServerSettingsStatus('Unsaved server identity changes.'));
+      elements.serverUserUploadQuotaInput.addEventListener('input', () => setServerSettingsStatus('Unsaved per-user storage quota.'));
       elements.serverDescriptionInput.addEventListener('input', () => setServerSettingsStatus('Unsaved server identity changes.'));
       elements.serverProjectUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
       elements.serverGithubUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
@@ -20319,7 +20338,7 @@
             state.pendingServerLogo = state.serverMetadata.logo || null;
             elements.serverSettingsSaveButton.disabled = false;
             renderServerSettingsEditor();
-            setServerSettingsStatus('Server identity and logo saved.');
+            setServerSettingsStatus('Administration settings saved.');
           }
           break;
 
@@ -38474,6 +38493,40 @@
       const summary = document.createElement('div');
       summary.className = 'public-profile-summary';
 
+      if (ownProfile && profileMessage.storage && typeof profileMessage.storage === 'object') {
+        const storage = profileMessage.storage;
+        const usedBytes = Math.max(0, Number(storage.usedBytes) || 0);
+        const reservedBytes = Math.max(0, Number(storage.reservedBytes) || 0);
+        const quotaBytes = Math.max(0, Number(storage.quotaBytes) || 0);
+        const storageCard = document.createElement('section');
+        storageCard.className = 'public-profile-storage';
+        const storageHead = document.createElement('div');
+        storageHead.className = 'public-profile-storage-head';
+        const storageTitle = document.createElement('strong');
+        storageTitle.textContent = 'Your storage';
+        const storageValue = document.createElement('span');
+        storageValue.textContent = quotaBytes > 0 ? `${formatBytes(usedBytes)} / ${formatBytes(quotaBytes)}` : `${formatBytes(usedBytes)} · unlimited`;
+        storageHead.append(storageTitle, storageValue);
+        const track = document.createElement('div');
+        track.className = 'public-profile-storage-track';
+        track.setAttribute('role', 'progressbar');
+        track.setAttribute('aria-label', 'Upload storage used');
+        const fill = document.createElement('span');
+        const percent = quotaBytes > 0 ? Math.min(100, (usedBytes / quotaBytes) * 100) : 0;
+        fill.style.width = `${percent.toFixed(2)}%`;
+        track.setAttribute('aria-valuemin', '0');
+        track.setAttribute('aria-valuemax', quotaBytes > 0 ? String(quotaBytes) : String(Math.max(usedBytes, 1)));
+        track.setAttribute('aria-valuenow', String(usedBytes));
+        track.append(fill);
+        const storageHint = document.createElement('small');
+        const fileCount = Math.max(0, Number(storage.fileCount) || 0);
+        storageHint.textContent = quotaBytes > 0
+          ? `${fileCount} stored upload${fileCount === 1 ? '' : 's'} · ${formatBytes(Math.max(0, quotaBytes - usedBytes - reservedBytes))} available${reservedBytes ? ` · ${formatBytes(reservedBytes)} currently uploading` : ''}`
+          : `${fileCount} stored upload${fileCount === 1 ? '' : 's'}${reservedBytes ? ` · ${formatBytes(reservedBytes)} currently uploading` : ''}`;
+        storageCard.append(storageHead, track, storageHint);
+        summary.append(storageCard);
+      }
+
       const friends = Array.isArray(profileMessage.friends) ? profileMessage.friends : [];
       if (friends.length) {
         const section = document.createElement('section');
@@ -39576,6 +39629,7 @@
         logo: isSafeAvatarUrl(source.logo) ? source.logo : null,
         favicon: typeof source.favicon === 'string' ? source.favicon : null,
         mediaOptimizationLevel: ['low', 'medium', 'high'].includes(source.mediaOptimizationLevel) ? source.mediaOptimizationLevel : 'medium',
+        userUploadQuotaBytes: Number.isSafeInteger(Number(source.userUploadQuotaBytes)) && Number(source.userUploadQuotaBytes) >= 0 ? Number(source.userUploadQuotaBytes) : 15 * 1024 * 1024 * 1024,
         projectUrl: safePublicLink(source.projectUrl) || 'https://workwork.fun/',
         githubUrl: safePublicLink(source.githubUrl) || 'https://github.com/sylwesterdigital',
         donationUrl: safePublicLink(source.donationUrl) || '__RANTLIST_SUPPORT_URL__',
@@ -40261,6 +40315,7 @@
       elements.serverGithubUrlInput.value = meta.githubUrl || '';
       elements.serverDonationUrlInput.value = meta.donationUrl || '';
       elements.serverMediaOptimizationSelect.value = meta.mediaOptimizationLevel || 'medium';
+      elements.serverUserUploadQuotaInput.value = meta.userUploadQuotaBytes > 0 ? String(Math.max(1, Math.round(meta.userUploadQuotaBytes / (1024 ** 3)))) : '0';
       elements.serverUiVersionValue.textContent = CLIENT_VERSION.uiVersion;
       elements.serverRuntimeVersionValue.textContent = state.serverVersions?.serverVersion || meta.version || 'unknown';
       elements.serverProtocolVersionValue.textContent = String(state.serverVersions?.protocolVersion || CLIENT_VERSION.protocolVersion);
@@ -40314,6 +40369,7 @@
         moderationEnabled: elements.serverModerationEnabledInput.checked,
         moderationTerms: elements.serverModerationTermsInput.value,
         mediaOptimizationLevel: elements.serverMediaOptimizationSelect.value,
+        userUploadQuotaBytes: Math.max(0, Math.round((Number(elements.serverUserUploadQuotaInput.value) || 0) * (1024 ** 3))),
       });
     }
 
