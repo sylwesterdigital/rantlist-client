@@ -31,6 +31,7 @@ const checks = [
   ['Slack token', /xox[baprs]-[A-Za-z0-9-]{10,}/g],
   ['AWS access key', /AKIA[0-9A-Z]{16}/g],
   ['Google API key', /AIza[0-9A-Za-z_-]{30,}/g],
+  ['OpenAI API key', /\bsk-(?:proj-|admin-|svcacct-)?[A-Za-z0-9_-]{20,}\b/g],
   ['Private key block', /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/g],
   ['Private IPv4 address', /\b(?:10\.\d{1,3}\.\d{1,3}\.\d{1,3}|192\.168\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2\d|3[01])\.\d{1,3}\.\d{1,3})\b/g],
   ['Loopback host with explicit port', /\b(?:127\.0\.0\.1|localhost):\d{2,5}\b/gi],

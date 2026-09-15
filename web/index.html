@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.249">
+  <meta name="chat-ui-version" content="9.6.250">
   <meta name="chat-protocol-version" content="64">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15584,7 +15584,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.249</small>
+          <small id="serverBrandVersion">v9.6.250</small>
         </span>
       </button>
     </div>
@@ -15897,11 +15897,11 @@
             <input id="openAiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" aria-describedby="openAiApiKeyHint">
           </div>
           <div class="config-actions" data-config-feature="openai-byok">
-            <button id="openAiApiKeySaveButton" type="button">Save key on this device</button>
+            <button id="openAiApiKeySaveButton" type="button">Save key securely</button>
             <button id="openAiApiKeyClearButton" type="button">Clear key</button>
             <button id="openAiWalletResetButton" type="button">Reset local spend</button>
           </div>
-          <p id="openAiApiKeyHint" class="hint">The key is stored only in this client and sent over WSS only when you select an OpenAI model. It is never written to shared chat/server storage.</p>
+          <p id="openAiApiKeyHint" class="hint">Native apps use Keychain/Keystore; browsers keep the key only in page memory. The key is never written to WebView/browser localStorage and is sent only for your OpenAI request.</p>
           <p id="openAiWalletHint" class="hint">OpenAI wallet: no calls tracked on this device yet.</p>
           <div class="config-row" data-config-feature="media-ai">
             <label for="mediaAiModeSelect">Experimental image AI</label>
@@ -18445,7 +18445,9 @@
       mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
       mediaAiTimeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(readStorage('chat.media.aiTimeoutSeconds')) || 180))),
       hetznerAiModel: String(readStorage('chat.ai.model') || '').trim(),
-      openAiApiKey: String(readStorage('chat.ai.openai.apiKey') || '').trim(),
+      openAiEphemeralApiKey: '',
+      openAiApiKeyConfigured: false,
+      openAiCredentialStorage: 'memory',
       openAiSpendUsd: Math.max(0, Number(readStorage('chat.ai.openai.spendUsd')) || 0),
       openAiInputTokens: Math.max(0, Number(readStorage('chat.ai.openai.inputTokens')) || 0),
       openAiOutputTokens: Math.max(0, Number(readStorage('chat.ai.openai.outputTokens')) || 0),
@@ -18714,6 +18716,139 @@
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
+    const OPENAI_API_KEY_STORAGE_KEY = 'chat.ai.openai.apiKey';
+    const nativeSecretRequests = new Map();
+    let rantlistNativeSecretPort = null;
+    let openAiCredentialInitRunning = false;
+
+    function validOpenAiApiKey(value) {
+      const key = String(value || '').trim();
+      return key.length >= 20 && key.length <= 512 && !/[\s\u0000-\u001f\u007f]/.test(key);
+    }
+
+    function removePersistentStorage(key) {
+      try { localStorage.removeItem(key); } catch {}
+    }
+
+    function nativeSecretHandler() {
+      const apple = window.webkit?.messageHandlers?.rantlistSecrets;
+      if (apple?.postMessage) return { kind: 'apple', label: /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'Apple Keychain' : 'macOS Keychain' };
+      if (rantlistNativeSecretPort) return { kind: 'android', label: 'Android Keystore' };
+      return null;
+    }
+
+    function settleNativeSecretResponse(payload) {
+      const requestId = String(payload?.requestId || '');
+      const pending = nativeSecretRequests.get(requestId);
+      if (!pending) return;
+      nativeSecretRequests.delete(requestId);
+      clearTimeout(pending.timer);
+      if (payload?.ok === false) pending.reject(new Error(String(payload?.error || 'Secure credential operation failed.')));
+      else pending.resolve(payload || {});
+    }
+
+    window.rantlistNativeSecretResult = (payload) => settleNativeSecretResponse(payload);
+    window.addEventListener('message', (event) => {
+      if (event.data !== 'rantlist-native-secret-channel-v1' || !event.ports?.[0]) return;
+      try { rantlistNativeSecretPort?.close?.(); } catch {}
+      rantlistNativeSecretPort = event.ports[0];
+      rantlistNativeSecretPort.onmessage = (messageEvent) => {
+        try { settleNativeSecretResponse(JSON.parse(String(messageEvent.data || '{}'))); } catch {}
+      };
+      rantlistNativeSecretPort.start?.();
+      initializeOpenAiCredentialStorage().catch(() => {});
+    });
+
+    function nativeSecretRequest(action, key = '') {
+      const bridge = nativeSecretHandler();
+      if (!bridge) return Promise.reject(new Error('Native secure credential storage is unavailable.'));
+      const requestId = `secret-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => {
+          nativeSecretRequests.delete(requestId);
+          reject(new Error('Native secure credential storage timed out.'));
+        }, 5000);
+        nativeSecretRequests.set(requestId, { resolve, reject, timer });
+        const payload = { requestId, action, key: action === 'set' ? String(key || '') : '' };
+        try {
+          if (bridge.kind === 'apple') window.webkit.messageHandlers.rantlistSecrets.postMessage(payload);
+          else rantlistNativeSecretPort.postMessage(JSON.stringify(payload));
+        } catch (error) {
+          clearTimeout(timer);
+          nativeSecretRequests.delete(requestId);
+          reject(error);
+        }
+      });
+    }
+
+    async function initializeOpenAiCredentialStorage() {
+      if (openAiCredentialInitRunning) return;
+      openAiCredentialInitRunning = true;
+      try {
+        const legacy = String(readStorage(OPENAI_API_KEY_STORAGE_KEY) || '').trim();
+        removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY);
+        if (validOpenAiApiKey(legacy) && !state.openAiEphemeralApiKey) state.openAiEphemeralApiKey = legacy;
+
+        const bridge = nativeSecretHandler();
+        if (!bridge) {
+          state.openAiCredentialStorage = 'memory';
+          state.openAiApiKeyConfigured = validOpenAiApiKey(state.openAiEphemeralApiKey);
+          renderChatAiSettings();
+          return;
+        }
+
+        state.openAiCredentialStorage = bridge.label;
+        if (validOpenAiApiKey(state.openAiEphemeralApiKey)) {
+          await nativeSecretRequest('set', state.openAiEphemeralApiKey);
+          state.openAiEphemeralApiKey = '';
+        }
+        const status = await nativeSecretRequest('status');
+        state.openAiApiKeyConfigured = status.configured === true;
+        renderChatAiSettings();
+      } finally {
+        openAiCredentialInitRunning = false;
+      }
+    }
+
+    async function saveOpenAiCredential(rawKey) {
+      const key = String(rawKey || '').trim();
+      if (!validOpenAiApiKey(key)) throw new Error('Invalid OpenAI API key.');
+      removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY);
+      const bridge = nativeSecretHandler();
+      if (bridge) {
+        await nativeSecretRequest('set', key);
+        state.openAiCredentialStorage = bridge.label;
+        state.openAiEphemeralApiKey = '';
+        state.openAiApiKeyConfigured = true;
+        return;
+      }
+      state.openAiCredentialStorage = 'memory';
+      state.openAiEphemeralApiKey = key;
+      state.openAiApiKeyConfigured = true;
+    }
+
+    async function clearOpenAiCredential() {
+      removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY);
+      const bridge = nativeSecretHandler();
+      if (bridge) await nativeSecretRequest('clear');
+      state.openAiEphemeralApiKey = '';
+      state.openAiApiKeyConfigured = false;
+    }
+
+    async function openAiCredentialForRequest() {
+      const bridge = nativeSecretHandler();
+      if (bridge) {
+        const result = await nativeSecretRequest('get');
+        const key = String(result.key || '').trim();
+        if (!validOpenAiApiKey(key)) throw new Error('OpenAI API key is missing from secure storage.');
+        return key;
+      }
+      const key = String(state.openAiEphemeralApiKey || '').trim();
+      if (!validOpenAiApiKey(key)) throw new Error('OpenAI API key is not available in this browser page.');
+      return key;
+    }
+
+
     installDiagnostics();
     initializeUiPreferences();
     setProfileStatusEditor('Available');
@@ -18727,6 +18862,12 @@
 
     syncViewportHeight(true);
     bindUi();
+    initializeOpenAiCredentialStorage().catch((error) => {
+      debugLog('warn', 'security', 'openai-secure-storage-init-failed', { message: error?.message || String(error) }, true);
+      state.openAiCredentialStorage = 'memory';
+      state.openAiApiKeyConfigured = validOpenAiApiKey(state.openAiEphemeralApiKey);
+      renderChatAiSettings();
+    });
     renderServerBrand();
     setConnectionState('connecting', 'Connecting…');
     renderPresetGifs();
@@ -19168,21 +19309,34 @@
         renderChatAiSettings();
         renderMediaAiSettings();
       });
-      elements.openAiApiKeySaveButton?.addEventListener('click', () => {
+      elements.openAiApiKeySaveButton?.addEventListener('click', async () => {
         const key = String(elements.openAiApiKeyInput?.value || '').trim();
-        if (key.length < 20 || /\s/.test(key)) return addSystemMessage('Enter a valid OpenAI API key before saving.', true);
-        state.openAiApiKey = key;
-        writeStorage('chat.ai.openai.apiKey', key);
-        if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.value = '';
-        renderChatAiSettings();
-        addSystemMessage('OpenAI API key saved on this device.');
+        if (!validOpenAiApiKey(key)) return addSystemMessage('Enter a valid OpenAI API key before saving.', true);
+        elements.openAiApiKeySaveButton.disabled = true;
+        try {
+          await saveOpenAiCredential(key);
+          if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.value = '';
+          renderChatAiSettings();
+          addSystemMessage(state.openAiCredentialStorage === 'memory'
+            ? 'OpenAI API key is available only for this browser page and will be forgotten when it is reloaded or closed.'
+            : `OpenAI API key saved in ${state.openAiCredentialStorage}.`);
+        } catch (error) {
+          addSystemMessage(`OpenAI API key could not be saved securely: ${error?.message || 'secure storage unavailable'}.`, true);
+        } finally {
+          renderChatAiSettings();
+        }
       });
-      elements.openAiApiKeyClearButton?.addEventListener('click', () => {
-        state.openAiApiKey = '';
-        writeStorage('chat.ai.openai.apiKey', '');
-        if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.value = '';
-        renderChatAiSettings();
-        addSystemMessage('OpenAI API key cleared from this device.');
+      elements.openAiApiKeyClearButton?.addEventListener('click', async () => {
+        elements.openAiApiKeyClearButton.disabled = true;
+        try {
+          await clearOpenAiCredential();
+          if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.value = '';
+          addSystemMessage('OpenAI API key cleared from this device.');
+        } catch (error) {
+          addSystemMessage(`OpenAI API key could not be cleared: ${error?.message || 'secure storage unavailable'}.`, true);
+        } finally {
+          renderChatAiSettings();
+        }
       });
       elements.openAiWalletResetButton?.addEventListener('click', () => {
         state.openAiSpendUsd = 0; state.openAiInputTokens = 0; state.openAiOutputTokens = 0; state.openAiRequests = 0;
@@ -19316,12 +19470,12 @@
       elements.transcriptAiCloseButton.addEventListener('click', closeTranscriptAiModal);
       elements.transcriptAiCancelButton.addEventListener('click', closeTranscriptAiModal);
       elements.transcriptAiModal.addEventListener('click', (event) => { if (event.target === elements.transcriptAiModal) closeTranscriptAiModal(); });
-      elements.transcriptAiForm.addEventListener('submit', (event) => {
+      elements.transcriptAiForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const messageId = state.activeTranscriptAiMessageId;
         const prompt = elements.transcriptAiPromptInput.value.trim();
         if (!messageId || !prompt) return;
-        if (requestTranscriptAiAnalysis(messageId, prompt)) {
+        if (await requestTranscriptAiAnalysis(messageId, prompt)) {
           elements.transcriptAiStatus.textContent = 'Analysis queued · the answer will appear as Rantlist AI message bubbles.';
           elements.transcriptAiRunButton.disabled = true;
           window.setTimeout(() => closeTranscriptAiModal(), 350);
@@ -21849,7 +22003,7 @@
       return true;
     }
 
-    function outgoingAiOptions(text) {
+    async function outgoingAiOptions(text) {
       const isAi = /^\/ai(?:\s|$)/i.test(String(text || ''));
       if (!isAi) return {};
       const selectedModel = selectedAiInferenceModel();
@@ -21863,14 +22017,29 @@
       // because the local sidecar intentionally has a much smaller context budget.
       const useBuilder = explicitBuilder || state.chatAiBuilderEnabled === true || Boolean(activeThreadId);
       const commandModel = selectedAiModelForCommand(text);
-      if (isOpenAiByokModel(commandModel) && !state.openAiApiKey) {
-        addSystemMessage('OpenAI model selected, but no API key is saved. Open Config → Experimental AI and save your key first.', true);
-        return { aiBlocked: true };
+      let aiApiKey;
+      if (isOpenAiByokModel(commandModel)) {
+        if (!state.openAiApiKeyConfigured) {
+          addSystemMessage('OpenAI model selected, but no API key is configured. Open Config → Experimental AI and save your key first.', true);
+          return { aiBlocked: true };
+        }
+        try {
+          aiApiKey = await openAiCredentialForRequest();
+        } catch (error) {
+          addSystemMessage(`OpenAI API key could not be read securely: ${error?.message || 'credential unavailable'}.`, true);
+          return { aiBlocked: true };
+        }
+        if (!validOpenAiApiKey(aiApiKey)) {
+          state.openAiApiKeyConfigured = false;
+          renderChatAiSettings();
+          addSystemMessage('OpenAI API key is no longer available. Save it again in Config → Experimental AI.', true);
+          return { aiBlocked: true };
+        }
       }
       return {
         aiContext: state.chatAiContextEnabled === true,
         aiModel: commandModel,
-        aiApiKey: isOpenAiByokModel(commandModel) ? state.openAiApiKey : undefined,
+        aiApiKey,
         aiBuilder: useBuilder,
         aiBuilderThreadContext: useBuilder && Boolean(activeThreadId),
         aiBuilderThreadId: useBuilder && activeThreadId ? activeThreadId : undefined,
@@ -21970,7 +22139,7 @@
       setTimeout(() => elements.youtubeImportQualitySelect?.focus(), 0);
     }
 
-    function sendCurrentText() {
+    async function sendCurrentText() {
       const text = elements.messageInput.value.trim();
       if (!text || !canSend()) return;
       const byteLength = encoder.encode(text).byteLength;
@@ -21994,7 +22163,7 @@
         return;
       }
 
-      const aiOptions = outgoingAiOptions(text);
+      const aiOptions = await outgoingAiOptions(text);
       if (aiOptions.aiBlocked) return;
       const sent = sendJson({
         type: 'message.room',
@@ -37643,11 +37812,11 @@
       elements.callSideChatMessages.scrollTop = elements.callSideChatMessages.scrollHeight;
     }
 
-    function sendCallSideChatMessage(event) {
+    async function sendCallSideChatMessage(event) {
       event.preventDefault();
       const text = elements.callSideChatInput.value.trim();
       if (!text || !canSend()) return;
-      const aiOptions = outgoingAiOptions(text);
+      const aiOptions = await outgoingAiOptions(text);
       if (aiOptions.aiBlocked) return;
       if (sendJson({
         type: 'message.room',
@@ -43208,7 +43377,7 @@
         option.title = isLocalLlamaModel(model) && state.capabilities.chatAiLocalLlama !== true
           ? 'Isolated Local Llama sidecar is not healthy on the server yet.'
           : isOpenAiByokModel(model)
-            ? (state.openAiApiKey ? 'Uses your locally saved OpenAI API key.' : 'Requires your own OpenAI API key below.')
+            ? (state.openAiApiKeyConfigured ? `Uses your OpenAI API key from ${state.openAiCredentialStorage}.` : 'Requires your own OpenAI API key below.')
             : model;
         option.disabled = isLocalLlamaModel(model) && state.capabilities.chatAiLocalLlama !== true;
         elements.hetznerAiModelSelect.append(option);
@@ -43232,12 +43401,16 @@
       const byokEnabled = state.capabilities.chatAiOpenAiByok === true;
       if (elements.openAiApiKeyInput) elements.openAiApiKeyInput.disabled = !byokEnabled;
       if (elements.openAiApiKeySaveButton) elements.openAiApiKeySaveButton.disabled = !byokEnabled;
-      if (elements.openAiApiKeyClearButton) elements.openAiApiKeyClearButton.disabled = !state.openAiApiKey;
+      if (elements.openAiApiKeyClearButton) elements.openAiApiKeyClearButton.disabled = !state.openAiApiKeyConfigured;
       if (elements.openAiApiKeyHint) elements.openAiApiKeyHint.textContent = !byokEnabled
         ? 'OpenAI BYOK is disabled by this server.'
-        : state.openAiApiKey
-          ? 'Key saved on this device. It is sent over WSS only with your OpenAI request and never persisted by the server.'
-          : 'No key saved. OpenAI model requests are blocked until you provide your own API key.';
+        : state.openAiApiKeyConfigured
+          ? (state.openAiCredentialStorage === 'memory'
+            ? 'Key is held only in this browser page memory. It is never written to localStorage and is forgotten on reload/close.'
+            : `Key is protected by ${state.openAiCredentialStorage}. It is fetched only for an OpenAI request and is never written to WebView localStorage.`)
+          : (state.openAiCredentialStorage === 'memory'
+            ? 'No key configured. Browser mode keeps BYOK keys in page memory only; reload/close forgets them.'
+            : `No key configured. Native Rantlist stores BYOK keys in ${state.openAiCredentialStorage}, not WebView localStorage.`);
       if (elements.openAiWalletHint) {
         const pricingDate = String(state.capabilities.chatAiOpenAiPricingAsOf || '2026-09-15');
         elements.openAiWalletHint.textContent = `Local OpenAI spend estimate: $${state.openAiSpendUsd.toFixed(6)} · ${state.openAiRequests} request${state.openAiRequests === 1 ? '' : 's'} · ${state.openAiInputTokens.toLocaleString()} input / ${state.openAiOutputTokens.toLocaleString()} output tokens · rates ${pricingDate}. OpenAI does not expose remaining prepaid credit to ordinary project API keys; account billing remains authoritative.`;
@@ -43750,22 +43923,30 @@
       elements.transcriptAiCurrent.append(title, meta);
     }
 
-    function requestTranscriptAiAnalysis(messageId, prompt) {
+    async function requestTranscriptAiAnalysis(messageId, prompt) {
       const data = state.messageData.get(String(messageId || ''));
       if (!transcriptAiAvailableForMessage(data)) return false;
       const cleanPrompt = String(prompt || '').trim().slice(0, 1200);
       if (!cleanPrompt) return false;
       const model = selectedAiInferenceModel();
-      if (isOpenAiByokModel(model) && !state.openAiApiKey) {
-        addSystemMessage('Transcript AI needs your OpenAI API key. Open Config → Experimental AI and save your key first.', true);
-        return false;
+      let aiApiKey;
+      if (isOpenAiByokModel(model)) {
+        if (!state.openAiApiKeyConfigured) {
+          addSystemMessage('Transcript AI needs your OpenAI API key. Open Config → Experimental AI and save your key first.', true);
+          return false;
+        }
+        try { aiApiKey = await openAiCredentialForRequest(); }
+        catch (error) {
+          addSystemMessage(`Transcript AI could not read your OpenAI API key securely: ${error?.message || 'credential unavailable'}.`, true);
+          return false;
+        }
       }
       return sendJson({
         type: 'transcript.ai.request',
         messageId: String(messageId || ''),
         prompt: cleanPrompt,
         model,
-        aiApiKey: isOpenAiByokModel(model) ? state.openAiApiKey : undefined,
+        aiApiKey,
       });
     }
 
@@ -47019,11 +47200,17 @@
       return entry;
     }
 
+    function redactSensitiveDebugString(value) {
+      return String(value || '')
+        .replace(/\bsk-(?:proj-|admin-|svcacct-)?[A-Za-z0-9_-]{16,}\b/g, '[redacted-api-key]')
+        .replace(/(authorization\s*[:=]\s*bearer\s+)[^\s,;]+/ig, '$1[redacted]');
+    }
+
     function normalizeDebugValue(value, depth = 0, seen = new WeakSet()) {
       if (depth > 5) return '[depth-limit]';
       if (value == null || typeof value === 'boolean') return value;
       if (typeof value === 'number') return Number.isFinite(value) ? value : String(value);
-      if (typeof value === 'string') return value.slice(0, 5000);
+      if (typeof value === 'string') return redactSensitiveDebugString(value).slice(0, 5000);
       if (value instanceof Error || value instanceof DOMException) {
         return { name: value.name, message: value.message, stack: value.stack || null, code: value.code ?? null };
       }
@@ -47033,7 +47220,7 @@
       if (Array.isArray(value)) return value.slice(0, 80).map((item) => normalizeDebugValue(item, depth + 1, seen));
       const output = {};
       for (const [key, item] of Object.entries(value).slice(0, 80)) {
-        output[key] = /token|credential|password|secret|authorization|cookie/i.test(key)
+        output[key] = /token|credential|password|secret|authorization|cookie|api.?key|apikey|private.?key|access.?key/i.test(key)
           ? '[redacted]'
           : normalizeDebugValue(item, depth + 1, seen);
       }
@@ -47243,6 +47430,7 @@
     function writeStorage(key, value) {
       try { localStorage.setItem(key, value); } catch {}
     }
+
 
     async function ensureAudio() {
       if (!state.soundEnabled) return null;

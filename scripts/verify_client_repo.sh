@@ -123,6 +123,22 @@ grep -q 'make_ios_push_only_project.js' "$ROOT/scripts/build_ios_release.sh" || 
 grep -q 'RantlistPushOnly.entitlements' "$ROOT/scripts/make_ios_push_only_project.js" || { echo "Push-only project generator does not preserve APNs entitlements" >&2; exit 1; }
 grep -q 'config.userContentController.add(self, name: "rantlistBadge")' "$ROOT/macos/RantlistApp.swift" || { echo "macOS unread badge bridge missing" >&2; exit 1; }
 grep -q 'NSApp.dockTile.badgeLabel' "$ROOT/macos/RantlistApp.swift" || { echo "macOS Dock badge update missing" >&2; exit 1; }
+grep -q 'import Security' "$ROOT/macos/RantlistApp.swift" || { echo "macOS Keychain framework missing for OpenAI BYOK" >&2; exit 1; }
+grep -q 'SecureOpenAiCredentialStore' "$ROOT/macos/RantlistApp.swift" || { echo "macOS OpenAI Keychain store missing" >&2; exit 1; }
+grep -q 'name: "rantlistSecrets"' "$ROOT/macos/RantlistApp.swift" || { echo "macOS secure credential bridge missing" >&2; exit 1; }
+grep -q 'message.frameInfo.isMainFrame' "$ROOT/macos/RantlistApp.swift" || { echo "macOS secure credential bridge is not restricted to the main frame" >&2; exit 1; }
+grep -q 'import Security' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS Keychain framework missing for OpenAI BYOK" >&2; exit 1; }
+grep -q 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS OpenAI key is not device-only/unlocked Keychain data" >&2; exit 1; }
+grep -q 'name: "rantlistSecrets"' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge missing" >&2; exit 1; }
+grep -q 'message.frameInfo.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge is not restricted to the main frame" >&2; exit 1; }
+grep -q 'AndroidKeyStore' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android Keystore-backed OpenAI storage missing" >&2; exit 1; }
+grep -q 'AES/GCM/NoPadding' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android OpenAI ciphertext is not AES-GCM protected" >&2; exit 1; }
+grep -q 'createWebMessageChannel' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android origin-scoped secure credential channel missing" >&2; exit 1; }
+! grep -q 'addJavascriptInterface' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android secure credential bridge must not use all-frame addJavascriptInterface" >&2; exit 1; }
+! grep -q "readStorage('chat.ai.openai.apiKey')" "$ROOT/web/index.html" || { echo "OpenAI API key is still read from persistent WebView/browser localStorage" >&2; exit 1; }
+! grep -q "writeStorage('chat.ai.openai.apiKey'" "$ROOT/web/index.html" || { echo "OpenAI API key is still written to persistent WebView/browser localStorage" >&2; exit 1; }
+grep -q "openAiCredentialStorage: 'memory'" "$ROOT/web/index.html" || { echo "Browser memory-only OpenAI credential mode missing" >&2; exit 1; }
+grep -q 'api.?key|apikey|private.?key|access.?key' "$ROOT/web/index.html" || { echo "API-key diagnostic field redaction missing" >&2; exit 1; }
 grep -q 'id="composerBorderStyleSelect"' "$ROOT/web/index.html" || { echo "Message composer border Appearance control missing" >&2; exit 1; }
 grep -q 'data-composer-border="rainbow"' "$ROOT/web/index.html" || { echo "Message composer animated border treatments missing" >&2; exit 1; }
 grep -q 'message-viewport.has-media-mini-player #messageList' "$ROOT/web/index.html" || { echo "Media mini-player is not docked to the message viewport with timeline clearance" >&2; exit 1; }

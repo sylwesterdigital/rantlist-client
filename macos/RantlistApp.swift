@@ -1,9 +1,52 @@
 import Cocoa
 import Network
+import Security
 @preconcurrency import WebKit
 
 private let defaultAppURL = "https://rantlist.me/"
 private let allowedHosts: Set<String> = ["rantlist.me", "www.rantlist.me"]
+
+
+private enum SecureOpenAiCredentialStore {
+    private static let service = "fun.workwork.rantlist.openai"
+    private static let account = "user-api-key"
+
+    static func read() -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        var result: CFTypeRef?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
+              let data = result as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+
+    @discardableResult
+    static func save(_ value: String) -> Bool {
+        guard let data = value.data(using: .utf8) else { return false }
+        clear()
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: data,
+        ]
+        return SecItemAdd(query as CFDictionary, nil) == errSecSuccess
+    }
+
+    static func clear() {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+}
 
 private func configuredAppURL() -> URL {
     let value = ProcessInfo.processInfo.environment["RANTLIST_APP_URL"] ?? defaultAppURL
@@ -45,6 +88,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         config.websiteDataStore = .default()
         config.preferences.javaScriptCanOpenWindowsAutomatically = true
         config.userContentController.add(self, name: "rantlistBadge")
+        config.userContentController.add(self, name: "rantlistSecrets")
 
         webView = WKWebView(frame: .zero, configuration: config)
         webView.translatesAutoresizingMaskIntoConstraints = false
@@ -93,9 +137,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     func applicationWillTerminate(_ notification: Notification) {
         pathMonitor.cancel()
         webView?.configuration.userContentController.removeScriptMessageHandler(forName: "rantlistBadge")
+        webView?.configuration.userContentController.removeScriptMessageHandler(forName: "rantlistSecrets")
     }
 
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "rantlistSecrets" {
+            handleSecretMessage(message)
+            return
+        }
         guard message.name == "rantlistBadge" else { return }
         let count: Int
         if let body = message.body as? [String: Any] {
@@ -109,6 +158,54 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
             NSApp.dockTile.badgeLabel = count > 0 ? String(count) : nil
             NSApp.dockTile.display()
         }
+    }
+
+
+
+    private func handleSecretMessage(_ message: WKScriptMessage) {
+        guard message.frameInfo.isMainFrame,
+              isRantlistURL(message.frameInfo.request.url),
+              let body = message.body as? [String: Any],
+              let requestID = body["requestId"] as? String,
+              requestID.range(of: "^[A-Za-z0-9._-]{8,128}$", options: .regularExpression) != nil,
+              let action = body["action"] as? String else { return }
+
+        var response: [String: Any] = ["requestId": requestID, "ok": true]
+        switch action {
+        case "status":
+            response["configured"] = !(SecureOpenAiCredentialStore.read() ?? "").isEmpty
+        case "get":
+            let key = SecureOpenAiCredentialStore.read() ?? ""
+            response["configured"] = !key.isEmpty
+            response["key"] = key
+        case "set":
+            let key = String((body["key"] as? String) ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            guard key.count >= 20, key.count <= 512, key.rangeOfCharacter(from: .whitespacesAndNewlines) == nil else {
+                response = ["requestId": requestID, "ok": false, "error": "Invalid OpenAI API key."]
+                break
+            }
+            if !SecureOpenAiCredentialStore.save(key) {
+                response = ["requestId": requestID, "ok": false, "error": "macOS Keychain rejected the credential."]
+            } else {
+                response["configured"] = true
+            }
+        case "clear":
+            SecureOpenAiCredentialStore.clear()
+            response["configured"] = false
+        default:
+            response = ["requestId": requestID, "ok": false, "error": "Unsupported secure credential operation."]
+        }
+        deliverSecretResponse(response)
+    }
+
+    private func deliverSecretResponse(_ response: [String: Any]) {
+        guard JSONSerialization.isValidJSONObject(response),
+              let data = try? JSONSerialization.data(withJSONObject: response),
+              let json = String(data: data, encoding: .utf8) else { return }
+        webView?.evaluateJavaScript(
+            "window.rantlistNativeSecretResult && window.rantlistNativeSecretResult(\(json));",
+            completionHandler: nil
+        )
     }
 
     private func installNativeOverlay() {

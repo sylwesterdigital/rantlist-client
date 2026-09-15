@@ -1,3 +1,9 @@
+## v0.1.89 / Rantlist 9.6.250
+- Synchronizes the browser client with server 9.6.250 / `rantlist-deploy-r278` / protocol 64.
+- Moves iOS/macOS OpenAI BYOK credentials into Apple Keychain and Android credentials behind AES-GCM keys generated in Android Keystore; no OpenAI key is persisted in WebView `localStorage`.
+- Ordinary browser BYOK is page-memory-only and legacy r277 localStorage keys are erased after one-time migration.
+- Adds main-frame/origin restrictions, API-key diagnostic redaction and client verification guards for secure credential storage.
+
 ## v0.1.88 / Rantlist 9.6.249
 - Synchronizes the browser client with server 9.6.249 / `rantlist-deploy-r277` / protocol 64.
 - Adds per-user OpenAI BYOK configuration for GPT-6 Astra and GPT-5.6 Sol/Terra/Luna, with private per-call token/cost reporting and a resettable local spend estimate.
