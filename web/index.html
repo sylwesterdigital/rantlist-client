@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.258">
-  <meta name="chat-protocol-version" content="69">
+  <meta name="chat-ui-version" content="9.6.259">
+  <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
@@ -15614,7 +15614,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.258</small>
+          <small id="serverBrandVersion">v9.6.259</small>
         </span>
       </button>
     </div>
@@ -16921,7 +16921,7 @@
           <div id="composerShell" class="composer-shell">
             <button id="attachMenuButton" class="composer-icon-button" type="button" title="Attachments" aria-label="Attachments"><span class="icon icon-plus"></span></button>
             <button id="gamesMenuButton" class="composer-games-button" data-ui-button type="button" title="Games" aria-label="Games" aria-expanded="false" aria-controls="gamesTray"><span class="icon icon-game ui-button-icon" aria-hidden="true"></span><span class="ui-button-label ui-button-label-full">Games</span><span class="ui-button-label ui-button-label-short">Games</span></button>
-            <textarea id="messageInput" rows="1" maxlength="8000" placeholder="Message" enterkeyhint="send" disabled></textarea>
+            <textarea id="messageInput" rows="1" placeholder="Message" enterkeyhint="send" disabled></textarea>
             <button id="cameraComposerButton" class="composer-icon-button" type="button" title="Photo or video" aria-label="Photo or video" disabled><span class="icon icon-camera"></span></button>
             <button id="voiceRecordButton" class="composer-icon-button" data-button-presentation-ignore type="button" title="Record voice" aria-label="Record voice" disabled><span class="icon icon-mic"></span><span id="voiceRecordButtonLabel" hidden>Voice</span></button>
             <button id="sendButton" class="composer-icon-button" type="submit" title="Send" aria-label="Send" disabled><span class="icon icon-send"></span></button>
@@ -18277,9 +18277,11 @@
         chatAiOpenAiMaxOutputTokens: 8192,
         chatAiOpenAiImageGeneration: true,
         chatAiOpenAiImageModel: 'gpt-image-2.5-sunburst',
+        chatAiFrontierMaxPromptBytes: 256 * 1024,
         chatAiAttachmentMaxFiles: 8,
         chatAiAttachmentMaxFileBytes: 8 * 1024 * 1024,
         chatAiAttachmentMaxTotalBytes: 20 * 1024 * 1024,
+        chatAiAttachmentMaxTextChars: 500000,
         chatAiLocalLlama: false,
         chatAiLocalLlamaModel: 'local/Meta-Llama-3.1-8B-Instruct-Q4_K_M.gguf',
         chatAiLocalLlamaTextOnly: true,
@@ -22057,6 +22059,7 @@
     }
 
     const CHAT_AI_PROMPT_HISTORY_LIMIT = 50;
+    const CHAT_AI_PROMPT_HISTORY_MAX_CHARS = 1_000_000;
 
     function chatAiPromptHistoryStorageKey() {
       return `chat.ai.promptHistory.${state.identityId || 'anonymous'}`;
@@ -22089,7 +22092,15 @@
       if (!isRecallableChatAiPrompt(text)) return;
       const history = readChatAiPromptHistory().filter((item) => item !== text);
       history.push(text);
-      writeStorage(chatAiPromptHistoryStorageKey(), JSON.stringify(history.slice(-CHAT_AI_PROMPT_HISTORY_LIMIT)));
+      let bounded = history.slice(-CHAT_AI_PROMPT_HISTORY_LIMIT);
+      let totalChars = bounded.reduce((sum, item) => sum + item.length, 0);
+      while (bounded.length > 1 && totalChars > CHAT_AI_PROMPT_HISTORY_MAX_CHARS) {
+        totalChars -= bounded[0].length;
+        bounded = bounded.slice(1);
+      }
+      if (totalChars <= CHAT_AI_PROMPT_HISTORY_MAX_CHARS) {
+        writeStorage(chatAiPromptHistoryStorageKey(), JSON.stringify(bounded));
+      }
       resetChatAiPromptHistoryNavigation();
     }
 
@@ -22292,8 +22303,19 @@
       const text = elements.messageInput.value.trim();
       if (!text || !canSend()) return;
       const byteLength = encoder.encode(text).byteLength;
-      if (byteLength > state.capabilities.maxTextBytes) {
-        addSystemMessage(`Message is too large (${byteLength} bytes).`, true);
+      const isAiCommand = /^\/ai(?:\s|$)/i.test(text);
+      const aiCommandModel = isAiCommand ? selectedAiModelForCommand(text) : '';
+      const frontierPrompt = isAiCommand && isOpenAiByokModel(aiCommandModel);
+      const sendLimit = frontierPrompt
+        ? Math.max(Number(state.capabilities.maxTextBytes) || 8192, Number(state.capabilities.chatAiFrontierMaxPromptBytes) || 256 * 1024)
+        : (Number(state.capabilities.maxTextBytes) || 8192);
+      if (byteLength > sendLimit) {
+        addSystemMessage(
+          frontierPrompt
+            ? `AI prompt is too large (${byteLength} bytes; frontier-model limit ${sendLimit} bytes). Put large specifications in one or more .md/.txt files attached to the /ai request.`
+            : `Message is too large (${byteLength} bytes).`,
+          true
+        );
         return;
       }
 
@@ -22314,9 +22336,11 @@
 
       const aiOptions = await outgoingAiOptions(text);
       if (aiOptions.aiBlocked) return;
+      const useExtendedAiPrompt = frontierPrompt && byteLength > (Number(state.capabilities.maxTextBytes) || 8192);
       const sent = sendJson({
         type: 'message.room',
-        text,
+        text: useExtendedAiPrompt ? '/ai [extended frontier prompt]' : text,
+        aiPromptText: useExtendedAiPrompt ? text : undefined,
         expiresInMs: state.outgoingExpiresInMs,
         replyTo: state.messageReplyDraft?.messageId || undefined,
         mentionTo: state.composerMentionTarget?.identityId || undefined,
@@ -26354,7 +26378,10 @@
       if (sent && preparingAi) {
         state.pendingAiAttachmentCount += normalized.length;
         const maxFiles = Math.max(1, Number(state.capabilities.chatAiAttachmentMaxFiles) || 8);
-        addSystemMessage(`${state.pendingAiAttachmentCount} file${state.pendingAiAttachmentCount === 1 ? '' : 's'} attached to the next /ai request${state.pendingAiAttachmentCount >= maxFiles ? ` · server limit ${maxFiles}` : ''}.`);
+        const specHint = /\/ai\s+(?:build|builder)(?:\s|$)/i.test(String(elements.messageInput?.value || '').trim())
+          ? ' You can send /ai build with no additional text; attached .md/.txt/code/PDF/image files become the build specification.'
+          : '';
+        addSystemMessage(`${state.pendingAiAttachmentCount} file${state.pendingAiAttachmentCount === 1 ? '' : 's'} attached to the next /ai request${state.pendingAiAttachmentCount >= maxFiles ? ` · server limit ${maxFiles}` : ''}.${specHint}`);
       }
       return sent;
     }
@@ -43875,7 +43902,7 @@
                 : 'Off · normal /ai stays conversational on Llama. Use /ai build <instruction> for a one-off local rendered HTML attempt.')
               : (state.chatAiBuilderEnabled
                 ? 'On · normal /ai requests use the selected Qwen Builder mode. Use /ai build for an explicit one-off builder request.'
-                : 'Off · normal /ai stays conversational. Use /ai build <instruction> for a one-off rendered HTML result.');
+                : `Off · normal /ai stays conversational. Use /ai build <instruction> for a one-off rendered HTML result. OpenAI frontier prompts may be pasted up to ${formatBytes(Number(state.capabilities.chatAiFrontierMaxPromptBytes) || 256 * 1024)}; alternatively type /ai build, attach one or more .md/.txt/code/PDF/image specification files, then send the command with no extra prompt.`);
         }
         if (elements.chatAiBuilderThreadInput) {
           const threadAvailable = builderAvailable && !localSelected && state.capabilities.chatAiBuilderThreadContext !== false;

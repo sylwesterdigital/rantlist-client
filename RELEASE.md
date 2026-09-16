@@ -1,3 +1,9 @@
+## v0.1.98 / Rantlist 9.6.259
+- Synchronizes browser/native clients with `rantlist-deploy-r287` / protocol 70.
+- Removes the browser `maxlength` that silently cut long `/ai` and `/ai build` instructions before send. Ordinary chat keeps its existing message-size limit, while selected OpenAI frontier models can receive a separately bounded prompt up to 256 KiB.
+- Allows `/ai build` with no inline instruction when one or more explicit AI attachments are present, so `spec.md`, text/code, PDF or image files can be the complete build specification.
+- Keeps the visible room command within the normal chat limit while the full large prompt remains transient to the authenticated AI request, and rejects oversized attached text before any paid inference instead of silently trimming it.
+
 ## v0.1.97 / Rantlist 9.6.258
 - Synchronizes browser/native clients with `rantlist-deploy-r286` / protocol 69.
 - Published AI-game deep links now always expose an app-owned **← Back to chat** control above the sandboxed game, including inside the iOS/macOS/Android shells.
