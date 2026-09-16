@@ -64,6 +64,12 @@ if command -v swiftc >/dev/null 2>&1; then
   swiftc -frontend -parse "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" >/dev/null || { echo "Share Extension Swift source does not parse" >&2; exit 1; }
 fi
 grep -q '"clientRole": "ios-share-extension"' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not request its isolated server role" >&2; exit 1; }
+grep -q 'private let nativeShareProtocolVersion = 1' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension dedicated protocol version missing" >&2; exit 1; }
+grep -q 'URLQueryItem(name: "clientRole", value: "ios-share-extension")' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension WebSocket upgrade role missing" >&2; exit 1; }
+grep -q 'URLQueryItem(name: "nativeShareProtocolVersion"' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension dedicated protocol query missing" >&2; exit 1; }
+! grep -q '?uiVersion=' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension must not hard-code the browser UI version into its WebSocket URL" >&2; exit 1; }
+! grep -q 'URLQueryItem(name: "uiVersion"' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension must not send browser uiVersion" >&2; exit 1; }
+! grep -q 'URLQueryItem(name: "protocolVersion"' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension must not send the main browser protocolVersion" >&2; exit 1; }
 grep -q 'recipientServiceReady' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension can enable Send before authoritative destinations are ready" >&2; exit 1; }
 ! grep -q 'extensionContext?.open' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension still attempts to launch the containing app" >&2; exit 1; }
 grep -q 'RantlistShareSession' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Host app does not persist the native Share Extension session snapshot" >&2; exit 1; }

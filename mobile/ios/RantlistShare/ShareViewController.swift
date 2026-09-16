@@ -3,7 +3,17 @@ import UIKit
 import UniformTypeIdentifiers
 
 private let appGroupIdentifier = "group.fun.workwork.rantlist"
-private let shareWebSocketURL = URL(string: "wss://rantlist.me/ws?uiVersion=9.6.236&protocolVersion=63&nativeShare=1")!
+private let shareWebSocketBaseURL = URL(string: "wss://rantlist.me/ws")!
+private let nativeShareProtocolVersion = 1
+
+private func makeShareWebSocketURL() -> URL {
+    var components = URLComponents(url: shareWebSocketBaseURL, resolvingAgainstBaseURL: false)!
+    components.queryItems = [
+        URLQueryItem(name: "clientRole", value: "ios-share-extension"),
+        URLQueryItem(name: "nativeShareProtocolVersion", value: String(nativeShareProtocolVersion)),
+    ]
+    return components.url!
+}
 
 private struct ShareManifest: Codable {
     struct Item: Codable {
@@ -100,7 +110,7 @@ private final class ShareSocketClient {
         targetsCompletion = completion
         lock.unlock()
 
-        var request = URLRequest(url: shareWebSocketURL)
+        var request = URLRequest(url: makeShareWebSocketURL())
         request.timeoutInterval = 20
         let socket = URLSession(configuration: .ephemeral).webSocketTask(with: request)
         webSocket = socket

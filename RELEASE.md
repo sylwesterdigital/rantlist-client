@@ -1,3 +1,9 @@
+## v0.1.99 / Rantlist 9.6.260
+- Synchronizes browser/native clients with `rantlist-deploy-r288` / main protocol 70.
+- Fixes iOS system sharing by removing the stale hard-coded browser `uiVersion`/`protocolVersion` from the Share Extension WebSocket URL.
+- The Share Extension now connects with `clientRole=ios-share-extension&nativeShareProtocolVersion=1`; routine browser protocol/version releases no longer invalidate sharing.
+- Client verification now fails if browser-version query parameters are reintroduced into `ShareViewController.swift`.
+
 ## v0.1.98 / Rantlist 9.6.259
 - Synchronizes browser/native clients with `rantlist-deploy-r287` / protocol 70.
 - Removes the browser `maxlength` that silently cut long `/ai` and `/ai build` instructions before send. Ordinary chat keeps its existing message-size limit, while selected OpenAI frontier models can receive a separately bounded prompt up to 256 KiB.
