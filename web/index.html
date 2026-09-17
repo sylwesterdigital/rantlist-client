@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.263">
+  <meta name="chat-ui-version" content="9.6.266">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -6262,43 +6262,19 @@
       display: none;
       position: absolute;
       z-index: 5;
-      top: 4px;
-      left: 4px;
-      right: auto;
-      width: max-content;
-      max-width: calc(100% - 8px);
-      min-width: 0;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 6px;
-      border: 1px solid color-mix(in srgb, var(--line) 36%, transparent);
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--panel-2) 72%, transparent);
-      color: var(--text);
-      box-shadow: 0 1px 5px color-mix(in srgb, #000 20%, transparent);
-      backdrop-filter: blur(6px);
-      line-height: 1.12;
-      pointer-events: none;
-    }
-    .media-placeholder:has(.media-placeholder-main-action) .media-placeholder-info {
+      top: 6px;
       left: 44px;
-      max-width: calc(100% - 50px);
+      right: 6px;
+      min-width: 0;
+      gap: 1px;
+      padding: 4px 7px;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel-2) 88%, transparent);
+      backdrop-filter: blur(8px);
     }
-    :root[data-media-debug-details="true"] .media-placeholder-info { display: inline-flex; }
-    .media-placeholder-name {
-      max-width: min(46vw, 360px);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      font-weight: 750;
-      font-size: 10px;
-    }
-    .media-placeholder-meta {
-      flex: 0 0 auto;
-      color: color-mix(in srgb, var(--text) 72%, transparent);
-      font-size: 9px;
-      white-space: nowrap;
-    }
+    :root[data-media-debug-details="true"] .media-placeholder-info { display: grid; }
+    .media-placeholder-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: 11px; }
+    .media-placeholder-meta { color: var(--muted); font-size: 10px; }
     .media-placeholder-main-action {
       position: absolute;
       z-index: 6;
@@ -15638,7 +15614,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.263</small>
+          <small id="serverBrandVersion">v9.6.266</small>
         </span>
       </button>
     </div>
@@ -16053,20 +16029,6 @@
           <h3>Speech</h3>
           <div class="speech-settings">
             <div class="config-row">
-              <label for="voiceRecordingLimitSelect">Voice memo limit</label>
-              <select id="voiceRecordingLimitSelect">
-                <option value="30000">30 seconds</option>
-                <option value="60000">1 minute</option>
-                <option value="180000">3 minutes</option>
-                <option value="300000">5 minutes</option>
-                <option value="600000">10 minutes</option>
-                <option value="900000" selected>15 minutes · default</option>
-                <option value="1200000">20 minutes</option>
-                <option value="1800000">30 minutes</option>
-              </select>
-            </div>
-            <p id="voiceRecordingLimitHint" class="hint">Per-device maximum for new voice recordings. The server hard ceiling is 30 minutes.</p>
-            <div class="config-row">
               <label for="voiceTranscriptionSelect">Audio/video transcripts</label>
               <select id="voiceTranscriptionSelect">
                 <option value="off">Off</option>
@@ -16078,6 +16040,20 @@
               <label for="voiceTranscriptLanguageInput">Transcription language</label>
               <input id="voiceTranscriptLanguageInput" maxlength="16" placeholder="auto, en, pl…">
             </div>
+            <div class="config-row">
+              <label for="voiceRecordingLimitSelect">Voice memo limit</label>
+              <select id="voiceRecordingLimitSelect" aria-describedby="voiceRecordingLimitHint">
+                <option value="30000">30 seconds</option>
+                <option value="60000">1 minute</option>
+                <option value="180000">3 minutes</option>
+                <option value="300000">5 minutes</option>
+                <option value="600000">10 minutes</option>
+                <option value="900000">15 minutes</option>
+                <option value="1200000">20 minutes</option>
+                <option value="1800000">30 minutes</option>
+              </select>
+            </div>
+            <p id="voiceRecordingLimitHint" class="hint">Per-device recording limit · default 15 minutes · server maximum 30 minutes.</p>
             <label class="config-toggle-row" for="autoSpeakIncomingInput">
               <span>Read aloud</span>
               <input id="autoSpeakIncomingInput" type="checkbox" role="switch">
@@ -18155,7 +18131,7 @@
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
         'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
-        'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
+        'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
         'diagnosticSummary', 'diagnosticVerboseInput', 'messageClientInfoInput', 'diagnosticTokenForm', 'diagnosticTokenInput', 'diagnosticServerButton', 'diagnosticRefreshButton', 'diagnosticCopyButton', 'diagnosticDownloadButton', 'diagnosticClearButton', 'diagnosticLog',
@@ -18173,7 +18149,7 @@
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
-        'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'sendButton', 'uploadStatus', 'aiRequestCancelButton', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
+        'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'sendButton', 'uploadStatus', 'aiRequestCancelButton', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
         'clearTargetButton', 'channelUserRailHeaderHome', 'channelUserRailWorkspaceHome', 'channelUserRail', 'channelUserRailList', 'userSearchInput', 'userSortSelect', 'userFilterSelect', 'userList', 'userCount',
         'callsPanel', 'callStatus', 'startChannelAudioCallButton', 'startChannelVideoCallButton', 'joinChannelCallButton', 'callChannelSpaceStatus', 'startAudioCallButton', 'startVideoCallButton', 'callAllRoomInput', 'callUserList',
         'pollModal', 'pollForm', 'pollCloseButton', 'pollCancelButton', 'pollQuestionInput', 'pollOptionsEditor', 'pollAddOptionButton', 'pollMultipleInput', 'pollSendButton',
@@ -18283,7 +18259,6 @@
       capabilities: {
         maxTextBytes: 8192,
         maxFileBytes: 16 * 1024 * 1024,
-        maxVoiceBytes: 64 * 1024 * 1024,
         maxVideoBytes: 64 * 1024 * 1024,
         maxUserGifBytes: 2 * 1024 * 1024,
         maxUserGifSourceBytes: 8 * 1024 * 1024,
@@ -18291,6 +18266,7 @@
         maxUserGifTotalBytes: 12 * 1024 * 1024,
         maxUserGifs: 12,
         maxVoiceDurationMs: 30 * 60_000,
+        maxVoiceBytes: 192 * 1024 * 1024,
         maxPollOptions: 8,
         maxChunkBytes: 256 * 1024,
         safeImageMimes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif'],
@@ -18545,8 +18521,8 @@
       customTheme: readJsonStorage('chat.ui.customTheme') || null,
       customThemes: readJsonStorage('chat.ui.customThemes') || [],
       customThemeName: readStorage('chat.ui.customThemeName') || '',
-      voiceRecordingLimitMs: normalizeVoiceRecordingLimitMs(readStorage('chat.voiceRecordingLimitMs')),
       voiceTranscriptionMode: readStorage('chat.voiceTranscriptionMode') || 'manual',
+      voiceRecordingLimitMs: normalizeVoiceRecordingLimitMs(readStorage('chat.voice.recordingLimitMs') || 900_000),
       mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
       mediaAiTimeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(readStorage('chat.media.aiTimeoutSeconds')) || 180))),
       hetznerAiModel: String(readStorage('chat.ai.model') || '').trim(),
@@ -19615,15 +19591,6 @@
           window.setTimeout(() => closeTranscriptAiModal(), 350);
         }
       });
-      elements.voiceRecordingLimitSelect?.addEventListener('change', () => {
-        state.voiceRecordingLimitMs = normalizeVoiceRecordingLimitMs(elements.voiceRecordingLimitSelect.value);
-        if (state.voiceRecordingLimitMs > Number(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS)) {
-          state.voiceRecordingLimitMs = Number(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS);
-        }
-        writeStorage('chat.voiceRecordingLimitMs', String(state.voiceRecordingLimitMs));
-        renderSpeechSettings();
-        refreshControls();
-      });
       elements.voiceTranscriptionSelect.addEventListener('change', () => {
         state.voiceTranscriptionMode = elements.voiceTranscriptionSelect.value;
         writeStorage('chat.voiceTranscriptionMode', state.voiceTranscriptionMode);
@@ -19633,6 +19600,12 @@
         state.voiceTranscriptLanguage = sanitizeClientLanguage(elements.voiceTranscriptLanguageInput.value);
         elements.voiceTranscriptLanguageInput.value = state.voiceTranscriptLanguage;
         writeStorage('chat.voiceTranscriptLanguage', state.voiceTranscriptLanguage);
+      });
+      elements.voiceRecordingLimitSelect.addEventListener('change', () => {
+        state.voiceRecordingLimitMs = normalizeVoiceRecordingLimitMs(elements.voiceRecordingLimitSelect.value);
+        writeStorage('chat.voice.recordingLimitMs', String(state.voiceRecordingLimitMs));
+        renderVoiceRecordingLimitSetting();
+        refreshControls();
       });
       elements.autoSpeakIncomingInput.addEventListener('change', () => {
         state.autoSpeakIncoming = elements.autoSpeakIncomingInput.checked;
@@ -26547,7 +26520,7 @@
       const defaultSizeLimit = backgroundUpload
         ? Number(state.capabilities.maxRoomBackgroundBytes || 2 * 1024 * 1024)
         : (kind === 'voice'
-          ? Number(state.capabilities.maxVoiceBytes || 32 * 1024 * 1024)
+          ? Number(state.capabilities.maxVoiceBytes || 192 * 1024 * 1024)
           : Number(state.capabilities.maxFileBytes || 16 * 1024 * 1024));
       const target = backgroundUpload
         ? 'room'
@@ -33042,21 +33015,6 @@
     }
 
     const VOICE_RECORDING_AUDIO_BITS_PER_SECOND = 256_000;
-    const VOICE_RECORDING_DEFAULT_MS = 15 * 60_000;
-    const VOICE_RECORDING_MAX_MS = 30 * 60_000;
-    const VOICE_RECORDING_ALLOWED_MS = Object.freeze([30_000, 60_000, 180_000, 300_000, 600_000, 900_000, 1_200_000, 1_800_000]);
-
-    function normalizeVoiceRecordingLimitMs(value) {
-      const requested = Math.round(Number(value) || VOICE_RECORDING_DEFAULT_MS);
-      if (VOICE_RECORDING_ALLOWED_MS.includes(requested)) return requested;
-      return VOICE_RECORDING_DEFAULT_MS;
-    }
-
-    function effectiveVoiceRecordingLimitMs() {
-      const serverLimit = Math.max(30_000, Math.min(VOICE_RECORDING_MAX_MS, Number(state.capabilities.maxVoiceDurationMs) || VOICE_RECORDING_MAX_MS));
-      return Math.min(serverLimit, normalizeVoiceRecordingLimitMs(state.voiceRecordingLimitMs));
-    }
-
 
     async function startVoiceRecording() {
       if (
@@ -33232,6 +33190,14 @@
         }
       }
 
+      try {
+        const recorder = await PortableWavRecorder.create(stream);
+        debugLog('info', 'voice.recording', 'recorder-selected', { mode: 'portable-wav', mimeType: recorder.mimeType });
+        return recorder;
+      } catch (error) {
+        debugLog('warn', 'voice.recording', 'portable-wav-unavailable', error);
+      }
+
       const candidates = [
         'audio/webm;codecs=opus', 'audio/webm',
         'audio/ogg;codecs=opus', 'audio/ogg',
@@ -33245,16 +33211,8 @@
         } catch {}
       }
 
-      try {
-        const recorder = new MediaRecorder(stream, { audioBitsPerSecond: VOICE_RECORDING_AUDIO_BITS_PER_SECOND });
-        debugLog('warn', 'voice.recording', 'recorder-selected-browser-default', { mimeType: recorder.mimeType });
-        return recorder;
-      } catch (error) {
-        debugLog('warn', 'voice.recording', 'browser-default-recorder-unavailable', error);
-      }
-
-      const recorder = await PortableWavRecorder.create(stream);
-      debugLog('warn', 'voice.recording', 'recorder-selected-portable-wav-fallback', { mode: 'portable-wav', mimeType: recorder.mimeType });
+      const recorder = new MediaRecorder(stream, { audioBitsPerSecond: VOICE_RECORDING_AUDIO_BITS_PER_SECOND });
+      debugLog('warn', 'voice.recording', 'recorder-selected-browser-default', { mimeType: recorder.mimeType });
       return recorder;
     }
 
@@ -33340,7 +33298,7 @@
         this.disconnect();
         setTimeout(() => {
           try {
-            const blob = encodePortableWav(chunks, sampleRate, Math.min(16000, sampleRate));
+            const blob = encodePortableWav(chunks, sampleRate, Math.min(48000, sampleRate));
             const dataEvent = new Event('dataavailable');
             Object.defineProperty(dataEvent, 'data', { configurable: true, value: blob });
             this.dispatchEvent(dataEvent);
@@ -34913,8 +34871,8 @@
         playSound('error').catch(() => {});
         return;
       }
-      if (blob.size > (state.capabilities.maxVoiceBytes || state.capabilities.maxFileBytes)) {
-        addSystemMessage(`The voice message exceeds the ${formatBytes(state.capabilities.maxVoiceBytes || state.capabilities.maxFileBytes)} voice upload limit.`, true);
+      if (blob.size > state.capabilities.maxVoiceBytes) {
+        addSystemMessage(`The voice message exceeds the ${formatBytes(state.capabilities.maxVoiceBytes)} voice-message upload limit.`, true);
         playSound('error').catch(() => {});
         return;
       }
@@ -35002,8 +34960,14 @@
       }
       try {
         const durationMs = await readAudioDuration(file);
-        if (durationMs > effectiveVoiceRecordingLimitMs() + 500) {
-          addSystemMessage(`Voice messages are limited to ${formatDuration(effectiveVoiceRecordingLimitMs())} on this device.`, true);
+        const limitMs = effectiveVoiceRecordingLimitMs();
+        if (durationMs > limitMs + 500) {
+          addSystemMessage(`Voice messages are limited to ${formatDuration(limitMs)} on this device.`, true);
+          playSound('error');
+          return;
+        }
+        if (file.size > state.capabilities.maxVoiceBytes) {
+          addSystemMessage(`The voice message exceeds the ${formatBytes(state.capabilities.maxVoiceBytes)} voice-message upload limit.`, true);
           playSound('error');
           return;
         }
@@ -42828,20 +42792,35 @@
       return /^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$/.test(language) ? language : 'auto';
     }
 
-    function renderSpeechSettings() {
-      const voiceLimit = effectiveVoiceRecordingLimitMs();
-      if (elements.voiceRecordingLimitSelect) {
-        elements.voiceRecordingLimitSelect.value = String(state.voiceRecordingLimitMs);
-        for (const option of elements.voiceRecordingLimitSelect.options) {
-          option.disabled = Number(option.value) > Number(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS);
-        }
+    function normalizeVoiceRecordingLimitMs(value) {
+      const numeric = Number(value);
+      return [30_000, 60_000, 180_000, 300_000, 600_000, 900_000, 1_200_000, 1_800_000].includes(numeric)
+        ? numeric
+        : 900_000;
+    }
+
+    function effectiveVoiceRecordingLimitMs() {
+      const serverMaximum = Math.max(30_000, Math.min(1_800_000, Number(state.capabilities.maxVoiceDurationMs) || 1_800_000));
+      return Math.min(serverMaximum, normalizeVoiceRecordingLimitMs(state.voiceRecordingLimitMs));
+    }
+
+    function renderVoiceRecordingLimitSetting() {
+      if (!elements.voiceRecordingLimitSelect) return;
+      const serverMaximum = Math.max(30_000, Math.min(1_800_000, Number(state.capabilities.maxVoiceDurationMs) || 1_800_000));
+      for (const option of elements.voiceRecordingLimitSelect.options) {
+        option.disabled = Number(option.value) > serverMaximum;
       }
+      const effective = effectiveVoiceRecordingLimitMs();
+      elements.voiceRecordingLimitSelect.value = String(effective);
       if (elements.voiceRecordingLimitHint) {
-        elements.voiceRecordingLimitHint.textContent = `Per-device maximum for new voice recordings · selected ${formatDuration(voiceLimit)} · server ceiling ${formatDuration(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS)}.`;
+        elements.voiceRecordingLimitHint.textContent = `Per-device recording limit · default 15 minutes · server maximum ${formatDuration(serverMaximum)}.`;
       }
-      if (elements.voiceRecordingLimitSelect) elements.voiceRecordingLimitSelect.value = String(state.voiceRecordingLimitMs);
+    }
+
+    function renderSpeechSettings() {
       elements.voiceTranscriptionSelect.value = state.voiceTranscriptionMode;
       elements.voiceTranscriptLanguageInput.value = state.voiceTranscriptLanguage;
+      renderVoiceRecordingLimitSetting();
       elements.autoSpeakIncomingInput.checked = state.autoSpeakIncoming;
       elements.gameVoiceAnnouncementsInput.checked = state.gameVoiceAnnouncements;
       elements.messageClientInfoInput.checked = state.showMessageClientInfo;
@@ -44939,6 +44918,7 @@
       if (!['reveal', 'immediate'].includes(state.mediaDisplayMode)) state.mediaDisplayMode = 'immediate';
       if (!['classic', 'stories'].includes(state.mediaStoryMode)) state.mediaStoryMode = 'stories';
       if (!['off', 'manual', 'auto'].includes(state.voiceTranscriptionMode)) state.voiceTranscriptionMode = 'manual';
+      state.voiceRecordingLimitMs = normalizeVoiceRecordingLimitMs(state.voiceRecordingLimitMs);
       if (![0.8, 1, 1.2, 1.45].includes(Number(state.speechRate))) state.speechRate = 1;
       state.voiceTranscriptLanguage = sanitizeClientLanguage(state.voiceTranscriptLanguage);
       state.customTheme = normalizeTheme(state.customTheme || UI_THEMES.midnight);
@@ -44961,6 +44941,7 @@
       renderThemeEditor();
       elements.voiceTranscriptionSelect.value = state.voiceTranscriptionMode;
       elements.voiceTranscriptLanguageInput.value = state.voiceTranscriptLanguage;
+      renderVoiceRecordingLimitSetting();
       elements.autoSpeakIncomingInput.checked = state.autoSpeakIncoming;
       elements.gameVoiceAnnouncementsInput.checked = state.gameVoiceAnnouncements;
       elements.messageClientInfoInput.checked = state.showMessageClientInfo;

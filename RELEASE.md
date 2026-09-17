@@ -1,14 +1,8 @@
-## v0.1.102 / Rantlist 9.6.263
-- Synchronizes browser/native clients with `rantlist-deploy-r291` / main protocol 70.
-- Keeps compact media metadata and the 15-minute default / 30-minute configurable voice memo limit.
-- Uses 256 kbps compressed capture with a bounded 16 kHz portable-WAV fallback and a dedicated 64 MiB voice allowance.
-- Server deployment now smoke-boots the candidate release before switching the live service.
-
-## v0.1.100 / Rantlist 9.6.261
-- Synchronizes browser/native clients with `rantlist-deploy-r289` / main protocol 70.
-- Compacts verbose media metadata into a small top-edge overlay.
-- Adds a per-device Voice memo limit selector with a 15-minute default and 30-minute maximum.
-- Uses compressed 64 kbps voice recording before the portable WAV fallback to keep long voice notes within the dedicated server allowance.
+## v0.1.105 / Rantlist 9.6.266
+- Synchronizes browser/native clients with `rantlist-deploy-r294` / main protocol 70.
+- Built directly from the restored r288 client baseline; r289-r293 changes are intentionally skipped.
+- Voice memos default to 15 minutes; Config → Speech allows 30 seconds, 1, 3, 5, 10, 15, 20 or 30 minutes.
+- Uses the dedicated server-advertised voice-message size ceiling without changing ordinary file/video limits.
 
 ## v0.1.99 / Rantlist 9.6.260
 - Synchronizes browser/native clients with `rantlist-deploy-r288` / main protocol 70.
