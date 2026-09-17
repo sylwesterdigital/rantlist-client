@@ -1,3 +1,9 @@
+## v0.1.100 / Rantlist 9.6.261
+- Synchronizes browser/native clients with `rantlist-deploy-r289` / main protocol 70.
+- Replaces the wide verbose media filename/size/MIME strip with a compact top-edge metadata chip that no longer obscures image/video previews.
+- Voice memos default to **15 minutes** per device and Config → Speech can select **30 seconds, 1, 3, 5, 10, 15, 20 or 30 minutes**.
+- Long voice recording prefers 64 kbps compressed MP4/WebM/Ogg; the server exposes a dedicated 30-minute / 32 MiB voice allowance without raising normal file limits.
+
 ## v0.1.99 / Rantlist 9.6.260
 - Synchronizes browser/native clients with `rantlist-deploy-r288` / main protocol 70.
 - Fixes iOS system sharing by removing the stale hard-coded browser `uiVersion`/`protocolVersion` from the Share Extension WebSocket URL.

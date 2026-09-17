@@ -1,3 +1,9 @@
+## v0.1.100 / Rantlist 9.6.261
+- Synchronizes browser/native clients with `rantlist-deploy-r289` / main protocol 70.
+- Compacts verbose media metadata into a small top-edge overlay.
+- Adds a per-device Voice memo limit selector with a 15-minute default and 30-minute maximum.
+- Uses compressed 64 kbps voice recording before the portable WAV fallback to keep long voice notes within the dedicated server allowance.
+
 ## v0.1.99 / Rantlist 9.6.260
 - Synchronizes browser/native clients with `rantlist-deploy-r288` / main protocol 70.
 - Fixes iOS system sharing by removing the stale hard-coded browser `uiVersion`/`protocolVersion` from the Share Extension WebSocket URL.

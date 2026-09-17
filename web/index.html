@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.260">
+  <meta name="chat-ui-version" content="9.6.261">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -6262,19 +6262,43 @@
       display: none;
       position: absolute;
       z-index: 5;
-      top: 6px;
-      left: 44px;
-      right: 6px;
+      top: 4px;
+      left: 4px;
+      right: auto;
+      width: max-content;
+      max-width: calc(100% - 8px);
       min-width: 0;
-      gap: 1px;
-      padding: 4px 7px;
-      border-radius: 8px;
-      background: color-mix(in srgb, var(--panel-2) 88%, transparent);
-      backdrop-filter: blur(8px);
+      align-items: center;
+      gap: 6px;
+      padding: 3px 6px;
+      border: 1px solid color-mix(in srgb, var(--line) 36%, transparent);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--panel-2) 72%, transparent);
+      color: var(--text);
+      box-shadow: 0 1px 5px color-mix(in srgb, #000 20%, transparent);
+      backdrop-filter: blur(6px);
+      line-height: 1.12;
+      pointer-events: none;
     }
-    :root[data-media-debug-details="true"] .media-placeholder-info { display: grid; }
-    .media-placeholder-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 700; font-size: 11px; }
-    .media-placeholder-meta { color: var(--muted); font-size: 10px; }
+    .media-placeholder:has(.media-placeholder-main-action) .media-placeholder-info {
+      left: 44px;
+      max-width: calc(100% - 50px);
+    }
+    :root[data-media-debug-details="true"] .media-placeholder-info { display: inline-flex; }
+    .media-placeholder-name {
+      max-width: min(46vw, 360px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 750;
+      font-size: 10px;
+    }
+    .media-placeholder-meta {
+      flex: 0 0 auto;
+      color: color-mix(in srgb, var(--text) 72%, transparent);
+      font-size: 9px;
+      white-space: nowrap;
+    }
     .media-placeholder-main-action {
       position: absolute;
       z-index: 6;
@@ -15614,7 +15638,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.260</small>
+          <small id="serverBrandVersion">v9.6.261</small>
         </span>
       </button>
     </div>
@@ -16028,6 +16052,20 @@
         <section class="config-section">
           <h3>Speech</h3>
           <div class="speech-settings">
+            <div class="config-row">
+              <label for="voiceRecordingLimitSelect">Voice memo limit</label>
+              <select id="voiceRecordingLimitSelect">
+                <option value="30000">30 seconds</option>
+                <option value="60000">1 minute</option>
+                <option value="180000">3 minutes</option>
+                <option value="300000">5 minutes</option>
+                <option value="600000">10 minutes</option>
+                <option value="900000" selected>15 minutes · default</option>
+                <option value="1200000">20 minutes</option>
+                <option value="1800000">30 minutes</option>
+              </select>
+            </div>
+            <p id="voiceRecordingLimitHint" class="hint">Per-device maximum for new voice recordings. The server hard ceiling is 30 minutes.</p>
             <div class="config-row">
               <label for="voiceTranscriptionSelect">Audio/video transcripts</label>
               <select id="voiceTranscriptionSelect">
@@ -16969,7 +17007,7 @@
           </div>
           <div id="voiceRecordingBar" class="voice-recording-bar" aria-live="polite">
             <span class="recording-dot" aria-hidden="true"></span>
-            <span id="voiceRecordingTime" class="voice-recording-time">0:00 / 1:00</span>
+            <span id="voiceRecordingTime" class="voice-recording-time">0:00 / 15:00</span>
             <span class="voice-level" aria-hidden="true"><span id="voiceLevelFill"></span></span>
             <button id="voiceStopButton" class="icon-button voice-stop" type="button" title="Stop and send" aria-label="Stop and send"><span class="icon icon-stop"></span></button>
             <button id="voiceCancelButton" class="icon-button voice-cancel" type="button" title="Cancel" aria-label="Cancel"><span class="icon icon-cancel"></span></button>
@@ -18135,7 +18173,7 @@
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
-        'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'sendButton', 'uploadStatus', 'aiRequestCancelButton', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
+        'voiceRecordingTime', 'voiceLevelFill', 'voiceStopButton', 'voiceCancelButton', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'sendButton', 'uploadStatus', 'aiRequestCancelButton', 'currentRoomBadge', 'currentRoomLabel', 'currentRoomMeta', 'targetPill', 'targetName',
         'clearTargetButton', 'channelUserRailHeaderHome', 'channelUserRailWorkspaceHome', 'channelUserRail', 'channelUserRailList', 'userSearchInput', 'userSortSelect', 'userFilterSelect', 'userList', 'userCount',
         'callsPanel', 'callStatus', 'startChannelAudioCallButton', 'startChannelVideoCallButton', 'joinChannelCallButton', 'callChannelSpaceStatus', 'startAudioCallButton', 'startVideoCallButton', 'callAllRoomInput', 'callUserList',
         'pollModal', 'pollForm', 'pollCloseButton', 'pollCancelButton', 'pollQuestionInput', 'pollOptionsEditor', 'pollAddOptionButton', 'pollMultipleInput', 'pollSendButton',
@@ -18245,13 +18283,14 @@
       capabilities: {
         maxTextBytes: 8192,
         maxFileBytes: 16 * 1024 * 1024,
+        maxVoiceBytes: 32 * 1024 * 1024,
         maxVideoBytes: 64 * 1024 * 1024,
         maxUserGifBytes: 2 * 1024 * 1024,
         maxUserGifSourceBytes: 8 * 1024 * 1024,
         userGifWebpConversion: false,
         maxUserGifTotalBytes: 12 * 1024 * 1024,
         maxUserGifs: 12,
-        maxVoiceDurationMs: 60_000,
+        maxVoiceDurationMs: 30 * 60_000,
         maxPollOptions: 8,
         maxChunkBytes: 256 * 1024,
         safeImageMimes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif'],
@@ -18506,6 +18545,7 @@
       customTheme: readJsonStorage('chat.ui.customTheme') || null,
       customThemes: readJsonStorage('chat.ui.customThemes') || [],
       customThemeName: readStorage('chat.ui.customThemeName') || '',
+      voiceRecordingLimitMs: normalizeVoiceRecordingLimitMs(readStorage('chat.voiceRecordingLimitMs')),
       voiceTranscriptionMode: readStorage('chat.voiceTranscriptionMode') || 'manual',
       mediaAiMode: ['manual', 'auto'].includes(readStorage('chat.media.aiMode')) ? readStorage('chat.media.aiMode') : 'off',
       mediaAiTimeoutSeconds: Math.max(15, Math.min(300, Math.round(Number(readStorage('chat.media.aiTimeoutSeconds')) || 180))),
@@ -19574,6 +19614,15 @@
           elements.transcriptAiRunButton.disabled = true;
           window.setTimeout(() => closeTranscriptAiModal(), 350);
         }
+      });
+      elements.voiceRecordingLimitSelect?.addEventListener('change', () => {
+        state.voiceRecordingLimitMs = normalizeVoiceRecordingLimitMs(elements.voiceRecordingLimitSelect.value);
+        if (state.voiceRecordingLimitMs > Number(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS)) {
+          state.voiceRecordingLimitMs = Number(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS);
+        }
+        writeStorage('chat.voiceRecordingLimitMs', String(state.voiceRecordingLimitMs));
+        renderSpeechSettings();
+        refreshControls();
       });
       elements.voiceTranscriptionSelect.addEventListener('change', () => {
         state.voiceTranscriptionMode = elements.voiceTranscriptionSelect.value;
@@ -26497,7 +26546,9 @@
       const backgroundUpload = kind === 'room-background';
       const defaultSizeLimit = backgroundUpload
         ? Number(state.capabilities.maxRoomBackgroundBytes || 2 * 1024 * 1024)
-        : Number(state.capabilities.maxFileBytes || 16 * 1024 * 1024);
+        : (kind === 'voice'
+          ? Number(state.capabilities.maxVoiceBytes || 32 * 1024 * 1024)
+          : Number(state.capabilities.maxFileBytes || 16 * 1024 * 1024));
       const target = backgroundUpload
         ? 'room'
         : (options.targetOverride === 'room' || options.targetOverride === 'user'
@@ -32990,7 +33041,22 @@
       return true;
     }
 
-    const VOICE_RECORDING_AUDIO_BITS_PER_SECOND = 256_000;
+    const VOICE_RECORDING_AUDIO_BITS_PER_SECOND = 64_000;
+    const VOICE_RECORDING_DEFAULT_MS = 15 * 60_000;
+    const VOICE_RECORDING_MAX_MS = 30 * 60_000;
+    const VOICE_RECORDING_ALLOWED_MS = Object.freeze([30_000, 60_000, 180_000, 300_000, 600_000, 900_000, 1_200_000, 1_800_000]);
+
+    function normalizeVoiceRecordingLimitMs(value) {
+      const requested = Math.round(Number(value) || VOICE_RECORDING_DEFAULT_MS);
+      if (VOICE_RECORDING_ALLOWED_MS.includes(requested)) return requested;
+      return VOICE_RECORDING_DEFAULT_MS;
+    }
+
+    function effectiveVoiceRecordingLimitMs() {
+      const serverLimit = Math.max(30_000, Math.min(VOICE_RECORDING_MAX_MS, Number(state.capabilities.maxVoiceDurationMs) || VOICE_RECORDING_MAX_MS));
+      return Math.min(serverLimit, normalizeVoiceRecordingLimitMs(state.voiceRecordingLimitMs));
+    }
+
 
     async function startVoiceRecording() {
       if (
@@ -33083,7 +33149,7 @@
         state.voiceUiTimer = setInterval(updateVoiceRecordingUi, 200);
         state.voiceStopTimer = setTimeout(
           () => stopVoiceRecording(false),
-          state.capabilities.maxVoiceDurationMs
+          effectiveVoiceRecordingLimitMs()
         );
 
         elements.voiceRecordingBar.classList.add('visible');
@@ -33166,14 +33232,6 @@
         }
       }
 
-      try {
-        const recorder = await PortableWavRecorder.create(stream);
-        debugLog('info', 'voice.recording', 'recorder-selected', { mode: 'portable-wav', mimeType: recorder.mimeType });
-        return recorder;
-      } catch (error) {
-        debugLog('warn', 'voice.recording', 'portable-wav-unavailable', error);
-      }
-
       const candidates = [
         'audio/webm;codecs=opus', 'audio/webm',
         'audio/ogg;codecs=opus', 'audio/ogg',
@@ -33187,8 +33245,16 @@
         } catch {}
       }
 
-      const recorder = new MediaRecorder(stream, { audioBitsPerSecond: VOICE_RECORDING_AUDIO_BITS_PER_SECOND });
-      debugLog('warn', 'voice.recording', 'recorder-selected-browser-default', { mimeType: recorder.mimeType });
+      try {
+        const recorder = new MediaRecorder(stream, { audioBitsPerSecond: VOICE_RECORDING_AUDIO_BITS_PER_SECOND });
+        debugLog('warn', 'voice.recording', 'recorder-selected-browser-default', { mimeType: recorder.mimeType });
+        return recorder;
+      } catch (error) {
+        debugLog('warn', 'voice.recording', 'browser-default-recorder-unavailable', error);
+      }
+
+      const recorder = await PortableWavRecorder.create(stream);
+      debugLog('warn', 'voice.recording', 'recorder-selected-portable-wav-fallback', { mode: 'portable-wav', mimeType: recorder.mimeType });
       return recorder;
     }
 
@@ -33274,7 +33340,7 @@
         this.disconnect();
         setTimeout(() => {
           try {
-            const blob = encodePortableWav(chunks, sampleRate, Math.min(48000, sampleRate));
+            const blob = encodePortableWav(chunks, sampleRate, Math.min(8000, sampleRate));
             const dataEvent = new Event('dataavailable');
             Object.defineProperty(dataEvent, 'data', { configurable: true, value: blob });
             this.dispatchEvent(dataEvent);
@@ -34822,7 +34888,7 @@
       const cancelled = state.voiceCancelled;
       const recorderError = state.voiceRecorderError;
       const durationMs = Math.min(
-        state.capabilities.maxVoiceDurationMs,
+        effectiveVoiceRecordingLimitMs(),
         Math.max(0, performance.now() - state.voiceStartedAt)
       );
       const mime = recorder.mimeType || state.voiceChunks[0]?.type || 'audio/webm';
@@ -34847,8 +34913,8 @@
         playSound('error').catch(() => {});
         return;
       }
-      if (blob.size > state.capabilities.maxFileBytes) {
-        addSystemMessage(`The voice message exceeds the ${formatBytes(state.capabilities.maxFileBytes)} upload limit.`, true);
+      if (blob.size > (state.capabilities.maxVoiceBytes || state.capabilities.maxFileBytes)) {
+        addSystemMessage(`The voice message exceeds the ${formatBytes(state.capabilities.maxVoiceBytes || state.capabilities.maxFileBytes)} voice upload limit.`, true);
         playSound('error').catch(() => {});
         return;
       }
@@ -34895,8 +34961,9 @@
 
     function updateVoiceRecordingUi() {
       if (!state.voiceStartedAt) return;
-      const elapsed = Math.min(state.capabilities.maxVoiceDurationMs, performance.now() - state.voiceStartedAt);
-      elements.voiceRecordingTime.textContent = `${formatDuration(elapsed)} / ${formatDuration(state.capabilities.maxVoiceDurationMs)}`;
+      const limitMs = effectiveVoiceRecordingLimitMs();
+      const elapsed = Math.min(limitMs, performance.now() - state.voiceStartedAt);
+      elements.voiceRecordingTime.textContent = `${formatDuration(elapsed)} / ${formatDuration(limitMs)}`;
     }
 
     function startVoiceMeter(stream) {
@@ -34935,8 +35002,8 @@
       }
       try {
         const durationMs = await readAudioDuration(file);
-        if (durationMs > state.capabilities.maxVoiceDurationMs + 500) {
-          addSystemMessage(`Voice messages are limited to ${formatDuration(state.capabilities.maxVoiceDurationMs)}.`, true);
+        if (durationMs > effectiveVoiceRecordingLimitMs() + 500) {
+          addSystemMessage(`Voice messages are limited to ${formatDuration(effectiveVoiceRecordingLimitMs())} on this device.`, true);
           playSound('error');
           return;
         }
@@ -40410,7 +40477,7 @@
       renderAdminEntry();
       elements.voiceRecordButton.title = !window.isSecureContext
         ? 'Microphone recording requires the HTTPS address'
-        : `Record a voice message (max ${formatDuration(state.capabilities.maxVoiceDurationMs)})`;
+        : `Record a voice message (max ${formatDuration(effectiveVoiceRecordingLimitMs())})`;
       elements.readOnlyChannelNotice.textContent = state.currentRoom
         ? `#${state.currentRoom} is read only. Updates can be posted by @server.`
         : 'This channel is read only.';
@@ -42762,6 +42829,17 @@
     }
 
     function renderSpeechSettings() {
+      const voiceLimit = effectiveVoiceRecordingLimitMs();
+      if (elements.voiceRecordingLimitSelect) {
+        elements.voiceRecordingLimitSelect.value = String(state.voiceRecordingLimitMs);
+        for (const option of elements.voiceRecordingLimitSelect.options) {
+          option.disabled = Number(option.value) > Number(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS);
+        }
+      }
+      if (elements.voiceRecordingLimitHint) {
+        elements.voiceRecordingLimitHint.textContent = `Per-device maximum for new voice recordings · selected ${formatDuration(voiceLimit)} · server ceiling ${formatDuration(state.capabilities.maxVoiceDurationMs || VOICE_RECORDING_MAX_MS)}.`;
+      }
+      if (elements.voiceRecordingLimitSelect) elements.voiceRecordingLimitSelect.value = String(state.voiceRecordingLimitMs);
       elements.voiceTranscriptionSelect.value = state.voiceTranscriptionMode;
       elements.voiceTranscriptLanguageInput.value = state.voiceTranscriptLanguage;
       elements.autoSpeakIncomingInput.checked = state.autoSpeakIncoming;
