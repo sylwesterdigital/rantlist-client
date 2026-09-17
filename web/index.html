@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.261">
+  <meta name="chat-ui-version" content="9.6.262">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15638,7 +15638,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.261</small>
+          <small id="serverBrandVersion">v9.6.262</small>
         </span>
       </button>
     </div>
@@ -16029,7 +16029,7 @@
               <option value="aac192">AAC/M4A · 192 kbps</option>
               <option value="aac128">AAC/M4A · 128 kbps</option>
               <option value="aac96">AAC/M4A · 96 kbps</option>
-              <option value="aac64">AAC/M4A · 64 kbps · data saver</option>
+              <option value="aac64">AAC/M4A · 256 kbps · data saver</option>
             </select>
           </div>
           <p id="youtubeAudioImportHint" class="hint">When a URL-only message is supported by a site-specific yt-dlp extractor, Rantlist first opens a centered import chooser with quality, estimated size, current storage quota and long-media confirmation. Unsupported URLs post normally. The default above only preselects a quality; every import still requires confirmation.</p>
@@ -18283,7 +18283,7 @@
       capabilities: {
         maxTextBytes: 8192,
         maxFileBytes: 16 * 1024 * 1024,
-        maxVoiceBytes: 32 * 1024 * 1024,
+        maxVoiceBytes: 192 * 1024 * 1024,
         maxVideoBytes: 64 * 1024 * 1024,
         maxUserGifBytes: 2 * 1024 * 1024,
         maxUserGifSourceBytes: 8 * 1024 * 1024,
@@ -18302,7 +18302,7 @@
         voiceTranscriptionLanguage: 'auto',
         videoCaptionBurn: false,
         videoCaptionLivePreview: false,
-        videoCaptionBurnMaxBytes: 32 * 1024 * 1024,
+        videoCaptionBurnMaxBytes: 192 * 1024 * 1024,
         mediaAi: false,
         transcriptAi: false,
         mediaAiProvider: 'Hetzner Experiments',
@@ -26547,7 +26547,7 @@
       const defaultSizeLimit = backgroundUpload
         ? Number(state.capabilities.maxRoomBackgroundBytes || 2 * 1024 * 1024)
         : (kind === 'voice'
-          ? Number(state.capabilities.maxVoiceBytes || 32 * 1024 * 1024)
+          ? Number(state.capabilities.maxVoiceBytes || 192 * 1024 * 1024)
           : Number(state.capabilities.maxFileBytes || 16 * 1024 * 1024));
       const target = backgroundUpload
         ? 'room'
@@ -33041,7 +33041,7 @@
       return true;
     }
 
-    const VOICE_RECORDING_AUDIO_BITS_PER_SECOND = 64_000;
+    const VOICE_RECORDING_AUDIO_BITS_PER_SECOND = 256_000;
     const VOICE_RECORDING_DEFAULT_MS = 15 * 60_000;
     const VOICE_RECORDING_MAX_MS = 30 * 60_000;
     const VOICE_RECORDING_ALLOWED_MS = Object.freeze([30_000, 60_000, 180_000, 300_000, 600_000, 900_000, 1_200_000, 1_800_000]);
@@ -33340,7 +33340,7 @@
         this.disconnect();
         setTimeout(() => {
           try {
-            const blob = encodePortableWav(chunks, sampleRate, Math.min(8000, sampleRate));
+            const blob = encodePortableWav(chunks, sampleRate, Math.min(48000, sampleRate));
             const dataEvent = new Event('dataavailable');
             Object.defineProperty(dataEvent, 'data', { configurable: true, value: blob });
             this.dispatchEvent(dataEvent);
