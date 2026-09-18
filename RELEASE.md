@@ -1,3 +1,9 @@
+## v0.1.109 / Rantlist 9.6.268
+- Synchronizes to server `rantlist-deploy-r296` / protocol 70.
+- Restores HLS creation for capped profiles by preserving FFmpeg's required escaped comma in `min(height,ih)`, and surfaces terminal source-video fallback if optimization fails.
+- Moves the opt-in per-upload quality chooser to the common ordinary-video upload boundary so all browser/native-WebView attachment routes honor it.
+- Extends the same preference to the iOS Share Extension, which asks for the HLS preset before directly sending a shared video. Original masters are retained unchanged.
+
 ## v0.1.108 / Rantlist 9.6.267
 - Completes the iOS live screenshot/editor Share Extension path by adding data/file-representation fallback when `loadObject(UIImage.self)` is advertised but fails.
 - Unwraps UIKit `NSKeyedArchiver` image payloads and persists the embedded PNG/JPEG bytes with the correct image MIME type instead of rejecting the share or uploading the plist wrapper.

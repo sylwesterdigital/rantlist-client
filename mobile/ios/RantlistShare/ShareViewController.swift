@@ -60,6 +60,8 @@ private struct CachedShareSession: Codable {
     let metadata: [String: String]?
     let uiVersion: String?
     let protocolVersion: Int?
+    let videoTranscodePromptEnabled: Bool?
+    let videoTranscodeProfile: String?
     let rooms: [Room]?
     let users: [User]?
     let savedAt: Double?
@@ -179,6 +181,7 @@ private final class ShareSocketClient {
     func sendFile(url: URL,
                   name: String,
                   mime: String,
+                  videoUploadTranscodeProfile: String? = nil,
                   completion: @escaping (Result<Void, Error>) -> Void) {
         let transferID = UUID().uuidString.replacingOccurrences(of: "-", with: "_")
         let attributes: [FileAttributeKey: Any]
@@ -198,7 +201,7 @@ private final class ShareSocketClient {
             guard let self else { return }
             do {
                 let handle = try FileHandle(forReadingFrom: url)
-                self.sendFileChunk(handle: handle, transferID: transferID, name: name, mime: mime, size: size, offset: 0)
+                self.sendFileChunk(handle: handle, transferID: transferID, name: name, mime: mime, size: size, offset: 0, videoUploadTranscodeProfile: videoUploadTranscodeProfile)
             } catch {
                 self.finishFile(transferID, .failure(error))
             }
@@ -214,7 +217,8 @@ private final class ShareSocketClient {
                                name: String,
                                mime: String,
                                size: Int,
-                               offset: Int) {
+                               offset: Int,
+                               videoUploadTranscodeProfile: String?) {
         guard offset < size else { return }
         let chunkSize = min(128 * 1024, size - offset)
         let chunk: Data
@@ -226,7 +230,7 @@ private final class ShareSocketClient {
             return
         }
         let nextOffset = offset + chunk.count
-        let header: [String: Any] = [
+        var header: [String: Any] = [
             "type": "binary.chunk",
             "transferId": transferID,
             "name": String(name.prefix(180)),
@@ -238,6 +242,10 @@ private final class ShareSocketClient {
             "final": nextOffset == size,
             "target": "room",
         ]
+        let normalizedProfile = String(videoUploadTranscodeProfile ?? "").lowercased()
+        if mime.lowercased().hasPrefix("video/"), ["maximum", "high", "balanced", "data"].contains(normalizedProfile) {
+            header["videoUploadTranscodeProfile"] = normalizedProfile
+        }
         guard let packet = binaryPacket(header: header, payload: chunk) else {
             try? handle.close()
             finishFile(transferID, .failure(ShareExtensionError.message("Rantlist could not encode \(name).")))
@@ -249,7 +257,7 @@ private final class ShareSocketClient {
             case .success:
                 if nextOffset < size {
                     DispatchQueue.global(qos: .userInitiated).async {
-                        self.sendFileChunk(handle: handle, transferID: transferID, name: name, mime: mime, size: size, offset: nextOffset)
+                        self.sendFileChunk(handle: handle, transferID: transferID, name: name, mime: mime, size: size, offset: nextOffset, videoUploadTranscodeProfile: videoUploadTranscodeProfile)
                     }
                 } else {
                     try? handle.close()
@@ -1106,16 +1114,16 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
         }
     }
 
-    private func sendFilesSequentially(_ files: [(ShareManifest.Item, URL)], index: Int = 0) {
+    private func sendFilesSequentially(_ files: [(ShareManifest.Item, URL)], index: Int = 0, videoUploadTranscodeProfile: String? = nil) {
         guard index < files.count else { completeSuccessfulShare(); return }
         let (item, url) = files[index]
-        socketClient?.sendFile(url: url, name: item.name, mime: item.mime) { [weak self] result in
+        socketClient?.sendFile(url: url, name: item.name, mime: item.mime, videoUploadTranscodeProfile: videoUploadTranscodeProfile) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
                 switch result {
                 case .success:
                     self.statusLabel.text = "Sending \(index + 1) of \(files.count)…"
-                    self.sendFilesSequentially(files, index: index + 1)
+                    self.sendFilesSequentially(files, index: index + 1, videoUploadTranscodeProfile: videoUploadTranscodeProfile)
                 case .failure(let error):
                     self.finishSendingWithError(error.localizedDescription)
                 }
@@ -1159,7 +1167,37 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
         extensionContext?.completeRequest(returningItems: [], completionHandler: nil)
     }
 
-    @objc private func sendShare() {
+    private func hasSharedVideo(_ files: [(ShareManifest.Item, URL)]) -> Bool {
+        files.contains { $0.0.mime.lowercased().hasPrefix("video/") }
+    }
+
+    private func preferredSharedVideoProfile() -> String {
+        let value = String(shareSession?.videoTranscodeProfile ?? "high").lowercased()
+        return ["maximum", "high", "balanced", "data"].contains(value) ? value : "high"
+    }
+
+    private func presentVideoQualityChooser(completion: @escaping (String) -> Void) {
+        let labels: [(String, String)] = [
+            ("maximum", "Maximum quality HLS"),
+            ("high", "High quality HLS"),
+            ("balanced", "Balanced HLS"),
+            ("data", "Data saver HLS"),
+        ]
+        let preferred = preferredSharedVideoProfile()
+        let preferredLabel = labels.first(where: { $0.0 == preferred })?.1 ?? "High quality HLS"
+        let alert = UIAlertController(
+            title: "Video streaming quality",
+            message: "Choose the HLS streaming copy for this upload. Current preference: \(preferredLabel). The original video is retained unchanged.",
+            preferredStyle: .alert
+        )
+        for (id, label) in labels {
+            alert.addAction(UIAlertAction(title: label, style: .default) { _ in completion(id) })
+        }
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        present(alert, animated: true)
+    }
+
+    private func performSendShare(videoUploadTranscodeProfile: String? = nil) {
         guard !sending, let recipient = selectedRecipient, let client = socketClient else { return }
         sending = true
         sendButton.isEnabled = false
@@ -1187,13 +1225,25 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
                             case .failure(let error): self.finishSendingWithError(error.localizedDescription)
                             case .success:
                                 if files.isEmpty { self.completeSuccessfulShare() }
-                                else { self.sendFilesSequentially(files) }
+                                else { self.sendFilesSequentially(files, videoUploadTranscodeProfile: videoUploadTranscodeProfile) }
                             }
                         }
                     }
                 }
             }
         }
+    }
+
+    @objc private func sendShare() {
+        guard !sending, selectedRecipient != nil, socketClient != nil else { return }
+        let files = fileItems()
+        if shareSession?.videoTranscodePromptEnabled == true, hasSharedVideo(files) {
+            presentVideoQualityChooser { [weak self] profile in
+                self?.performSendShare(videoUploadTranscodeProfile: profile)
+            }
+            return
+        }
+        performSendShare()
     }
 
     @objc private func filterChanged() {

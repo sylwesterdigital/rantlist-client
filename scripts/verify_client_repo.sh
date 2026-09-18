@@ -96,6 +96,12 @@ grep -q 'deliverSharedFile(requestID:' "$ROOT/mobile/ios/Rantlist/RantlistApp.sw
 grep -q 'window.rantlistNativeSharedItems' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native share inbox recovery is not delivered to the web client" >&2; exit 1; }
 grep -q 'window.rantlistNativeSharedFileChunk' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "Native shared-file recovery chunks are not delivered to WKWebView" >&2; exit 1; }
 grep -q 'function syncNativeShareSession' "$ROOT/web/index.html" || { echo "Web client does not synchronize Share Extension identity/destination state" >&2; exit 1; }
+grep -q 'videoTranscodePromptEnabled: state.videoTranscodePromptEnabled === true' "$ROOT/web/index.html" || { echo "Web client does not synchronize the video-quality prompt preference to the Share Extension" >&2; exit 1; }
+grep -q 'videoTranscodeProfile: state.videoTranscodeProfile' "$ROOT/web/index.html" || { echo "Web client does not synchronize the preferred video quality to the Share Extension" >&2; exit 1; }
+grep -q 'let videoTranscodePromptEnabled: Bool?' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension session does not accept the video-quality prompt preference" >&2; exit 1; }
+grep -Fq 'header["videoUploadTranscodeProfile"] = normalizedProfile' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not attach the selected video HLS profile to uploads" >&2; exit 1; }
+grep -q 'presentVideoQualityChooser' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension video quality chooser missing" >&2; exit 1; }
+grep -Fq 'shareSession?.videoTranscodePromptEnabled == true' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not honor the Config video-quality prompt flag" >&2; exit 1; }
 grep -q 'nativeSharePendingBar' "$ROOT/web/index.html" || { echo "Web client shared-item recovery bar missing" >&2; exit 1; }
 [[ -f "$ROOT/web/assets/icons/drawing1.svg" ]] || { echo "Drawing attachment icon missing" >&2; exit 1; }
 grep -q 'id="drawingActionButton" class="attachment-action" type="button"><span class="icon icon-drawing1"' "$ROOT/web/index.html" || { echo "First Drawing attachment action does not use drawing1.svg" >&2; exit 1; }

@@ -1,3 +1,9 @@
+## v0.1.109 / Rantlist 9.6.268
+- Synchronizes browser/native clients with `rantlist-deploy-r296` / main protocol 70.
+- Repairs capped/server-default HLS encoding and replaces the indefinite “being prepared” state with an explicit original-video fallback if FFmpeg cannot produce the stream.
+- **Ask video quality before upload** is now enforced at the common ordinary-video send boundary, covering Video, File, Camera, in-app camera recordings, drag/drop and recovered native-share uploads.
+- The iOS system Share Extension also mirrors the Config preference and asks for Maximum, High, Balanced or Data saver before sending shared videos; the uploaded original remains unchanged.
+
 ## v0.1.108 / Rantlist 9.6.267
 - Completes the iOS live screenshot/editor share fix: abstract image providers now fall back from `loadObject(UIImage.self)` to their data/file representations when the editor refuses to materialize a `UIImage`.
 - Detects the editor's `NSKeyedArchiver` binary-plist wrapper, extracts the embedded `UIImageData`, and writes real PNG/JPEG bytes with an image MIME type before upload.

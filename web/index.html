@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.267">
+  <meta name="chat-ui-version" content="9.6.268">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -15625,7 +15625,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.267</small>
+          <small id="serverBrandVersion">v9.6.268</small>
         </span>
       </button>
     </div>
@@ -16012,7 +16012,7 @@
             <span>Ask video quality before upload</span>
             <input id="videoTranscodePromptInput" type="checkbox" role="switch">
           </label>
-          <p id="videoTranscodePromptHint" class="hint">Off by default. When enabled, choosing a video through Video or File asks for an HLS transcoding preset before any upload bytes are sent. The original master is always retained.</p>
+          <p id="videoTranscodePromptHint" class="hint">Off by default. When enabled, sending an ordinary video from Video, File, Camera, recording, drag/drop or recovered native sharing asks for an HLS transcoding preset before upload bytes are sent. The original master is always retained.</p>
           <div class="config-row" data-config-feature="youtube-audio-import">
             <label for="youtubeAudioImportQualitySelect">Default yt-dlp quality</label>
             <select id="youtubeAudioImportQualitySelect">
@@ -19410,12 +19410,14 @@
         state.videoTranscodePromptEnabled = elements.videoTranscodePromptInput.checked === true;
         writeStorage('chat.media.videoTranscodePrompt', state.videoTranscodePromptEnabled ? 'on' : 'off');
         renderVideoTranscodeSettings();
+        syncNativeShareSession(true);
       });
       elements.videoTranscodeProfileSelect?.addEventListener('change', () => {
         const selected = normalizeVideoUploadTranscodeProfile(elements.videoTranscodeProfileSelect.value);
         state.videoTranscodeProfile = selected === 'server' ? 'high' : selected;
         writeStorage('chat.media.videoTranscodeProfile', state.videoTranscodeProfile);
         renderVideoTranscodePromptSummary();
+        syncNativeShareSession(true);
       });
       elements.videoTranscodeBackdrop?.addEventListener('click', () => closeVideoTranscodePrompt(null));
       elements.videoTranscodeCloseButton?.addEventListener('click', () => closeVideoTranscodePrompt(null));
@@ -26469,7 +26471,7 @@
         elements.videoTranscodePromptHint.textContent = !available
           ? 'Per-upload video transcoding choices are unavailable on this server.'
           : (state.videoTranscodePromptEnabled
-            ? 'On · Video and File pickers ask for HLS quality before upload. The original master is always retained.'
+            ? 'On · ordinary video attachments ask for HLS quality before upload. The original master is always retained.'
             : 'Off · uploads use the administrator media profile. Enable to choose HLS quality for each selected video.');
       }
     }
@@ -26510,14 +26512,6 @@
     async function sendComposerFiles(files, options = {}) {
       const normalized = [...(files || [])].map(normalizeComposerFile).filter(Boolean);
       if (!normalized.length) return false;
-      const shouldPromptVideo = state.videoTranscodePromptEnabled === true
-        && ['video', 'file'].includes(String(options.source || ''))
-        && normalized.some((file) => state.capabilities.safeVideoMimes.includes(composerFileMime(file)));
-      if (shouldPromptVideo) {
-        const chosenProfile = await promptVideoTranscodeSettings(normalized);
-        if (!chosenProfile) return false;
-        options = { ...options, videoUploadTranscodeProfile: chosenProfile };
-      }
       closeAttachmentTray();
       const classes = normalized.reduce((counts, file) => {
         const kind = composerFileClass(file);
@@ -26653,6 +26647,15 @@
           ? 'room-background'
           : (options.kind === 'drawing-artwork' ? 'drawing-artwork' : 'file'));
       const backgroundUpload = kind === 'room-background';
+      const ordinaryVideoFiles = kind === 'file'
+        ? selectedFiles.filter((file) => state.capabilities.safeVideoMimes.includes(composerFileMime(file)))
+        : [];
+      const explicitVideoProfile = normalizeVideoUploadTranscodeProfile(options.videoUploadTranscodeProfile);
+      if (state.videoTranscodePromptEnabled === true && ordinaryVideoFiles.length && explicitVideoProfile === 'server') {
+        const chosenProfile = await promptVideoTranscodeSettings(ordinaryVideoFiles);
+        if (!chosenProfile) return false;
+        options = { ...options, videoUploadTranscodeProfile: chosenProfile };
+      }
       const defaultSizeLimit = backgroundUpload
         ? Number(state.capabilities.maxRoomBackgroundBytes || 2 * 1024 * 1024)
         : (kind === 'voice'
@@ -28173,7 +28176,9 @@
         if (!file.streamUrl) {
           const processing = document.createElement('div');
           processing.className = 'media-processing-note';
-          processing.textContent = 'Optimized stream is being prepared. Playback uses the source file until HLS is ready.';
+          processing.textContent = file.streamStatus === 'error'
+            ? (String(file.streamError || '').trim() || 'Optimized stream is unavailable. Playback uses the original video.')
+            : 'Optimized stream is being prepared. Playback uses the source file until HLS is ready.';
           content.append(processing);
         }
         return video;
@@ -45568,6 +45573,8 @@
         metadata: nativeShareProfileMetadata(),
         uiVersion: CLIENT_VERSION.uiVersion,
         protocolVersion: CLIENT_VERSION.protocolVersion,
+        videoTranscodePromptEnabled: state.videoTranscodePromptEnabled === true,
+        videoTranscodeProfile: state.videoTranscodeProfile,
         rooms,
         users: [...usersByIdentity.values()].sort((a, b) => a.nickname.localeCompare(b.nickname)),
       };
