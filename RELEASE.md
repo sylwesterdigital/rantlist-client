@@ -1,3 +1,9 @@
+## v0.1.106 / Rantlist 9.6.267
+- Synchronizes browser/native clients with `rantlist-deploy-r295` / main protocol 70.
+- Adds the opt-in Config → Media **Ask video quality before upload** flag; Video and generic File pickers prompt before sending selected video bytes.
+- Offers Maximum, High, Balanced and Data saver HLS presets. Maximum/High preserve source resolution/FPS, while the original uploaded master remains unchanged for download/fallback.
+- The flag is off by default, so existing user behavior and the administrator media profile remain unchanged until explicitly enabled.
+
 ## v0.1.105 / Rantlist 9.6.266
 - Synchronizes browser/native clients with `rantlist-deploy-r294` / main protocol 70.
 - Built directly from the restored r288 client baseline; r289-r293 changes are intentionally skipped.

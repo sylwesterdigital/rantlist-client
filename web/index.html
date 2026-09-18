@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.266">
+  <meta name="chat-ui-version" content="9.6.267">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -4943,6 +4943,17 @@
       background: var(--panel);
       box-shadow: var(--shadow);
     }
+    .video-transcode-card { width:min(520px,100%); }
+    .video-transcode-body { display:grid; gap:12px; overflow:auto; padding:14px; }
+    .video-transcode-file { display:grid; gap:3px; padding:10px 11px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); }
+    .video-transcode-file strong { font-size:14px; line-height:1.25; overflow-wrap:anywhere; }
+    .video-transcode-file span { color:var(--muted); font-size:11px; }
+    .video-transcode-choice { display:grid; gap:6px; }
+    .video-transcode-choice select { width:100%; }
+    .video-transcode-summary { min-height:46px; padding:9px 10px; border:1px solid var(--line); border-radius:9px; background:color-mix(in srgb,var(--accent) 6%,var(--panel-2)); color:var(--muted); font-size:12px; line-height:1.4; }
+    .video-transcode-summary strong { display:block; color:var(--text); margin-bottom:2px; }
+    .video-transcode-actions { display:flex; justify-content:flex-end; gap:7px; }
+    @media (max-width: 700px) { .video-transcode-card { width:100%; } .video-transcode-actions { display:grid; grid-template-columns:1fr 1fr; } }
     .youtube-import-card { width:min(560px,100%); }
     .youtube-import-body { display:grid; gap:12px; overflow:auto; padding:14px; }
     .youtube-import-source { display:grid; gap:4px; padding:10px 11px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); }
@@ -15614,7 +15625,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.266</small>
+          <small id="serverBrandVersion">v9.6.267</small>
         </span>
       </button>
     </div>
@@ -15997,6 +16008,11 @@
         </section>
         <section class="config-section">
           <h3>Media</h3>
+          <label class="config-toggle-row" for="videoTranscodePromptInput">
+            <span>Ask video quality before upload</span>
+            <input id="videoTranscodePromptInput" type="checkbox" role="switch">
+          </label>
+          <p id="videoTranscodePromptHint" class="hint">Off by default. When enabled, choosing a video through Video or File asks for an HLS transcoding preset before any upload bytes are sent. The original master is always retained.</p>
           <div class="config-row" data-config-feature="youtube-audio-import">
             <label for="youtubeAudioImportQualitySelect">Default yt-dlp quality</label>
             <select id="youtubeAudioImportQualitySelect">
@@ -17734,6 +17750,20 @@
 
   <div id="gameMediaControls" class="game-media-controls" hidden aria-label="Game video and voice controls"><span id="gameMediaStatus">Connecting video…</span><button id="gameMediaMuteButton" type="button" title="Mute microphone" aria-label="Mute microphone"><span class="icon icon-mic"></span></button><button id="gameMediaCameraButton" type="button" title="Turn camera off" aria-label="Turn camera off"><span class="icon icon-video"></span></button><button id="gameMediaEndButton" class="danger-button" type="button" title="Leave video and voice" aria-label="Leave video and voice"><span class="icon icon-call-exit"></span></button></div>
 
+  <div id="videoTranscodeModal" class="modal-layer" hidden>
+    <button id="videoTranscodeBackdrop" class="modal-backdrop" type="button" tabindex="-1" aria-label="Cancel video upload"></button>
+    <section class="modal-card video-transcode-card" role="dialog" aria-modal="true" aria-labelledby="videoTranscodeTitle">
+      <header class="modal-header"><h2 id="videoTranscodeTitle">Video streaming quality</h2><button id="videoTranscodeCloseButton" class="icon-button" type="button" aria-label="Cancel video upload"><span class="icon icon-close"></span></button></header>
+      <div class="modal-body video-transcode-body">
+        <div class="video-transcode-file"><strong id="videoTranscodeFileName">Video</strong><span id="videoTranscodeFileMeta"></span></div>
+        <label class="video-transcode-choice" for="videoTranscodeProfileSelect"><span>HLS transcoding preset</span><select id="videoTranscodeProfileSelect"></select></label>
+        <div id="videoTranscodeSummary" class="video-transcode-summary"></div>
+        <p class="hint">Rantlist keeps the uploaded original unchanged for download/fallback. This setting controls only the HLS streaming copy.</p>
+      </div>
+      <footer class="modal-footer video-transcode-actions"><button id="videoTranscodeCancelButton" type="button">Cancel</button><button id="videoTranscodeConfirmButton" class="primary" type="button">Upload video</button></footer>
+    </section>
+  </div>
+
   <div id="youtubeImportModal" class="modal-layer" hidden>
     <div id="youtubeImportBackdrop" class="modal-backdrop"></div>
     <section class="modal-card youtube-import-card" role="dialog" aria-modal="true" aria-labelledby="youtubeImportTitle">
@@ -18130,7 +18160,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18511,6 +18541,9 @@
       linkPreviewScale: Math.max(100, Math.min(300, Number(readStorage('chat.link.previewScale') || 200))),
       mediaDisplayMode: readStorage('chat.media.display') === 'reveal' ? 'reveal' : 'immediate',
       mediaStoryMode: readStorage('chat.media.viewerMode') === 'classic' ? 'classic' : 'stories',
+      videoTranscodePromptEnabled: readStorage('chat.media.videoTranscodePrompt') === 'on',
+      videoTranscodeProfile: ['maximum', 'high', 'balanced', 'data'].includes(readStorage('chat.media.videoTranscodeProfile')) ? readStorage('chat.media.videoTranscodeProfile') : 'high',
+      videoTranscodePromptResolve: null,
       mediaViewer: null,
       mediaStoryViewer: null,
       mediaBatchViewer: null,
@@ -19372,6 +19405,27 @@
         state.mediaStoryMode = elements.mediaViewerModeSelect.value === 'stories' ? 'stories' : 'classic';
         writeStorage('chat.media.viewerMode', state.mediaStoryMode);
         applyMediaStoryModePreference();
+      });
+      elements.videoTranscodePromptInput?.addEventListener('change', () => {
+        state.videoTranscodePromptEnabled = elements.videoTranscodePromptInput.checked === true;
+        writeStorage('chat.media.videoTranscodePrompt', state.videoTranscodePromptEnabled ? 'on' : 'off');
+        renderVideoTranscodeSettings();
+      });
+      elements.videoTranscodeProfileSelect?.addEventListener('change', () => {
+        const selected = normalizeVideoUploadTranscodeProfile(elements.videoTranscodeProfileSelect.value);
+        state.videoTranscodeProfile = selected === 'server' ? 'high' : selected;
+        writeStorage('chat.media.videoTranscodeProfile', state.videoTranscodeProfile);
+        renderVideoTranscodePromptSummary();
+      });
+      elements.videoTranscodeBackdrop?.addEventListener('click', () => closeVideoTranscodePrompt(null));
+      elements.videoTranscodeCloseButton?.addEventListener('click', () => closeVideoTranscodePrompt(null));
+      elements.videoTranscodeCancelButton?.addEventListener('click', () => closeVideoTranscodePrompt(null));
+      elements.videoTranscodeConfirmButton?.addEventListener('click', () => closeVideoTranscodePrompt(normalizeVideoUploadTranscodeProfile(elements.videoTranscodeProfileSelect?.value)));
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && elements.videoTranscodeModal && !elements.videoTranscodeModal.hidden) {
+          event.preventDefault();
+          closeVideoTranscodePrompt(null);
+        }
       });
       elements.mediaAiModeSelect.addEventListener('change', () => {
         state.mediaAiMode = ['manual', 'auto'].includes(elements.mediaAiModeSelect.value) ? elements.mediaAiModeSelect.value : 'off';
@@ -26379,9 +26433,91 @@
       return 'Drop media or files to send';
     }
 
+    function normalizeVideoUploadTranscodeProfile(value) {
+      const id = String(value || '').trim().toLowerCase();
+      return ['maximum', 'high', 'balanced', 'data'].includes(id) ? id : 'server';
+    }
+
+    function availableVideoUploadTranscodeProfiles() {
+      const serverProfiles = Array.isArray(state.capabilities.videoUploadTranscodeProfiles)
+        ? state.capabilities.videoUploadTranscodeProfiles.filter((item) => ['maximum', 'high', 'balanced', 'data'].includes(String(item?.id || '')))
+        : [];
+      return serverProfiles.length ? serverProfiles : [
+        { id: 'maximum', label: 'Maximum quality HLS', summary: 'Preserve source resolution/FPS · CRF 17 · up to 50 Mbps · AAC 256 kbps' },
+        { id: 'high', label: 'High quality HLS', summary: 'Preserve source resolution/FPS · CRF 19 · up to 30 Mbps · AAC 192 kbps' },
+        { id: 'balanced', label: 'Balanced HLS', summary: 'Up to 1080p · source FPS · CRF 22 · up to 12 Mbps · AAC 160 kbps' },
+        { id: 'data', label: 'Data saver HLS', summary: 'Up to 720p · source FPS · CRF 27 · up to 5 Mbps · AAC 128 kbps' },
+      ];
+    }
+
+    function renderVideoTranscodePromptSummary() {
+      if (!elements.videoTranscodeSummary) return;
+      const profile = availableVideoUploadTranscodeProfiles().find((item) => item.id === elements.videoTranscodeProfileSelect?.value)
+        || availableVideoUploadTranscodeProfiles()[0];
+      elements.videoTranscodeSummary.innerHTML = profile
+        ? `<strong>${escapeHtml(profile.label || profile.id)}</strong><span>${escapeHtml(profile.summary || '')}</span>`
+        : '<strong>Server default</strong><span>The administrator media profile will be used.</span>';
+    }
+
+    function renderVideoTranscodeSettings() {
+      const available = Array.isArray(state.capabilities.videoUploadTranscodeProfiles) && state.capabilities.videoUploadTranscodeProfiles.length > 0;
+      if (elements.videoTranscodePromptInput) {
+        elements.videoTranscodePromptInput.checked = state.videoTranscodePromptEnabled === true;
+        elements.videoTranscodePromptInput.disabled = !available;
+      }
+      if (elements.videoTranscodePromptHint) {
+        elements.videoTranscodePromptHint.textContent = !available
+          ? 'Per-upload video transcoding choices are unavailable on this server.'
+          : (state.videoTranscodePromptEnabled
+            ? 'On · Video and File pickers ask for HLS quality before upload. The original master is always retained.'
+            : 'Off · uploads use the administrator media profile. Enable to choose HLS quality for each selected video.');
+      }
+    }
+
+    function closeVideoTranscodePrompt(result) {
+      if (elements.videoTranscodeModal) elements.videoTranscodeModal.hidden = true;
+      const resolve = state.videoTranscodePromptResolve;
+      state.videoTranscodePromptResolve = null;
+      if (typeof resolve === 'function') resolve(result);
+    }
+
+    function promptVideoTranscodeSettings(files) {
+      const videos = [...(files || [])].filter((file) => state.capabilities.safeVideoMimes.includes(composerFileMime(file)));
+      if (!state.videoTranscodePromptEnabled || !videos.length || !elements.videoTranscodeModal) return Promise.resolve('server');
+      const profiles = availableVideoUploadTranscodeProfiles();
+      if (!profiles.length) return Promise.resolve('server');
+      if (state.videoTranscodePromptResolve) closeVideoTranscodePrompt(null);
+      elements.videoTranscodeProfileSelect.innerHTML = '';
+      for (const profile of profiles) {
+        const option = document.createElement('option');
+        option.value = profile.id;
+        option.textContent = profile.label || profile.id;
+        elements.videoTranscodeProfileSelect.append(option);
+      }
+      const preferred = profiles.some((item) => item.id === state.videoTranscodeProfile)
+        ? state.videoTranscodeProfile
+        : String(state.capabilities.videoUploadTranscodeDefaultProfile || profiles[0].id);
+      elements.videoTranscodeProfileSelect.value = preferred;
+      const totalBytes = videos.reduce((sum, file) => sum + Math.max(0, Number(file.size) || 0), 0);
+      elements.videoTranscodeFileName.textContent = videos.length === 1 ? String(videos[0].name || 'Video') : `${videos.length} videos selected`;
+      elements.videoTranscodeFileMeta.textContent = `${formatBytes(totalBytes)} · original master retained`;
+      renderVideoTranscodePromptSummary();
+      elements.videoTranscodeModal.hidden = false;
+      setTimeout(() => elements.videoTranscodeProfileSelect?.focus(), 0);
+      return new Promise((resolve) => { state.videoTranscodePromptResolve = resolve; });
+    }
+
     async function sendComposerFiles(files, options = {}) {
       const normalized = [...(files || [])].map(normalizeComposerFile).filter(Boolean);
       if (!normalized.length) return false;
+      const shouldPromptVideo = state.videoTranscodePromptEnabled === true
+        && ['video', 'file'].includes(String(options.source || ''))
+        && normalized.some((file) => state.capabilities.safeVideoMimes.includes(composerFileMime(file)));
+      if (shouldPromptVideo) {
+        const chosenProfile = await promptVideoTranscodeSettings(normalized);
+        if (!chosenProfile) return false;
+        options = { ...options, videoUploadTranscodeProfile: chosenProfile };
+      }
       closeAttachmentTray();
       const classes = normalized.reduce((counts, file) => {
         const kind = composerFileClass(file);
@@ -26590,6 +26726,7 @@
               caption: typeof options.caption === 'string' ? options.caption.slice(0, 8000) : '',
               batchId: explicitBatchId || (mediaBatchId && state.capabilities.safeImageMimes.includes(composerFileMime(file)) ? mediaBatchId : null),
               videoCaptionBurn: isVideoUpload && options.videoCaptionBurn?.enabled === true ? options.videoCaptionBurn : null,
+              videoUploadTranscodeProfile: isVideoUpload ? normalizeVideoUploadTranscodeProfile(options.videoUploadTranscodeProfile) : null,
               expiresInMs: options.ignoreExpiry ? null : state.outgoingExpiresInMs,
               offset,
               final: end === fileSize,
@@ -44936,6 +45073,7 @@
       applyComposerBorderPreference({ persist: false });
       if (elements.mediaDisplaySelect) elements.mediaDisplaySelect.value = state.mediaDisplayMode;
       if (elements.mediaViewerModeSelect) elements.mediaViewerModeSelect.value = state.mediaStoryMode;
+      renderVideoTranscodeSettings();
       applyRoomRailVisibility();
       applyUiTheme();
       renderThemeEditor();
@@ -46785,6 +46923,7 @@
       renderBlockedUsers();
       renderSpeechSettings();
       renderMediaAiSettings();
+      renderVideoTranscodeSettings();
       renderChatAiSettings();
       renderDiagnostics();
       requestAnimationFrame(() => elements.configCloseButton.focus({ preventScroll: true }));
