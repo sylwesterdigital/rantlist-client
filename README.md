@@ -1,3 +1,9 @@
+## v0.1.114 / Rantlist 9.6.273
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r301` / protocol 70.
+- Profile **Use camera** now opens a real live webcam preview and captures a still image instead of invoking another file chooser.
+- Adds a dedicated saved-profile minus/remove control beside **New profile**, keeping avatar-picture removal separate from identity deletion.
+- Deleting a saved identity resets the editor to a blank new profile and leaves entry disabled until a nickname is supplied or another saved identity is explicitly chosen.
+
 ## v0.1.113 / Rantlist 9.6.272
 - Synchronizes native clients with canonical server UI `rantlist-deploy-r300` / protocol 70.
 - Deleting the final saved identity now clears the onboarding editor and consumed legacy migration state instead of allowing stale profile data to reappear.
