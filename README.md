@@ -1,3 +1,9 @@
+## v0.1.108 / Rantlist 9.6.267
+- Completes the iOS live screenshot/editor share fix: abstract image providers now fall back from `loadObject(UIImage.self)` to their data/file representations when the editor refuses to materialize a `UIImage`.
+- Detects the editor's `NSKeyedArchiver` binary-plist wrapper, extracts the embedded `UIImageData`, and writes real PNG/JPEG bytes with an image MIME type before upload.
+- Prevents generic `public.data` / `public.content` from winning whenever the provider advertises any image representation, including cases where `canLoadObject(UIImage.self)` is false.
+- Keeps the existing concrete JPEG/PNG/GIF/etc. file path unchanged, so normal Photos/Gallery sharing still preserves concrete image files.
+
 ## v0.1.107 / Rantlist 9.6.267
 - Fixes iOS Share Extension uploads from the system screenshot/editor flow that expose an abstract `com.apple.uikit.image` item before a concrete JPEG/PNG representation.
 - Concrete image UTTypes with real MIME types are preferred; abstract UIKit image objects are decoded and written as actual PNG/JPEG bytes instead of copying the `NSKeyedArchiver` plist wrapper as `application/octet-stream`.

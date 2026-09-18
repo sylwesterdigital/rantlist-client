@@ -749,6 +749,11 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
 
     private func preferredFileType(for provider: NSItemProvider) -> String? {
         let canDecodeImageObject = provider.canLoadObject(ofClass: UIImage.self)
+        let hasImageRepresentation = provider.hasItemConformingToTypeIdentifier(UTType.image.identifier)
+            || provider.registeredTypeIdentifiers.contains(where: { identifier in
+                guard let type = UTType(identifier) else { return false }
+                return type.conforms(to: .image)
+            })
         let abstractImageIdentifiers: Set<String> = [UTType.image.identifier, "com.apple.uikit.image"]
         var candidates: [(identifier: String, priority: Int, index: Int)] = []
 
@@ -762,7 +767,7 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
                 // Its "file representation" is an NSKeyedArchiver plist containing
                 // UIImageData, not the JPEG/PNG bytes that the filename suggests.
                 // Only copy concrete image representations that advertise a MIME type;
-                // abstract UIImage providers are decoded below with loadObject().
+                // abstract UIImage providers are decoded by collectImageProvider().
                 guard !abstractImageIdentifiers.contains(identifier),
                       type.preferredMIMEType != nil else { continue }
                 candidates.append((identifier, 0, index))
@@ -784,7 +789,8 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
 
             // When an image object is available, never let generic public.data/public.content
             // win over it: that is another route to copying a UIKit keyed archive verbatim.
-            if !canDecodeImageObject && (type.conforms(to: .data) || type.conforms(to: .content)) {
+            if !hasImageRepresentation && !canDecodeImageObject
+                && (type.conforms(to: .data) || type.conforms(to: .content)) {
                 candidates.append((identifier, 3, index))
             }
         }
@@ -795,50 +801,167 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
         }?.identifier
     }
 
-    private func collectImageObject(provider: NSItemProvider,
-                                    into directory: URL,
-                                    completion: @escaping (ShareManifest.Item?) -> Void) {
+    private struct EncodedImagePayload {
+        let data: Data
+        let ext: String
+        let mime: String
+    }
+
+    private func directImagePayload(from data: Data) -> EncodedImagePayload? {
+        let bytes = [UInt8](data.prefix(12))
+        if bytes.count >= 8, Array(bytes.prefix(8)) == [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a] {
+            return .init(data: data, ext: "png", mime: "image/png")
+        }
+        if bytes.count >= 3, Array(bytes.prefix(3)) == [0xff, 0xd8, 0xff] {
+            return .init(data: data, ext: "jpeg", mime: "image/jpeg")
+        }
+        if let image = UIImage(data: data), let png = image.pngData() {
+            return .init(data: png, ext: "png", mime: "image/png")
+        }
+        return nil
+    }
+
+    private func embeddedImagePayload(in value: Any) -> EncodedImagePayload? {
+        if let data = value as? Data, let payload = directImagePayload(from: data) {
+            return payload
+        }
+        if let values = value as? [Any] {
+            for child in values {
+                if let payload = embeddedImagePayload(in: child) { return payload }
+            }
+        }
+        if let values = value as? [String: Any] {
+            for child in values.values {
+                if let payload = embeddedImagePayload(in: child) { return payload }
+            }
+        }
+        return nil
+    }
+
+    private func decodedImagePayload(from data: Data) -> EncodedImagePayload? {
+        if let payload = directImagePayload(from: data) { return payload }
+
+        // The iOS screenshot editor can vend com.apple.uikit.image as an
+        // NSKeyedArchiver binary plist whose $objects array contains UIImageData.
+        // Decode the embedded real image bytes instead of uploading the plist.
+        guard let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) else {
+            return nil
+        }
+        return embeddedImagePayload(in: plist)
+    }
+
+    private func storeImagePayload(_ payload: EncodedImagePayload,
+                                   provider: NSItemProvider,
+                                   into directory: URL) -> ShareManifest.Item? {
+        let id = UUID().uuidString
+        let suggested = provider.suggestedName ?? "Shared-image"
+        let base = safeName((suggested as NSString).deletingPathExtension, fallback: "Shared-image")
+        let displayName = "\(base).\(payload.ext)"
+        let filename = "\(id)-\(displayName)"
+        let destination = directory.appendingPathComponent(filename)
+
+        do {
+            try payload.data.write(to: destination, options: .atomic)
+            return .init(
+                id: id,
+                kind: "file",
+                name: displayName,
+                mime: payload.mime,
+                relativePath: filename,
+                text: nil,
+                url: nil
+            )
+        } catch {
+            return nil
+        }
+    }
+
+    private func collectImageRepresentations(provider: NSItemProvider,
+                                             into directory: URL,
+                                             completion: @escaping (ShareManifest.Item?) -> Void) {
+        var identifiers = provider.registeredTypeIdentifiers.filter { identifier in
+            guard let type = UTType(identifier) else { return false }
+            return type.conforms(to: .image)
+        }
+        if identifiers.isEmpty, provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+            identifiers = [UTType.image.identifier]
+        }
+
+        func tryFileRepresentation(_ index: Int) {
+            guard index < identifiers.count else { completion(nil); return }
+            let identifier = identifiers[index]
+            provider.loadFileRepresentation(forTypeIdentifier: identifier) { [weak self] sourceURL, _ in
+                guard let self else { completion(nil); return }
+                if let sourceURL,
+                   let data = try? Data(contentsOf: sourceURL),
+                   let payload = self.decodedImagePayload(from: data),
+                   let item = self.storeImagePayload(payload, provider: provider, into: directory) {
+                    completion(item)
+                    return
+                }
+                tryFileRepresentation(index + 1)
+            }
+        }
+
+        func tryDataRepresentation(_ index: Int) {
+            guard index < identifiers.count else {
+                tryFileRepresentation(0)
+                return
+            }
+            let identifier = identifiers[index]
+            provider.loadDataRepresentation(forTypeIdentifier: identifier) { [weak self] data, _ in
+                guard let self else { completion(nil); return }
+                if let data,
+                   let payload = self.decodedImagePayload(from: data),
+                   let item = self.storeImagePayload(payload, provider: provider, into: directory) {
+                    completion(item)
+                    return
+                }
+                tryDataRepresentation(index + 1)
+            }
+        }
+
+        tryDataRepresentation(0)
+    }
+
+    private func collectImageProvider(provider: NSItemProvider,
+                                      into directory: URL,
+                                      completion: @escaping (ShareManifest.Item?) -> Void) {
+        guard provider.canLoadObject(ofClass: UIImage.self) else {
+            collectImageRepresentations(provider: provider, into: directory, completion: completion)
+            return
+        }
+
         provider.loadObject(ofClass: UIImage.self) { [weak self] object, _ in
-            guard let self, let image = object as? UIImage else { completion(nil); return }
+            guard let self else { completion(nil); return }
+            if let image = object as? UIImage {
+                let suggested = provider.suggestedName ?? "Shared-image"
+                let suggestedExtension = (suggested as NSString).pathExtension.lowercased()
+                let wantsJPEG = suggestedExtension == "jpg"
+                    || suggestedExtension == "jpeg"
+                    || provider.hasItemConformingToTypeIdentifier(UTType.jpeg.identifier)
 
-            let id = UUID().uuidString
-            let suggested = provider.suggestedName ?? "Shared-image"
-            let suggestedExtension = (suggested as NSString).pathExtension.lowercased()
-            let wantsJPEG = suggestedExtension == "jpg"
-                || suggestedExtension == "jpeg"
-                || provider.hasItemConformingToTypeIdentifier(UTType.jpeg.identifier)
+                let payload: EncodedImagePayload?
+                if wantsJPEG, let data = image.jpegData(compressionQuality: 0.95) {
+                    payload = .init(data: data, ext: "jpeg", mime: "image/jpeg")
+                } else if let data = image.pngData() {
+                    payload = .init(data: data, ext: "png", mime: "image/png")
+                } else if let data = image.jpegData(compressionQuality: 0.95) {
+                    payload = .init(data: data, ext: "jpeg", mime: "image/jpeg")
+                } else {
+                    payload = nil
+                }
 
-            let encoded: (data: Data, ext: String, mime: String)?
-            if wantsJPEG, let data = image.jpegData(compressionQuality: 0.95) {
-                encoded = (data, "jpeg", "image/jpeg")
-            } else if let data = image.pngData() {
-                encoded = (data, "png", "image/png")
-            } else if let data = image.jpegData(compressionQuality: 0.95) {
-                encoded = (data, "jpeg", "image/jpeg")
-            } else {
-                encoded = nil
+                if let payload, let item = self.storeImagePayload(payload, provider: provider, into: directory) {
+                    completion(item)
+                    return
+                }
             }
 
-            guard let encoded else { completion(nil); return }
-            let base = self.safeName((suggested as NSString).deletingPathExtension, fallback: "Shared-image")
-            let displayName = "\(base).\(encoded.ext)"
-            let filename = "\(id)-\(displayName)"
-            let destination = directory.appendingPathComponent(filename)
-
-            do {
-                try encoded.data.write(to: destination, options: .atomic)
-                completion(.init(
-                    id: id,
-                    kind: "file",
-                    name: displayName,
-                    mime: encoded.mime,
-                    relativePath: filename,
-                    text: nil,
-                    url: nil
-                ))
-            } catch {
-                completion(nil)
-            }
+            // Some live editor providers advertise UIImage but do not satisfy
+            // loadObject(). Fall back to their data/file representation and
+            // unwrap the NSKeyedArchiver form when necessary.
+            self.collectImageRepresentations(provider: provider, into: directory, completion: completion)
         }
     }
 
@@ -914,12 +1037,12 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
             return
         }
 
-        if provider.canLoadObject(ofClass: UIImage.self),
-           provider.registeredTypeIdentifiers.contains(where: { identifier in
-               guard let type = UTType(identifier) else { return false }
-               return type.conforms(to: .image)
-           }) {
-            collectImageObject(provider: provider, into: directory, completion: completion)
+        if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier)
+            || provider.registeredTypeIdentifiers.contains(where: { identifier in
+                guard let type = UTType(identifier) else { return false }
+                return type.conforms(to: .image)
+            }) {
+            collectImageProvider(provider: provider, into: directory, completion: completion)
             return
         }
 

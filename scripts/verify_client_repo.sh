@@ -61,7 +61,12 @@ grep -q 'group.fun.workwork.rantlist' "$ROOT/mobile/ios/RantlistShare/RantlistSh
 grep -q 'loadFileRepresentation' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not copy shared media into the App Group inbox" >&2; exit 1; }
 grep -q 'abstractImageIdentifiers: Set<String> = \[UTType.image.identifier, "com.apple.uikit.image"\]' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not guard against UIKit archived image representations" >&2; exit 1; }
 grep -q 'provider.canLoadObject(ofClass: UIImage.self)' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not detect UIImage-backed shares" >&2; exit 1; }
-grep -q 'provider.loadObject(ofClass: UIImage.self)' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not decode abstract UIImage shares into real image bytes" >&2; exit 1; }
+grep -q 'provider.loadObject(ofClass: UIImage.self)' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not attempt UIImage object decoding" >&2; exit 1; }
+grep -q 'provider.loadDataRepresentation(forTypeIdentifier:' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension has no image data-representation fallback" >&2; exit 1; }
+grep -q 'PropertyListSerialization.propertyList(from: data' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension cannot unwrap UIKit keyed-archive image payloads" >&2; exit 1; }
+grep -q 'UIImageData' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension archived UIImage regression guard missing" >&2; exit 1; }
+grep -q 'hasImageRepresentation' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension may let generic data pre-empt an image provider" >&2; exit 1; }
+grep -q 'collectImageRepresentations(provider:' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension image representation fallback chain missing" >&2; exit 1; }
 grep -q 'type.preferredMIMEType != nil' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not require a concrete MIME type before copying an image file representation" >&2; exit 1; }
 if command -v swiftc >/dev/null 2>&1; then
   swiftc -frontend -parse "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" >/dev/null || { echo "iOS host Swift source does not parse" >&2; exit 1; }
