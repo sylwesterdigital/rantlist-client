@@ -1,3 +1,8 @@
+## v0.1.115 / Rantlist 9.6.274
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r302` / protocol 70.
+- Restores the missing r298-r300 Development release entries and carries the durable, revision-keyed Development history behavior into the native web snapshot.
+- No native permission, entitlement or platform-specific dependency change.
+
 ## v0.1.114 / Rantlist 9.6.273
 - Synchronizes native clients with canonical server UI `rantlist-deploy-r301` / protocol 70.
 - Profile **Use camera** now opens a real live webcam preview and captures a still image instead of invoking another file chooser.
