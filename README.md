@@ -1,3 +1,9 @@
+## v0.1.113 / Rantlist 9.6.272
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r300` / protocol 70.
+- Deleting the final saved identity now clears the onboarding editor and consumed legacy migration state instead of allowing stale profile data to reappear.
+- `Save and enter` / `Enter user` stay disabled until a nickname is present, with explicit nickname validation as a second guard.
+- The existing administrator login control is available from the initial full-screen entrance and returns to the normal profile drawer after sign-in.
+
 ## v0.1.109 / Rantlist 9.6.268
 - Synchronizes browser/native clients with `rantlist-deploy-r296` / main protocol 70.
 - Repairs capped/server-default HLS encoding and replaces the indefinite “being prepared” state with an explicit original-video fallback if FFmpeg cannot produce the stream.

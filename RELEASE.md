@@ -1,3 +1,9 @@
+## v0.1.113 / Rantlist 9.6.272
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r300` / protocol 70.
+- Deleting the final saved identity now clears the onboarding editor and consumed legacy migration state instead of allowing stale profile data to reappear.
+- `Save and enter` / `Enter user` stay disabled until a nickname is present, with explicit nickname validation as a second guard.
+- The existing administrator login control is available from the initial full-screen entrance and returns to the normal profile drawer after sign-in.
+
 ## v0.1.112 / Rantlist 9.6.271
 - Synchronizes the native clients with canonical server UI `rantlist-deploy-r299` / protocol 70.
 - Anonymous startup is now one full-screen start/return identity surface; disabled rooms/chat/users/calls and the normal profile drawer stay out of view until entry.
