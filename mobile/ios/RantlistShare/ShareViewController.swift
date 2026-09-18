@@ -748,15 +748,97 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
     }
 
     private func preferredFileType(for provider: NSItemProvider) -> String? {
-        provider.registeredTypeIdentifiers.first { identifier in
-            guard let type = UTType(identifier) else { return false }
-            return type.conforms(to: .image)
-                || type.conforms(to: .movie)
+        let canDecodeImageObject = provider.canLoadObject(ofClass: UIImage.self)
+        let abstractImageIdentifiers: Set<String> = [UTType.image.identifier, "com.apple.uikit.image"]
+        var candidates: [(identifier: String, priority: Int, index: Int)] = []
+
+        for (index, identifier) in provider.registeredTypeIdentifiers.enumerated() {
+            guard let type = UTType(identifier),
+                  !type.conforms(to: .url),
+                  !type.conforms(to: .plainText) else { continue }
+
+            if type.conforms(to: .image) {
+                // UIKit can publish an edited screenshot as com.apple.uikit.image.
+                // Its "file representation" is an NSKeyedArchiver plist containing
+                // UIImageData, not the JPEG/PNG bytes that the filename suggests.
+                // Only copy concrete image representations that advertise a MIME type;
+                // abstract UIImage providers are decoded below with loadObject().
+                guard !abstractImageIdentifiers.contains(identifier),
+                      type.preferredMIMEType != nil else { continue }
+                candidates.append((identifier, 0, index))
+                continue
+            }
+
+            if type.conforms(to: .movie)
                 || type.conforms(to: .audio)
                 || type.conforms(to: .pdf)
-                || type.conforms(to: .archive)
-                || type.conforms(to: .data)
-                || type.conforms(to: .content)
+                || type.conforms(to: .archive) {
+                candidates.append((identifier, 1, index))
+                continue
+            }
+
+            if type.preferredMIMEType != nil {
+                candidates.append((identifier, 2, index))
+                continue
+            }
+
+            // When an image object is available, never let generic public.data/public.content
+            // win over it: that is another route to copying a UIKit keyed archive verbatim.
+            if !canDecodeImageObject && (type.conforms(to: .data) || type.conforms(to: .content)) {
+                candidates.append((identifier, 3, index))
+            }
+        }
+
+        return candidates.min {
+            if $0.priority != $1.priority { return $0.priority < $1.priority }
+            return $0.index < $1.index
+        }?.identifier
+    }
+
+    private func collectImageObject(provider: NSItemProvider,
+                                    into directory: URL,
+                                    completion: @escaping (ShareManifest.Item?) -> Void) {
+        provider.loadObject(ofClass: UIImage.self) { [weak self] object, _ in
+            guard let self, let image = object as? UIImage else { completion(nil); return }
+
+            let id = UUID().uuidString
+            let suggested = provider.suggestedName ?? "Shared-image"
+            let suggestedExtension = (suggested as NSString).pathExtension.lowercased()
+            let wantsJPEG = suggestedExtension == "jpg"
+                || suggestedExtension == "jpeg"
+                || provider.hasItemConformingToTypeIdentifier(UTType.jpeg.identifier)
+
+            let encoded: (data: Data, ext: String, mime: String)?
+            if wantsJPEG, let data = image.jpegData(compressionQuality: 0.95) {
+                encoded = (data, "jpeg", "image/jpeg")
+            } else if let data = image.pngData() {
+                encoded = (data, "png", "image/png")
+            } else if let data = image.jpegData(compressionQuality: 0.95) {
+                encoded = (data, "jpeg", "image/jpeg")
+            } else {
+                encoded = nil
+            }
+
+            guard let encoded else { completion(nil); return }
+            let base = self.safeName((suggested as NSString).deletingPathExtension, fallback: "Shared-image")
+            let displayName = "\(base).\(encoded.ext)"
+            let filename = "\(id)-\(displayName)"
+            let destination = directory.appendingPathComponent(filename)
+
+            do {
+                try encoded.data.write(to: destination, options: .atomic)
+                completion(.init(
+                    id: id,
+                    kind: "file",
+                    name: displayName,
+                    mime: encoded.mime,
+                    relativePath: filename,
+                    text: nil,
+                    url: nil
+                ))
+            } catch {
+                completion(nil)
+            }
         }
     }
 
@@ -829,6 +911,15 @@ final class ShareViewController: UIViewController, UITableViewDataSource, UITabl
                     completion(.init(id: id, kind: "file", name: self.safeName(suggested, fallback: filename), mime: type.preferredMIMEType ?? "application/octet-stream", relativePath: filename, text: nil, url: nil))
                 } catch { completion(nil) }
             }
+            return
+        }
+
+        if provider.canLoadObject(ofClass: UIImage.self),
+           provider.registeredTypeIdentifiers.contains(where: { identifier in
+               guard let type = UTType(identifier) else { return false }
+               return type.conforms(to: .image)
+           }) {
+            collectImageObject(provider: provider, into: directory, completion: completion)
             return
         }
 

@@ -1,3 +1,8 @@
+## v0.1.107 / Rantlist 9.6.267
+- Fixes iOS Share Extension uploads from the system screenshot/editor flow that expose an abstract `com.apple.uikit.image` item before a concrete JPEG/PNG representation.
+- Concrete image UTTypes with real MIME types are preferred; abstract UIKit image objects are decoded and written as actual PNG/JPEG bytes instead of copying the `NSKeyedArchiver` plist wrapper as `application/octet-stream`.
+- Adds client verification guards so future Share Extension changes cannot silently reintroduce the archived-UIImage upload path.
+
 ## v0.1.106 / Rantlist 9.6.267
 - Synchronizes browser/native clients with `rantlist-deploy-r295` / main protocol 70.
 - Adds the opt-in Config → Media **Ask video quality before upload** flag; Video and generic File pickers prompt before sending selected video bytes.

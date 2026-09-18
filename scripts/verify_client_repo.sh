@@ -59,6 +59,10 @@ grep -q 'RantlistShare.appex' "$ROOT/mobile/ios/Rantlist.xcodeproj/project.pbxpr
 grep -q 'com.apple.share-services' "$ROOT/mobile/ios/RantlistShare/Info.plist" || { echo "iOS Share Extension point identifier missing" >&2; exit 1; }
 grep -q 'group.fun.workwork.rantlist' "$ROOT/mobile/ios/RantlistShare/RantlistShare.entitlements" || { echo "Share Extension App Group entitlement missing" >&2; exit 1; }
 grep -q 'loadFileRepresentation' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not copy shared media into the App Group inbox" >&2; exit 1; }
+grep -q 'abstractImageIdentifiers: Set<String> = \[UTType.image.identifier, "com.apple.uikit.image"\]' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not guard against UIKit archived image representations" >&2; exit 1; }
+grep -q 'provider.canLoadObject(ofClass: UIImage.self)' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not detect UIImage-backed shares" >&2; exit 1; }
+grep -q 'provider.loadObject(ofClass: UIImage.self)' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not decode abstract UIImage shares into real image bytes" >&2; exit 1; }
+grep -q 'type.preferredMIMEType != nil' "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" || { echo "Share Extension does not require a concrete MIME type before copying an image file representation" >&2; exit 1; }
 if command -v swiftc >/dev/null 2>&1; then
   swiftc -frontend -parse "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" >/dev/null || { echo "iOS host Swift source does not parse" >&2; exit 1; }
   swiftc -frontend -parse "$ROOT/mobile/ios/RantlistShare/ShareViewController.swift" >/dev/null || { echo "Share Extension Swift source does not parse" >&2; exit 1; }
