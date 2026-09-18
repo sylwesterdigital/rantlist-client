@@ -1,3 +1,9 @@
+## v0.1.112 / Rantlist 9.6.271
+- Synchronizes the native clients with canonical server UI `rantlist-deploy-r299` / protocol 70.
+- Anonymous startup is now one full-screen start/return identity surface; disabled rooms/chat/users/calls and the normal profile drawer stay out of view until entry.
+- Reuses the real profile start card for nickname, photo upload and front-camera capture, and places saved identities plus JSON restore on the same entrance.
+- Entry buttons render a single `Save and enter` / `Enter user` label instead of duplicate normalized labels.
+
 ## v0.1.109 / Rantlist 9.6.268
 - Synchronizes to server `rantlist-deploy-r296` / protocol 70.
 - Restores HLS creation for capped profiles by preserving FFmpeg's required escaped comma in `min(height,ih)`, and surfaces terminal source-video fallback if optimization fails.
