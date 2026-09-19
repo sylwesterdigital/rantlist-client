@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.279">
+  <meta name="chat-ui-version" content="9.6.280">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -14537,6 +14537,13 @@
     .server-info-stripe-host stripe-buy-button { display:block; width:min(100%, 430px); max-width:100%; margin:0 auto; overflow:visible; filter:drop-shadow(0 18px 36px color-mix(in srgb, #000 18%, transparent)); }
     .server-info-stripe-fallback { color:var(--accent); font-size:11px; font-weight:850; line-height:1.3; text-decoration:none; }
     .server-info-stripe-fallback:hover { text-decoration:underline; }
+    .server-info-donation-primary { display:inline; }
+    .server-info-donation-secondary { display:none; }
+    :root[data-native-ios-app="true"] .server-info-stripe-host { display:none; }
+    :root[data-native-ios-app="true"] .server-info-stripe-fallback { width:100%; min-height:58px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:10px 16px; border:1px solid color-mix(in srgb, var(--accent) 66%, var(--line)); border-radius:14px; background:color-mix(in srgb, var(--accent) 16%, var(--panel)); color:var(--text); font-size:15px; font-weight:900; line-height:1.18; text-align:center; text-decoration:none; box-shadow:0 12px 28px color-mix(in srgb, #000 18%, transparent); }
+    :root[data-native-ios-app="true"] .server-info-stripe-fallback:hover { text-decoration:none; background:color-mix(in srgb, var(--accent) 22%, var(--panel)); }
+    :root[data-native-ios-app="true"] .server-info-donation-primary { display:block; }
+    :root[data-native-ios-app="true"] .server-info-donation-secondary { display:block; color:var(--muted); font-size:10px; font-weight:750; line-height:1.2; }
     @media (max-width: 560px) {
       .server-info-card { max-height:min(90dvh, calc(var(--app-height, 100dvh) - 24px)); }
       .server-info-body { gap:11px; padding:12px; }
@@ -14552,6 +14559,7 @@
       .server-info-support-panel h4 { font-size:16px; }
       .server-info-stripe-host stripe-buy-button { width:min(100%, 390px); }
       .server-info-stripe-fallback { font-size:10px; }
+      :root[data-native-ios-app="true"] .server-info-stripe-fallback { min-height:56px; font-size:14px; }
     }
 
     @media (max-width: 760px) {
@@ -16041,7 +16049,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.279</small>
+          <small id="serverBrandVersion">v9.6.280</small>
         </span>
       </button>
     </div>
@@ -16117,7 +16125,7 @@
               publishable-key="__RANTLIST_STRIPE_PUBLISHABLE_KEY__">
             </stripe-buy-button>
           </div>
-          <a id="serverInfoDonationLink" class="server-info-stripe-fallback" href="__RANTLIST_SUPPORT_URL__" target="_blank" rel="noopener noreferrer">Open the Stripe payment page instead</a>
+          <a id="serverInfoDonationLink" class="server-info-stripe-fallback" href="__RANTLIST_SUPPORT_URL__" target="_blank" rel="noopener noreferrer"><span class="server-info-donation-primary">Open the Stripe payment page instead</span><small class="server-info-donation-secondary">Opens secure Stripe checkout</small></a>
         </section>
       </div>
     </article>
@@ -17187,7 +17195,7 @@
             <div class="field"><label for="serverDescriptionInput">Description</label><textarea id="serverDescriptionInput" maxlength="600" rows="3" placeholder="What this server is for"></textarea></div>
             <div class="field"><label for="serverProjectUrlInput">Project / studio website</label><input id="serverProjectUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://workwork.fun"></div>
             <div class="field"><label for="serverGithubUrlInput">Open-source GitHub repository</label><input id="serverGithubUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://github.com/…"></div>
-            <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link and is used as the direct fallback beneath the embedded Buy Button.</small></div>
+            <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link. Native iOS uses it as the primary support action; browsers keep it as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="field"><label for="serverUserUploadQuotaInput">Per-user upload quota, GiB</label><input id="serverUserUploadQuotaInput" type="number" min="0" max="10240" step="1" inputmode="numeric"><small class="hint">Applies to original message uploads across channels and direct chats. Default is 15 GiB. Enter 0 for unlimited; lowering the quota never deletes existing files.</small></div>
             <div class="server-settings-version">
@@ -41301,6 +41309,9 @@
       const donationUrl = safePublicLink(meta.donationUrl) || '__RANTLIST_SUPPORT_URL__';
       elements.serverInfoDonationLink.hidden = false;
       elements.serverInfoDonationLink.href = donationUrl;
+      const donationPrimary = elements.serverInfoDonationLink.querySelector('.server-info-donation-primary');
+      if (donationPrimary) donationPrimary.textContent = isRantlistIOSApp() ? 'Support Rantlist with Stripe' : 'Open the Stripe payment page instead';
+      elements.serverInfoDonationLink.setAttribute('aria-label', isRantlistIOSApp() ? 'Support Rantlist with Stripe. Opens secure Stripe checkout.' : 'Open the Stripe payment page instead');
     }
 
     let stripeBuyButtonScriptPromise = null;
@@ -41328,7 +41339,7 @@
 
     function openServerInfo() {
       renderServerInfo();
-      ensureStripeBuyButtonScript();
+      if (!isRantlistIOSApp()) ensureStripeBuyButtonScript();
       elements.serverInfoModal.hidden = false;
       elements.serverInfoModal.setAttribute('aria-hidden', 'false');
       requestAnimationFrame(() => elements.serverInfoCloseButton.focus({ preventScroll: true }));

@@ -1,3 +1,8 @@
+## v0.1.117 / Rantlist 9.6.280
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r308` / protocol 70.
+- Native iOS now hides the non-working embedded Stripe Buy Button in **About this server** and promotes the configured direct Stripe payment link to the primary support button.
+- Browser clients keep the embedded Stripe Buy Button with the direct payment URL as fallback.
+
 ## v0.1.116 / Rantlist 9.6.279
 - Synchronizes native clients with canonical server UI `rantlist-deploy-r307` / protocol 70.
 - Anonymous or session-replaced saved profiles now open directly on the explanatory **Welcome back** surface instead of exposing an empty workspace.
