@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.283">
+  <meta name="chat-ui-version" content="9.6.284">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16052,11 +16052,16 @@
     .profile-avatar-lab { margin: var(--space-3) 0; padding: var(--space-3); border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--panel) 90%, var(--accent) 10%); }
     .profile-avatar-lab-controls { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto auto; gap:8px; align-items:center; }
     .profile-avatar-lab progress { width:100%; margin-top:10px; }
+    .profile-avatar-grok { margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--line); display:grid; gap:8px; }
+    .profile-avatar-grok-controls { display:grid; grid-template-columns:minmax(0,2fr) minmax(150px,1fr) repeat(4,minmax(92px,auto)) auto; gap:8px; align-items:center; }
+    .profile-avatar-grok-result { display:grid; grid-template-columns:minmax(120px,220px) 1fr; gap:10px; align-items:center; }
+    .profile-avatar-grok-result img,.profile-avatar-grok-result video { width:100%; max-height:220px; object-fit:contain; border-radius:10px; background:#000; }
+    .profile-avatar-grok-actions { display:flex; flex-wrap:wrap; gap:8px; }
     .avatar3d-preview-card { width:min(760px,94vw); }
     .avatar3d-preview-stage { width:100%; height:min(62vh,620px); min-height:340px; background:rgba(0,0,0,.68); border-radius:12px; overflow:hidden; }
     .avatar3d-preview-stage canvas { width:100%; height:100%; display:block; touch-action:none; }
     .avatar3d-preview-card .button-like { display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:9px;color:inherit; }
-    @media (max-width:760px){ .profile-avatar-lab-controls{grid-template-columns:1fr 1fr}.profile-avatar-lab-controls button{min-height:42px} }
+    @media (max-width:760px){ .profile-avatar-lab-controls,.profile-avatar-grok-controls{grid-template-columns:1fr 1fr}.profile-avatar-lab-controls button,.profile-avatar-grok-controls button{min-height:42px}.profile-avatar-grok-result{grid-template-columns:1fr} }
 </style>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
@@ -16072,7 +16077,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.283</small>
+          <small id="serverBrandVersion">v9.6.284</small>
         </span>
       </button>
     </div>
@@ -16405,7 +16410,7 @@
           <div class="config-actions" data-config-feature="creative-byok">
             <button id="xaiApiKeySaveButton" type="button">Save xAI key</button><button id="xaiApiKeyClearButton" type="button">Clear</button>
           </div>
-          <p id="xaiApiKeyHint" class="hint">Stored securely for explicit xAI/Grok actions when those tools are enabled.</p>
+          <p id="xaiApiKeyHint" class="hint">Used only when you explicitly run Grok in Avatar Lab. The key is not stored by the server.</p>
           <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiDurableBackgroundInput">
             <span>Extended OpenAI jobs (&gt;10 min)</span>
             <input id="openAiDurableBackgroundInput" type="checkbox" aria-describedby="openAiDurableBackgroundHint">
@@ -16905,8 +16910,24 @@
 
             <section id="profileAvatarLab" class="profile-avatar-lab" aria-labelledby="profileAvatarLabTitle">
               <div class="profile-section-heading">
-                <div><span class="profile-section-kicker">Avatar Lab</span><h3 id="profileAvatarLabTitle">3D avatar</h3></div>
-                <small id="profileAvatar3dStatus">Add a Tripo3D key in Config to generate from your profile picture.</small>
+                <div><span class="profile-section-kicker">Avatar Lab</span><h3 id="profileAvatarLabTitle">Grok + 3D avatar</h3></div>
+                <small id="profileAvatar3dStatus">Add Tripo3D and/or xAI keys in Config to enable Avatar Lab tools.</small>
+              </div>
+              <div class="profile-avatar-grok">
+                <div class="profile-avatar-grok-controls">
+                  <input id="profileAvatarGrokPrompt" type="text" maxlength="4000" placeholder="Grok prompt for your profile image" aria-label="Grok prompt">
+                  <select id="profileAvatarGrokOutput" aria-label="Grok output"><option value="image">Image</option><option value="video">Video</option></select>
+                  <input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" aria-label="Grok model" title="xAI Grok model">
+                  <select id="profileAvatarGrokAspect" aria-label="Grok aspect ratio"><option value="auto">Auto aspect</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option><option value="2:3">2:3</option></select>
+                  <select id="profileAvatarGrokResolution" aria-label="Grok resolution"><option value="1k">1K</option><option value="2k">2K</option><option value="480p">480p</option><option value="720p">720p</option></select>
+                  <select id="profileAvatarGrokDuration" aria-label="Grok video duration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select>
+                  <button id="profileAvatarGrokRunButton" type="button"><span class="icon icon-ai"></span><span>Run Grok</span></button>
+                </div>
+                <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable image or video generation.</small>
+                <div id="profileAvatarGrokResult" class="profile-avatar-grok-result" hidden>
+                  <div><img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden><video id="profileAvatarGrokVideo" controls playsinline hidden></video></div>
+                  <div class="profile-avatar-grok-actions"><button id="profileAvatarGrokUseProfileButton" type="button" hidden>Use as profile photo</button><button id="profileAvatarGrokUse3dButton" type="button" hidden>Use for 3D</button></div>
+                </div>
               </div>
               <div class="profile-avatar-lab-controls">
                 <select id="profileAvatar3dModelSelect" aria-label="Tripo3D model"><option value="P1-20260311">P1</option><option value="v3.1-20260211">v3.1</option><option value="v3.0-20250812">v3.0</option><option value="Turbo-v1.0-20250506">Turbo</option></select>
@@ -18700,7 +18721,7 @@
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
-        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'profileAvatarLab', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileGameSummary', 'profileGameSummaryBody',
+        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'profileAvatarLab', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
@@ -19102,6 +19123,11 @@
       avatar3dPollTimer: null,
       avatar3dPollBusy: false,
       avatar3dPreview: null,
+      avatarGrokItems: [],
+      avatarGrokActiveRequestId: '',
+      avatarGrokPollTimer: null,
+      avatarGrokPollBusy: false,
+      avatarGrokUseAs3dSource: false,
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
       openAiMaxOutputTokens: [1024, 2048, 4096, 8192, 16384, 32768, 65536, 128000].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 16384,
       openAiConfirmAstra: readStorage('chat.ai.openai.confirmAstra') !== 'off',
@@ -20466,6 +20492,16 @@
 
       if (elements.profileAvatarUploadButton) elements.profileAvatarUploadButton.addEventListener('click', () => elements.profileAvatarInput.click());
       if (elements.profileAvatarCameraButton) elements.profileAvatarCameraButton.addEventListener('click', () => { void openProfileCameraCapture(); });
+      elements.profileAvatarGrokRunButton?.addEventListener('click', () => { void runProfileAvatarGrok(); });
+      elements.profileAvatarGrokUseProfileButton?.addEventListener('click', () => { void useGrokImageAsProfile(); });
+      elements.profileAvatarGrokUse3dButton?.addEventListener('click', () => { state.avatarGrokUseAs3dSource = true; renderAvatarLab(); });
+      elements.profileAvatarGrokOutput?.addEventListener('change', () => {
+        const video = String(elements.profileAvatarGrokOutput?.value || 'image') === 'video';
+        const current = String(elements.profileAvatarGrokModel?.value || '').trim();
+        if (!current || current === 'grok-imagine-image' || current === 'grok-imagine-video') elements.profileAvatarGrokModel.value = video ? 'grok-imagine-video' : 'grok-imagine-image';
+        renderAvatarLab();
+      });
+      elements.profileAvatarGrokPrompt?.addEventListener('input', renderAvatarLab);
       elements.profileAvatar3dGenerateButton?.addEventListener('click', () => { void generateProfileAvatar3d(); });
       elements.profileAvatar3dPreviewButton?.addEventListener('click', () => { void openAvatar3dPreview(); });
       elements.profileAvatar3dKeysButton?.addEventListener('click', () => { openConfig(); setTimeout(() => elements.tripoApiKeyInput?.focus?.(), 120); });
@@ -21278,6 +21314,7 @@
           sendJson({ type: 'gif.gallery.list' });
           sendJson({ type: 'calendar.list' });
           sendJson({ type: 'avatar3d.list' });
+          sendJson({ type: 'avatar.grok.list' });
           redeemPendingExternalInvite();
           redeemPendingCalendarInvite();
           openPendingSharedMediaLink();
@@ -21318,6 +21355,8 @@
           sendJson({ type: 'room.invites.list' });
           sendJson({ type: 'gif.gallery.list' });
           sendJson({ type: 'calendar.list' });
+          sendJson({ type: 'avatar3d.list' });
+          sendJson({ type: 'avatar.grok.list' });
           redeemPendingExternalInvite();
           redeemPendingCalendarInvite();
           openPendingSharedMediaLink();
@@ -21660,6 +21699,13 @@
         case 'avatar3d.status':
         case 'avatar3d.ready':
           handleAvatar3dMessage(message); break;
+        case 'avatar.grok.list':
+          state.avatarGrokItems = Array.isArray(message.items) ? message.items : []; renderAvatarLab();
+          { const pending=state.avatarGrokItems.find((item)=>item?.kind==='video' && !['ready','failed','error','cancelled','expired'].includes(String(item.status||'').toLowerCase())); if(pending?.requestId){state.avatarGrokActiveRequestId=pending.requestId; scheduleAvatarGrokPoll(pending.requestId,700);} }
+          break;
+        case 'avatar.grok.status':
+        case 'avatar.grok.ready':
+          handleAvatarGrokMessage(message); break;
 
         case 'profile.view.result':
           if (message.identityId === state.activeProfileViewIdentityId) renderPublicProfile(message);
@@ -22347,6 +22393,7 @@
         case 'error': {
           debugLog('error', 'server', message.code || 'error', message);
           if (String(message.code || '').startsWith('avatar3d_')) { state.avatar3dPollBusy = false; renderAvatarLab(); }
+          if (String(message.code || '').startsWith('avatar_grok_')) { state.avatarGrokPollBusy = false; renderAvatarLab(); }
           let errorText = `${message.code}: ${message.message}`;
           if (String(message.code || '').startsWith('translator_')) {
             setTranslatorStatus(message.message || 'Translator error.', 'error');
@@ -43539,13 +43586,55 @@
     function selectedAvatar3dItem() {
       return state.avatar3dItems.find((item) => item?.selected && item?.url) || state.avatar3dItems.find((item) => item?.url) || null;
     }
+    function selectedAvatarGrokItem() {
+      return state.avatarGrokItems.find((item) => item?.requestId === state.avatarGrokActiveRequestId && item?.url)
+        || state.avatarGrokItems.find((item) => item?.url)
+        || null;
+    }
     function renderAvatarLab() {
       if (!elements.profileAvatarLab) return;
       const item = selectedAvatar3dItem();
       const active = state.avatar3dItems.find((entry) => entry?.taskId === state.avatar3dActiveTaskId) || null;
-      const canGenerate = state.registered && !state.isAdmin && state.tripoApiKeyConfigured && Boolean(state.editorAvatar || state.selfUser?.metadata?.avatar);
+      const grokItem = selectedAvatarGrokItem();
+      const grokActive = state.avatarGrokItems.find((entry) => entry?.requestId === state.avatarGrokActiveRequestId) || null;
+      const sourceAvailable = Boolean(state.editorAvatar || state.selfUser?.metadata?.avatar || (state.avatarGrokUseAs3dSource && grokItem?.kind === 'image' && grokItem?.url));
+      const canGenerate = state.registered && !state.isAdmin && state.tripoApiKeyConfigured && sourceAvailable;
+      const grokPrompt = String(elements.profileAvatarGrokPrompt?.value || '').trim();
+      const canGrok = state.registered && !state.isAdmin && state.xaiApiKeyConfigured && Boolean(state.editorAvatar || state.selfUser?.metadata?.avatar) && Boolean(grokPrompt);
       if (elements.profileAvatar3dGenerateButton) elements.profileAvatar3dGenerateButton.disabled = !canGenerate || state.avatar3dPollBusy;
       if (elements.profileAvatar3dPreviewButton) elements.profileAvatar3dPreviewButton.disabled = !item?.url;
+      if (elements.profileAvatarGrokRunButton) elements.profileAvatarGrokRunButton.disabled = !canGrok || state.avatarGrokPollBusy;
+      if (elements.profileAvatarGrokDuration) elements.profileAvatarGrokDuration.disabled = String(elements.profileAvatarGrokOutput?.value || 'image') !== 'video';
+      if (elements.profileAvatarGrokResolution) {
+        const video = String(elements.profileAvatarGrokOutput?.value || 'image') === 'video';
+        const desired = String(elements.profileAvatarGrokResolution.value || '');
+        if (video && !['480p','720p'].includes(desired)) elements.profileAvatarGrokResolution.value = '480p';
+        if (!video && !['1k','2k'].includes(desired)) elements.profileAvatarGrokResolution.value = '1k';
+      }
+      if (elements.profileAvatarGrokStatus) {
+        elements.profileAvatarGrokStatus.textContent = !state.xaiApiKeyConfigured
+          ? 'Add your xAI / Grok API key in Config to enable image or video generation.'
+          : grokActive && grokActive.status !== 'ready'
+            ? `Grok: ${grokActive.status || 'working'}${grokActive.progress != null ? ` · ${Math.round(Number(grokActive.progress) || 0)}%` : ''}`
+            : grokItem?.url ? `${grokItem.kind === 'video' ? 'Grok video' : 'Grok image'} ready.` : 'Ready to run Grok on your current profile picture.';
+      }
+      if (elements.profileAvatarGrokResult) elements.profileAvatarGrokResult.hidden = !grokItem?.url;
+      if (elements.profileAvatarGrokImage) {
+        const show = grokItem?.kind === 'image' && grokItem?.url;
+        elements.profileAvatarGrokImage.hidden = !show;
+        if (show && elements.profileAvatarGrokImage.src !== new URL(grokItem.url, location.href).href) elements.profileAvatarGrokImage.src = grokItem.url;
+      }
+      if (elements.profileAvatarGrokVideo) {
+        const show = grokItem?.kind === 'video' && grokItem?.url;
+        elements.profileAvatarGrokVideo.hidden = !show;
+        if (show && elements.profileAvatarGrokVideo.src !== new URL(grokItem.url, location.href).href) elements.profileAvatarGrokVideo.src = grokItem.url;
+      }
+      const imageReady = grokItem?.kind === 'image' && Boolean(grokItem?.url);
+      if (elements.profileAvatarGrokUseProfileButton) elements.profileAvatarGrokUseProfileButton.hidden = !imageReady;
+      if (elements.profileAvatarGrokUse3dButton) {
+        elements.profileAvatarGrokUse3dButton.hidden = !imageReady;
+        elements.profileAvatarGrokUse3dButton.textContent = state.avatarGrokUseAs3dSource ? 'Using for 3D' : 'Use for 3D';
+      }
       if (elements.profileAvatar3dProgress) {
         const progress = Number(active?.progress);
         elements.profileAvatar3dProgress.hidden = !active || ['ready','failed','error','banned','expired','cancelled'].includes(String(active.status || '').toLowerCase());
@@ -43553,13 +43642,13 @@
       }
       if (elements.profileAvatar3dStatus) {
         elements.profileAvatar3dStatus.textContent = !state.tripoApiKeyConfigured
-          ? 'Add your Tripo3D API key in Config to enable generation.'
+          ? 'Add your Tripo3D API key in Config to enable 3D generation.'
           : active && active.status !== 'ready'
             ? `Tripo3D: ${active.status || 'working'}${active.progress != null ? ` · ${Math.round(Number(active.progress) || 0)}%` : ''}`
-            : item?.url ? '3D avatar ready and linked to this profile.' : 'Ready to generate from your current profile picture.';
+            : item?.url ? '3D avatar ready and linked to this profile.' : state.avatarGrokUseAs3dSource && imageReady ? 'Ready to generate 3D from the Grok image.' : 'Ready to generate from your current profile picture.';
       }
     }
-    async function avatarLabSourceDataUrl() {
+    async function profileAvatarSourceDataUrl() {
       const source = String(state.editorAvatar || state.selfUser?.metadata?.avatar || '').trim();
       if (!source) throw new Error('Choose a profile picture first.');
       if (/^data:image\/(?:jpeg|png|webp);base64,/i.test(source)) return source;
@@ -43571,6 +43660,68 @@
       const ctx = canvas.getContext('2d', { alpha:false }); ctx.drawImage(bmp, sx, sy, side, side, 0, 0, 512, 512); try { bmp.close?.(); } catch {}
       const jpegBlob = await new Promise((resolve, reject) => canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not prepare profile picture.')), 'image/jpeg', 0.88));
       return createAvatarDataUrl(new File([jpegBlob], 'avatar-lab.jpg', { type:'image/jpeg' }));
+    }
+    async function avatarLabSourceDataUrl() {
+      const grokItem = selectedAvatarGrokItem();
+      if (state.avatarGrokUseAs3dSource && grokItem?.kind === 'image' && grokItem?.url) {
+        const response = await fetch(grokItem.url, { credentials:'same-origin', cache:'no-store' });
+        if (!response.ok) throw new Error('Could not read the Grok image.');
+        const blob = await response.blob();
+        return createAvatarDataUrl(new File([blob], 'grok-avatar.jpg', { type: blob.type || 'image/jpeg' }));
+      }
+      return profileAvatarSourceDataUrl();
+    }
+    function scheduleAvatarGrokPoll(requestId, delay = 2500) {
+      clearTimeout(state.avatarGrokPollTimer); state.avatarGrokPollTimer = setTimeout(() => { void pollAvatarGrokTask(requestId); }, delay);
+    }
+    async function pollAvatarGrokTask(requestId) {
+      const id = String(requestId || state.avatarGrokActiveRequestId || '').trim(); if (!id || state.avatarGrokPollBusy) return;
+      state.avatarGrokPollBusy = true; renderAvatarLab();
+      try { const apiKey = await providerCredentialForRequest('xai'); sendJson({ type:'avatar.grok.status', requestId:id, apiKey }); }
+      catch (error) { state.avatarGrokPollBusy = false; renderAvatarLab(); addSystemMessage(`Avatar Lab: ${error?.message || 'xAI key unavailable'}`, true); }
+    }
+    async function runProfileAvatarGrok() {
+      if (!state.registered || state.isAdmin) return;
+      try {
+        const [apiKey, sourceImage] = await Promise.all([providerCredentialForRequest('xai'), profileAvatarSourceDataUrl()]);
+        const output = String(elements.profileAvatarGrokOutput?.value || 'image') === 'video' ? 'video' : 'image';
+        const resolution = output === 'video'
+          ? (elements.profileAvatarGrokResolution?.value === '720p' ? '720p' : '480p')
+          : (elements.profileAvatarGrokResolution?.value === '2k' ? '2k' : '1k');
+        state.avatarGrokPollBusy = true; renderAvatarLab();
+        sendJson({
+          type:'avatar.grok.start', apiKey, sourceImage,
+          prompt:String(elements.profileAvatarGrokPrompt?.value || '').trim(), output,
+          model:String(elements.profileAvatarGrokModel?.value || (output === 'video' ? 'grok-imagine-video' : 'grok-imagine-image')).trim(),
+          aspectRatio:String(elements.profileAvatarGrokAspect?.value || 'auto'), resolution,
+          duration:Number(elements.profileAvatarGrokDuration?.value || 8),
+        });
+      } catch (error) { state.avatarGrokPollBusy = false; renderAvatarLab(); addSystemMessage(`Avatar Lab: ${error?.message || 'Grok generation could not start'}`, true); }
+    }
+    async function useGrokImageAsProfile() {
+      const item = selectedAvatarGrokItem(); if (item?.kind !== 'image' || !item?.url) return;
+      try {
+        const response = await fetch(item.url, { credentials:'same-origin', cache:'no-store' });
+        if (!response.ok) throw new Error('Could not read the Grok image.');
+        const blob = await response.blob();
+        state.editorAvatar = await createAvatarDataUrl(new File([blob], 'grok-profile.jpg', { type: blob.type || 'image/jpeg' }));
+        state.avatarGrokUseAs3dSource = false;
+        renderEditorAvatar(); renderAvatarLab();
+        addSystemMessage('Grok image selected as the profile photo. Save the profile to apply it.');
+      } catch (error) { addSystemMessage(`Avatar Lab: ${error?.message || 'Could not use the Grok image'}`, true); }
+    }
+    function handleAvatarGrokMessage(message) {
+      const item = message?.item;
+      if (item?.requestId) {
+        const index = state.avatarGrokItems.findIndex((entry)=>entry?.requestId===item.requestId);
+        if(index>=0) state.avatarGrokItems[index]={...state.avatarGrokItems[index],...item}; else state.avatarGrokItems.unshift(item);
+        state.avatarGrokActiveRequestId=item.requestId;
+      }
+      state.avatarGrokPollBusy=false;
+      renderAvatarLab();
+      const status=String(item?.status||'').toLowerCase();
+      if (item?.kind === 'video' && item?.requestId && !['ready','failed','error','cancelled','expired'].includes(status)) scheduleAvatarGrokPoll(item.requestId);
+      if(item?.url) addSystemMessage(`Grok ${item.kind || 'output'} ready.`); else if(message?.error) addSystemMessage(`Avatar Lab: ${message.error}`,true);
     }
     function scheduleAvatar3dPoll(taskId, delay = 2500) {
       clearTimeout(state.avatar3dPollTimer); state.avatar3dPollTimer = setTimeout(() => { void pollAvatar3dTask(taskId); }, delay);

@@ -1,3 +1,7 @@
+## v0.1.121 — working xAI/Grok Avatar Lab
+
+Synchronizes Rantlist 9.6.284 / r312. The configured user-owned xAI/Grok key now powers explicit Avatar Lab image editing and video generation from the profile image. Generated Grok images can be selected as the profile photo or used as the Tripo3D source; provider keys remain protected by native secure storage or page-memory-only browser storage.
+
 ## v0.1.120 — production builder safety sync
 
 Synchronizes Rantlist 9.6.283 / r311. No client UX change: this release follows the server packaging fix that preserves importmap/JSON script data during production transforms and makes the production browser build a deployment-preflight check.
