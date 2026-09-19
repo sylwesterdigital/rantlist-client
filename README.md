@@ -1,3 +1,7 @@
+## v0.1.120 — production builder safety sync
+
+Synchronizes Rantlist 9.6.283 / r311. No client UX change: this release follows the server packaging fix that preserves importmap/JSON script data during production transforms and makes the production browser build a deployment-preflight check.
+
 ## v0.1.119 — working Avatar Lab and creative BYOK
 
 Synchronizes Rantlist 9.6.282 / r310. Profile Avatar Lab now runs user-authorized Tripo3D generation from the current profile image, stores completed GLBs under Rantlist control and previews them interactively with WebXR when available. Config adds Tripo3D and xAI/Grok BYOK; native apps protect provider keys in Keychain/Android Keystore while browser mode keeps them only in page memory. The old Coming next roadmap card is removed.
