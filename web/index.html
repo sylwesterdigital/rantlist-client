@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.274">
+  <meta name="chat-ui-version" content="9.6.279">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -5712,8 +5712,20 @@
     }
     #nicknameInput:focus { border-color: var(--accent); }
     .profile-start-optional-note { margin-left: 60px; color: var(--muted); font-size: 9px; }
-    .profile-avatar-controls { display: grid; justify-items: end; gap: 5px; }
-    .profile-avatar-controls > button { width: 32px; min-width: 32px; height: 32px; min-height: 32px; padding: 0; }
+    .profile-nickname-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      align-items: center;
+      gap: 7px;
+    }
+    .profile-nickname-input-row #nicknameInput { width: 100%; min-width: 0; }
+    .profile-nickname-input-row #removeAvatarButton {
+      width: 38px;
+      min-width: 38px;
+      height: 38px;
+      min-height: 38px;
+      padding: 0;
+    }
     .profile-optional-section,
     .profile-secondary-section {
       display: grid;
@@ -8606,6 +8618,7 @@
     }
 
     .profile-welcome-surface {
+      position: relative;
       width: min(760px, 100%);
       display: grid;
       gap: 14px;
@@ -8651,18 +8664,18 @@
     }
 
     .profile-welcome-surface .profile-avatar-row {
-      grid-template-columns: 96px minmax(0, 1fr) auto;
-      gap: 14px;
+      grid-template-columns: 142px minmax(0, 1fr);
+      gap: 18px;
       padding: 12px;
       border-radius: 16px;
     }
 
     .profile-welcome-surface .profile-avatar-upload,
     .profile-welcome-surface .profile-avatar-preview-shell {
-      width: 92px;
-      min-width: 92px;
-      height: 92px;
-      min-height: 92px;
+      width: 138px;
+      min-width: 138px;
+      height: 138px;
+      min-height: 138px;
     }
 
     .profile-welcome-return {
@@ -8708,29 +8721,32 @@
       font-weight: 750;
     }
 
-    .profile-welcome-surface .profile-admin-entry {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 13px;
-      border: 1px solid color-mix(in srgb, var(--danger) 28%, var(--line));
-      border-radius: 16px;
-      background: color-mix(in srgb, var(--panel-2) 94%, var(--danger) 6%);
+    .profile-welcome-admin-slot {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 3;
     }
 
-    .profile-welcome-surface .profile-admin-entry small {
-      grid-column: 1;
-      color: var(--muted);
-      font-size: 11px;
-      line-height: 1.35;
+    .profile-welcome-surface .profile-admin-entry {
+      display: block;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .profile-welcome-surface .profile-admin-entry small,
+    .profile-welcome-surface .profile-admin-entry button span:last-child {
+      display: none;
     }
 
     .profile-welcome-surface .profile-admin-entry button {
-      grid-column: 2;
-      grid-row: 1 / span 2;
-      min-height: 40px;
-      white-space: nowrap;
+      width: 38px;
+      min-width: 38px;
+      height: 38px;
+      min-height: 38px;
+      padding: 0;
+      border-radius: 10px;
     }
 
     .profile-welcome-surface .profile-admin-entry[hidden] { display: none !important; }
@@ -9274,16 +9290,13 @@
       }
       .profile-start-card { padding: 10px; }
       .profile-avatar-row { grid-template-columns: auto minmax(0, 1fr); }
-      .profile-avatar-controls { grid-column: 1 / -1; grid-template-columns: 1fr auto; align-items: center; justify-items: stretch; }
-      .profile-avatar-controls .profile-colour-swatch { justify-self: start; }
-      .profile-avatar-controls > button { justify-self: end; }
       .profile-start-optional-note { margin-left: 0; }
       .profile-overlay[data-onboarding="true"] .profile-welcome-panel { padding: 10px; }
       .profile-welcome-surface { border-radius: 18px; padding: 12px; gap: 10px; }
-      .profile-welcome-surface .profile-avatar-row { grid-template-columns: 82px minmax(0, 1fr); }
+      .profile-welcome-surface .profile-avatar-row { grid-template-columns: 112px minmax(0, 1fr); gap: 12px; }
       .profile-welcome-surface .profile-avatar-upload,
-      .profile-welcome-surface .profile-avatar-preview-shell { width: 78px; min-width: 78px; height: 78px; min-height: 78px; }
-      .profile-welcome-surface .profile-avatar-controls { grid-column: 1 / -1; }
+      .profile-welcome-surface .profile-avatar-preview-shell { width: 108px; min-width: 108px; height: 108px; min-height: 108px; }
+      .profile-welcome-admin-slot { top: 8px; right: 8px; }
       .profile-section-heading { align-items: start; flex-direction: column; }
       .profile-section-heading > small { max-width: none; text-align: left; }
     }
@@ -9935,6 +9948,7 @@
       color: var(--muted);
       font-size: 11px;
     }
+    .profile-nickname-input-row .profile-colour-swatch > span { display: none; }
     .profile-colour-swatch input[type="color"] {
       width: 38px;
       min-width: 38px;
@@ -16027,7 +16041,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.274</small>
+          <small id="serverBrandVersion">v9.6.279</small>
         </span>
       </button>
     </div>
@@ -16825,7 +16839,11 @@
                 </label>
                 <div class="profile-start-identity">
                   <label class="profile-nickname-label" for="nicknameInput"><span>Nickname</span><span class="profile-required-badge">Required</span></label>
-                  <input id="nicknameInput" maxlength="24" autocomplete="nickname" placeholder="Your nickname" required aria-describedby="profileNicknameHint">
+                  <div class="profile-nickname-input-row">
+                    <input id="nicknameInput" maxlength="24" autocomplete="nickname" placeholder="Your nickname" required aria-describedby="profileNicknameHint">
+                    <label class="profile-colour-swatch" for="colorInput" title="Profile colour"><span>Colour</span><input id="colorInput" type="color" value="#6e8bff" aria-label="Profile colour"></label>
+                    <button id="removeAvatarButton" type="button" aria-label="Clear nickname" title="Clear nickname"><span class="icon icon-remove"></span></button>
+                  </div>
                   <small id="profileNicknameHint" class="hint">This is the name people will see in channels.</small>
                   <div class="profile-avatar-tools" aria-label="Profile picture actions">
                     <button id="profileAvatarUploadButton" type="button"><span class="icon icon-photo"></span><span>Upload photo</span></button>
@@ -16833,10 +16851,7 @@
                   </div>
                   <p class="profile-avatar-helper">A simple head photo works great. It makes the profile more human now and can later feed avatar tools.</p>
                 </div>
-                <div class="profile-avatar-controls">
-                  <label class="profile-colour-swatch" for="colorInput"><span>Colour</span><input id="colorInput" type="color" value="#6e8bff" aria-label="Profile colour"></label>
-                  <button id="removeAvatarButton" type="button" aria-label="Remove profile picture only" title="Remove profile picture only"><span class="icon icon-remove"></span></button>
-                </div>
+
               </div>
               <small class="profile-start-optional-note">Only the nickname is required. Picture, colour and details are optional.</small>
             </section>
@@ -16955,7 +16970,7 @@
 
               <span id="profileAdminAnchor" hidden></span>
               <div id="profileAdminEntry" class="profile-admin-entry" hidden>
-                <button id="adminLoginOpenButton" class="danger-button" type="button"><span class="icon icon-lock"></span><span>Log in as administrator</span></button>
+                <button id="adminLoginOpenButton" class="danger-button" type="button" aria-label="Administrator login" title="Administrator login"><span class="icon icon-lock"></span><span>Log in as administrator</span></button>
                 <small>Administrator access is created on the server command line and is rate-limited.</small>
               </div>
             </section>
@@ -20440,10 +20455,12 @@
       });
 
       elements.removeAvatarButton.addEventListener('click', () => {
-        if (!state.editorAvatar) return;
-        if (!window.confirm('Remove this profile picture from the profile editor? The saved profile is not changed until you choose Save and enter.')) return;
-        state.editorAvatar = null;
+        if (!elements.nicknameInput.value) return;
+        elements.nicknameInput.value = '';
+        elements.nicknameInput.setCustomValidity('Enter a nickname before continuing.');
         renderEditorAvatar();
+        refreshControls();
+        elements.nicknameInput.focus({ preventScroll: true });
       });
 
       elements.signOffButton.addEventListener('click', () => {
@@ -21093,11 +21110,12 @@
         const detail = event.reason ? `: ${event.reason}` : '';
         const replacedSession = event.code === 4001 && String(event.reason || '').toLowerCase().includes('session replaced');
         const accessDenied = event.code === 4003 || String(event.reason || '').toLowerCase().includes('access denied');
-        const shouldStopReconnect = replacedSession || accessDenied;
+        const shouldStopReconnect = accessDenied;
         if (replacedSession) {
           state.websocketCloseBlockedReason = 'session-replaced';
           state.autoLogin = false;
           writeStorage('chat.autoLogin', 'off');
+          requestAnimationFrame(() => openProfileOverlay());
         } else if (accessDenied) {
           state.websocketCloseBlockedReason = 'access-denied';
           state.autoLogin = false;
@@ -21172,7 +21190,7 @@
               : (hasPendingExternalInvite()
                 ? 'This invitation needs a profile first. Create or select a profile to continue.'
                 : 'Connected anonymously. Select a saved profile or create a new one.'));
-            if (hasPendingExternalInvite() || pendingSharedMedia) requestAnimationFrame(() => openProfileOverlay());
+            requestAnimationFrame(() => openProfileOverlay());
           }
           break;
 
@@ -39561,7 +39579,9 @@
       const actionLabel = elements.profileWelcomeActionButton.querySelector('span:last-child');
       if (selected) {
         elements.profileWelcomeTitle.textContent = `Welcome back${selected.nickname ? `, ${selected.nickname}` : ''}`;
-        elements.profileWelcomeText.textContent = 'Your saved identity is ready. Change anything you want, or enter immediately.';
+        elements.profileWelcomeText.textContent = state.websocketCloseBlockedReason === 'session-replaced'
+          ? 'This identity is active in another tab or connection. Enter user here to move the session to this window.'
+          : 'Your saved identity is ready. Change anything you want, or enter immediately.';
         if (actionLabel) actionLabel.textContent = 'Enter user';
         elements.profileWelcomeActionButton.dataset.ctaMode = 'enter';
       } else {
@@ -43657,7 +43677,7 @@
         metadata: { color: elements.colorInput.value, avatar: state.editorAvatar },
       });
       if (elements.profileAvatarShell) elements.profileAvatarShell.dataset.empty = (!state.editorAvatar && !nickname) ? 'true' : 'false';
-      elements.removeAvatarButton.disabled = !state.editorAvatar;
+      elements.removeAvatarButton.disabled = !nickname;
       elements.profileAvatarPreview.style.boxShadow = `0 0 0 3px ${elements.colorInput.value}`;
       renderProfileWelcomePanel();
     }

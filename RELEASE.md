@@ -1,3 +1,9 @@
+## v0.1.116 / Rantlist 9.6.279
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r307` / protocol 70.
+- Anonymous or session-replaced saved profiles now open directly on the explanatory **Welcome back** surface instead of exposing an empty workspace.
+- Enlarges the Welcome back avatar, moves the profile colour and clear-name minus control beside Nickname, keeps **Enter user** disabled while Nickname is empty, and reduces administrator entry to a compact corner lock button.
+- Includes `DEVELOPMENT-SAFETY.md` so the data-preservation incident and release-safety contract travel with both server and client source packages.
+
 ## v0.1.115 / Rantlist 9.6.274
 - Synchronizes native clients with canonical server UI `rantlist-deploy-r302` / protocol 70.
 - Restores the missing r298-r300 Development release entries and carries the durable, revision-keyed Development history behavior into the native web snapshot.
