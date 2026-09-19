@@ -250,21 +250,24 @@ public final class MainActivity extends Activity {
             requestId = body.optString("requestId", "");
             if (!requestId.matches("^[A-Za-z0-9._-]{8,128}$")) return;
             String action = body.optString("action", "");
+            String provider = body.optString("provider", "openai").toLowerCase(java.util.Locale.ROOT);
+            if (!("openai".equals(provider) || "tripo".equals(provider) || "xai".equals(provider))) provider = "openai";
             response.put("requestId", requestId);
+            response.put("provider", provider);
             response.put("ok", true);
             if ("status".equals(action)) {
-                response.put("configured", secureOpenAiStore.isConfigured());
+                response.put("configured", secureOpenAiStore.isConfigured(provider));
             } else if ("get".equals(action)) {
-                String key = secureOpenAiStore.read();
+                String key = secureOpenAiStore.read(provider);
                 response.put("configured", key != null && !key.isEmpty());
                 response.put("key", key == null ? "" : key);
             } else if ("set".equals(action)) {
                 String key = body.optString("key", "").trim();
-                if (!validApiKey(key)) throw new IllegalArgumentException("Invalid OpenAI API key.");
-                secureOpenAiStore.save(key);
+                if (!validApiKey(key)) throw new IllegalArgumentException("Invalid API key.");
+                secureOpenAiStore.save(provider, key);
                 response.put("configured", true);
             } else if ("clear".equals(action)) {
-                secureOpenAiStore.clear();
+                secureOpenAiStore.clear(provider);
                 response.put("configured", false);
             } else {
                 throw new IllegalArgumentException("Unsupported secure credential operation.");
@@ -288,53 +291,56 @@ public final class MainActivity extends Activity {
 
     private static final class SecureOpenAiStore {
         private static final String KEYSTORE = "AndroidKeyStore";
-        private static final String ALIAS = "fun.workwork.rantlist.openai.user-api-key.v1";
+        private static final String OPENAI_ALIAS = "fun.workwork.rantlist.openai.user-api-key.v1";
         private static final String PREFS = "rantlist_secure_secrets";
-        private static final String VALUE = "openai_api_key_v1";
+        private static final String OPENAI_VALUE = "openai_api_key_v1";
+        private static String alias(String provider) { return "openai".equals(provider) ? OPENAI_ALIAS : "fun.workwork.rantlist." + provider + ".user-api-key.v1"; }
+        private static String valueName(String provider) { return "openai".equals(provider) ? OPENAI_VALUE : provider + "_api_key_v1"; }
         private final android.content.SharedPreferences prefs;
 
         SecureOpenAiStore(Context context) {
             prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         }
 
-        boolean isConfigured() {
-            return prefs.contains(VALUE) && !prefs.getString(VALUE, "").isEmpty();
+        boolean isConfigured(String provider) {
+            String name = valueName(provider);
+            return prefs.contains(name) && !prefs.getString(name, "").isEmpty();
         }
 
-        void save(String value) throws Exception {
-            SecretKey key = getOrCreateKey();
+        void save(String provider, String value) throws Exception {
+            SecretKey key = getOrCreateKey(provider);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
             cipher.init(Cipher.ENCRYPT_MODE, key);
             byte[] encrypted = cipher.doFinal(value.getBytes(StandardCharsets.UTF_8));
             String packed = Base64.encodeToString(cipher.getIV(), Base64.NO_WRAP)
                 + "." + Base64.encodeToString(encrypted, Base64.NO_WRAP);
-            if (!prefs.edit().putString(VALUE, packed).commit()) throw new IllegalStateException("Credential ciphertext could not be stored.");
+            if (!prefs.edit().putString(valueName(provider), packed).commit()) throw new IllegalStateException("Credential ciphertext could not be stored.");
         }
 
-        String read() throws Exception {
-            String packed = prefs.getString(VALUE, "");
+        String read(String provider) throws Exception {
+            String packed = prefs.getString(valueName(provider), "");
             if (packed == null || packed.isEmpty()) return "";
             String[] parts = packed.split("\\.", 2);
             if (parts.length != 2) throw new IllegalStateException("Credential ciphertext is invalid.");
             byte[] iv = Base64.decode(parts[0], Base64.NO_WRAP);
             byte[] encrypted = Base64.decode(parts[1], Base64.NO_WRAP);
             Cipher cipher = Cipher.getInstance("AES/GCM/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(), new GCMParameterSpec(128, iv));
+            cipher.init(Cipher.DECRYPT_MODE, getOrCreateKey(provider), new GCMParameterSpec(128, iv));
             return new String(cipher.doFinal(encrypted), StandardCharsets.UTF_8);
         }
 
-        void clear() {
-            prefs.edit().remove(VALUE).commit();
+        void clear(String provider) {
+            prefs.edit().remove(valueName(provider)).commit();
         }
 
-        private SecretKey getOrCreateKey() throws Exception {
+        private SecretKey getOrCreateKey(String provider) throws Exception {
             KeyStore store = KeyStore.getInstance(KEYSTORE);
             store.load(null);
-            java.security.Key existing = store.getKey(ALIAS, null);
+            java.security.Key existing = store.getKey(alias(provider), null);
             if (existing instanceof SecretKey) return (SecretKey) existing;
             KeyGenerator generator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE);
             generator.init(new KeyGenParameterSpec.Builder(
-                ALIAS,
+                alias(provider),
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT
             ).setBlockModes(KeyProperties.BLOCK_MODE_GCM)
              .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)

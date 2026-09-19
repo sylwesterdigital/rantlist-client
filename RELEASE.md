@@ -1,3 +1,12 @@
+## v0.1.119 — working Avatar Lab and creative BYOK
+
+Synchronizes Rantlist 9.6.282 / r310. Profile Avatar Lab now runs user-authorized Tripo3D generation from the current profile image, stores completed GLBs under Rantlist control and previews them interactively with WebXR when available. Config adds Tripo3D and xAI/Grok BYOK; native apps protect provider keys in Keychain/Android Keystore while browser mode keeps them only in page memory. The old Coming next roadmap card is removed.
+
+## v0.1.118 / Rantlist 9.6.281
+- Synchronizes native clients with canonical server UI `rantlist-deploy-r309` / protocol 70.
+- Keeps the **Coming next / Avatar lab** roadmap visible on the Welcome back surface instead of leaving it behind in the hidden full profile drawer.
+- Adds `NOTES-AVATAR-LAB.md` preserving the supplied Flask/i2i Tripo3D → local GLB → WebXR → Stage implementation target.
+
 ## v0.1.117 / Rantlist 9.6.280
 - Synchronizes native clients with canonical server UI `rantlist-deploy-r308` / protocol 70.
 - Native iOS now hides the non-working embedded Stripe Buy Button in **About this server** and promotes the configured direct Stripe payment link to the primary support button.

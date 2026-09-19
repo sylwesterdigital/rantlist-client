@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 for path in \
-  DEVELOPMENT-SAFETY.md web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html assets/rantlist-logo.svg \
+  DEVELOPMENT-SAFETY.md NOTES-AVATAR-LAB.md web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html assets/rantlist-logo.svg \
   mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
   mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
@@ -23,6 +23,9 @@ done
 "$ROOT/scripts/verify_github_release_transaction.sh"
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
+grep -q 'id="profileAvatarLab"' "$ROOT/web/index.html" || { echo "Working profile Avatar Lab missing from client snapshot" >&2; exit 1; }
+grep -q 'id="profileAvatar3dGenerateButton"' "$ROOT/web/index.html" || { echo "Avatar Lab Generate 3D action missing" >&2; exit 1; }
+! grep -q 'profileWelcomeFutureSlot\|profileFutureCard\|Coming next' "$ROOT/web/index.html" || { echo "Roadmap-only Avatar Lab copy must not appear in UX" >&2; exit 1; }
 grep -q 'import AVFoundation' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client lacks AVFoundation permission handling" >&2; exit 1; }
 grep -q 'requestCaptureAuthorization(type)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WebKit media capture is not gated by native camera/microphone permission" >&2; exit 1; }
 grep -q '!targetFrame.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client does not preserve embedded HTTPS frames in-app" >&2; exit 1; }
@@ -154,9 +157,12 @@ grep -q 'message.frameInfo.isMainFrame' "$ROOT/macos/RantlistApp.swift" || { ech
 grep -q 'import Security' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS Keychain framework missing for OpenAI BYOK" >&2; exit 1; }
 grep -q 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS OpenAI key is not device-only/unlocked Keychain data" >&2; exit 1; }
 grep -q 'name: "rantlistSecrets"' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge missing" >&2; exit 1; }
+grep -q '"openai", "tripo", "xai"' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge is not provider-aware" >&2; exit 1; }
+grep -q '"openai", "tripo", "xai"' "$ROOT/macos/RantlistApp.swift" || { echo "macOS secure credential bridge is not provider-aware" >&2; exit 1; }
 grep -q 'message.frameInfo.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge is not restricted to the main frame" >&2; exit 1; }
 grep -q 'AndroidKeyStore' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android Keystore-backed OpenAI storage missing" >&2; exit 1; }
 grep -q 'AES/GCM/NoPadding' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android OpenAI ciphertext is not AES-GCM protected" >&2; exit 1; }
+grep -q '"tripo".equals(provider)' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android secure credential bridge is not provider-aware" >&2; exit 1; }
 grep -q 'createWebMessageChannel' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android origin-scoped secure credential channel missing" >&2; exit 1; }
 ! grep -q 'addJavascriptInterface' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android secure credential bridge must not use all-frame addJavascriptInterface" >&2; exit 1; }
 ! grep -q "readStorage('chat.ai.openai.apiKey')" "$ROOT/web/index.html" || { echo "OpenAI API key is still read from persistent WebView/browser localStorage" >&2; exit 1; }

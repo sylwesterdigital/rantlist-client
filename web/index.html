@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.280">
+  <meta name="chat-ui-version" content="9.6.282">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -8653,6 +8653,7 @@
     }
 
     .profile-welcome-start-slot,
+    .profile-welcome-future-slot,
     .profile-welcome-return-slot {
       min-width: 0;
     }
@@ -8676,6 +8677,18 @@
       min-width: 138px;
       height: 138px;
       min-height: 138px;
+    }
+
+
+    .profile-welcome-surface .profile-future-card {
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--panel-2) 92%, var(--accent) 8%);
+    }
+
+    .profile-welcome-surface .profile-future-card .profile-future-pills {
+      gap: 6px;
     }
 
     .profile-welcome-return {
@@ -16035,7 +16048,17 @@
       .composer-style-config { grid-template-columns: 1fr; }
     }
 
+
+    .profile-avatar-lab { margin: var(--space-3) 0; padding: var(--space-3); border: 1px solid var(--line); border-radius: 14px; background: color-mix(in srgb, var(--panel) 90%, var(--accent) 10%); }
+    .profile-avatar-lab-controls { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto auto; gap:8px; align-items:center; }
+    .profile-avatar-lab progress { width:100%; margin-top:10px; }
+    .avatar3d-preview-card { width:min(760px,94vw); }
+    .avatar3d-preview-stage { width:100%; height:min(62vh,620px); min-height:340px; background:rgba(0,0,0,.68); border-radius:12px; overflow:hidden; }
+    .avatar3d-preview-stage canvas { width:100%; height:100%; display:block; touch-action:none; }
+    .avatar3d-preview-card .button-like { display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:9px;color:inherit; }
+    @media (max-width:760px){ .profile-avatar-lab-controls{grid-template-columns:1fr 1fr}.profile-avatar-lab-controls button{min-height:42px} }
 </style>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
 </head>
 <body>
@@ -16049,7 +16072,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.280</small>
+          <small id="serverBrandVersion">v9.6.282</small>
         </span>
       </button>
     </div>
@@ -16367,6 +16390,22 @@
             <button id="openAiWalletResetButton" type="button">Reset local spend</button>
           </div>
           <p id="openAiApiKeyHint" class="hint">Native apps use Keychain/Keystore; browsers keep the key only in page memory. The key is never written to WebView/browser localStorage and is sent only for your OpenAI request.</p>
+          <div class="config-row" data-config-feature="creative-byok">
+            <label for="tripoApiKeyInput">Tripo3D API key</label>
+            <input id="tripoApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Tripo API key" aria-describedby="tripoApiKeyHint">
+          </div>
+          <div class="config-actions" data-config-feature="creative-byok">
+            <button id="tripoApiKeySaveButton" type="button">Save Tripo key</button><button id="tripoApiKeyClearButton" type="button">Clear</button>
+          </div>
+          <p id="tripoApiKeyHint" class="hint">Used only when you start or recover your own Avatar Lab generation.</p>
+          <div class="config-row" data-config-feature="creative-byok">
+            <label for="xaiApiKeyInput">xAI / Grok API key</label>
+            <input id="xaiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="xAI API key" aria-describedby="xaiApiKeyHint">
+          </div>
+          <div class="config-actions" data-config-feature="creative-byok">
+            <button id="xaiApiKeySaveButton" type="button">Save xAI key</button><button id="xaiApiKeyClearButton" type="button">Clear</button>
+          </div>
+          <p id="xaiApiKeyHint" class="hint">Stored securely for explicit xAI/Grok actions when those tools are enabled.</p>
           <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiDurableBackgroundInput">
             <span>Extended OpenAI jobs (&gt;10 min)</span>
             <input id="openAiDurableBackgroundInput" type="checkbox" aria-describedby="openAiDurableBackgroundHint">
@@ -16864,13 +16903,19 @@
               <small class="profile-start-optional-note">Only the nickname is required. Picture, colour and details are optional.</small>
             </section>
 
-            <section class="profile-future-card" aria-labelledby="profileAvatarLabTitle">
-              <div class="profile-future-copy">
-                <span class="profile-section-kicker">Coming next</span>
-                <h3 id="profileAvatarLabTitle">Avatar lab</h3>
-                <p>Profile images captured here can later flow into Tripo3D-style avatar generation, WebXR preview and Stage world presence.</p>
+            <section id="profileAvatarLab" class="profile-avatar-lab" aria-labelledby="profileAvatarLabTitle">
+              <div class="profile-section-heading">
+                <div><span class="profile-section-kicker">Avatar Lab</span><h3 id="profileAvatarLabTitle">3D avatar</h3></div>
+                <small id="profileAvatar3dStatus">Add a Tripo3D key in Config to generate from your profile picture.</small>
               </div>
-              <div class="profile-future-pills" aria-hidden="true"><span>3D head</span><span>Avatar pipeline</span><span>WebXR preview</span><span>Stage integration</span></div>
+              <div class="profile-avatar-lab-controls">
+                <select id="profileAvatar3dModelSelect" aria-label="Tripo3D model"><option value="P1-20260311">P1</option><option value="v3.1-20260211">v3.1</option><option value="v3.0-20250812">v3.0</option><option value="Turbo-v1.0-20250506">Turbo</option></select>
+                <select id="profileAvatar3dTextureSelect" aria-label="Texture quality"><option value="standard">Standard texture</option><option value="detailed">Detailed texture</option></select>
+                <button id="profileAvatar3dGenerateButton" class="primary" type="button"><span class="icon icon-avatar"></span><span>Generate 3D</span></button>
+                <button id="profileAvatar3dPreviewButton" type="button" disabled>Preview 3D</button>
+                <button id="profileAvatar3dKeysButton" type="button">API keys</button>
+              </div>
+              <progress id="profileAvatar3dProgress" max="100" value="0" hidden></progress>
             </section>
 
             <section class="profile-optional-section" aria-labelledby="profileOptionalTitle">
@@ -18644,7 +18689,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -18655,7 +18700,7 @@
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
-        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileGameSummary', 'profileGameSummaryBody',
+        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'profileAvatarLab', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
@@ -19046,6 +19091,17 @@
       openAiEphemeralApiKey: '',
       openAiApiKeyConfigured: false,
       openAiCredentialStorage: 'memory',
+      tripoEphemeralApiKey: '',
+      tripoApiKeyConfigured: false,
+      tripoCredentialStorage: 'memory',
+      xaiEphemeralApiKey: '',
+      xaiApiKeyConfigured: false,
+      xaiCredentialStorage: 'memory',
+      avatar3dItems: [],
+      avatar3dActiveTaskId: '',
+      avatar3dPollTimer: null,
+      avatar3dPollBusy: false,
+      avatar3dPreview: null,
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
       openAiMaxOutputTokens: [1024, 2048, 4096, 8192, 16384, 32768, 65536, 128000].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 16384,
       openAiConfirmAstra: readStorage('chat.ai.openai.confirmAstra') !== 'off',
@@ -19321,136 +19377,99 @@
     const decoder = new TextDecoder();
 
     const OPENAI_API_KEY_STORAGE_KEY = 'chat.ai.openai.apiKey';
+    const PROVIDER_API_KEY_STORAGE_KEYS = Object.freeze({ openai: OPENAI_API_KEY_STORAGE_KEY, tripo: 'chat.ai.tripo.apiKey', xai: 'chat.ai.xai.apiKey' });
     const nativeSecretRequests = new Map();
     let rantlistNativeSecretPort = null;
-    let openAiCredentialInitRunning = false;
+    const providerCredentialInitRunning = new Set();
 
-    function validOpenAiApiKey(value) {
+    function validProviderApiKey(value) {
       const key = String(value || '').trim();
       return key.length >= 20 && key.length <= 512 && !/[\s\u0000-\u001f\u007f]/.test(key);
     }
+    const validOpenAiApiKey = validProviderApiKey;
 
-    function removePersistentStorage(key) {
-      try { localStorage.removeItem(key); } catch {}
-    }
-
+    function removePersistentStorage(key) { try { localStorage.removeItem(key); } catch {} }
     function nativeSecretHandler() {
       const apple = window.webkit?.messageHandlers?.rantlistSecrets;
       if (apple?.postMessage) return { kind: 'apple', label: /iPhone|iPad|iPod/i.test(navigator.userAgent) ? 'Apple Keychain' : 'macOS Keychain' };
       if (rantlistNativeSecretPort) return { kind: 'android', label: 'Android Keystore' };
       return null;
     }
-
     function settleNativeSecretResponse(payload) {
       const requestId = String(payload?.requestId || '');
-      const pending = nativeSecretRequests.get(requestId);
-      if (!pending) return;
-      nativeSecretRequests.delete(requestId);
-      clearTimeout(pending.timer);
-      if (payload?.ok === false) pending.reject(new Error(String(payload?.error || 'Secure credential operation failed.')));
-      else pending.resolve(payload || {});
+      const pending = nativeSecretRequests.get(requestId); if (!pending) return;
+      nativeSecretRequests.delete(requestId); clearTimeout(pending.timer);
+      if (payload?.ok === false) pending.reject(new Error(String(payload?.error || 'Secure credential operation failed.'))); else pending.resolve(payload || {});
     }
-
     window.rantlistNativeSecretResult = (payload) => settleNativeSecretResponse(payload);
     window.addEventListener('message', (event) => {
       if (event.data !== 'rantlist-native-secret-channel-v1' || !event.ports?.[0]) return;
       try { rantlistNativeSecretPort?.close?.(); } catch {}
       rantlistNativeSecretPort = event.ports[0];
-      rantlistNativeSecretPort.onmessage = (messageEvent) => {
-        try { settleNativeSecretResponse(JSON.parse(String(messageEvent.data || '{}'))); } catch {}
-      };
+      rantlistNativeSecretPort.onmessage = (messageEvent) => { try { settleNativeSecretResponse(JSON.parse(String(messageEvent.data || '{}'))); } catch {} };
       rantlistNativeSecretPort.start?.();
-      initializeOpenAiCredentialStorage().catch(() => {});
+      initializeAllProviderCredentials().catch(() => {});
     });
-
-    function nativeSecretRequest(action, key = '') {
+    function nativeSecretRequest(action, key = '', provider = 'openai') {
       const bridge = nativeSecretHandler();
       if (!bridge) return Promise.reject(new Error('Native secure credential storage is unavailable.'));
+      const safeProvider = ['openai','tripo','xai'].includes(String(provider || '').toLowerCase()) ? String(provider).toLowerCase() : 'openai';
       const requestId = `secret-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`;
       return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => {
-          nativeSecretRequests.delete(requestId);
-          reject(new Error('Native secure credential storage timed out.'));
-        }, 5000);
+        const timer = setTimeout(() => { nativeSecretRequests.delete(requestId); reject(new Error('Native secure credential storage timed out.')); }, 5000);
         nativeSecretRequests.set(requestId, { resolve, reject, timer });
-        const payload = { requestId, action, key: action === 'set' ? String(key || '') : '' };
-        try {
-          if (bridge.kind === 'apple') window.webkit.messageHandlers.rantlistSecrets.postMessage(payload);
-          else rantlistNativeSecretPort.postMessage(JSON.stringify(payload));
-        } catch (error) {
-          clearTimeout(timer);
-          nativeSecretRequests.delete(requestId);
-          reject(error);
-        }
+        const payload = { requestId, action, provider: safeProvider, key: action === 'set' ? String(key || '') : '' };
+        try { if (bridge.kind === 'apple') window.webkit.messageHandlers.rantlistSecrets.postMessage(payload); else rantlistNativeSecretPort.postMessage(JSON.stringify(payload)); }
+        catch (error) { clearTimeout(timer); nativeSecretRequests.delete(requestId); reject(error); }
       });
     }
-
-    async function initializeOpenAiCredentialStorage() {
-      if (openAiCredentialInitRunning) return;
-      openAiCredentialInitRunning = true;
+    function providerStateFields(provider) {
+      return provider === 'tripo'
+        ? { ephemeral:'tripoEphemeralApiKey', configured:'tripoApiKeyConfigured', storage:'tripoCredentialStorage' }
+        : provider === 'xai'
+          ? { ephemeral:'xaiEphemeralApiKey', configured:'xaiApiKeyConfigured', storage:'xaiCredentialStorage' }
+          : { ephemeral:'openAiEphemeralApiKey', configured:'openAiApiKeyConfigured', storage:'openAiCredentialStorage' };
+    }
+    async function initializeProviderCredential(provider) {
+      const p = ['openai','tripo','xai'].includes(provider) ? provider : 'openai';
+      if (providerCredentialInitRunning.has(p)) return;
+      providerCredentialInitRunning.add(p);
+      const f = providerStateFields(p);
       try {
-        const legacy = String(readStorage(OPENAI_API_KEY_STORAGE_KEY) || '').trim();
-        removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY);
-        if (validOpenAiApiKey(legacy) && !state.openAiEphemeralApiKey) state.openAiEphemeralApiKey = legacy;
-
+        const storageKey = PROVIDER_API_KEY_STORAGE_KEYS[p];
+        const legacy = String(readStorage(storageKey) || '').trim(); removePersistentStorage(storageKey);
+        if (validProviderApiKey(legacy) && !state[f.ephemeral]) state[f.ephemeral] = legacy;
         const bridge = nativeSecretHandler();
-        if (!bridge) {
-          state.openAiCredentialStorage = 'memory';
-          state.openAiApiKeyConfigured = validOpenAiApiKey(state.openAiEphemeralApiKey);
-          renderChatAiSettings();
-          return;
-        }
-
-        state.openAiCredentialStorage = bridge.label;
-        if (validOpenAiApiKey(state.openAiEphemeralApiKey)) {
-          await nativeSecretRequest('set', state.openAiEphemeralApiKey);
-          state.openAiEphemeralApiKey = '';
-        }
-        const status = await nativeSecretRequest('status');
-        state.openAiApiKeyConfigured = status.configured === true;
-        renderChatAiSettings();
-      } finally {
-        openAiCredentialInitRunning = false;
-      }
+        if (!bridge) { state[f.storage] = 'memory'; state[f.configured] = validProviderApiKey(state[f.ephemeral]); renderChatAiSettings(); renderAvatarLab(); return; }
+        state[f.storage] = bridge.label;
+        if (validProviderApiKey(state[f.ephemeral])) { await nativeSecretRequest('set', state[f.ephemeral], p); state[f.ephemeral] = ''; }
+        const status = await nativeSecretRequest('status', '', p); state[f.configured] = status.configured === true;
+        renderChatAiSettings(); renderAvatarLab();
+      } finally { providerCredentialInitRunning.delete(p); }
     }
-
-    async function saveOpenAiCredential(rawKey) {
-      const key = String(rawKey || '').trim();
-      if (!validOpenAiApiKey(key)) throw new Error('Invalid OpenAI API key.');
-      removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY);
+    async function initializeAllProviderCredentials() { await Promise.all(['openai','tripo','xai'].map((p) => initializeProviderCredential(p))); }
+    async function saveProviderCredential(provider, rawKey) {
+      const p = ['openai','tripo','xai'].includes(provider) ? provider : 'openai';
+      const key = String(rawKey || '').trim(); if (!validProviderApiKey(key)) throw new Error('Invalid API key.');
+      const f = providerStateFields(p); removePersistentStorage(PROVIDER_API_KEY_STORAGE_KEYS[p]);
       const bridge = nativeSecretHandler();
-      if (bridge) {
-        await nativeSecretRequest('set', key);
-        state.openAiCredentialStorage = bridge.label;
-        state.openAiEphemeralApiKey = '';
-        state.openAiApiKeyConfigured = true;
-        return;
-      }
-      state.openAiCredentialStorage = 'memory';
-      state.openAiEphemeralApiKey = key;
-      state.openAiApiKeyConfigured = true;
+      if (bridge) { await nativeSecretRequest('set', key, p); state[f.storage] = bridge.label; state[f.ephemeral] = ''; state[f.configured] = true; return; }
+      state[f.storage] = 'memory'; state[f.ephemeral] = key; state[f.configured] = true;
     }
-
-    async function clearOpenAiCredential() {
-      removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY);
-      const bridge = nativeSecretHandler();
-      if (bridge) await nativeSecretRequest('clear');
-      state.openAiEphemeralApiKey = '';
-      state.openAiApiKeyConfigured = false;
+    async function clearProviderCredential(provider) {
+      const p = ['openai','tripo','xai'].includes(provider) ? provider : 'openai'; const f = providerStateFields(p);
+      removePersistentStorage(PROVIDER_API_KEY_STORAGE_KEYS[p]); const bridge = nativeSecretHandler(); if (bridge) await nativeSecretRequest('clear', '', p);
+      state[f.ephemeral] = ''; state[f.configured] = false;
     }
-
-    async function openAiCredentialForRequest() {
-      const bridge = nativeSecretHandler();
-      if (bridge) {
-        const result = await nativeSecretRequest('get');
-        const key = String(result.key || '').trim();
-        if (!validOpenAiApiKey(key)) throw new Error('OpenAI API key is missing from secure storage.');
-        return key;
-      }
-      const key = String(state.openAiEphemeralApiKey || '').trim();
-      if (!validOpenAiApiKey(key)) throw new Error('OpenAI API key is not available in this browser page.');
-      return key;
+    async function providerCredentialForRequest(provider) {
+      const p = ['openai','tripo','xai'].includes(provider) ? provider : 'openai'; const f = providerStateFields(p); const bridge = nativeSecretHandler();
+      if (bridge) { const result = await nativeSecretRequest('get', '', p); const key = String(result.key || '').trim(); if (!validProviderApiKey(key)) throw new Error(`${p} API key is missing from secure storage.`); return key; }
+      const key = String(state[f.ephemeral] || '').trim(); if (!validProviderApiKey(key)) throw new Error(`${p} API key is not available in this browser page.`); return key;
     }
+    const initializeOpenAiCredentialStorage = () => { removePersistentStorage(OPENAI_API_KEY_STORAGE_KEY); return initializeProviderCredential('openai'); };
+    const saveOpenAiCredential = (key) => saveProviderCredential('openai', key);
+    const clearOpenAiCredential = () => clearProviderCredential('openai');
+    const openAiCredentialForRequest = () => providerCredentialForRequest('openai');
 
 
     installDiagnostics();
@@ -19466,11 +19485,9 @@
 
     syncViewportHeight(true);
     bindUi();
-    initializeOpenAiCredentialStorage().catch((error) => {
-      debugLog('warn', 'security', 'openai-secure-storage-init-failed', { message: error?.message || String(error) }, true);
-      state.openAiCredentialStorage = 'memory';
-      state.openAiApiKeyConfigured = validOpenAiApiKey(state.openAiEphemeralApiKey);
-      renderChatAiSettings();
+    initializeAllProviderCredentials().catch((error) => {
+      debugLog('warn', 'security', 'provider-secure-storage-init-failed', { message: error?.message || String(error) }, true);
+      renderChatAiSettings(); renderAvatarLab();
     });
     renderServerBrand();
     setConnectionState('connecting', 'Connecting…');
@@ -19965,6 +19982,21 @@
           renderChatAiSettings();
         }
       });
+      const bindProviderKeyControls = (provider, input, saveButton, clearButton) => {
+        saveButton?.addEventListener('click', async () => {
+          const key = String(input?.value || '').trim();
+          if (!validProviderApiKey(key)) return addSystemMessage(`Enter a valid ${provider === 'tripo' ? 'Tripo3D' : 'xAI'} API key before saving.`, true);
+          try { await saveProviderCredential(provider, key); if (input) input.value = ''; renderChatAiSettings(); renderAvatarLab(); addSystemMessage(`${provider === 'tripo' ? 'Tripo3D' : 'xAI'} API key saved securely for this device/page.`); }
+          catch (error) { addSystemMessage(`API key could not be saved securely: ${error?.message || 'secure storage unavailable'}.`, true); }
+        });
+        clearButton?.addEventListener('click', async () => {
+          try { await clearProviderCredential(provider); if (input) input.value = ''; renderChatAiSettings(); renderAvatarLab(); addSystemMessage(`${provider === 'tripo' ? 'Tripo3D' : 'xAI'} API key cleared from this device.`); }
+          catch (error) { addSystemMessage(`API key could not be cleared: ${error?.message || 'secure storage unavailable'}.`, true); }
+        });
+      };
+      bindProviderKeyControls('tripo', elements.tripoApiKeyInput, elements.tripoApiKeySaveButton, elements.tripoApiKeyClearButton);
+      bindProviderKeyControls('xai', elements.xaiApiKeyInput, elements.xaiApiKeySaveButton, elements.xaiApiKeyClearButton);
+
       elements.openAiDurableBackgroundInput?.addEventListener('change', () => {
         state.openAiDurableBackground = elements.openAiDurableBackgroundInput.checked === true;
         writeStorage('chat.ai.openai.durableBackground', state.openAiDurableBackground ? 'on' : 'off');
@@ -20434,6 +20466,9 @@
 
       if (elements.profileAvatarUploadButton) elements.profileAvatarUploadButton.addEventListener('click', () => elements.profileAvatarInput.click());
       if (elements.profileAvatarCameraButton) elements.profileAvatarCameraButton.addEventListener('click', () => { void openProfileCameraCapture(); });
+      elements.profileAvatar3dGenerateButton?.addEventListener('click', () => { void generateProfileAvatar3d(); });
+      elements.profileAvatar3dPreviewButton?.addEventListener('click', () => { void openAvatar3dPreview(); });
+      elements.profileAvatar3dKeysButton?.addEventListener('click', () => { openConfig(); setTimeout(() => elements.tripoApiKeyInput?.focus?.(), 120); });
       if (elements.profileWelcomeActionButton) elements.profileWelcomeActionButton.addEventListener('click', async () => {
         try {
           await saveAndUseProfile();
@@ -21242,6 +21277,7 @@
           sendJson({ type: 'room.invites.list' });
           sendJson({ type: 'gif.gallery.list' });
           sendJson({ type: 'calendar.list' });
+          sendJson({ type: 'avatar3d.list' });
           redeemPendingExternalInvite();
           redeemPendingCalendarInvite();
           openPendingSharedMediaLink();
@@ -21617,6 +21653,14 @@
           state.quizSavedItems=(Array.isArray(message.items)?message.items:[]).map(normalizeSavedQuiz);state.quizSavedId=null;elements.quizNameInput.value='';renderQuizLibrary();elements.quizLibraryStatus.textContent='Saved quiz deleted.';
           break;
 
+        case 'avatar3d.list':
+          state.avatar3dItems = Array.isArray(message.items) ? message.items : []; renderAvatarLab();
+          { const pending=state.avatar3dItems.find((item)=>item && !['ready','failed','error','banned','expired','cancelled'].includes(String(item.status||'').toLowerCase())); if(pending?.taskId){state.avatar3dActiveTaskId=pending.taskId; scheduleAvatar3dPoll(pending.taskId,700);} }
+          break;
+        case 'avatar3d.status':
+        case 'avatar3d.ready':
+          handleAvatar3dMessage(message); break;
+
         case 'profile.view.result':
           if (message.identityId === state.activeProfileViewIdentityId) renderPublicProfile(message);
           break;
@@ -21641,6 +21685,7 @@
           state.desiredProfile = { nickname: message.user.nickname, metadata: message.user.metadata || {} };
           updateRememberedProfileFromServer(message.user);
           renderIdentity();
+          renderAvatarLab();
           renderUsers();
           renderChannelUsers();
           if (message.gameAvatarOnly !== true) {
@@ -22301,6 +22346,7 @@
 
         case 'error': {
           debugLog('error', 'server', message.code || 'error', message);
+          if (String(message.code || '').startsWith('avatar3d_')) { state.avatar3dPollBusy = false; renderAvatarLab(); }
           let errorText = `${message.code}: ${message.message}`;
           if (String(message.code || '').startsWith('translator_')) {
             setTranslatorStatus(message.message || 'Translator error.', 'error');
@@ -39563,6 +39609,7 @@
     }
 
     function renderProfileWelcomePanel() {
+      renderAvatarLab();
       if (!elements.profilePanel || !elements.profileWelcomePanel || !elements.profileWelcomeTitle || !elements.profileWelcomeText || !elements.profileWelcomeActionButton) return;
       const selected = state.profiles.find((profile) => profile.id === state.selectedProfileId) || null;
       const onboarding = !state.registered;
@@ -42952,6 +42999,7 @@
         uiScale: normalizeProfileUiScale(profile.uiScale, currentProfileUiScale()),
         color: /^#[0-9A-Fa-f]{6}$/.test(profile.color || '') ? profile.color : '#6e8bff',
         avatar: isSafeAvatarUrl(profile.avatar) ? profile.avatar : null,
+        avatar3d: isSafeAvatar3dUrl(profile.avatar3d) ? profile.avatar3d : null,
         createdAt: Number(profile.createdAt) || Date.now(),
         updatedAt: Date.now(),
       };
@@ -43142,6 +43190,7 @@
           uiScale: normalizeProfileUiScale(profile.uiScale, PROFILE_UI_SCALE_DEFAULT),
           color: profile.color || '#6e8bff',
           avatar: isSafeAvatarUrl(profile.avatar) ? profile.avatar : null,
+          avatar3d: isSafeAvatar3dUrl(profile.avatar3d) ? profile.avatar3d : null,
           createdAt: Number(profile.createdAt) || Date.now(),
           updatedAt: Number(profile.updatedAt) || Date.now(),
         },
@@ -43210,6 +43259,7 @@
         uiScale: normalizeProfileUiScale(source.uiScale, PROFILE_UI_SCALE_DEFAULT),
         color: /^#[0-9A-Fa-f]{6}$/.test(source.color || '') ? source.color : '#6e8bff',
         avatar: isSafeAvatarUrl(source.avatar) ? source.avatar : null,
+        avatar3d: isSafeAvatar3dUrl(source.avatar3d) ? source.avatar3d : null,
         createdAt: Number(source.createdAt) || Date.now(),
         updatedAt: Number(source.updatedAt) || Date.now(),
       };
@@ -43280,6 +43330,7 @@
         touch: navigator.maxTouchPoints > 0,
       };
       if (isSafeAvatarUrl(profile.avatar)) metadata.avatar = profile.avatar;
+      if (isSafeAvatar3dUrl(profile.avatar3d)) metadata.avatar3d = profile.avatar3d;
       return { nickname: profile.nickname, metadata };
     }
 
@@ -43322,6 +43373,7 @@
         uiScale: elements.profileUiScaleInput.value,
         color: elements.colorInput.value,
         avatar: state.editorAvatar,
+        avatar3d: existing?.avatar3d || state.selfUser?.metadata?.avatar3d || null,
         createdAt: existing?.createdAt || Date.now(),
       });
 
@@ -43460,6 +43512,7 @@
           uiScale: normalizeProfileUiScale(metadata.uiScale, existing?.uiScale || currentProfileUiScale()),
           color: metadata.color || '#6e8bff',
           avatar: isSafeAvatarUrl(metadata.avatar) ? metadata.avatar : existing?.avatar || null,
+          avatar3d: isSafeAvatar3dUrl(metadata.avatar3d) ? metadata.avatar3d : existing?.avatar3d || null,
           createdAt: existing?.createdAt || Date.now(),
         });
         state.selectedProfileId = saved.id;
@@ -43481,6 +43534,96 @@
       } catch (error) {
         console.warn('Could not update the remembered profile.', error);
       }
+    }
+
+    function selectedAvatar3dItem() {
+      return state.avatar3dItems.find((item) => item?.selected && item?.url) || state.avatar3dItems.find((item) => item?.url) || null;
+    }
+    function renderAvatarLab() {
+      if (!elements.profileAvatarLab) return;
+      const item = selectedAvatar3dItem();
+      const active = state.avatar3dItems.find((entry) => entry?.taskId === state.avatar3dActiveTaskId) || null;
+      const canGenerate = state.registered && !state.isAdmin && state.tripoApiKeyConfigured && Boolean(state.editorAvatar || state.selfUser?.metadata?.avatar);
+      if (elements.profileAvatar3dGenerateButton) elements.profileAvatar3dGenerateButton.disabled = !canGenerate || state.avatar3dPollBusy;
+      if (elements.profileAvatar3dPreviewButton) elements.profileAvatar3dPreviewButton.disabled = !item?.url;
+      if (elements.profileAvatar3dProgress) {
+        const progress = Number(active?.progress);
+        elements.profileAvatar3dProgress.hidden = !active || ['ready','failed','error','banned','expired','cancelled'].includes(String(active.status || '').toLowerCase());
+        elements.profileAvatar3dProgress.value = Number.isFinite(progress) ? Math.max(0, Math.min(100, progress)) : 0;
+      }
+      if (elements.profileAvatar3dStatus) {
+        elements.profileAvatar3dStatus.textContent = !state.tripoApiKeyConfigured
+          ? 'Add your Tripo3D API key in Config to enable generation.'
+          : active && active.status !== 'ready'
+            ? `Tripo3D: ${active.status || 'working'}${active.progress != null ? ` · ${Math.round(Number(active.progress) || 0)}%` : ''}`
+            : item?.url ? '3D avatar ready and linked to this profile.' : 'Ready to generate from your current profile picture.';
+      }
+    }
+    async function avatarLabSourceDataUrl() {
+      const source = String(state.editorAvatar || state.selfUser?.metadata?.avatar || '').trim();
+      if (!source) throw new Error('Choose a profile picture first.');
+      if (/^data:image\/(?:jpeg|png|webp);base64,/i.test(source)) return source;
+      const response = await fetch(source, { credentials:'same-origin', cache:'no-store' });
+      if (!response.ok) throw new Error('Could not read the profile picture.');
+      const blob = await response.blob(); const bmp = await createImageBitmap(blob);
+      const side = Math.max(1, Math.min(bmp.width, bmp.height)); const sx = Math.max(0, (bmp.width-side)/2); const sy = Math.max(0, (bmp.height-side)/2);
+      const canvas = document.createElement('canvas'); canvas.width = 512; canvas.height = 512;
+      const ctx = canvas.getContext('2d', { alpha:false }); ctx.drawImage(bmp, sx, sy, side, side, 0, 0, 512, 512); try { bmp.close?.(); } catch {}
+      const jpegBlob = await new Promise((resolve, reject) => canvas.toBlob((value) => value ? resolve(value) : reject(new Error('Could not prepare profile picture.')), 'image/jpeg', 0.88));
+      return createAvatarDataUrl(new File([jpegBlob], 'avatar-lab.jpg', { type:'image/jpeg' }));
+    }
+    function scheduleAvatar3dPoll(taskId, delay = 2500) {
+      clearTimeout(state.avatar3dPollTimer); state.avatar3dPollTimer = setTimeout(() => { void pollAvatar3dTask(taskId); }, delay);
+    }
+    async function pollAvatar3dTask(taskId) {
+      const id = String(taskId || state.avatar3dActiveTaskId || '').trim(); if (!id || state.avatar3dPollBusy) return;
+      state.avatar3dPollBusy = true; renderAvatarLab();
+      try { const apiKey = await providerCredentialForRequest('tripo'); sendJson({ type:'avatar3d.tripo.status', taskId:id, apiKey }); }
+      catch (error) { state.avatar3dPollBusy = false; renderAvatarLab(); addSystemMessage(`Avatar Lab: ${error?.message || 'Tripo3D key unavailable'}`, true); }
+    }
+    async function generateProfileAvatar3d() {
+      if (!state.registered || state.isAdmin) return;
+      try {
+        const [apiKey, sourceImage] = await Promise.all([providerCredentialForRequest('tripo'), avatarLabSourceDataUrl()]);
+        state.avatar3dPollBusy = true; renderAvatarLab();
+        sendJson({ type:'avatar3d.tripo.start', apiKey, sourceImage, modelVersion:String(elements.profileAvatar3dModelSelect?.value || 'P1-20260311'), textureQuality:String(elements.profileAvatar3dTextureSelect?.value || 'standard') });
+      } catch (error) { state.avatar3dPollBusy = false; renderAvatarLab(); addSystemMessage(`Avatar Lab: ${error?.message || 'generation could not start'}`, true); }
+    }
+    async function ensureAvatar3dPreviewModal() {
+      let modal = document.getElementById('avatar3dPreviewModal'); if (modal) return modal;
+      modal = document.createElement('section'); modal.id='avatar3dPreviewModal'; modal.className='modal-layer avatar3d-preview-modal'; modal.hidden=true; modal.setAttribute('aria-hidden','true');
+      modal.innerHTML = `<div class="modal-backdrop" data-avatar3d-close></div><div class="modal-card avatar3d-preview-card"><div class="modal-header"><div><small>Avatar Lab</small><h3>3D preview</h3></div><button type="button" data-avatar3d-close aria-label="Close">×</button></div><div class="avatar3d-preview-stage"><canvas></canvas></div><div class="config-actions"><button type="button" id="avatar3dEnterXrButton" hidden>Enter XR</button><a id="avatar3dDownloadLink" class="button-like" download>Download GLB</a></div></div>`;
+      document.body.append(modal); modal.querySelectorAll('[data-avatar3d-close]').forEach((el)=>el.addEventListener('click', closeAvatar3dPreview)); return modal;
+    }
+    function closeAvatar3dPreview() {
+      const modal=document.getElementById('avatar3dPreviewModal'); if (!modal) return; modal.hidden=true; modal.setAttribute('aria-hidden','true');
+      try { state.avatar3dPreview?.renderer?.setAnimationLoop(null); state.avatar3dPreview?.observer?.disconnect?.(); state.avatar3dPreview?.controls?.dispose?.(); state.avatar3dPreview?.renderer?.dispose?.(); } catch {} state.avatar3dPreview=null;
+    }
+    async function openAvatar3dPreview() {
+      const item=selectedAvatar3dItem(); if (!item?.url) return;
+      const modal=await ensureAvatar3dPreviewModal(); modal.hidden=false; modal.setAttribute('aria-hidden','false'); const canvas=modal.querySelector('canvas');
+      const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js');
+      const [{GLTFLoader},{OrbitControls}]=await Promise.all([import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/loaders/GLTFLoader.js'),import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/controls/OrbitControls.js')]);
+      const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio||1,2)); renderer.xr.enabled=true;
+      const scene=new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff,0x333333,2.2)); const camera=new THREE.PerspectiveCamera(35,1,0.01,1000); const controls=new OrbitControls(camera,canvas);
+      const model=await new Promise((resolve,reject)=>new GLTFLoader().load(item.url, (g)=>resolve(g.scene), undefined, reject)); scene.add(model);
+      const box=new THREE.Box3().setFromObject(model), size=new THREE.Vector3(), center=new THREE.Vector3(); box.getSize(size); box.getCenter(center); const max=Math.max(.001,size.x,size.y,size.z); camera.position.set(center.x,center.y+max*.15,center.z+max*2.2); controls.target.copy(center); controls.update();
+      const resize=()=>{const host=canvas.parentElement;const w=Math.max(280,host.clientWidth),hh=Math.max(320,host.clientHeight);renderer.setSize(w,hh,false);camera.aspect=w/hh;camera.updateProjectionMatrix();}; resize(); const observer=new ResizeObserver(resize); observer.observe(canvas.parentElement);
+      renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);}); state.avatar3dPreview={renderer,controls,observer};
+      const dl=modal.querySelector('#avatar3dDownloadLink'); dl.href=item.url;
+      const xr=modal.querySelector('#avatar3dEnterXrButton'); if (navigator.xr?.isSessionSupported) { const supported=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false) || await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false); xr.hidden=!supported; if(supported) xr.onclick=async()=>{const mode=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false)?'immersive-ar':'immersive-vr'; const session=await navigator.xr.requestSession(mode,{optionalFeatures:['local-floor']}); await renderer.xr.setSession(session);}; }
+    }
+    function handleAvatar3dMessage(message) {
+      const item=message?.item;
+      if (item?.taskId) {
+        const index=state.avatar3dItems.findIndex((entry)=>entry?.taskId===item.taskId); if(index>=0) state.avatar3dItems[index]={...state.avatar3dItems[index],...item}; else state.avatar3dItems.unshift(item);
+        state.avatar3dActiveTaskId=item.taskId;
+      }
+      state.avatar3dPollBusy=false;
+      if (message?.user) { state.selfUser=message.user; state.desiredProfile={nickname:message.user.nickname,metadata:message.user.metadata||{}}; updateRememberedProfileFromServer(message.user); }
+      renderAvatarLab();
+      const status=String(item?.status||'').toLowerCase(); if (item?.taskId && !['ready','failed','error','banned','expired','cancelled'].includes(status)) scheduleAvatar3dPoll(item.taskId);
+      if(item?.url) addSystemMessage('3D avatar ready.'); else if(message?.error) addSystemMessage(`Avatar Lab: ${message.error}`,true);
     }
 
     function stopProfileCameraStream() {
@@ -43674,6 +43817,10 @@
 
     function isSafeGameAvatarUrl(value) {
       return typeof value === 'string' && /^\/game-avatars\/[A-Fa-f0-9-]{36}\.gif(?:\?v=\d+)?$/.test(value);
+    }
+
+    function isSafeAvatar3dUrl(value) {
+      return typeof value === 'string' && /^\/avatar-3d\/[A-Fa-f0-9-]{36}\.glb(?:\?v=\d+)?$/.test(value);
     }
 
     function isSafeRoomBadgeValue(value) {
@@ -44786,6 +44933,16 @@
           : (state.openAiCredentialStorage === 'memory'
             ? 'No key configured. Browser mode keeps BYOK keys in page memory only; reload/close forgets them.'
             : `No key configured. Native Rantlist stores BYOK keys in ${state.openAiCredentialStorage}, not WebView localStorage.`);
+      for (const [provider, hint, clearButton] of [
+        ['tripo', elements.tripoApiKeyHint, elements.tripoApiKeyClearButton],
+        ['xai', elements.xaiApiKeyHint, elements.xaiApiKeyClearButton],
+      ]) {
+        const f = providerStateFields(provider); const configured = state[f.configured] === true; const storage = state[f.storage] || 'memory';
+        if (clearButton) clearButton.disabled = !configured;
+        if (hint) hint.textContent = configured
+          ? (storage === 'memory' ? 'Key is held only in this browser page memory and is forgotten on reload/close.' : `Key is protected by ${storage} and is fetched only for an explicit ${provider === 'tripo' ? 'Tripo3D' : 'xAI/Grok'} request.`)
+          : (storage === 'memory' ? 'No key configured. Browser mode keeps this BYOK key in page memory only.' : `No key configured. Native Rantlist can protect it in ${storage}.`);
+      }
       if (elements.openAiWalletHint) {
         const pricingDate = String(state.capabilities.chatAiOpenAiPricingAsOf || '2026-09-15');
         elements.openAiWalletHint.textContent = `Local OpenAI spend estimate: $${state.openAiSpendUsd.toFixed(6)} · ${state.openAiRequests} request${state.openAiRequests === 1 ? '' : 's'} · ${state.openAiInputTokens.toLocaleString()} input / ${state.openAiOutputTokens.toLocaleString()} output tokens · rates ${pricingDate}. OpenAI does not expose remaining prepaid credit to ordinary project API keys; account billing remains authoritative.`;
