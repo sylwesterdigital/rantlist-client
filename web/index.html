@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.284">
+  <meta name="chat-ui-version" content="9.6.285">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16053,15 +16053,24 @@
     .profile-avatar-lab-controls { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto auto auto; gap:8px; align-items:center; }
     .profile-avatar-lab progress { width:100%; margin-top:10px; }
     .profile-avatar-grok { margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid var(--line); display:grid; gap:8px; }
-    .profile-avatar-grok-controls { display:grid; grid-template-columns:minmax(0,2fr) minmax(150px,1fr) repeat(4,minmax(92px,auto)) auto; gap:8px; align-items:center; }
+    .profile-avatar-grok-controls { display:grid; grid-template-columns:minmax(120px,.85fr) minmax(180px,1.3fr) minmax(110px,.8fr) minmax(92px,.7fr) minmax(82px,.6fr) auto; gap:8px; align-items:center; }
+    #profileAvatarGrokPrompt { grid-column:1/-1; width:100%; min-height:44px; }
     .profile-avatar-grok-result { display:grid; grid-template-columns:minmax(120px,220px) 1fr; gap:10px; align-items:center; }
     .profile-avatar-grok-result img,.profile-avatar-grok-result video { width:100%; max-height:220px; object-fit:contain; border-radius:10px; background:#000; }
     .profile-avatar-grok-actions { display:flex; flex-wrap:wrap; gap:8px; }
-    .avatar3d-preview-card { width:min(760px,94vw); }
-    .avatar3d-preview-stage { width:100%; height:min(62vh,620px); min-height:340px; background:rgba(0,0,0,.68); border-radius:12px; overflow:hidden; }
+    .avatar3d-preview-card { width:min(920px,96vw); }
+    .avatar3d-preview-toolbar { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px; }
+    .avatar3d-preview-control { display:grid; gap:6px; min-width:0; }
+    .avatar3d-preview-control label { font-size:12px; opacity:.84; }
+    .avatar3d-preview-control input[type="range"] { width:100%; }
+    .avatar3d-preview-control input[type="color"] { width:100%; min-height:42px; padding:0; border-radius:10px; }
+    .avatar3d-preview-nav { display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+    .avatar3d-preview-nav .button-like, .avatar3d-preview-nav button { min-height:40px; }
+    .avatar3d-preview-note { margin-top:8px; font-size:12px; opacity:.8; }
+    .avatar3d-preview-stage { width:100%; height:min(62vh,620px); min-height:340px; background:#1f2738; border-radius:12px; overflow:hidden; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
     .avatar3d-preview-stage canvas { width:100%; height:100%; display:block; touch-action:none; }
     .avatar3d-preview-card .button-like { display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:8px 12px;border:1px solid var(--line);border-radius:9px;color:inherit; }
-    @media (max-width:760px){ .profile-avatar-lab-controls,.profile-avatar-grok-controls{grid-template-columns:1fr 1fr}.profile-avatar-lab-controls button,.profile-avatar-grok-controls button{min-height:42px}.profile-avatar-grok-result{grid-template-columns:1fr} }
+    @media (max-width:760px){ .profile-avatar-lab-controls,.profile-avatar-grok-controls,.avatar3d-preview-toolbar{grid-template-columns:1fr 1fr}.profile-avatar-lab-controls button,.profile-avatar-grok-controls button{min-height:42px}.profile-avatar-grok-result{grid-template-columns:1fr} }
 </style>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
@@ -16077,7 +16086,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.284</small>
+          <small id="serverBrandVersion">v9.6.285</small>
         </span>
       </button>
     </div>
@@ -16410,7 +16419,7 @@
           <div class="config-actions" data-config-feature="creative-byok">
             <button id="xaiApiKeySaveButton" type="button">Save xAI key</button><button id="xaiApiKeyClearButton" type="button">Clear</button>
           </div>
-          <p id="xaiApiKeyHint" class="hint">Used only when you explicitly run Grok in Avatar Lab. The key is not stored by the server.</p>
+          <p id="xaiApiKeyHint" class="hint">Used only for your explicit xAI / Grok actions. When you select a Grok chat model or run Avatar Lab, the key is attached only to that request and is not stored by the server.</p>
           <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiDurableBackgroundInput">
             <span>Extended OpenAI jobs (&gt;10 min)</span>
             <input id="openAiDurableBackgroundInput" type="checkbox" aria-describedby="openAiDurableBackgroundHint">
@@ -16915,7 +16924,7 @@
               </div>
               <div class="profile-avatar-grok">
                 <div class="profile-avatar-grok-controls">
-                  <input id="profileAvatarGrokPrompt" type="text" maxlength="4000" placeholder="Grok prompt for your profile image" aria-label="Grok prompt">
+                  <input id="profileAvatarGrokPrompt" type="text" maxlength="4000" placeholder="Describe how Grok should change your profile image" aria-label="Grok prompt">
                   <select id="profileAvatarGrokOutput" aria-label="Grok output"><option value="image">Image</option><option value="video">Video</option></select>
                   <input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" aria-label="Grok model" title="xAI Grok model">
                   <select id="profileAvatarGrokAspect" aria-label="Grok aspect ratio"><option value="auto">Auto aspect</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option><option value="2:3">2:3</option></select>
@@ -16923,7 +16932,7 @@
                   <select id="profileAvatarGrokDuration" aria-label="Grok video duration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select>
                   <button id="profileAvatarGrokRunButton" type="button"><span class="icon icon-ai"></span><span>Run Grok</span></button>
                 </div>
-                <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable image or video generation.</small>
+                <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable Grok chat plus image or video generation.</small>
                 <div id="profileAvatarGrokResult" class="profile-avatar-grok-result" hidden>
                   <div><img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden><video id="profileAvatarGrokVideo" controls playsinline hidden></video></div>
                   <div class="profile-avatar-grok-actions"><button id="profileAvatarGrokUseProfileButton" type="button" hidden>Use as profile photo</button><button id="profileAvatarGrokUse3dButton" type="button" hidden>Use for 3D</button></div>
@@ -18867,6 +18876,7 @@
         chatAiModels: ['Qwen/Qwen3.6-35B-A3B-FP8', 'Qwen3.8-27B', 'gpt-6-astra', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'],
         chatAiOpenAiByok: true,
         chatAiOpenAiModels: ['gpt-6-astra', 'gpt-5.6-sol', 'gpt-5.6-terra', 'gpt-5.6-luna'],
+        chatAiXaiModels: ['grok-4-1-fast-non-reasoning', 'grok-4-1-fast-reasoning'],
         chatAiOpenAiPricing: {},
         chatAiOpenAiPricingAsOf: '2026-09-15',
         chatAiOpenAiMaxOutputTokens: 8192,
@@ -22901,6 +22911,23 @@
           addSystemMessage('OpenAI API key is no longer available. Save it again in Config → Experimental AI.', true);
           return { aiBlocked: true };
         }
+      } else if (isXaiByokModel(commandModel)) {
+        if (!state.xaiApiKeyConfigured) {
+          addSystemMessage('Grok model selected, but no xAI API key is configured. Open Config → Experimental AI and save your key first.', true);
+          return { aiBlocked: true };
+        }
+        try {
+          aiApiKey = await providerCredentialForRequest('xai');
+        } catch (error) {
+          addSystemMessage(`xAI / Grok API key could not be read securely: ${error?.message || 'credential unavailable'}.`, true);
+          return { aiBlocked: true };
+        }
+        if (!validProviderApiKey(aiApiKey)) {
+          state.xaiApiKeyConfigured = false;
+          renderChatAiSettings();
+          addSystemMessage('xAI / Grok API key is no longer available. Save it again in Config → Experimental AI.', true);
+          return { aiBlocked: true };
+        }
       }
       return {
         aiContext: state.chatAiContextEnabled === true,
@@ -23014,7 +23041,7 @@
       const byteLength = encoder.encode(text).byteLength;
       const isAiCommand = /^\/ai(?:\s|$)/i.test(text);
       const aiCommandModel = isAiCommand ? selectedAiModelForCommand(text) : '';
-      const frontierPrompt = isAiCommand && isOpenAiByokModel(aiCommandModel);
+      const frontierPrompt = isAiCommand && (isOpenAiByokModel(aiCommandModel) || isXaiByokModel(aiCommandModel));
       const sendLimit = frontierPrompt
         ? Math.max(Number(state.capabilities.maxTextBytes) || 8192, Number(state.capabilities.chatAiFrontierMaxPromptBytes) || 256 * 1024)
         : (Number(state.capabilities.maxTextBytes) || 8192);
@@ -43613,7 +43640,7 @@
       }
       if (elements.profileAvatarGrokStatus) {
         elements.profileAvatarGrokStatus.textContent = !state.xaiApiKeyConfigured
-          ? 'Add your xAI / Grok API key in Config to enable image or video generation.'
+          ? 'Add your xAI / Grok API key in Config to enable Grok chat plus image or video generation.'
           : grokActive && grokActive.status !== 'ready'
             ? `Grok: ${grokActive.status || 'working'}${grokActive.progress != null ? ` · ${Math.round(Number(grokActive.progress) || 0)}%` : ''}`
             : grokItem?.url ? `${grokItem.kind === 'video' ? 'Grok video' : 'Grok image'} ready.` : 'Ready to run Grok on your current profile picture.';
@@ -43743,7 +43770,7 @@
     async function ensureAvatar3dPreviewModal() {
       let modal = document.getElementById('avatar3dPreviewModal'); if (modal) return modal;
       modal = document.createElement('section'); modal.id='avatar3dPreviewModal'; modal.className='modal-layer avatar3d-preview-modal'; modal.hidden=true; modal.setAttribute('aria-hidden','true');
-      modal.innerHTML = `<div class="modal-backdrop" data-avatar3d-close></div><div class="modal-card avatar3d-preview-card"><div class="modal-header"><div><small>Avatar Lab</small><h3>3D preview</h3></div><button type="button" data-avatar3d-close aria-label="Close">×</button></div><div class="avatar3d-preview-stage"><canvas></canvas></div><div class="config-actions"><button type="button" id="avatar3dEnterXrButton" hidden>Enter XR</button><a id="avatar3dDownloadLink" class="button-like" download>Download GLB</a></div></div>`;
+      modal.innerHTML = `<div class="modal-backdrop" data-avatar3d-close></div><div class="modal-card avatar3d-preview-card"><div class="modal-header"><div><small>Avatar Lab</small><h3>3D preview</h3></div><button type="button" data-avatar3d-close aria-label="Close">×</button></div><div class="avatar3d-preview-stage"><canvas></canvas></div><div class="avatar3d-preview-toolbar"><div class="avatar3d-preview-control"><label for="avatar3dBgColorInput">Stage background</label><input id="avatar3dBgColorInput" type="color" value="#1f2738"></div><div class="avatar3d-preview-control"><label for="avatar3dFloorColorInput">Floor plane</label><input id="avatar3dFloorColorInput" type="color" value="#3a4259"></div><div class="avatar3d-preview-control"><label for="avatar3dLightColorInput">Light colour</label><input id="avatar3dLightColorInput" type="color" value="#ffffff"></div><div class="avatar3d-preview-control"><label for="avatar3dAmbientLightInput">Ambient light</label><input id="avatar3dAmbientLightInput" type="range" min="0" max="250" step="1" value="95"></div><div class="avatar3d-preview-control"><label for="avatar3dKeyLightInput">Key light</label><input id="avatar3dKeyLightInput" type="range" min="0" max="300" step="1" value="175"></div><div class="avatar3d-preview-control"><label for="avatar3dRimLightInput">Rim light</label><input id="avatar3dRimLightInput" type="range" min="0" max="300" step="1" value="125"></div></div><div class="config-actions"><div class="avatar3d-preview-nav"><button type="button" id="avatar3dViewFrontButton">Front</button><button type="button" id="avatar3dViewPortraitButton">Portrait</button><button type="button" id="avatar3dViewFullButton">Full body</button><button type="button" id="avatar3dResetLightsButton">Reset lights</button><button type="button" id="avatar3dEnterXrButton" hidden>Enter XR</button><a id="avatar3dDownloadLink" class="button-like" download>Download GLB</a></div></div><p class="avatar3d-preview-note">Use the orbit gesture or mouse drag to rotate. The controls above help when dark materials blend into a dark stage.</p></div>`;
       document.body.append(modal); modal.querySelectorAll('[data-avatar3d-close]').forEach((el)=>el.addEventListener('click', closeAvatar3dPreview)); return modal;
     }
     function closeAvatar3dPreview() {
@@ -43755,11 +43782,46 @@
       const modal=await ensureAvatar3dPreviewModal(); modal.hidden=false; modal.setAttribute('aria-hidden','false'); const canvas=modal.querySelector('canvas');
       const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js');
       const [{GLTFLoader},{OrbitControls}]=await Promise.all([import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/loaders/GLTFLoader.js'),import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/controls/OrbitControls.js')]);
-      const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true}); renderer.setPixelRatio(Math.min(devicePixelRatio||1,2)); renderer.xr.enabled=true;
-      const scene=new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff,0x333333,2.2)); const camera=new THREE.PerspectiveCamera(35,1,0.01,1000); const controls=new OrbitControls(camera,canvas);
+      const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:false}); renderer.setPixelRatio(Math.min(devicePixelRatio||1,2)); renderer.xr.enabled=true; renderer.outputColorSpace=THREE.SRGBColorSpace; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.2;
+      const scene=new THREE.Scene();
+      const bgInput=modal.querySelector('#avatar3dBgColorInput');
+      const floorInput=modal.querySelector('#avatar3dFloorColorInput');
+      const lightColorInput=modal.querySelector('#avatar3dLightColorInput');
+      const ambientInput=modal.querySelector('#avatar3dAmbientLightInput');
+      const keyInput=modal.querySelector('#avatar3dKeyLightInput');
+      const rimInput=modal.querySelector('#avatar3dRimLightInput');
+      const bgColor=String(bgInput?.value || '#1f2738');
+      const floorColor=String(floorInput?.value || '#3a4259');
+      scene.background=new THREE.Color(bgColor);
+      const lightColor=new THREE.Color(String(lightColorInput?.value || '#ffffff'));
+      const ambient=new THREE.AmbientLight(lightColor,Math.max(0,Number(ambientInput?.value||95))/100); scene.add(ambient);
+      const hemi=new THREE.HemisphereLight(0xffffff,0x48516a,1.25); scene.add(hemi);
+      const keyLight=new THREE.DirectionalLight(lightColor,Math.max(0,Number(keyInput?.value||175))/100); keyLight.position.set(2.4,3.1,2.8); scene.add(keyLight);
+      const rimLight=new THREE.DirectionalLight(lightColor,Math.max(0,Number(rimInput?.value||125))/100); rimLight.position.set(-2.8,2.1,-2.6); scene.add(rimLight);
+      const floorMaterial=new THREE.MeshStandardMaterial({color:new THREE.Color(floorColor),roughness:0.95,metalness:0.02});
+      const floor=new THREE.Mesh(new THREE.CircleGeometry(6,64), floorMaterial); floor.rotation.x=-Math.PI/2; floor.position.y=-0.02; scene.add(floor);
+      const camera=new THREE.PerspectiveCamera(35,1,0.01,1000); const controls=new OrbitControls(camera,canvas); controls.enableDamping=true; controls.dampingFactor=0.07;
       const model=await new Promise((resolve,reject)=>new GLTFLoader().load(item.url, (g)=>resolve(g.scene), undefined, reject)); scene.add(model);
-      const box=new THREE.Box3().setFromObject(model), size=new THREE.Vector3(), center=new THREE.Vector3(); box.getSize(size); box.getCenter(center); const max=Math.max(.001,size.x,size.y,size.z); camera.position.set(center.x,center.y+max*.15,center.z+max*2.2); controls.target.copy(center); controls.update();
+      const box=new THREE.Box3().setFromObject(model), size=new THREE.Vector3(), center=new THREE.Vector3(); box.getSize(size); box.getCenter(center); const max=Math.max(.001,size.x,size.y,size.z);
+      floor.position.y = box.min.y - max*0.025; floor.scale.setScalar(Math.max(.2,max*.5));
+      controls.target.set(center.x, center.y + size.y*0.12, center.z);
+      function setView(mode='front') {
+        const portrait = mode === 'portrait';
+        const full = mode === 'full';
+        const distance = portrait ? max*1.45 : full ? max*2.35 : max*1.95;
+        const yTarget = portrait ? center.y + size.y*0.24 : full ? center.y + size.y*0.08 : center.y + size.y*0.16;
+        camera.position.set(center.x + (mode === 'portrait' ? max*0.08 : 0), yTarget + (portrait ? max*0.05 : max*0.12), center.z + distance);
+        controls.target.set(center.x, yTarget, center.z);
+        controls.update();
+      }
+      setView('front');
       const resize=()=>{const host=canvas.parentElement;const w=Math.max(280,host.clientWidth),hh=Math.max(320,host.clientHeight);renderer.setSize(w,hh,false);camera.aspect=w/hh;camera.updateProjectionMatrix();}; resize(); const observer=new ResizeObserver(resize); observer.observe(canvas.parentElement);
+      const syncLights=()=>{ const lc=new THREE.Color(String(lightColorInput?.value || '#ffffff')); scene.background=new THREE.Color(String(bgInput?.value || '#1f2738')); floorMaterial.color.set(String(floorInput?.value || '#3a4259')); ambient.color.copy(lc); keyLight.color.copy(lc); rimLight.color.copy(lc); ambient.intensity=Math.max(0,Number(ambientInput?.value||95))/100; keyLight.intensity=Math.max(0,Number(keyInput?.value||175))/100; rimLight.intensity=Math.max(0,Number(rimInput?.value||125))/100; };
+      [bgInput,floorInput,lightColorInput,ambientInput,keyInput,rimInput].forEach((input)=>input?.addEventListener('input', syncLights));
+      modal.querySelector('#avatar3dViewFrontButton')?.addEventListener('click', ()=>setView('front'));
+      modal.querySelector('#avatar3dViewPortraitButton')?.addEventListener('click', ()=>setView('portrait'));
+      modal.querySelector('#avatar3dViewFullButton')?.addEventListener('click', ()=>setView('full'));
+      modal.querySelector('#avatar3dResetLightsButton')?.addEventListener('click', ()=>{ if(bgInput) bgInput.value='#1f2738'; if(floorInput) floorInput.value='#3a4259'; if(lightColorInput) lightColorInput.value='#ffffff'; if(ambientInput) ambientInput.value='95'; if(keyInput) keyInput.value='175'; if(rimInput) rimInput.value='125'; syncLights(); setView('front'); });
       renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);}); state.avatar3dPreview={renderer,controls,observer};
       const dl=modal.querySelector('#avatar3dDownloadLink'); dl.href=item.url;
       const xr=modal.querySelector('#avatar3dEnterXrButton'); if (navigator.xr?.isSessionSupported) { const supported=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false) || await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false); xr.hidden=!supported; if(supported) xr.onclick=async()=>{const mode=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false)?'immersive-ar':'immersive-vr'; const session=await navigator.xr.requestSession(mode,{optionalFeatures:['local-floor']}); await renderer.xr.setSession(session);}; }
@@ -44956,6 +45018,10 @@
       return Array.isArray(state.capabilities.chatAiOpenAiModels) && state.capabilities.chatAiOpenAiModels.includes(String(model || ''));
     }
 
+    function isXaiByokModel(model) {
+      return Array.isArray(state.capabilities.chatAiXaiModels) && state.capabilities.chatAiXaiModels.includes(String(model || ''));
+    }
+
     function selectedHetznerTaskModel() {
       const hetznerModels = availableHetznerInferenceModels();
       const selected = selectedAiInferenceModel();
@@ -44989,6 +45055,8 @@
       if (model === 'gpt-5.6-sol') return 'GPT-5.6 Sol · OpenAI · your API key';
       if (model === 'gpt-5.6-terra') return 'GPT-5.6 Terra · OpenAI · your API key';
       if (model === 'gpt-5.6-luna') return 'GPT-5.6 Luna · OpenAI · your API key';
+      if (model === 'grok-4-1-fast-non-reasoning') return 'Grok 4.1 Fast · xAI · your API key';
+      if (model === 'grok-4-1-fast-reasoning') return 'Grok 4.1 Fast Reasoning · xAI · your API key';
       return model;
     }
 
@@ -45005,8 +45073,10 @@
           ? 'Isolated Local Llama sidecar is not healthy on the server yet.'
           : isOpenAiByokModel(model)
             ? (state.openAiApiKeyConfigured ? `Uses your OpenAI API key from ${state.openAiCredentialStorage}.` : 'Requires your own OpenAI API key below.')
-            : model;
-        option.disabled = isLocalLlamaModel(model) && state.capabilities.chatAiLocalLlama !== true;
+            : isXaiByokModel(model)
+              ? (state.xaiApiKeyConfigured ? `Uses your xAI / Grok API key from ${state.xaiCredentialStorage}.` : 'Requires your own xAI / Grok API key below.')
+              : model;
+        option.disabled = (isLocalLlamaModel(model) && state.capabilities.chatAiLocalLlama !== true) || (isXaiByokModel(model) && !state.xaiApiKeyConfigured);
         elements.hetznerAiModelSelect.append(option);
       }
       if (selected && models.includes(selected)) elements.hetznerAiModelSelect.value = selected;
@@ -45017,6 +45087,8 @@
           ? `Normal /ai text chat and /ai build use the local Meta-Llama 3.1 8B GGUF through the isolated Rantlist sidecar. /ai summary, image AI and multi-image comparison still require ${selectedHetznerTaskModel() || 'a Hetzner Qwen model'}.`
           : isOpenAiByokModel(selected)
             ? `Normal /ai text chat and Builder use ${selected} through OpenAI with your own API key. The key is attached only to your request and is not persisted by the server. YouTube summary and Image AI remain on the server Hetzner path.`
+            : isXaiByokModel(selected)
+              ? `Normal /ai text chat and Builder use ${selected} through xAI with your own secure Grok key. The key is attached only to your request and is not persisted by the server. YouTube summary and Image AI remain on the server Hetzner/OpenAI paths.`
             : (selected
               ? `Normal /ai text chat uses ${selected}. Send a multi-photo batch, then immediately ask /ai compare these images to pass the ordered batch to Qwen. YouTube summaries, Builder and image AI also use Hetzner Qwen. Saved locally; server default is ${configuredDefault || 'not reported'}.${state.capabilities.chatAiLocalLlama === true ? '' : ' Local Llama is listed above but remains disabled until the isolated loopback sidecar passes its safe health check.'}`
               : 'No AI model is currently advertised by the server.');
@@ -45622,6 +45694,16 @@
         try { aiApiKey = await openAiCredentialForRequest(); }
         catch (error) {
           addSystemMessage(`Transcript AI could not read your OpenAI API key securely: ${error?.message || 'credential unavailable'}.`, true);
+          return false;
+        }
+      } else if (isXaiByokModel(model)) {
+        if (!state.xaiApiKeyConfigured) {
+          addSystemMessage('Transcript AI needs your xAI / Grok API key. Open Config → Experimental AI and save your key first.', true);
+          return false;
+        }
+        try { aiApiKey = await providerCredentialForRequest('xai'); }
+        catch (error) {
+          addSystemMessage(`Transcript AI could not read your xAI / Grok API key securely: ${error?.message || 'credential unavailable'}.`, true);
           return false;
         }
       }

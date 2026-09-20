@@ -1,3 +1,7 @@
+## v0.1.122 — Grok chat + controllable 3D avatar preview
+
+Synchronizes Rantlist 9.6.285 / r313. A configured xAI/Grok key can now be used for normal `/ai` text chat through selectable Grok models. Avatar Lab keeps explicit prompt-driven profile-image editing, and the 3D preview adds stage/floor colour controls, brighter adjustable lighting and Front / Portrait / Full body views.
+
 ## v0.1.121 — working xAI/Grok Avatar Lab
 
 Synchronizes Rantlist 9.6.284 / r312. The configured user-owned xAI/Grok key now powers explicit Avatar Lab image editing and video generation from the profile image. Generated Grok images can be selected as the profile photo or used as the Tripo3D source; provider keys remain protected by native secure storage or page-memory-only browser storage.
