@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.299">
+  <meta name="chat-ui-version" content="9.6.300">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17094,6 +17094,7 @@
 
 
     /* r327: draggable media cards, top-bar provider settings and centered generation activity. */
+    /* r328: make the visible card title bars genuinely interactive drag handles. */
     .avatar-lab-topbar-settings{display:flex;align-items:center;gap:6px;flex:0 0 auto;min-width:0;}
     .avatar-lab-topbar .avatar-lab-topbar-settings-menu{position:relative!important;inset:auto!important;width:auto!important;min-width:118px!important;z-index:40!important;}
     .avatar-lab-topbar .avatar-lab-topbar-settings-menu>summary{min-height:30px!important;padding:4px 8px!important;gap:6px!important;background:rgba(5,9,16,.62)!important;backdrop-filter:blur(8px);white-space:nowrap;}
@@ -17107,6 +17108,13 @@
     .avatar-lab-topbar .avatar-lab-3d-settings-menu>summary small{margin-left:auto;color:var(--muted);overflow:hidden;text-overflow:ellipsis;}
 
     .avatar-lab-float-handle{cursor:grab;user-select:none;touch-action:none;pointer-events:auto!important;}
+    /* r328: the older card-header rule used pointer-events:none !important with higher specificity.
+       Override it explicitly so the visible Source/Reference title bars are actual drag handles. */
+    .avatar-lab-source-card > .avatar-lab-float-handle,
+    .avatar-lab-generated-card > .avatar-lab-float-handle{pointer-events:auto!important;cursor:grab!important;touch-action:none!important;z-index:16!important;}
+    .avatar-lab-source-card > .avatar-lab-float-handle::before,
+    .avatar-lab-generated-card > .avatar-lab-float-handle::before{content:'⋮⋮';font-size:10px;letter-spacing:-2px;opacity:.58;margin-right:5px;transform:rotate(90deg);display:inline-block;}
+    .avatar-lab-float-card{will-change:left,top;}
     .avatar-lab-float-card.is-dragging .avatar-lab-float-handle{cursor:grabbing;}
     .avatar-lab-float-card.is-dragging{z-index:35!important;box-shadow:0 20px 48px rgba(0,0,0,.44)!important;}
 
@@ -17148,7 +17156,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.299</small>
+          <small id="serverBrandVersion">v9.6.300</small>
         </span>
       </button>
     </div>
@@ -45302,10 +45310,50 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       for(const card of workbench.querySelectorAll('.avatar-lab-float-card[data-avatar-float]')){const key=String(card.dataset.avatarFloat||'');const pos=saved[key];if(!pos)continue;const wr=workbench.getBoundingClientRect(),cr=card.getBoundingClientRect();const maxX=Math.max(0,wr.width-cr.width),maxY=Math.max(0,wr.height-cr.height);const x=Math.round(maxX*Math.max(0,Math.min(1,Number(pos.x)||0))),y=Math.round(maxY*Math.max(0,Math.min(1,Number(pos.y)||0)));card.style.setProperty('left',`${x}px`,'important');card.style.setProperty('right','auto','important');card.style.setProperty('top',`${y}px`,'important');card.style.setProperty('bottom','auto','important');}
     }
     function bindAvatarLabFloatCard(card){
-      if(!card||card.dataset.avatarFloatBound==='1')return;card.dataset.avatarFloatBound='1';const handle=card.querySelector('.avatar-lab-float-handle');if(!handle)return;
-      handle.addEventListener('pointerdown',(event)=>{if(innerWidth<1100||event.button!==0)return;const workbench=card.closest('.avatar-lab-workbench');if(!workbench)return;event.preventDefault();const wr=workbench.getBoundingClientRect(),cr=card.getBoundingClientRect();const startX=event.clientX,startY=event.clientY,startLeft=cr.left-wr.left,startTop=cr.top-wr.top;card.classList.add('is-dragging');handle.setPointerCapture?.(event.pointerId);
-        const move=(moveEvent)=>{const nowW=workbench.getBoundingClientRect(),nowC=card.getBoundingClientRect();const maxX=Math.max(0,nowW.width-nowC.width),maxY=Math.max(0,nowW.height-nowC.height);const left=Math.max(0,Math.min(maxX,startLeft+moveEvent.clientX-startX));const top=Math.max(0,Math.min(maxY,startTop+moveEvent.clientY-startY));card.style.setProperty('left',`${Math.round(left)}px`,'important');card.style.setProperty('right','auto','important');card.style.setProperty('top',`${Math.round(top)}px`,'important');card.style.setProperty('bottom','auto','important');};
-        const stop=()=>{handle.removeEventListener('pointermove',move);handle.removeEventListener('pointerup',stop);handle.removeEventListener('pointercancel',stop);card.classList.remove('is-dragging');saveAvatarLabFloatPosition(card,String(card.dataset.avatarFloat||''));};handle.addEventListener('pointermove',move);handle.addEventListener('pointerup',stop);handle.addEventListener('pointercancel',stop);
+      if(!card||card.dataset.avatarFloatBound==='1')return;
+      card.dataset.avatarFloatBound='1';
+      const handle=card.querySelector('.avatar-lab-float-handle');
+      if(!handle)return;
+      handle.setAttribute('role','button');
+      handle.setAttribute('tabindex','0');
+      handle.setAttribute('aria-label',`${card.dataset.avatarFloat==='reference'?'Reference':'Source'} window. Drag to reposition.`);
+      handle.addEventListener('pointerdown',(event)=>{
+        if(innerWidth<1100||event.button!==0)return;
+        if(event.target.closest('button,input,select,textarea,a'))return;
+        const workbench=card.closest('.avatar-lab-workbench');
+        if(!workbench)return;
+        event.preventDefault();event.stopPropagation();
+        const wr=workbench.getBoundingClientRect(),cr=card.getBoundingClientRect();
+        const startX=event.clientX,startY=event.clientY,startLeft=cr.left-wr.left,startTop=cr.top-wr.top;
+        card.style.setProperty('left',`${Math.round(startLeft)}px`,'important');
+        card.style.setProperty('right','auto','important');
+        card.style.setProperty('top',`${Math.round(startTop)}px`,'important');
+        card.style.setProperty('bottom','auto','important');
+        card.classList.add('is-dragging');
+        handle.setPointerCapture?.(event.pointerId);
+        const move=(moveEvent)=>{
+          if(moveEvent.pointerId!==event.pointerId)return;
+          moveEvent.preventDefault();
+          const nowW=workbench.getBoundingClientRect();
+          const maxX=Math.max(0,nowW.width-card.offsetWidth),maxY=Math.max(0,nowW.height-card.offsetHeight);
+          const left=Math.max(0,Math.min(maxX,startLeft+moveEvent.clientX-startX));
+          const top=Math.max(0,Math.min(maxY,startTop+moveEvent.clientY-startY));
+          card.style.setProperty('left',`${Math.round(left)}px`,'important');
+          card.style.setProperty('top',`${Math.round(top)}px`,'important');
+        };
+        const stop=(stopEvent)=>{
+          if(stopEvent?.pointerId!=null&&stopEvent.pointerId!==event.pointerId)return;
+          document.removeEventListener('pointermove',move);
+          document.removeEventListener('pointerup',stop);
+          document.removeEventListener('pointercancel',stop);
+          card.classList.remove('is-dragging');
+          try{handle.releasePointerCapture?.(event.pointerId);}catch{}
+          saveAvatarLabFloatPosition(card,String(card.dataset.avatarFloat||''));
+        };
+        /* Document listeners keep dragging alive when the pointer leaves the small title bar. */
+        document.addEventListener('pointermove',move,{passive:false});
+        document.addEventListener('pointerup',stop);
+        document.addEventListener('pointercancel',stop);
       });
     }
     function initAvatarLabFloatingCards(){document.querySelectorAll('.avatar-lab-float-card[data-avatar-float]').forEach(bindAvatarLabFloatCard);requestAnimationFrame(applyAvatarLabFloatPositions);}
