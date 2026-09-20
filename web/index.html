@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.291">
+  <meta name="chat-ui-version" content="9.6.292">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16068,11 +16068,26 @@
       min-height:48px;
       display:flex;
       align-items:center;
+      gap:8px;
       padding:7px 54px 7px 12px;
       border-bottom:1px solid var(--line);
       background:color-mix(in srgb,var(--panel) 96%,transparent);
     }
     .avatar-lab-topbar .avatar-lab-flow { flex:1 1 auto; }
+    .avatar-lab-cost-chip {
+      flex:0 0 auto;
+      max-width:260px;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      padding:5px 8px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      color:var(--text);
+      background:var(--panel-2);
+      font-size:10.5px;
+      font-weight:800;
+    }
     .avatar-lab-a11y-title { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
     #avatarLabCloseButton {
       position:absolute;
@@ -16085,12 +16100,12 @@
       min-height:0;
       overflow:hidden;
       display:grid;
-      grid-template-rows:minmax(360px,54%) minmax(0,46%);
+      grid-template-rows:minmax(340px,40%) minmax(0,60%);
       background:color-mix(in srgb,var(--panel) 94%,transparent);
     }
     .avatar-lab-workbench {
       position:relative;
-      min-height:360px;
+      min-height:350px;
       overflow:hidden;
       border-bottom:1px solid var(--line);
       background:
@@ -16101,21 +16116,22 @@
     #avatarLabStageCanvas { width:100%; height:100%; display:block; touch-action:none; }
     .avatar-lab-stage-empty {
       position:absolute;
-      inset:25% 31% auto;
-      min-height:118px;
+      inset:28% 35% auto;
+      min-height:94px;
       display:grid;
       place-items:center;
       align-content:center;
-      gap:6px;
-      padding:14px;
-      border:1px dashed rgba(255,255,255,.22);
-      border-radius:16px;
+      gap:5px;
+      padding:12px;
+      border:1px dashed rgba(255,255,255,.20);
+      border-radius:15px;
       color:#dfe7ff;
       text-align:center;
-      background:rgba(8,13,24,.34);
+      background:rgba(8,13,24,.28);
       pointer-events:none;
     }
-    .avatar-lab-stage-empty .icon { width:40px; height:40px; opacity:.82; }
+    .avatar-lab-stage-empty[hidden], .avatar-lab-activity[hidden], .avatar-lab-generated-placeholder[hidden] { display:none !important; }
+    .avatar-lab-stage-empty .icon { width:34px; height:34px; opacity:.78; }
     .avatar-lab-stage-status {
       position:absolute;
       top:10px;
@@ -16135,14 +16151,14 @@
     .avatar-lab-float-card {
       position:absolute;
       z-index:4;
-      width:min(250px,25%);
+      width:min(260px,25%);
       display:grid;
-      gap:8px;
+      gap:7px;
       padding:10px;
       border:1px solid rgba(255,255,255,.18);
       border-radius:16px;
       color:#f5f7ff;
-      background:rgba(11,16,29,.82);
+      background:rgba(11,16,29,.84);
       box-shadow:0 14px 34px rgba(0,0,0,.24);
       backdrop-filter:blur(12px);
     }
@@ -16154,20 +16170,21 @@
       right:14px;
       width:min(330px,31%);
       max-height:calc(100% - 28px);
-      grid-template-rows:auto minmax(118px,1fr) auto;
-      overflow:hidden;
+      grid-template-rows:auto auto minmax(128px,1fr) auto;
+      overflow:visible;
     }
     .profile-avatar-suite-source {
       width:100%;
       aspect-ratio:1/1;
-      max-height:220px;
+      max-height:210px;
       object-fit:contain;
       border-radius:12px;
       background:#06080e;
       border:1px solid rgba(255,255,255,.12);
     }
     .avatar-lab-generated-media {
-      min-height:118px;
+      position:relative;
+      min-height:128px;
       height:100%;
       display:grid;
       place-items:center;
@@ -16176,6 +16193,7 @@
       border:1px solid rgba(255,255,255,.12);
       overflow:hidden;
     }
+    .avatar-lab-generated-placeholder { padding:18px; color:rgba(235,241,255,.72); text-align:center; font-size:11px; line-height:1.4; }
     .avatar-lab-generated-card img,.avatar-lab-generated-card video {
       display:block;
       width:100%;
@@ -16191,34 +16209,83 @@
     .avatar-lab-card-actions { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
     .profile-avatar-grok-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
     .avatar-lab-card-actions button,.profile-avatar-grok-actions button { min-width:0; }
-    .profile-avatar-grok-actions .avatar-lab-render-3d { grid-column:1/-1; min-height:44px; font-weight:850; }
+    .avatar-lab-source-render { width:100%; min-height:42px; font-size:12.5px; font-weight:900; }
+    .profile-avatar-grok-actions .avatar-lab-render-3d { grid-column:1/-1; min-height:42px; font-weight:850; }
     .profile-avatar-grok-actions .avatar-lab-preview-3d { grid-column:1/-1; }
     .avatar-lab-action-status { grid-column:1/-1; min-height:0; color:var(--muted); font-size:10.5px; line-height:1.3; }
     .avatar-lab-action-status.error { color:var(--danger); }
+    #profileAvatarGrokStatus { color:rgba(235,241,255,.74); font-size:10.5px; line-height:1.3; }
+
+    .avatar-lab-reference-settings { position:relative; z-index:9; }
+    .avatar-lab-reference-settings > summary {
+      cursor:pointer;
+      list-style:none;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      padding:5px 7px;
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:9px;
+      background:rgba(255,255,255,.045);
+      font-size:10.5px;
+      font-weight:800;
+    }
+    .avatar-lab-reference-settings > summary::-webkit-details-marker { display:none; }
+    .avatar-lab-reference-settings > summary::after { content:'▾'; opacity:.7; }
+    .avatar-lab-reference-settings[open] > summary::after { transform:rotate(180deg); }
+    .avatar-lab-reference-settings > summary small { margin-left:auto; max-width:150px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); font-size:10px; }
+    .avatar-lab-reference-settings-panel {
+      position:absolute;
+      top:calc(100% + 5px);
+      left:0;
+      right:0;
+      z-index:12;
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:6px;
+      padding:8px;
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:10px;
+      background:rgba(8,13,24,.98);
+      box-shadow:0 15px 34px rgba(0,0,0,.4);
+    }
+    .avatar-lab-reference-settings-panel .field { display:grid; gap:3px; min-width:0; }
+    .avatar-lab-reference-settings-panel .field.model { grid-column:1/-1; }
+    .avatar-lab-reference-settings-panel label { color:var(--muted); font-size:9.5px; }
+    .avatar-lab-reference-settings-panel input,.avatar-lab-reference-settings-panel select { width:100%; min-width:0; min-height:32px; font-size:11px; }
 
     .avatar-lab-prompt-deck {
       min-height:0;
-      overflow:auto;
+      overflow:hidden;
       overscroll-behavior:contain;
       display:grid;
-      align-content:start;
+      grid-template-columns:minmax(0,1.28fr) minmax(340px,.72fr);
+      grid-template-rows:minmax(0,1fr);
       gap:10px;
-      padding:12px;
+      padding:10px;
       background:var(--panel);
     }
     .avatar-lab-flow { display:flex; align-items:center; gap:6px; min-width:0; }
     .avatar-lab-flow span { display:inline-flex; align-items:center; gap:5px; min-width:0; padding:5px 9px; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:var(--panel-2); font-size:11px; font-weight:750; }
     .avatar-lab-flow span::before { display:grid; place-items:center; width:17px; height:17px; border-radius:50%; background:color-mix(in srgb,var(--accent) 14%,transparent); color:var(--text); font-size:10px; content:attr(data-step); }
-    .avatar-lab-primary { display:grid; gap:8px; }
-    .avatar-lab-prompt-toolbar { display:grid; grid-template-columns:minmax(150px,.72fr) minmax(220px,1.28fr) max-content max-content; gap:8px; align-items:end; }
+    .avatar-lab-primary {
+      grid-column:2;
+      grid-row:1;
+      min-height:0;
+      overflow:auto;
+      overscroll-behavior:contain;
+      display:grid;
+      align-content:start;
+      gap:8px;
+      padding-right:2px;
+    }
+    .avatar-lab-prompt-toolbar { display:grid; grid-template-columns:1fr 1fr; gap:7px; align-items:end; }
     .avatar-lab-prompt-toolbar .field { display:grid; gap:5px; min-width:0; }
+    .avatar-lab-prompt-toolbar .field:nth-child(2) { grid-column:1/-1; }
     .avatar-lab-prompt-toolbar label { font-size:11px; color:var(--muted); }
-    #profileAvatarGrokPrompt { width:100%; min-height:112px; resize:vertical; font-size:14px; line-height:1.38; }
-    .avatar-lab-render-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,340px); gap:10px; align-items:stretch; }
-    .avatar-lab-render-copy { display:grid; align-content:center; gap:2px; min-width:0; padding:9px 11px; border:1px solid var(--line); border-radius:11px; background:var(--panel-2); }
-    .avatar-lab-render-copy strong { font-size:13px; }
-    .avatar-lab-render-copy small { color:var(--muted); line-height:1.35; }
-    #profileAvatarGrokRunButton { min-height:52px; font-size:14px; font-weight:900; }
+    .avatar-lab-prompt-toolbar button { min-height:36px; }
+    #profileAvatarGrokPrompt { width:100%; min-height:170px; resize:vertical; font-size:13px; line-height:1.38; }
 
     .avatar-lab-activity {
       position:absolute;
@@ -16226,14 +16293,14 @@
       left:50%;
       bottom:12px;
       transform:translateX(-50%);
-      width:min(560px,calc(100% - 610px));
+      width:min(540px,calc(100% - 610px));
       min-width:300px;
       display:grid;
       gap:4px;
       padding:7px 10px;
       border:1px solid color-mix(in srgb,var(--accent) 46%,rgba(255,255,255,.14));
       border-radius:11px;
-      background:rgba(8,13,24,.86);
+      background:rgba(8,13,24,.90);
       box-shadow:0 10px 26px rgba(0,0,0,.25);
       backdrop-filter:blur(10px);
       pointer-events:none;
@@ -16243,39 +16310,55 @@
     .avatar-lab-activity-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
     .avatar-lab-activity-head strong { min-width:0; font-size:11px; }
     .avatar-lab-activity-head small { color:var(--muted); white-space:nowrap; font-size:10px; }
-    .avatar-lab-activity progress { width:100%; height:4px; }
-    .avatar-lab-activity progress.indeterminate { animation:avatar-lab-pulse 1.1s ease-in-out infinite alternate; }
-    @keyframes avatar-lab-pulse { from { opacity:.42; } to { opacity:1; } }
+    .avatar-lab-activity progress { width:100%; height:5px; }
+    .avatar-lab-activity progress.estimated { opacity:.86; }
+    .avatar-lab-activity-steps { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:3px; }
+    .avatar-lab-activity-steps span { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); text-align:center; font-size:8.5px; font-weight:750; }
+    .avatar-lab-activity-steps span.done { color:color-mix(in srgb,var(--success) 82%,var(--text)); }
+    .avatar-lab-activity-steps span.active { color:var(--text); }
     .avatar-lab-activity-message { color:var(--text); font-size:10.5px; line-height:1.3; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-    .avatar-lab-advanced { border:1px solid var(--line); border-radius:12px; background:var(--panel-2); overflow:hidden; }
+    .avatar-lab-advanced {
+      grid-column:1;
+      grid-row:1;
+      min-height:0;
+      display:grid;
+      grid-template-rows:auto minmax(0,1fr);
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:var(--panel-2);
+      overflow:hidden;
+    }
+    .avatar-lab-advanced:not([open]) { display:block; align-self:start; }
     .avatar-lab-advanced > summary { cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:42px; padding:8px 11px; font-weight:800; }
     .avatar-lab-advanced > summary::-webkit-details-marker { display:none; }
     .avatar-lab-advanced > summary::after { content:'▾'; color:var(--muted); transition:transform .15s ease; }
     .avatar-lab-advanced[open] > summary::after { transform:rotate(180deg); }
     .avatar-lab-advanced-body {
+      min-height:0;
       display:grid;
+      grid-template-rows:minmax(0,1fr) auto;
       gap:10px;
-      max-height:min(48vh,470px);
       overflow:auto;
       overscroll-behavior:contain;
       padding:0 10px 10px;
       border-top:1px solid var(--line);
     }
-    .profile-avatar-suite { display:grid; gap:9px; padding-top:10px; }
+    .profile-avatar-suite { min-height:0; display:grid; grid-template-rows:auto minmax(0,1fr) auto; gap:9px; padding-top:10px; }
     .profile-avatar-suite-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:8px; }
     .profile-avatar-suite-heading h4 { margin:0; font-size:14px; }
     .profile-avatar-suite-heading p { margin:2px 0 0; color:var(--muted); font-size:11px; }
-    .avatar-lab-style-editor { display:grid; grid-template-columns:minmax(220px,.72fr) minmax(280px,1.28fr); gap:12px; min-height:330px; }
+    .avatar-lab-style-editor { min-height:0; display:grid; grid-template-columns:minmax(300px,1.12fr) minmax(270px,.88fr); gap:10px; }
     .avatar-lab-body-map {
       position:relative;
-      min-height:330px;
+      min-height:0;
+      height:100%;
       border:1px solid var(--line);
       border-radius:12px;
       overflow:hidden;
       background:linear-gradient(180deg,color-mix(in srgb,var(--panel) 85%,#223152),var(--panel));
     }
-    #profileAvatarBodyEditorImage { width:100%; height:100%; min-height:330px; object-fit:contain; display:block; }
+    #profileAvatarBodyEditorImage { width:100%; height:100%; min-height:0; object-fit:contain; display:block; }
     #profileAvatarBodyEditorImage[hidden] { display:none !important; }
     .avatar-lab-body-placeholder { position:absolute; inset:0; display:grid; place-items:center; padding:28px; color:var(--muted); text-align:center; font-size:12px; pointer-events:none; }
     .avatar-lab-body-placeholder[hidden] { display:none !important; }
@@ -16299,7 +16382,7 @@
     .avatar-lab-body-hotspot[data-avatar-part="arms"] { left:24%; top:45%; }
     .avatar-lab-body-hotspot[data-avatar-part="legs"] { left:50%; top:67%; }
     .avatar-lab-body-hotspot[data-avatar-part="feet"] { left:50%; top:91%; }
-    .avatar-lab-style-panel { display:grid; align-content:start; gap:9px; padding:10px; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
+    .avatar-lab-style-panel { min-height:0; overflow:auto; display:grid; align-content:start; gap:9px; padding:10px; border:1px solid var(--line); border-radius:12px; background:var(--panel); }
     .avatar-lab-style-panel header { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
     .avatar-lab-style-panel header small { color:var(--muted); }
     .avatar-lab-style-row { display:grid; grid-template-columns:minmax(120px,.55fr) minmax(0,1.45fr); gap:8px; align-items:end; }
@@ -16308,67 +16391,75 @@
     .avatar-lab-colour-toggle { display:flex !important; align-items:center; gap:6px; color:var(--text) !important; }
     .avatar-lab-colour-toggle input { width:auto; }
     #avatarLabPartColor { width:100%; min-height:40px; padding:2px; }
-    #avatarLabPartDetails { min-height:74px; resize:vertical; }
+    #avatarLabPartDetails { min-height:88px; resize:vertical; }
     .avatar-lab-part-base-field[hidden] { display:none !important; }
-    .profile-avatar-suite-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .profile-avatar-suite-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px; }
     .profile-avatar-suite-grid .field { display:grid; gap:4px; min-width:0; }
     .profile-avatar-suite-grid label { font-size:11px; color:var(--muted); }
     .profile-avatar-suite-grid select { width:100%; min-width:0; }
     .avatar-lab-internal-control { display:none !important; }
     .avatar-lab-provider-details { border-top:1px solid var(--line); }
     .avatar-lab-provider-details > summary { cursor:pointer; padding:9px 2px 2px; color:var(--muted); font-size:11px; font-weight:750; }
-    .avatar-lab-provider-settings { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding-top:8px; }
+    .avatar-lab-provider-settings { display:grid; grid-template-columns:1fr; gap:10px; padding-top:8px; }
     .avatar-lab-provider-box { display:grid; gap:7px; min-width:0; padding:9px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
     .avatar-lab-provider-box header { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
     .avatar-lab-provider-box header small { color:var(--muted); }
-    .profile-avatar-grok-controls { display:grid; grid-template-columns:minmax(80px,.55fr) minmax(170px,1.2fr) minmax(110px,.72fr) minmax(95px,.62fr) minmax(76px,.5fr); gap:7px; align-items:center; min-width:0; }
     .profile-avatar-lab-controls { display:grid; grid-template-columns:minmax(125px,.8fr) minmax(145px,1fr) max-content max-content max-content; gap:7px; align-items:center; min-width:0; }
-    .profile-avatar-lab-controls > *, .profile-avatar-grok-controls > * { min-width:0; max-width:100%; }
-    .profile-avatar-lab-controls button,.profile-avatar-grok-controls button,.avatar-lab-prompt-toolbar button { white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
+    .profile-avatar-lab-controls > * { min-width:0; max-width:100%; }
+    .profile-avatar-lab-controls button,.avatar-lab-prompt-toolbar button { white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
     #profileAvatar3dDirectButton { justify-self:start; }
 
     #profileCameraModal { z-index:735; isolation:isolate; }
     .avatar3d-preview-modal { z-index:750; isolation:isolate; }
 
     @media (max-width:1040px){
-      .profile-avatar-suite-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-      .avatar-lab-prompt-toolbar{grid-template-columns:repeat(2,minmax(0,1fr));}
-      .avatar-lab-provider-settings{grid-template-columns:1fr;}
-      .profile-avatar-grok-controls{grid-template-columns:repeat(3,minmax(0,1fr));}
-      .profile-avatar-lab-controls{grid-template-columns:repeat(3,minmax(0,1fr));}
+      .avatar-lab-cost-chip{max-width:190px;}
+      .avatar-lab-prompt-deck{grid-template-columns:minmax(0,1.15fr) minmax(315px,.85fr);}
+      .avatar-lab-style-editor{grid-template-columns:minmax(250px,1fr) minmax(245px,1fr);}
       .avatar-lab-generated-card{width:min(300px,31%);}
       .avatar-lab-activity{width:min(430px,calc(100% - 570px));min-width:250px;}
+      .profile-avatar-lab-controls{grid-template-columns:repeat(3,minmax(0,1fr));}
+    }
+    @media (max-width:900px){
+      .profile-avatar-lab{grid-template-rows:minmax(320px,43%) minmax(0,57%);}
+      .avatar-lab-prompt-deck{display:block;overflow:auto;}
+      .avatar-lab-advanced{display:block;margin-bottom:10px;}
+      .avatar-lab-advanced-body{max-height:none;overflow:visible;}
+      .profile-avatar-suite{display:grid;grid-template-rows:auto auto auto;}
+      .avatar-lab-style-editor{min-height:430px;grid-template-columns:minmax(260px,1fr) minmax(250px,1fr);}
+      .avatar-lab-primary{overflow:visible;}
     }
     @media (max-width:760px){
       .avatar-lab-modal{padding:0;}
       .avatar-lab-card{width:100vw;height:var(--app-height,100dvh);max-height:var(--app-height,100dvh);border-radius:0;border-left:0;border-right:0;}
       .avatar-lab-topbar{padding-left:8px;}
-      .profile-avatar-lab{grid-template-rows:minmax(300px,45%) minmax(0,55%);}
+      .avatar-lab-cost-chip{display:none;}
+      .profile-avatar-lab{grid-template-rows:minmax(300px,42%) minmax(0,58%);}
       .avatar-lab-workbench{position:relative;min-height:300px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px;overflow:hidden;background:#101624;}
       .avatar-lab-stage{position:absolute;inset:0;border-radius:0;overflow:hidden;background:linear-gradient(180deg,#182033,#090d16);}
       .avatar-lab-stage-empty{inset:18% 15% auto;}
       .avatar-lab-stage-status{max-width:78%;}
       .avatar-lab-float-card{position:absolute;width:min(220px,44%);max-height:calc(100% - 20px);overflow:hidden;}
       .avatar-lab-source-card{top:10px;left:10px;}
-      .avatar-lab-generated-card{top:10px;right:10px;grid-template-rows:auto minmax(90px,1fr) auto;}
+      .avatar-lab-generated-card{top:10px;right:10px;grid-template-rows:auto auto minmax(90px,1fr) auto;overflow:visible;}
+      .avatar-lab-reference-settings-panel{left:auto;width:min(280px,85vw);}
       .avatar-lab-card-actions{grid-template-columns:1fr;}
       .avatar-lab-generated-card img,.avatar-lab-generated-card video{max-height:none;}
-      .avatar-lab-prompt-toolbar{grid-template-columns:1fr;}
-      .avatar-lab-render-row{grid-template-columns:1fr;}
-      .profile-avatar-grok-controls,.profile-avatar-lab-controls{grid-template-columns:repeat(2,minmax(0,1fr));}
       .avatar-lab-activity{width:min(74%,520px);min-width:0;bottom:8px;}
-      .avatar-lab-style-editor{grid-template-columns:1fr;}
-      .avatar-lab-body-map,#profileAvatarBodyEditorImage{min-height:300px;}
+      .avatar-lab-style-editor{min-height:660px;grid-template-columns:1fr;}
+      .avatar-lab-body-map,#profileAvatarBodyEditorImage{min-height:380px;}
+      .profile-avatar-suite-grid,.profile-avatar-lab-controls{grid-template-columns:repeat(2,minmax(0,1fr));}
     }
     @media (max-width:520px){
       .avatar-lab-flow{overflow:auto;padding-bottom:2px;padding-right:6px;}
-      .avatar-lab-flow span{flex:0 0 auto;}
-      .avatar-lab-flow span{font-size:10px;padding:4px 7px;}
-      .profile-avatar-suite-grid,.profile-avatar-grok-controls,.profile-avatar-lab-controls{grid-template-columns:1fr;}
+      .avatar-lab-flow span{flex:0 0 auto;font-size:10px;padding:4px 7px;}
+      .avatar-lab-prompt-toolbar,.profile-avatar-suite-grid,.profile-avatar-lab-controls{grid-template-columns:1fr;}
+      .avatar-lab-prompt-toolbar .field:nth-child(2){grid-column:auto;}
       .profile-avatar-lab-controls button,.avatar-lab-prompt-toolbar button{width:100%;}
       #profileAvatarGrokPrompt{min-height:150px;}
       .avatar-lab-style-row{grid-template-columns:1fr;}
       .avatar-lab-activity-message{white-space:normal;max-height:2.6em;}
+      .avatar-lab-activity-steps span{font-size:7.5px;}
     }
     .avatar3d-preview-card { width:min(920px,96vw); }
     .avatar3d-preview-toolbar { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px; }
@@ -16415,7 +16506,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.291</small>
+          <small id="serverBrandVersion">v9.6.292</small>
         </span>
       </button>
     </div>
@@ -17373,6 +17464,7 @@
       <section class="modal-card avatar-lab-card" role="dialog" aria-modal="true" aria-labelledby="profileAvatarLabTitle">
         <div class="avatar-lab-topbar">
           <span id="profileAvatarLabTitle" class="avatar-lab-a11y-title">Avatar Lab</span>
+          <span id="avatarLabCostStatus" class="avatar-lab-cost-chip" title="Reference-image API cost">xAI cost —</span>
           <div class="avatar-lab-flow" aria-label="Avatar Lab steps"><span data-step="1">Choose source</span><span data-step="2">Render reference</span><span data-step="3">Render textured 3D</span></div>
           <button id="avatarLabCloseButton" class="icon-button" type="button" aria-label="Close Avatar Lab"><span class="icon icon-close"></span></button>
         </div>
@@ -17380,7 +17472,7 @@
           <div class="avatar-lab-workbench">
             <div class="avatar-lab-stage" aria-label="3D avatar stage">
               <canvas id="avatarLabStageCanvas"></canvas>
-              <div id="avatarLabStageEmpty" class="avatar-lab-stage-empty"><span class="icon icon-avatar-3d" aria-hidden="true"></span><strong>3D stage</strong><span>Choose a source to begin.</span></div>
+              <div id="avatarLabStageEmpty" class="avatar-lab-stage-empty"><span class="icon icon-avatar-3d" aria-hidden="true"></span><strong>3D stage</strong></div>
               <small id="avatarLabStageStatus" class="avatar-lab-stage-status">No 3D model selected.</small>
             </div>
 
@@ -17393,12 +17485,28 @@
                 <button id="avatarLabSourceCameraButton" type="button"><span class="icon icon-camera" aria-hidden="true"></span><span>Camera</span></button>
                 <button id="avatarLabSourceResetButton" type="button" title="Use the current profile photo instead">Profile</button>
               </div>
+              <button id="profileAvatarGrokRunButton" class="primary avatar-lab-source-render" type="button" data-button-presentation-ignore aria-describedby="profileAvatarGrokStatus"><span class="icon icon-render" aria-hidden="true"></span><span>Render reference</span></button>
+              <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable reference generation.</small>
               <input id="avatarLabSourceInput" type="file" accept="image/png,image/jpeg,image/webp,image/*" hidden>
             </article>
 
-            <article id="profileAvatarGrokResult" class="avatar-lab-float-card avatar-lab-generated-card" hidden>
-              <header><strong>2 · Reference image</strong><small id="profileAvatarGrokResultMeta">Generated</small></header>
-              <div class="avatar-lab-generated-media"><img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden><video id="profileAvatarGrokVideo" controls playsinline hidden></video></div>
+            <article id="profileAvatarGrokResult" class="avatar-lab-float-card avatar-lab-generated-card">
+              <header><strong>2 · Reference image</strong><small id="profileAvatarGrokResultMeta">Not rendered yet</small></header>
+              <details class="avatar-lab-reference-settings">
+                <summary><span>Reference settings</span><small id="avatarLabReferenceSettingsSummary">Image · 2:3 · 2K</small></summary>
+                <div class="avatar-lab-reference-settings-panel">
+                  <div class="field"><label for="profileAvatarGrokOutput">Output</label><select id="profileAvatarGrokOutput"><option value="image">Image</option><option value="video">Video</option></select></div>
+                  <div class="field"><label for="profileAvatarGrokAspect">Aspect</label><select id="profileAvatarGrokAspect"><option value="2:3" selected>2:3 body</option><option value="auto">Auto</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select></div>
+                  <div class="field"><label for="profileAvatarGrokResolution">Resolution</label><select id="profileAvatarGrokResolution"><option value="2k" selected>2K</option><option value="1k">1K</option><option value="480p">480p</option><option value="720p">720p</option></select></div>
+                  <div class="field"><label for="profileAvatarGrokDuration">Duration</label><select id="profileAvatarGrokDuration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select></div>
+                  <div class="field model"><label for="profileAvatarGrokModel">xAI model</label><input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" title="xAI Grok model"></div>
+                </div>
+              </details>
+              <div class="avatar-lab-generated-media">
+                <div id="profileAvatarGrokEmpty" class="avatar-lab-generated-placeholder">The full-body reference will appear here.</div>
+                <img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden>
+                <video id="profileAvatarGrokVideo" controls playsinline hidden></video>
+              </div>
               <div class="profile-avatar-grok-actions">
                 <button id="profileAvatarGrokUseProfileButton" type="button" hidden>Use as profile photo</button>
                 <button id="profileAvatarGrokUse3dButton" type="button" hidden>Use for 3D</button>
@@ -17410,38 +17518,25 @@
 
             <section id="avatarLabActivity" class="avatar-lab-activity" hidden aria-live="polite" aria-atomic="true">
               <div class="avatar-lab-activity-head"><strong id="avatarLabActivityTitle">Avatar Lab</strong><small id="avatarLabActivityMeta"></small></div>
-              <progress id="avatarLabActivityProgress" max="100" value="0"></progress>
+              <progress id="avatarLabActivityProgress" max="100" value="0" aria-label="Generation workflow progress"></progress>
+              <div id="avatarLabActivitySteps" class="avatar-lab-activity-steps" aria-hidden="true"><span>Prepare</span><span>Send</span><span>Generate</span><span>Save</span></div>
               <div id="avatarLabActivityMessage" class="avatar-lab-activity-message"></div>
             </section>
           </div>
 
           <div class="avatar-lab-prompt-deck">
-            <section class="avatar-lab-primary" aria-label="Reference image generation">
-              <div class="avatar-lab-prompt-toolbar">
-                <div class="field"><label for="profileAvatarPromptPreset">Prompt preset</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
-                <div class="field"><label for="profileAvatarPromptHistory">Reuse a previous generation</label><select id="profileAvatarPromptHistory"><option value="">Generation history…</option></select></div>
-                <button id="profileAvatarPromptReuseButton" type="button" disabled>Reuse prompt</button>
-                <button id="profileAvatarWizardComposeButton" type="button" data-button-presentation-ignore><span class="icon icon-edit" aria-hidden="true"></span><span>Apply style</span></button>
-              </div>
-              <textarea id="profileAvatarGrokPrompt" maxlength="4000" placeholder="Describe the avatar you want. Use Customize avatar below to set clothing colours, styles and details, then apply them to this prompt." aria-label="Avatar generation prompt"></textarea>
-              <div class="avatar-lab-render-row">
-                <div class="avatar-lab-render-copy"><strong>Create the reference image</strong><small id="avatarLabCostStatus">xAI reports the exact generation cost when available.</small></div>
-                <button id="profileAvatarGrokRunButton" class="primary" type="button" data-button-presentation-ignore aria-describedby="avatarLabCostStatus"><span class="icon icon-render" aria-hidden="true"></span><span>Render reference image</span></button>
-              </div>
-            </section>
-
-            <details id="avatarLabAdvanced" class="avatar-lab-advanced">
+            <details id="avatarLabAdvanced" class="avatar-lab-advanced" open>
               <summary>Customize avatar</summary>
               <div class="avatar-lab-advanced-body">
                 <section class="profile-avatar-suite" aria-label="Avatar prompt settings">
                   <div class="profile-avatar-suite-heading">
-                    <div><h4>Style the character</h4><p>Click a body area, choose a colour, then add only the detail you care about.</p></div>
+                    <div><h4>Style the character</h4><p>Use the full reference, select a body area, then set colour, material and only the details that matter.</p></div>
                   </div>
 
                   <div class="avatar-lab-style-editor">
                     <div class="avatar-lab-body-map" aria-label="Clickable avatar body areas">
                       <img id="profileAvatarBodyEditorImage" alt="Avatar reference for body-part styling" hidden>
-                      <div id="avatarLabBodyEditorPlaceholder" class="avatar-lab-body-placeholder">Your source or generated reference appears here. You can still define styling before rendering.</div>
+                      <div id="avatarLabBodyEditorPlaceholder" class="avatar-lab-body-placeholder">Render a reference image, or style the source before the first render.</div>
                       <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="head" aria-pressed="false">Head</button>
                       <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="top" aria-pressed="true">Top</button>
                       <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="arms" aria-pressed="false">Arms</button>
@@ -17450,7 +17545,7 @@
                     </div>
 
                     <div class="avatar-lab-style-panel">
-                      <header><strong id="avatarLabPartEditorTitle">Top / torso</strong><small>Saved for this profile</small></header>
+                      <header><strong id="avatarLabPartEditorTitle">Top / torso</strong><small>Remembered for this profile</small></header>
                       <div class="avatar-lab-style-row">
                         <div class="field"><label class="avatar-lab-colour-toggle"><input id="avatarLabPartColorEnabled" type="checkbox"><span>Use colour</span></label><input id="avatarLabPartColor" type="color" value="#202020" disabled aria-label="Body part colour"></div>
                         <div class="field"><label for="avatarLabPartStyle">Style / material</label><input id="avatarLabPartStyle" type="text" maxlength="96" placeholder="e.g. oversized cotton, matte leather"></div>
@@ -17459,7 +17554,6 @@
                       <div class="field avatar-lab-part-base-field" data-avatar-part-base="legs" hidden><label for="profileAvatarWizardLegs">Garment</label><select id="profileAvatarWizardLegs"><option value="jeans" selected>Jeans</option><option value="trousers">Trousers</option><option value="shorts">Shorts</option><option value="leggings">Leggings</option><option value="skirt">Skirt</option></select></div>
                       <div class="field avatar-lab-part-base-field" data-avatar-part-base="feet" hidden><label for="profileAvatarWizardFeet">Footwear</label><select id="profileAvatarWizardFeet"><option value="sneakers" selected>Sneakers</option><option value="boots">Boots</option><option value="formal shoes">Formal shoes</option><option value="sandals">Sandals</option><option value="barefoot">Barefoot</option></select></div>
                       <div class="field"><label for="avatarLabPartDetails">Details</label><textarea id="avatarLabPartDetails" maxlength="360" placeholder="e.g. small white rabbit print on the chest; no logos elsewhere"></textarea></div>
-                      <small>Changes are remembered locally and are stored with the next generation prompt metadata.</small>
                     </div>
                   </div>
 
@@ -17473,20 +17567,8 @@
                 </section>
 
                 <details class="avatar-lab-provider-details">
-                  <summary>Provider / model options</summary>
+                  <summary>3D provider options</summary>
                   <div class="avatar-lab-provider-settings">
-                    <section class="avatar-lab-provider-box" aria-label="xAI image settings">
-                      <header><strong>xAI / Grok image</strong><small>Reference generation</small></header>
-                      <div class="profile-avatar-grok-controls">
-                        <select id="profileAvatarGrokOutput" aria-label="Grok output"><option value="image">Image</option><option value="video">Video</option></select>
-                        <input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" aria-label="Grok model" title="xAI Grok model">
-                        <select id="profileAvatarGrokAspect" aria-label="Grok aspect ratio"><option value="2:3" selected>2:3 body</option><option value="auto">Auto aspect</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select>
-                        <select id="profileAvatarGrokResolution" aria-label="Grok resolution"><option value="2k" selected>2K</option><option value="1k">1K</option><option value="480p">480p</option><option value="720p">720p</option></select>
-                        <select id="profileAvatarGrokDuration" aria-label="Grok video duration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select>
-                      </div>
-                      <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable image or video generation.</small>
-                    </section>
-
                     <section class="avatar-lab-provider-box" aria-label="Tripo3D settings">
                       <header><strong>Tripo3D</strong><small id="avatarLabTripoWallet">Tripo balance shown after a request.</small></header>
                       <div class="profile-avatar-lab-controls">
@@ -17502,6 +17584,16 @@
                 </details>
               </div>
             </details>
+
+            <section class="avatar-lab-primary" aria-label="Reference image generation prompt">
+              <div class="avatar-lab-prompt-toolbar">
+                <div class="field"><label for="profileAvatarPromptPreset">Prompt preset</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
+                <div class="field"><label for="profileAvatarPromptHistory">Reuse a previous generation</label><select id="profileAvatarPromptHistory"><option value="">Generation history…</option></select></div>
+                <button id="profileAvatarPromptReuseButton" type="button" disabled>Reuse prompt</button>
+                <button id="profileAvatarWizardComposeButton" type="button" data-button-presentation-ignore><span class="icon icon-edit" aria-hidden="true"></span><span>Apply style</span></button>
+              </div>
+              <textarea id="profileAvatarGrokPrompt" maxlength="4000" placeholder="Describe the avatar you want. Body-part styling is merged into this prompt when you choose Apply style." aria-label="Avatar generation prompt"></textarea>
+            </section>
           </div>
         </div>
       </section>
@@ -19169,7 +19261,7 @@
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
-        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivityMeta', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabAdvanced', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dPreviewAdvancedButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
+        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLabAdvanced', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dPreviewAdvancedButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
@@ -19590,6 +19682,7 @@
       avatarLabPart: 'top',
       avatarLabStyle: {},
       avatarLabStyleLoadedFor: '',
+      avatarLabProviderLoadedFor: '',
       avatarLabReturnFocus: null,
       profileCameraPurpose: 'profile',
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
@@ -20975,7 +21068,10 @@
         const current = String(elements.profileAvatarGrokModel?.value || '').trim();
         if (!current || current === 'grok-imagine-image' || current === 'grok-imagine-video') elements.profileAvatarGrokModel.value = video ? 'grok-imagine-video' : 'grok-imagine-image';
         renderAvatarLab();
+        saveAvatarLabProviderSettings();
       });
+      [elements.profileAvatarGrokAspect,elements.profileAvatarGrokResolution,elements.profileAvatarGrokDuration,elements.profileAvatar3dModelSelect,elements.profileAvatar3dTextureSelect].forEach((control)=>control?.addEventListener('change',()=>{saveAvatarLabProviderSettings();renderAvatarLab();}));
+      elements.profileAvatarGrokModel?.addEventListener('change',()=>{saveAvatarLabProviderSettings();renderAvatarLab();});
       elements.profileAvatarGrokPrompt?.addEventListener('input', () => { if(String(elements.profileAvatarGrokPrompt?.value||'').trim()!==String(state.avatarPromptAutoText||'').trim()) state.avatarPromptAutoText=''; renderAvatarLab(); });
       elements.profileAvatarPromptHistory?.addEventListener('change', () => { state.avatarPromptHistoryKey=elements.profileAvatarPromptHistory.value||''; if(elements.profileAvatarPromptReuseButton)elements.profileAvatarPromptReuseButton.disabled=!state.avatarPromptHistoryKey; });
       elements.profileAvatarPromptReuseButton?.addEventListener('click', reuseAvatarPromptHistory);
@@ -44179,6 +44275,37 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       loadAvatarLabStyleSettings();
       writeJsonStorage(avatarLabStyleStorageKey(), normalizeAvatarLabStyle(state.avatarLabStyle));
     }
+    function avatarLabProviderStorageKey() {
+      const identity=String(state.identityId || state.selectedProfileId || 'local').replace(/[^A-Za-z0-9_-]/g,'').slice(0,96) || 'local';
+      return `chat.avatarLab.provider.v1.${identity}`;
+    }
+    function loadAvatarLabProviderSettings(force=false) {
+      const key=avatarLabProviderStorageKey();
+      if(!force && state.avatarLabProviderLoadedFor===key) return;
+      const saved=readJsonStorage(key);
+      if(saved && typeof saved==='object'){
+        setSelectIfAvailable(elements.profileAvatarGrokOutput,saved.output);
+        if(elements.profileAvatarGrokModel && typeof saved.model==='string' && saved.model.trim()) elements.profileAvatarGrokModel.value=saved.model.trim().slice(0,96);
+        setSelectIfAvailable(elements.profileAvatarGrokAspect,saved.aspect);
+        setSelectIfAvailable(elements.profileAvatarGrokResolution,saved.resolution);
+        setSelectIfAvailable(elements.profileAvatarGrokDuration,saved.duration);
+        setSelectIfAvailable(elements.profileAvatar3dModelSelect,saved.tripoModel);
+        setSelectIfAvailable(elements.profileAvatar3dTextureSelect,saved.tripoTexture);
+      }
+      state.avatarLabProviderLoadedFor=key;
+    }
+    function saveAvatarLabProviderSettings() {
+      writeJsonStorage(avatarLabProviderStorageKey(),{
+        output:String(elements.profileAvatarGrokOutput?.value||'image'),
+        model:String(elements.profileAvatarGrokModel?.value||'grok-imagine-image').trim().slice(0,96),
+        aspect:String(elements.profileAvatarGrokAspect?.value||'2:3'),
+        resolution:String(elements.profileAvatarGrokResolution?.value||'2k'),
+        duration:String(elements.profileAvatarGrokDuration?.value||'8'),
+        tripoModel:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),
+        tripoTexture:String(elements.profileAvatar3dTextureSelect?.value||'detailed'),
+      });
+      state.avatarLabProviderLoadedFor=avatarLabProviderStorageKey();
+    }
     function avatarLabStyleMeta() {
       loadAvatarLabStyleSettings();
       const result={styleVersion:'1'};
@@ -44239,7 +44366,8 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.avatarLabPartColor){elements.avatarLabPartColor.value=style.color||config.color;elements.avatarLabPartColor.disabled=!style.colorEnabled;}
       if(elements.avatarLabPartStyle&&elements.avatarLabPartStyle.value!==style.style)elements.avatarLabPartStyle.value=style.style;
       if(elements.avatarLabPartDetails&&elements.avatarLabPartDetails.value!==style.details)elements.avatarLabPartDetails.value=style.details;
-      const preferredImage=state.avatarGrokItems.find((item)=>item?.kind==='image'&&item?.url)?.url || profileAvatarLabSourcePreview();
+      const selectedReference=selectedAvatarGrokItem();
+      const preferredImage=(selectedReference?.kind==='image'&&selectedReference?.url?selectedReference.url:state.avatarGrokItems.find((item)=>item?.kind==='image'&&item?.url)?.url) || profileAvatarLabSourcePreview();
       if(elements.profileAvatarBodyEditorImage){
         elements.profileAvatarBodyEditorImage.hidden=!preferredImage;
         if(preferredImage){const href=/^data:/i.test(preferredImage)?preferredImage:new URL(preferredImage,location.href).href;if(elements.profileAvatarBodyEditorImage.src!==href)elements.profileAvatarBodyEditorImage.src=preferredImage;}
@@ -44393,7 +44521,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         if (state.avatarLabActivityTimer) clearInterval(state.avatarLabActivityTimer);
         state.avatarLabActivityTimer=null;
         const snapshot=state.avatarLabActivity;
-        const delay=state.avatarLabActivity.status==='error'?9000:2800;
+        const delay=state.avatarLabActivity.status==='error'?9000:3600;
         state.avatarLabActivityHideTimer=setTimeout(()=>{
           if(state.avatarLabActivity===snapshot){state.avatarLabActivity=null;if(!elements.avatarLabModal?.hidden)renderAvatarLab();}
           state.avatarLabActivityHideTimer=null;
@@ -44419,6 +44547,31 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       }
       return null;
     }
+    function avatarLabWorkflowProgress(activity) {
+      const explicit=Number(activity?.progress);
+      if(Number.isFinite(explicit)) return {value:Math.max(0,Math.min(100,explicit)),estimated:false};
+      if(activity?.status==='success') return {value:100,estimated:false};
+      if(activity?.status==='error') return {value:0,estimated:false};
+      const elapsed=Math.max(0,Date.now()-Number(activity?.startedAt||Date.now()))/1000;
+      const title=String(activity?.title||'').toLowerCase();
+      let base=12, cap=32;
+      if(/starting|sending|request sent|uploading/.test(title)){base=28;cap=48;}
+      else if(/rendering|generating|checking|provider/.test(title)){base=48;cap=90;}
+      const value=Math.min(cap,base+Math.log1p(elapsed)*9);
+      return {value,estimated:true};
+    }
+    function renderAvatarLabActivitySteps(activity,progress) {
+      if(!elements.avatarLabActivitySteps)return;
+      const title=String(activity?.title||'').toLowerCase();
+      let activeIndex=0;
+      if(activity?.status==='success') activeIndex=3;
+      else if(/rendering|generating|checking|provider/.test(title) || progress>=48) activeIndex=2;
+      else if(/starting|sending|request sent|uploading/.test(title) || progress>=25) activeIndex=1;
+      elements.avatarLabActivitySteps.querySelectorAll('span').forEach((step,index)=>{
+        step.classList.toggle('done',activity?.status==='success'?index<=3:index<activeIndex);
+        step.classList.toggle('active',activity?.status!=='error'&&index===activeIndex);
+      });
+    }
 
     function disposeAvatarLabStage() {
       const stage=state.avatarLabStage;
@@ -44437,6 +44590,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         if (elements.avatarLabStageStatus) { elements.avatarLabStageStatus.hidden=true; elements.avatarLabStageStatus.textContent=''; }
         return;
       }
+      if (elements.avatarLabStageEmpty) elements.avatarLabStageEmpty.hidden=true;
       if (elements.avatarLabStageStatus) elements.avatarLabStageStatus.hidden=false;
       if (state.avatarLabStage?.url===url || state.avatarLabStageLoadingUrl===url) return;
       state.avatarLabStageLoadingUrl=url;
@@ -44469,10 +44623,12 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         resize(); const observer=new ResizeObserver(resize); observer.observe(canvas.parentElement);
         renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera);});
         state.avatarLabStage={url,renderer,controls,observer};
+        if (elements.avatarLabStageEmpty) elements.avatarLabStageEmpty.hidden=true;
         if (elements.avatarLabStageStatus) elements.avatarLabStageStatus.textContent='3D ready · drag to orbit · scroll/pinch to zoom';
       } catch (error) {
+        if (state.avatarLabStageLoadingUrl!==url && state.avatarLabStage?.url!==url) return;
         disposeAvatarLabStage();
-        if (elements.avatarLabStageEmpty) elements.avatarLabStageEmpty.hidden=false;
+        if (elements.avatarLabStageEmpty) elements.avatarLabStageEmpty.hidden=true;
         if (elements.avatarLabStageStatus) { elements.avatarLabStageStatus.hidden=false; elements.avatarLabStageStatus.textContent=`3D preview unavailable: ${error?.message || 'load failed'}`; }
       } finally {
         if (state.avatarLabStageLoadingUrl===url) state.avatarLabStageLoadingUrl='';
@@ -44483,6 +44639,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if (!elements.avatarLabModal) return;
       state.avatarLabReturnFocus=opener instanceof HTMLElement?opener:null;
       loadAvatarLabStyleSettings();
+      loadAvatarLabProviderSettings();
       elements.avatarLabModal.hidden=false; elements.avatarLabModal.setAttribute('aria-hidden','false');
       refreshAvatarAutoPrompt(false);
       if (state.registered && !state.isAdmin) { sendJson({type:'avatar3d.list'}); sendJson({type:'avatar.grok.list'}); }
@@ -44522,6 +44679,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     function renderAvatarLab() {
       if (!elements.profileAvatarLab) return;
       loadAvatarLabStyleSettings();
+      loadAvatarLabProviderSettings();
       renderAvatarLabStyleEditor();
       const item=selectedAvatar3dItem();
       const active=avatarLabActive3dTask();
@@ -44595,26 +44753,36 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       document.querySelectorAll('[data-avatar-part]').forEach((button)=>{button.disabled=busy;});
       if(elements.profileAvatarGrokPrompt)elements.profileAvatarGrokPrompt.readOnly=busy;
 
-      if(elements.profileAvatarGrokStatus)elements.profileAvatarGrokStatus.textContent=!state.xaiApiKeyConfigured?'xAI / Grok API key missing. Open Customize avatar → Provider / model options → API keys, or Config.':grokActive?`xAI: ${grokActive.status||'working'}${grokActive.progress!=null?` · ${Math.round(Number(grokActive.progress)||0)}%`:''}`:grokItem?.url?`${grokItem.kind==='video'?'Video':'Reference image'} ready. Prompt metadata saved.`:baseSource?'xAI ready.':'Choose a source first.';
-      if(elements.profileAvatarGrokResult)elements.profileAvatarGrokResult.hidden=!grokItem?.url;
+      if(elements.profileAvatarGrokStatus)elements.profileAvatarGrokStatus.textContent=!state.xaiApiKeyConfigured?'xAI / Grok API key missing. Add it in Config before rendering.':grokActive?`xAI: ${grokActive.status||'working'}${grokActive.progress!=null?` · ${Math.round(Number(grokActive.progress)||0)}%`:''}`:grokItem?.url?`${grokItem.kind==='video'?'Video':'Reference image'} ready. Prompt metadata saved.`:baseSource?'xAI ready.':'Choose a source first.';
+      if(elements.profileAvatarGrokResult)elements.profileAvatarGrokResult.hidden=false;
+      if(elements.profileAvatarGrokEmpty)elements.profileAvatarGrokEmpty.hidden=Boolean(grokItem?.url);
       if(elements.profileAvatarGrokImage){const show=grokItem?.kind==='image'&&grokItem?.url;elements.profileAvatarGrokImage.hidden=!show;if(show&&elements.profileAvatarGrokImage.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokImage.src=grokItem.url;}
       if(elements.profileAvatarGrokVideo){const show=grokItem?.kind==='video'&&grokItem?.url;elements.profileAvatarGrokVideo.hidden=!show;if(show&&elements.profileAvatarGrokVideo.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokVideo.src=grokItem.url;}
       if(elements.profileAvatarGrokUseProfileButton){elements.profileAvatarGrokUseProfileButton.hidden=!(grokItem?.kind==='image'&&grokItem?.url);elements.profileAvatarGrokUseProfileButton.disabled=busy;}
       if(elements.profileAvatarGrokUse3dButton){elements.profileAvatarGrokUse3dButton.hidden=!imageReady;elements.profileAvatarGrokUse3dButton.disabled=busy;elements.profileAvatarGrokUse3dButton.textContent=state.avatarGrokUseAs3dSource?'Selected for 3D':'Use for 3D';}
-      if(elements.profileAvatarGrokResultMeta&&grokItem?.url){
-        const pixelSize=grokItem.kind==='image'&&elements.profileAvatarGrokImage?.naturalWidth&&elements.profileAvatarGrokImage?.naturalHeight?`${elements.profileAvatarGrokImage.naturalWidth}×${elements.profileAvatarGrokImage.naturalHeight}`:'';
-        const parts=[grokItem.kind==='video'?'Video':'Image',pixelSize,grokItem.aspectRatio||'',grokItem.resolution?String(grokItem.resolution).toUpperCase():'',formatAvatarLabUsd(grokItem.costUsd)].filter(Boolean);
-        elements.profileAvatarGrokResultMeta.textContent=parts.join(' · ');
+      if(elements.profileAvatarGrokResultMeta){
+        if(grokItem?.url){
+          const pixelSize=grokItem.kind==='image'&&elements.profileAvatarGrokImage?.naturalWidth&&elements.profileAvatarGrokImage?.naturalHeight?`${elements.profileAvatarGrokImage.naturalWidth}×${elements.profileAvatarGrokImage.naturalHeight}`:'';
+          const parts=[grokItem.kind==='video'?'Video':'Image',pixelSize,grokItem.aspectRatio||'',grokItem.resolution?String(grokItem.resolution).toUpperCase():'',formatAvatarLabUsd(grokItem.costUsd)].filter(Boolean);
+          elements.profileAvatarGrokResultMeta.textContent=parts.join(' · ');
+        }else elements.profileAvatarGrokResultMeta.textContent='Not rendered yet';
+      }
+      if(elements.avatarLabReferenceSettingsSummary){
+        const output=String(elements.profileAvatarGrokOutput?.value||'image')==='video'?'Video':'Image';
+        const aspect=String(elements.profileAvatarGrokAspect?.value||'auto');
+        const resolution=String(elements.profileAvatarGrokResolution?.value||'').toUpperCase();
+        const duration=output==='Video'?`${Number(elements.profileAvatarGrokDuration?.value||8)}s`:'';
+        elements.avatarLabReferenceSettingsSummary.textContent=[output,aspect,resolution,duration].filter(Boolean).join(' · ');
       }
 
       const actualCost=formatAvatarLabUsd(grokItem?.costUsd);
       const historyCost=state.avatarGrokItems.reduce((sum,entry)=>sum+(Number(entry?.costUsd)||0),0);
       const estimate=estimatedAvatarLabXaiCost();
       if(elements.avatarLabCostStatus){
-        if(grokReason) elements.avatarLabCostStatus.textContent=`Unavailable: ${grokReason}${estimate?` Estimated cost when enabled: ${formatAvatarLabUsd(estimate.usd)}.`:''}`;
-        else if(actualCost) elements.avatarLabCostStatus.textContent=`Last xAI generation: ${actualCost}${historyCost>Number(grokItem?.costUsd||0)?` · history ${formatAvatarLabUsd(historyCost)}`:''}.`;
-        else if(estimate) elements.avatarLabCostStatus.textContent=`Estimated xAI API cost ${formatAvatarLabUsd(estimate.usd)} (${estimate.label}). Exact cost is stored when returned.`;
-        else elements.avatarLabCostStatus.textContent='xAI reports the exact generation cost when available.';
+        if(actualCost) elements.avatarLabCostStatus.textContent=`xAI last ${actualCost}${historyCost>Number(grokItem?.costUsd||0)?` · session ${formatAvatarLabUsd(historyCost)}`:''}`;
+        else if(estimate) elements.avatarLabCostStatus.textContent=`xAI est. ${formatAvatarLabUsd(estimate.usd)}`;
+        else elements.avatarLabCostStatus.textContent='xAI cost —';
+        elements.avatarLabCostStatus.title=grokReason?grokReason:(estimate?.label||'Exact provider cost is stored when xAI returns it.');
       }
 
       const tripoStatusText=!state.tripoApiKeyConfigured?'Tripo3D key missing. Add it in API keys before rendering 3D.'
@@ -44645,12 +44813,14 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(activity){
         if(elements.avatarLabActivityTitle)elements.avatarLabActivityTitle.textContent=activity.title||'Avatar Lab';
         if(elements.avatarLabActivityMessage)elements.avatarLabActivityMessage.textContent=activity.message||'';
+        const workflow=avatarLabWorkflowProgress(activity);
         if(elements.avatarLabActivityProgress){
-          const progress=Number(activity.progress);
-          if(activity.status==='running'&&!Number.isFinite(progress)){elements.avatarLabActivityProgress.removeAttribute('value');elements.avatarLabActivityProgress.classList.add('indeterminate');}
-          else{elements.avatarLabActivityProgress.value=Number.isFinite(progress)?Math.max(0,Math.min(100,progress)):(activity.status==='success'?100:0);elements.avatarLabActivityProgress.classList.remove('indeterminate');}
+          elements.avatarLabActivityProgress.value=workflow.value;
+          elements.avatarLabActivityProgress.classList.toggle('estimated',workflow.estimated);
+          elements.avatarLabActivityProgress.setAttribute('aria-valuetext',workflow.estimated?`Workflow step in progress; approximately ${Math.round(workflow.value)} percent through the local workflow`:`${Math.round(workflow.value)} percent`);
         }
-        if(elements.avatarLabActivityMeta){const elapsed=Math.max(0,Date.now()-Number(activity.startedAt||Date.now()));const seconds=Math.floor(elapsed/1000);elements.avatarLabActivityMeta.textContent=[activity.meta,activity.status==='running'?`${seconds}s`:''].filter(Boolean).join(' · ');}
+        renderAvatarLabActivitySteps(activity,workflow.value);
+        if(elements.avatarLabActivityMeta){const elapsed=Math.max(0,Date.now()-Number(activity.startedAt||Date.now()));const seconds=Math.floor(elapsed/1000);elements.avatarLabActivityMeta.textContent=[activity.meta,activity.status==='running'?`${seconds}s`:'' , workflow.estimated&&activity.status==='running'?'workflow':''].filter(Boolean).join(' · ');}
       }
 
       renderAvatarPromptHistory();
@@ -44671,20 +44841,20 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     function scheduleAvatarGrokPoll(requestId,delay=2500){clearTimeout(state.avatarGrokPollTimer);state.avatarGrokPollTimer=setTimeout(()=>{void pollAvatarGrokTask(requestId);},delay);}
     async function pollAvatarGrokTask(requestId){
       const id=String(requestId||state.avatarGrokActiveRequestId||'').trim();if(!id||state.avatarGrokPollBusy)return;
-      state.avatarGrokPollBusy=true;setAvatarLabActivity('Rendering with xAI','Checking provider progress…','running',null,'xAI');renderAvatarLab();
+      state.avatarGrokPollBusy=true;setAvatarLabActivity('Rendering with xAI','Checking provider progress…','running',58,'xAI');renderAvatarLab();
       try{const apiKey=await providerCredentialForRequest('xai');sendJson({type:'avatar.grok.status',requestId:id,apiKey});}
       catch(error){state.avatarGrokPollBusy=false;setAvatarLabError(error?.message||'xAI key unavailable','Could not refresh xAI status');renderAvatarLab();}
     }
     async function runProfileAvatarGrok(){
       if(!state.registered||state.isAdmin||avatarLabRequestBusy())return;
       try{
-        setAvatarLabActivity('Preparing reference image','Reading the source image and your xAI credential…','running',null,'xAI');renderAvatarLab();
+        setAvatarLabActivity('Preparing reference image','Reading the source image and your xAI credential…','running',10,'xAI');renderAvatarLab();
         const [apiKey,sourceImage]=await Promise.all([providerCredentialForRequest('xai'),profileAvatarSourceDataUrl()]);
         const output=String(elements.profileAvatarGrokOutput?.value||'image')==='video'?'video':'image';
         const resolution=output==='video'?(elements.profileAvatarGrokResolution?.value==='720p'?'720p':'480p'):(elements.profileAvatarGrokResolution?.value==='2k'?'2k':'1k');
         const prompt=String(elements.profileAvatarGrokPrompt?.value||'').trim()||composeAvatarWizardPrompt();
         const source=state.avatarLabSourceImage?'uploaded-source':'profile-photo';
-        state.avatarGrokPollBusy=true;setAvatarLabActivity(output==='video'?'Rendering video with xAI':'Rendering reference image',output==='video'?'Request sent. Video generation can take a while; duplicate render actions are locked.':'Request sent. Waiting for xAI to generate and return the edited reference image…','running',null,'xAI');renderAvatarLab();
+        state.avatarGrokPollBusy=true;setAvatarLabActivity(output==='video'?'Rendering video with xAI':'Rendering reference image',output==='video'?'Request sent. Video generation can take a while; duplicate render actions are locked.':'Request sent. xAI is generating the edited reference image; duplicate render actions are locked.','running',36,'xAI');renderAvatarLab();
         sendJson({type:'avatar.grok.start',apiKey,sourceImage,prompt,promptMeta:avatarWizardPromptMeta({source}),output,model:String(elements.profileAvatarGrokModel?.value||(output==='video'?'grok-imagine-video':'grok-imagine-image')).trim(),aspectRatio:String(elements.profileAvatarGrokAspect?.value||'auto'),resolution,duration:Number(elements.profileAvatarGrokDuration?.value||8)});
       }catch(error){state.avatarGrokPollBusy=false;setAvatarLabError(error?.message||'Grok generation could not start','Reference image failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Grok generation could not start'}`,true);}
     }
@@ -44709,7 +44879,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     function scheduleAvatar3dPoll(taskId,delay=2500){clearTimeout(state.avatar3dPollTimer);state.avatar3dPollTimer=setTimeout(()=>{void pollAvatar3dTask(taskId);},delay);}
     async function pollAvatar3dTask(taskId){
       const id=String(taskId||state.avatar3dActiveTaskId||'').trim();if(!id||state.avatar3dPollBusy)return;
-      state.avatar3dPollBusy=true;setAvatarLabActivity('Rendering textured 3D','Checking Tripo3D task progress…','running',null,'Tripo3D');renderAvatarLab();
+      state.avatar3dPollBusy=true;setAvatarLabActivity('Rendering textured 3D','Checking Tripo3D task progress…','running',58,'Tripo3D');renderAvatarLab();
       try{const apiKey=await providerCredentialForRequest('tripo');sendJson({type:'avatar3d.tripo.status',taskId:id,apiKey});}
       catch(error){state.avatar3dPollBusy=false;setAvatarLabError(error?.message||'Tripo3D key unavailable','Could not refresh 3D status');renderAvatarLab();}
     }
@@ -44718,13 +44888,13 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       try{
         const grokItem=state.avatarGrokItems.find((entry)=>entry?.kind==='image'&&entry?.url)||null;
         const useGenerated=!forceBaseSource&&state.avatarGrokUseAs3dSource&&Boolean(grokItem?.url);
-        setAvatarLabActivity('Preparing textured 3D',useGenerated?'Preparing the generated full-body reference for Tripo3D…':'Preparing the original source for Tripo3D…','running',null,'Tripo3D');renderAvatarLab();
+        setAvatarLabActivity('Preparing textured 3D',useGenerated?'Preparing the generated full-body reference for Tripo3D…':'Preparing the original source for Tripo3D…','running',10,'Tripo3D');renderAvatarLab();
         const [apiKey,sourceImage]=await Promise.all([providerCredentialForRequest('tripo'),avatarLabSourceDataUrl(useGenerated)]);
         if(elements.profileAvatarWizardTexture&&elements.profileAvatar3dTextureSelect&&elements.profileAvatarWizardTexture.value!=='flat')elements.profileAvatar3dTextureSelect.value=elements.profileAvatarWizardTexture.value==='standard'?'standard':'detailed';
         let prompt=String(elements.profileAvatarGrokPrompt?.value||'').trim()||composeAvatarWizardPrompt();
         let promptMeta=avatarWizardPromptMeta({source:state.avatarLabSourceImage?'uploaded-source':'profile-photo'});
         if(useGenerated&&grokItem?.kind==='image'&&grokItem?.url){prompt=String(grokItem.prompt||prompt);promptMeta={...promptMeta,...(grokItem.promptMeta||{}),source:'generated-image',sourceRequestId:String(grokItem.requestId||'')};}
-        state.avatar3dPollBusy=true;setAvatarLabActivity('Starting textured 3D','Uploading the selected image and creating a Tripo3D task. Duplicate paid requests are locked.','running',null,'Tripo3D');renderAvatarLab();
+        state.avatar3dPollBusy=true;setAvatarLabActivity('Starting textured 3D','Uploading the selected image and creating a Tripo3D task. Duplicate paid requests are locked.','running',32,'Tripo3D');renderAvatarLab();
         sendJson({type:'avatar3d.tripo.start',apiKey,sourceImage,prompt,promptMeta,modelVersion:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),textureQuality:String(elements.profileAvatar3dTextureSelect?.value||'detailed')});
       }catch(error){state.avatar3dPollBusy=false;setAvatarLabError(error?.message||'3D generation could not start','3D generation failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'generation could not start'}`,true);}
     }

@@ -1,3 +1,7 @@
+## v0.1.129 — fixed Avatar Lab workbench + precision reference controls
+
+Synchronizes Rantlist 9.6.292 / r320. Avatar Lab restores compact xAI reference settings in the fixed workbench, gives the body editor substantially more space, places Render reference with the source controls, remembers provider settings per profile, and makes paid work visibly progress through Prepare → Send → Generate → Save. Empty/activity overlays obey their actual state and stale 3D loader failures can no longer hide a newer loaded model. No destructive profile or media migration is introduced.
+
 ## v0.1.128 — compact Avatar Lab + interactive body styling
 
 Synchronizes Rantlist 9.6.291 / r319. The Avatar Lab overlay now uses a compact flow header, fixed visual workbench and independently scrollable prompt/customization deck. Generated image/video media no longer reserves duplicate hidden space; webcam source capture, Profile shortcut, clickable body-part styling, transient provider activity, explicit disabled-action reasons and correctly stacked full 3D controls are included. Server generation starts accept normalized source images through the bounded Avatar Lab envelope instead of failing at the generic control-message limit. No destructive profile or media migration is introduced.

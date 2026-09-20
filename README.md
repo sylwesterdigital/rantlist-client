@@ -1,3 +1,7 @@
+## v0.1.129 — fixed Avatar Lab workbench + precision reference controls
+
+Synchronizes Rantlist 9.6.292 / r320. Reference-image xAI settings stay discoverable in the fixed Reference card, the primary render action moves into the Source card, body-part customization gets the full lower desktop workspace with a fitted reference image, and provider choices persist per profile. Idle activity/empty-stage overlays no longer cover real content; active provider work shows staged progress, elapsed time and compact cost feedback. Existing profile/media/channel compatibility is preserved.
+
 ## v0.1.128 — compact Avatar Lab + interactive body styling
 
 Synchronizes Rantlist 9.6.291 / r319. Avatar Lab keeps source/reference/3D visible while prompt customization scrolls independently, removes hidden-video layout waste, adds webcam source capture plus a Profile launcher, provides clickable body-part colour/style/details that persist per profile and with generation metadata, shows only contextual activity/error UI, explains disabled generation actions, fixes the Avatar Lab source-message size rejection, and places full 3D controls above the Lab overlay. Existing profile/media/channel compatibility is preserved.
