@@ -1,3 +1,11 @@
+## v0.1.125 — integrated Avatar Suite wizard
+
+Synchronizes Rantlist 9.6.288 / r316. Profile Avatar Lab now guides the user from a webcam/uploaded headshot through an editable Grok full-body concept and into a detailed textured Tripo3D avatar, with clothing/body configuration and responsive controls.
+
+## v0.1.124 — compact Avatar Lab render controls
+
+Synchronizes Rantlist 9.6.287 / r315. Grok and Tripo render actions remain visibly labelled with icons and stay in the same compact row as their settings where the Profile drawer has enough width; narrow screens still wrap safely.
+
 ## v0.1.123 — responsive Profile layout
 
 Synchronizes Rantlist 9.6.286 / r314. Profile sections now stay inside the visible drawer at tablet/narrow-desktop sizes and enlarged accessibility text. Avatar Lab controls reflow into compact rows instead of being cropped horizontally.
