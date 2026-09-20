@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.295">
+  <meta name="chat-ui-version" content="9.6.296">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16693,8 +16693,9 @@
       .avatar-lab-reference-settings{width:min(196px,calc(100% - 16px));}
     }
 
-    /* r323: desktop Avatar Lab is a focused workbench. The reference image doubles as
-       the body-part styling surface; provider controls remain visible without a second image pane. */
+    /* r324: Avatar Lab is a docked desktop side workspace, not a centred overlay.
+       The Style editor becomes a reserved split pane inside the reference card so it
+       never floats over the reference image, 3D controls or paid render actions. */
     .avatar-lab-card {
       width:clamp(900px,65vw,1240px);
       height:min(860px,calc(var(--app-height,100dvh) - 24px));
@@ -16771,7 +16772,159 @@
     #profileAvatarGrokPrompt { min-height:96px; height:100%; resize:none; font-size:12px; line-height:1.35; }
     .avatar-lab-advanced { border:0; background:transparent; }
 
-    @media (max-width:1050px) {
+    @media (min-width:1100px) {
+      :root { --desktop-avatar-lab-width:clamp(680px,62vw,1280px); }
+      :root[data-side-inspector="avatar-lab"] .topbar,
+      :root[data-side-inspector="avatar-lab"] #workspace,
+      :root[data-side-inspector="avatar-lab"] .mobile-nav {
+        width:calc(100% - var(--room-rail-space) - var(--desktop-avatar-lab-width));
+      }
+
+      .avatar-lab-modal {
+        padding:0;
+        grid-template-columns:minmax(0,1fr) var(--desktop-avatar-lab-width);
+        place-items:stretch;
+        background:transparent!important;
+        pointer-events:none;
+      }
+      .avatar-lab-modal > .modal-backdrop {
+        position:relative;
+        inset:auto;
+        grid-column:1;
+        grid-row:1;
+        min-width:0;
+        min-height:0;
+        background:transparent!important;
+        pointer-events:auto;
+      }
+      .avatar-lab-modal > .avatar-lab-card {
+        grid-column:2;
+        grid-row:1;
+        width:100%;
+        min-width:0;
+        height:var(--app-height,100dvh);
+        max-height:var(--app-height,100dvh);
+        border-radius:0;
+        border-top:0;
+        border-right:0;
+        border-bottom:0;
+        box-shadow:-14px 0 34px rgba(0,0,0,.28);
+        pointer-events:auto;
+      }
+      .profile-avatar-lab { grid-template-rows:minmax(360px,64%) minmax(190px,36%); }
+      .avatar-lab-workbench {
+        min-height:0;
+        display:grid;
+        grid-template-columns:minmax(150px,22%) minmax(175px,1fr) minmax(250px,34%);
+        grid-template-rows:minmax(0,1fr);
+        gap:8px;
+        padding:8px;
+        overflow:hidden;
+      }
+      .avatar-lab-workbench:has(.avatar-lab-style-popover[open]) {
+        grid-template-columns:minmax(145px,20%) minmax(150px,.62fr) minmax(410px,1.55fr);
+      }
+      .avatar-lab-stage {
+        position:relative;
+        inset:auto;
+        grid-column:2;
+        grid-row:1;
+        min-width:0;
+        min-height:0;
+        border:1px solid rgba(255,255,255,.08);
+        border-radius:14px;
+      }
+      .avatar-lab-source-card,
+      .avatar-lab-generated-card {
+        position:relative;
+        top:auto;
+        right:auto;
+        bottom:auto;
+        left:auto;
+        width:100%;
+        height:100%;
+        max-height:none;
+        min-width:0;
+        min-height:0;
+        border-radius:14px;
+      }
+      .avatar-lab-source-card { grid-column:1; grid-row:1; }
+      .avatar-lab-generated-card { grid-column:3; grid-row:1; overflow:hidden; }
+      .avatar-lab-generated-media { border-radius:14px; }
+      .avatar-lab-generated-card > header { border-radius:14px 14px 0 0; }
+      .profile-avatar-suite-source { border-radius:14px; }
+
+      /* Closed: Style is only a compact toggle over the image. Open: it becomes a
+         real reserved column in the reference card, never a popup/popover. */
+      .avatar-lab-style-popover { position:absolute; top:42px; left:8px; width:max-content; }
+      .avatar-lab-style-popover[open] {
+        position:relative;
+        top:auto;
+        left:auto;
+        z-index:7;
+        grid-column:2;
+        grid-row:1;
+        width:auto;
+        height:100%;
+        min-width:0;
+        min-height:0;
+        display:grid;
+        grid-template-rows:auto minmax(0,1fr);
+        overflow:hidden;
+        border-left:1px solid rgba(255,255,255,.14);
+        background:rgba(7,12,22,.98);
+      }
+      .avatar-lab-generated-card:has(.avatar-lab-style-popover[open]) {
+        display:grid;
+        grid-template-columns:minmax(0,1.04fr) minmax(220px,.96fr);
+        grid-template-rows:minmax(0,1fr);
+      }
+      .avatar-lab-generated-card:has(.avatar-lab-style-popover[open]) .avatar-lab-generated-media {
+        position:relative;
+        inset:auto;
+        grid-column:1;
+        grid-row:1;
+        width:100%;
+        height:100%;
+        min-height:0;
+        border-radius:14px 0 0 14px;
+      }
+      .avatar-lab-generated-card:has(.avatar-lab-style-popover[open]) > header { right:48%; }
+      .avatar-lab-generated-card:has(.avatar-lab-style-popover[open]) .avatar-lab-reference-settings { right:calc(48% + 8px); width:min(205px,calc(52% - 16px)); }
+      .avatar-lab-generated-card:has(.avatar-lab-style-popover[open]) .avatar-lab-3d-settings,
+      .avatar-lab-generated-card:has(.avatar-lab-style-popover[open]) .profile-avatar-grok-actions { right:calc(48% + 8px); }
+      .avatar-lab-style-popover[open] > summary {
+        width:100%;
+        min-height:36px;
+        justify-content:flex-start;
+        border:0;
+        border-bottom:1px solid rgba(255,255,255,.12);
+        border-radius:0;
+        background:rgba(255,255,255,.035);
+      }
+      .avatar-lab-style-popover[open] .avatar-lab-style-popover-panel {
+        position:relative;
+        top:auto;
+        right:auto;
+        width:auto;
+        height:100%;
+        max-height:none;
+        min-height:0;
+        overflow:auto;
+        overscroll-behavior:contain;
+        padding:8px;
+        border:0;
+        border-radius:0;
+        background:transparent;
+        box-shadow:none;
+      }
+      .avatar-lab-style-popover[open] .avatar-lab-style-panel { min-height:0; overflow:visible; border:0; background:transparent; }
+      .avatar-lab-style-popover[open] .profile-avatar-suite-grid { grid-template-columns:1fr; }
+      .avatar-lab-style-popover[open] .avatar-lab-style-row { grid-template-columns:1fr; }
+      .avatar-lab-style-popover[open] #avatarLabPartDetails { min-height:72px; }
+    }
+
+    @media (max-width:1099px) {
       .avatar-lab-card { width:min(92vw,980px); }
       .avatar-lab-source-card { width:min(260px,29%); }
       .avatar-lab-generated-card { width:min(300px,33%); }
@@ -16838,7 +16991,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.295</small>
+          <small id="serverBrandVersion">v9.6.296</small>
         </span>
       </button>
     </div>
@@ -44970,10 +45123,13 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     function openAvatarLab(opener=null) {
       closeGamesTray();
       if (!elements.avatarLabModal) return;
-      state.avatarLabReturnFocus=opener instanceof HTMLElement?opener:null;
+      if (elements.configDrawer && !elements.configDrawer.hidden) closeConfig();
+      if (elements.profilePanel && !elements.profilePanel.hidden) closeProfileOverlay(false);
+      state.avatarLabReturnFocus=(opener instanceof HTMLElement && !(elements.profilePanel?.contains?.(opener)))?opener:elements.avatarLabGameButton;
       loadAvatarLabStyleSettings();
       loadAvatarLabProviderSettings();
       elements.avatarLabModal.hidden=false; elements.avatarLabModal.setAttribute('aria-hidden','false');
+      setDesktopSideInspector('avatar-lab');
       refreshAvatarAutoPrompt(false);
       if (state.registered && !state.isAdmin) { sendJson({type:'avatar3d.list'}); sendJson({type:'avatar.grok.list'}); }
       renderAvatarLab();
@@ -44983,6 +45139,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if (!elements.avatarLabModal) return;
       const returnFocus=state.avatarLabReturnFocus;
       elements.avatarLabModal.hidden=true; elements.avatarLabModal.setAttribute('aria-hidden','true');
+      if (document.documentElement.dataset.sideInspector === 'avatar-lab') setDesktopSideInspector('');
       clearAvatarLabActivityTimer();
       state.avatarLabActivity=null;
       state.avatarLabStageLoadingUrl=''; disposeAvatarLabStage();
@@ -49129,7 +49286,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
 
     function setDesktopSideInspector(kind = '') {
-      const safeKind = kind === 'config' || kind === 'profile' ? kind : '';
+      const safeKind = kind === 'config' || kind === 'profile' || kind === 'avatar-lab' ? kind : '';
       if (safeKind) document.documentElement.dataset.sideInspector = safeKind;
       else delete document.documentElement.dataset.sideInspector;
       requestAnimationFrame(() => {

@@ -1,3 +1,7 @@
+## Client package 0.1.133 / source 9.6.296
+
+Desktop Avatar Lab now docks as a full-height right-side workspace instead of a centred overlay, with the main Rantlist workspace yielding width to it. Opening Style reserves a split pane inside the reference card instead of placing controls over the reference image, render actions or Tripo settings. Narrow/mobile behavior remains compatible.
+
 ## Client package 0.1.132 / source 9.6.295
 
 Includes the r323 Avatar Lab integrated reference-style workbench and visible Tripo model selection.
