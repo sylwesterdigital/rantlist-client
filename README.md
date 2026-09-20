@@ -1,4 +1,4 @@
-## Client package 0.1.134 / source 9.6.297
+## Client package 0.1.135 / source 9.6.298
 
 Avatar Lab adds **My Models** for all stored Tripo generations, optional humanoid auto/manual rigging with Mixamo-compatible output, compact lighting/floor/view/download controls on the existing centre stage, smaller non-obscuring body hotspots, normal-space editing in Style details, and a reusable prompt library with snippets plus named save/delete. Paid actions are compact **2D** / **3D** controls. Existing profile/media/channel/avatar data remains compatible.
 
