@@ -1,3 +1,7 @@
+## v0.1.123 — responsive Profile layout
+
+Synchronizes Rantlist 9.6.286 / r314. Profile sections now stay inside the visible drawer at tablet/narrow-desktop sizes and enlarged accessibility text. Avatar Lab controls reflow into compact rows instead of being cropped horizontally.
+
 ## v0.1.122 — Grok chat + controllable 3D avatar preview
 
 Synchronizes Rantlist 9.6.285 / r313. A configured xAI/Grok key can now be used for normal `/ai` text chat through selectable Grok models. Avatar Lab keeps explicit prompt-driven profile-image editing, and the 3D preview adds stage/floor colour controls, brighter adjustable lighting and Front / Portrait / Full body views.
