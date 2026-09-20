@@ -1,4 +1,4 @@
-## Client package 0.1.139 / source 9.6.302
+## Client package 0.1.140 / source 9.6.303
 
 Avatar Lab adds **My Models** for all stored Tripo generations, optional humanoid auto/manual rigging with Mixamo-compatible output, compact lighting/floor/view/download controls on the existing centre stage, smaller non-obscuring body hotspots, normal-space editing in Style details, and a reusable prompt library with snippets plus named save/delete. Paid actions are compact **2D** / **3D** controls. Existing profile/media/channel/avatar data remains compatible.
 
@@ -554,6 +554,10 @@ Config → Controls includes an optional **More chat space while typing on mobil
 ## Native startup and offline shell
 
 The iOS, macOS and Android wrappers display a native Rantlist splash screen before the remote UI is available. If no validated internet connection is available, the wrapper displays a native offline message instead of an empty WebView. Connectivity is watched at the OS level; when the connection returns, the initial Rantlist URL is loaded again automatically if the browser UI had not yet completed its first successful load.
+
+## Avatar Lab package 0.1.140
+
+Mirrors Rantlist 9.6.303 / rantlist-deploy-r331: fullscreen Source/Reference inspection now supports Fit and native 100% scrolling; generation progress is draggable and translucent; My Images exposes reusable stored references and newly persisted source snapshots; the model gallery reuses one WebGL thumbnail renderer to avoid context exhaustion. Mixamo-compatible rig naming is not presented as a guarantee of articulated finger chains.
 
 ## Avatar Lab package 0.1.139
 
