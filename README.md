@@ -1,3 +1,7 @@
+## v0.1.127 — guided Avatar Lab progress + reliable 3D preview
+
+Synchronizes Rantlist 9.6.290 / r318. Avatar Lab now leads with source → reference image → textured 3D, moves the selector wall into collapsed Advanced settings, keeps render actions prominent, preserves generated-image aspect ratio/pixel dimensions, visibly locks paid requests while they run, surfaces xAI/Tripo failures in the overlay, fixes blob-backed GLB texture loading under production CSP, and records provider-reported xAI cost plus best-effort Tripo balance without rewriting existing profile/media data.
+
 ## v0.1.126 — standalone Avatar Lab workbench + reusable prompts
 
 Synchronizes Rantlist 9.6.289 / r317. Avatar Lab moves out of Profile into a dedicated Games-tray overlay with the source portrait, image-to-image result and embedded 3D stage available in one workbench. Rig-ready preset/custom prompts now combine with the Avatar Suite selectors, and generation prompt metadata is reusable without changing existing profile or identity data.

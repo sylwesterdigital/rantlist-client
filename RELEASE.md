@@ -1,3 +1,7 @@
+## v0.1.127 — guided Avatar Lab progress + reliable 3D preview
+
+Synchronizes Rantlist 9.6.290 / r318. The Avatar Lab overlay now makes the three-step generation path explicit, keeps advanced selectors out of the primary workflow, gives image and 3D render actions prominent placement, preserves portrait output proportions, shows active request/progress/error state, reports generation cost/balance where providers expose it, and fixes embedded GLB texture preview loading. Existing user/profile/channel/media compatibility remains unchanged.
+
 ## v0.1.126 — standalone Avatar Lab workbench + reusable prompts
 
 Synchronizes Rantlist 9.6.289 / r317. Avatar Lab is launched from the Games tray instead of living inside Profile. The desktop workbench keeps source, generated concept and 3D stage together, adds rig-ready/custom selector-composed prompts and reusable generation metadata, while preserving existing profile/user compatibility.

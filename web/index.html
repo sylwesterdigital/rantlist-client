@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.289">
+  <meta name="chat-ui-version" content="9.6.290">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16053,8 +16053,8 @@
 
     .avatar-lab-modal { z-index: 690; padding: 10px; }
     .avatar-lab-card {
-      width:min(1260px,calc(100vw - 20px));
-      height:min(920px,calc(var(--app-height,100dvh) - 20px));
+      width:min(1320px,calc(100vw - 20px));
+      height:min(940px,calc(var(--app-height,100dvh) - 20px));
       max-height:calc(var(--app-height,100dvh) - 20px);
       display:grid;
       grid-template-rows:auto minmax(0,1fr);
@@ -16069,12 +16069,12 @@
       min-height:0;
       overflow:auto;
       display:grid;
-      grid-template-rows:minmax(500px,1fr) auto;
+      grid-template-rows:minmax(430px,1fr) auto;
       background:color-mix(in srgb,var(--panel) 94%,transparent);
     }
     .avatar-lab-workbench {
       position:relative;
-      min-height:500px;
+      min-height:430px;
       overflow:hidden;
       border-bottom:1px solid var(--line);
       background:
@@ -16085,8 +16085,8 @@
     #avatarLabStageCanvas { width:100%; height:100%; display:block; touch-action:none; }
     .avatar-lab-stage-empty {
       position:absolute;
-      inset:22% 28% auto;
-      min-height:150px;
+      inset:25% 31% auto;
+      min-height:145px;
       display:grid;
       place-items:center;
       align-content:center;
@@ -16105,7 +16105,7 @@
       top:10px;
       left:50%;
       transform:translateX(-50%);
-      max-width:46%;
+      max-width:44%;
       padding:5px 9px;
       border:1px solid rgba(255,255,255,.14);
       border-radius:999px;
@@ -16119,22 +16119,22 @@
     .avatar-lab-float-card {
       position:absolute;
       z-index:4;
-      width:min(238px,24%);
+      width:min(250px,25%);
       display:grid;
       gap:8px;
       padding:10px;
       border:1px solid rgba(255,255,255,.18);
       border-radius:16px;
       color:#f5f7ff;
-      background:rgba(11,16,29,.78);
+      background:rgba(11,16,29,.82);
       box-shadow:0 14px 34px rgba(0,0,0,.24);
       backdrop-filter:blur(12px);
     }
     .avatar-lab-float-card header { display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
     .avatar-lab-float-card header small { opacity:.72; }
     .avatar-lab-source-card { top:14px; left:14px; }
-    .avatar-lab-generated-card { top:14px; right:14px; }
-    .profile-avatar-suite-source,.avatar-lab-generated-card img,.avatar-lab-generated-card video {
+    .avatar-lab-generated-card { top:14px; right:14px; width:min(310px,30%); max-height:calc(100% - 28px); overflow:auto; }
+    .profile-avatar-suite-source {
       width:100%;
       aspect-ratio:1/1;
       max-height:220px;
@@ -16143,75 +16143,109 @@
       background:#06080e;
       border:1px solid rgba(255,255,255,.12);
     }
+    .avatar-lab-generated-media { min-height:0; display:grid; place-items:center; border-radius:12px; background:#06080e; border:1px solid rgba(255,255,255,.12); overflow:hidden; }
+    .avatar-lab-generated-card img,.avatar-lab-generated-card video {
+      display:block;
+      width:100%;
+      height:auto;
+      max-height:min(54vh,520px);
+      object-fit:contain;
+      background:#06080e;
+    }
     .avatar-lab-source-meta { display:grid; gap:4px; font-size:12px; }
     .avatar-lab-source-meta small { opacity:.78; }
-    .avatar-lab-card-actions,.profile-avatar-grok-actions { display:flex; flex-wrap:wrap; gap:6px; }
-    .avatar-lab-card-actions button,.profile-avatar-grok-actions button { flex:1 1 auto; min-width:0; }
-    .profile-avatar-suite {
-      position:absolute;
-      z-index:3;
-      left:14px;
-      right:14px;
-      bottom:14px;
-      display:grid;
-      gap:8px;
-      padding:11px;
-      border:1px solid rgba(255,255,255,.16);
-      border-radius:16px;
-      color:#f5f7ff;
-      background:rgba(11,16,29,.76);
-      box-shadow:0 16px 40px rgba(0,0,0,.28);
-      backdrop-filter:blur(14px);
-    }
-    .profile-avatar-suite-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:8px; }
-    .profile-avatar-suite-heading h4 { margin:0; font-size:16px; }
-    .profile-avatar-suite-heading p { margin:3px 0 0; opacity:.8; font-size:12px; }
-    .profile-avatar-suite-badges { display:flex; flex-wrap:wrap; gap:6px; }
-    .profile-avatar-suite-badges span { padding:3px 8px; border-radius:999px; border:1px solid rgba(255,255,255,.17); font-size:11px; }
-    .profile-avatar-suite-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
-    .profile-avatar-suite-grid .field { display:grid; gap:4px; min-width:0; }
-    .profile-avatar-suite-grid label { font-size:11px; opacity:.82; }
-    .profile-avatar-suite-grid select { width:100%; min-width:0; }
-    .avatar-lab-prompt-deck { display:grid; gap:9px; padding:12px; background:var(--panel); }
-    .avatar-lab-prompt-toolbar { display:grid; grid-template-columns:minmax(160px,.8fr) minmax(220px,1.35fr) max-content max-content; gap:8px; align-items:end; }
+    .avatar-lab-card-actions,.profile-avatar-grok-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+    .avatar-lab-card-actions button,.profile-avatar-grok-actions button { min-width:0; }
+    .profile-avatar-grok-actions .avatar-lab-render-3d { grid-column:1/-1; min-height:44px; font-weight:850; }
+    .profile-avatar-grok-actions .avatar-lab-preview-3d { grid-column:1/-1; }
+
+    .avatar-lab-prompt-deck { display:grid; gap:10px; padding:12px; background:var(--panel); }
+    .avatar-lab-flow { display:flex; align-items:center; gap:6px; min-width:0; }
+    .avatar-lab-flow span { display:inline-flex; align-items:center; gap:5px; min-width:0; padding:5px 9px; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:var(--panel-2); font-size:11px; font-weight:750; }
+    .avatar-lab-flow span::before { display:grid; place-items:center; width:17px; height:17px; border-radius:50%; background:color-mix(in srgb,var(--accent) 14%,transparent); color:var(--text); font-size:10px; content:attr(data-step); }
+    .avatar-lab-primary { display:grid; gap:8px; }
+    .avatar-lab-prompt-toolbar { display:grid; grid-template-columns:minmax(150px,.72fr) minmax(220px,1.28fr) max-content max-content; gap:8px; align-items:end; }
     .avatar-lab-prompt-toolbar .field { display:grid; gap:5px; min-width:0; }
     .avatar-lab-prompt-toolbar label { font-size:11px; color:var(--muted); }
-    #profileAvatarGrokPrompt { width:100%; min-height:148px; resize:vertical; font-size:14px; line-height:1.38; }
-    .profile-avatar-grok-controls { display:grid; grid-template-columns:minmax(90px,.65fr) minmax(170px,1.25fr) minmax(118px,.8fr) minmax(105px,.72fr) minmax(84px,.55fr) max-content; gap:8px; align-items:center; min-width:0; }
-    .profile-avatar-lab-controls { display:grid; grid-template-columns:minmax(135px,.8fr) minmax(160px,1fr) max-content max-content max-content; gap:8px; align-items:center; min-width:0; }
+    #profileAvatarGrokPrompt { width:100%; min-height:142px; resize:vertical; font-size:14px; line-height:1.38; }
+    .avatar-lab-render-row { display:grid; grid-template-columns:minmax(0,1fr) minmax(220px,340px); gap:10px; align-items:stretch; }
+    .avatar-lab-render-copy { display:grid; align-content:center; gap:2px; min-width:0; padding:9px 11px; border:1px solid var(--line); border-radius:11px; background:var(--panel-2); }
+    .avatar-lab-render-copy strong { font-size:13px; }
+    .avatar-lab-render-copy small { color:var(--muted); line-height:1.35; }
+    #profileAvatarGrokRunButton { min-height:52px; font-size:14px; font-weight:900; }
+
+    .avatar-lab-activity { display:grid; gap:7px; padding:10px 11px; border:1px solid color-mix(in srgb,var(--accent) 52%,var(--line)); border-radius:12px; background:color-mix(in srgb,var(--accent) 7%,var(--panel-2)); }
+    .avatar-lab-activity.error { border-color:color-mix(in srgb,var(--danger) 72%,var(--line)); background:color-mix(in srgb,var(--danger) 8%,var(--panel-2)); }
+    .avatar-lab-activity.success { border-color:color-mix(in srgb,var(--success) 60%,var(--line)); background:color-mix(in srgb,var(--success) 7%,var(--panel-2)); }
+    .avatar-lab-activity-head { display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+    .avatar-lab-activity-head strong { min-width:0; }
+    .avatar-lab-activity-head small { color:var(--muted); white-space:nowrap; }
+    .avatar-lab-activity progress { width:100%; height:10px; }
+    .avatar-lab-activity progress.indeterminate { animation:avatar-lab-pulse 1.1s ease-in-out infinite alternate; }
+    @keyframes avatar-lab-pulse { from { opacity:.5; } to { opacity:1; } }
+    .avatar-lab-activity-message { color:var(--text); font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
+    .avatar-lab-activity-meta { display:flex; flex-wrap:wrap; gap:6px 12px; color:var(--muted); font-size:11px; }
+
+    .avatar-lab-advanced { border:1px solid var(--line); border-radius:12px; background:var(--panel-2); overflow:hidden; }
+    .avatar-lab-advanced > summary { cursor:pointer; list-style:none; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:42px; padding:8px 11px; font-weight:800; }
+    .avatar-lab-advanced > summary::-webkit-details-marker { display:none; }
+    .avatar-lab-advanced > summary::after { content:'▾'; color:var(--muted); transition:transform .15s ease; }
+    .avatar-lab-advanced[open] > summary::after { transform:rotate(180deg); }
+    .avatar-lab-advanced-body { display:grid; gap:10px; padding:0 10px 10px; border-top:1px solid var(--line); }
+    .profile-avatar-suite { display:grid; gap:8px; padding-top:10px; }
+    .profile-avatar-suite-heading { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:8px; }
+    .profile-avatar-suite-heading h4 { margin:0; font-size:14px; }
+    .profile-avatar-suite-heading p { margin:2px 0 0; color:var(--muted); font-size:11px; }
+    .profile-avatar-suite-badges { display:flex; flex-wrap:wrap; gap:6px; }
+    .profile-avatar-suite-badges span { padding:3px 8px; border-radius:999px; border:1px solid var(--line); color:var(--muted); font-size:10px; }
+    .profile-avatar-suite-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; }
+    .profile-avatar-suite-grid .field { display:grid; gap:4px; min-width:0; }
+    .profile-avatar-suite-grid label { font-size:11px; color:var(--muted); }
+    .profile-avatar-suite-grid select { width:100%; min-width:0; }
+    .avatar-lab-provider-settings { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .avatar-lab-provider-box { display:grid; gap:7px; min-width:0; padding:9px; border:1px solid var(--line); border-radius:10px; background:var(--panel); }
+    .avatar-lab-provider-box header { display:flex; align-items:baseline; justify-content:space-between; gap:8px; }
+    .avatar-lab-provider-box header small { color:var(--muted); }
+    .profile-avatar-grok-controls { display:grid; grid-template-columns:minmax(80px,.55fr) minmax(170px,1.2fr) minmax(110px,.72fr) minmax(95px,.62fr) minmax(76px,.5fr); gap:7px; align-items:center; min-width:0; }
+    .profile-avatar-lab-controls { display:grid; grid-template-columns:minmax(125px,.8fr) minmax(145px,1fr) max-content max-content max-content; gap:7px; align-items:center; min-width:0; }
     .profile-avatar-lab-controls > *, .profile-avatar-grok-controls > * { min-width:0; max-width:100%; }
     .profile-avatar-lab-controls button,.profile-avatar-grok-controls button,.avatar-lab-prompt-toolbar button { white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:7px; }
-    #profileAvatar3dProgress { width:100%; }
     .avatar-lab-provider-status { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
     .avatar-lab-provider-status small { min-width:0; color:var(--muted); }
-    @media (max-width:980px){
+    #profileAvatar3dDirectButton { justify-self:start; }
+
+    @media (max-width:1040px){
       .profile-avatar-suite-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
       .avatar-lab-prompt-toolbar{grid-template-columns:repeat(2,minmax(0,1fr));}
+      .avatar-lab-provider-settings{grid-template-columns:1fr;}
       .profile-avatar-grok-controls{grid-template-columns:repeat(3,minmax(0,1fr));}
       .profile-avatar-lab-controls{grid-template-columns:repeat(3,minmax(0,1fr));}
+      .avatar-lab-generated-card{width:min(285px,31%);}
     }
     @media (max-width:760px){
       .avatar-lab-modal{padding:0;}
       .avatar-lab-card{width:100vw;height:var(--app-height,100dvh);max-height:var(--app-height,100dvh);border-radius:0;border-left:0;border-right:0;}
       .profile-avatar-lab{grid-template-rows:auto auto;}
       .avatar-lab-workbench{position:relative;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:8px;overflow:visible;background:#101624;}
-      .avatar-lab-stage{position:relative;grid-column:1/-1;height:min(48vh,420px);border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#182033,#090d16);}
+      .avatar-lab-stage{position:relative;grid-column:1/-1;height:min(44vh,380px);border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#182033,#090d16);}
       .avatar-lab-stage-empty{inset:18% 15% auto;}
       .avatar-lab-stage-status{max-width:78%;}
-      .avatar-lab-float-card{position:relative;top:auto;left:auto;right:auto;width:auto;min-width:0;}
-      .profile-avatar-suite{position:relative;left:auto;right:auto;bottom:auto;grid-column:1/-1;}
-      .avatar-lab-generated-card img,.avatar-lab-generated-card video,.profile-avatar-suite-source{max-height:180px;}
+      .avatar-lab-float-card{position:relative;top:auto;left:auto;right:auto;width:auto;max-height:none;min-width:0;overflow:visible;}
+      .avatar-lab-generated-card img,.avatar-lab-generated-card video{max-height:360px;}
       .avatar-lab-prompt-toolbar{grid-template-columns:1fr;}
+      .avatar-lab-render-row{grid-template-columns:1fr;}
       .profile-avatar-grok-controls,.profile-avatar-lab-controls{grid-template-columns:repeat(2,minmax(0,1fr));}
       .avatar-lab-provider-status{grid-template-columns:1fr;}
     }
     @media (max-width:520px){
       .avatar-lab-header-copy small{display:none;}
+      .avatar-lab-flow{overflow:auto;padding-bottom:2px;}
+      .avatar-lab-flow span{flex:0 0 auto;}
       .avatar-lab-workbench{grid-template-columns:1fr;}
-      .avatar-lab-stage,.profile-avatar-suite{grid-column:1;}
+      .avatar-lab-stage{grid-column:1;}
       .profile-avatar-suite-grid,.profile-avatar-grok-controls,.profile-avatar-lab-controls{grid-template-columns:1fr;}
-      .profile-avatar-lab-controls button,.profile-avatar-grok-controls button,.avatar-lab-prompt-toolbar button{width:100%;}
-      #profileAvatarGrokPrompt{min-height:180px;}
+      .profile-avatar-lab-controls button,.avatar-lab-prompt-toolbar button{width:100%;}
+      #profileAvatarGrokPrompt{min-height:170px;}
     }
     .avatar3d-preview-card { width:min(920px,96vw); }
     .avatar3d-preview-toolbar { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px; }
@@ -16258,7 +16292,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.289</small>
+          <small id="serverBrandVersion">v9.6.290</small>
         </span>
       </button>
     </div>
@@ -17214,19 +17248,19 @@
       <button id="avatarLabBackdrop" class="modal-backdrop" type="button" tabindex="-1" aria-label="Close Avatar Lab"></button>
       <section class="modal-card avatar-lab-card" role="dialog" aria-modal="true" aria-labelledby="profileAvatarLabTitle">
         <header class="modal-header avatar-lab-header">
-          <div class="avatar-lab-header-copy"><div><small>Avatar Lab</small><h2 id="profileAvatarLabTitle">Image → image → textured 3D</h2></div><small>Keep the source, generated reference and 3D stage together while you iterate.</small></div>
+          <div class="avatar-lab-header-copy"><div><small>Avatar Lab</small><h2 id="profileAvatarLabTitle">Source → reference image → textured 3D</h2></div><small>Create a clean full-body reference first, then turn that result into a textured 3D avatar.</small></div>
           <div class="avatar-lab-header-actions"><button id="avatarLabCloseButton" class="icon-button" type="button" aria-label="Close Avatar Lab"><span class="icon icon-close"></span></button></div>
         </header>
         <div id="profileAvatarLab" class="profile-avatar-lab">
           <div class="avatar-lab-workbench">
             <div class="avatar-lab-stage" aria-label="3D avatar stage">
               <canvas id="avatarLabStageCanvas"></canvas>
-              <div id="avatarLabStageEmpty" class="avatar-lab-stage-empty"><span class="icon icon-avatar-3d" aria-hidden="true"></span><strong>3D stage</strong><span>Generate or reopen a textured 3D avatar to preview it here.</span></div>
+              <div id="avatarLabStageEmpty" class="avatar-lab-stage-empty"><span class="icon icon-avatar-3d" aria-hidden="true"></span><strong>3D stage</strong><span>Your finished textured avatar appears here. Drag to orbit when it is ready.</span></div>
               <small id="avatarLabStageStatus" class="avatar-lab-stage-status">No 3D model selected.</small>
             </div>
 
             <article class="avatar-lab-float-card avatar-lab-source-card">
-              <header><strong>Original / source</strong><small>Identity reference</small></header>
+              <header><strong>1 · Source</strong><small>Identity reference</small></header>
               <img id="profileAvatarSuiteSourcePreview" class="profile-avatar-suite-source" alt="Avatar Lab source preview" hidden>
               <div class="avatar-lab-source-meta"><small id="profileAvatarSuitePreviewMeta">No source selected yet.</small></div>
               <div class="avatar-lab-card-actions">
@@ -17237,54 +17271,89 @@
             </article>
 
             <article id="profileAvatarGrokResult" class="avatar-lab-float-card avatar-lab-generated-card" hidden>
-              <header><strong>Image 2 image</strong><small>Generated reference</small></header>
-              <div><img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden><video id="profileAvatarGrokVideo" controls playsinline hidden></video></div>
-              <div class="profile-avatar-grok-actions"><button id="profileAvatarGrokUseProfileButton" type="button" hidden>Use as profile photo</button><button id="profileAvatarGrokUse3dButton" type="button" hidden>Use for 3D</button></div>
+              <header><strong>2 · Reference image</strong><small id="profileAvatarGrokResultMeta">Generated</small></header>
+              <div class="avatar-lab-generated-media"><img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden><video id="profileAvatarGrokVideo" controls playsinline hidden></video></div>
+              <div class="profile-avatar-grok-actions">
+                <button id="profileAvatarGrokUseProfileButton" type="button" hidden>Use as profile photo</button>
+                <button id="profileAvatarGrokUse3dButton" type="button" hidden>Use for 3D</button>
+                <button id="profileAvatar3dGenerateButton" class="primary avatar-lab-render-3d" type="button" data-button-presentation-ignore hidden><span class="icon icon-render" aria-hidden="true"></span><span>Render textured 3D</span></button>
+                <button id="profileAvatar3dPreviewButton" class="avatar-lab-preview-3d" type="button" data-button-presentation-ignore disabled hidden><span class="icon icon-preview" aria-hidden="true"></span><span>Open full 3D controls</span></button>
+              </div>
             </article>
-
-            <section class="profile-avatar-suite" aria-label="Avatar generation settings">
-              <div class="profile-avatar-suite-heading">
-                <div><h4>Avatar suite</h4><p>Shape a single rig-ready full-body reference before sending it to 3D.</p></div>
-                <div class="profile-avatar-suite-badges"><span>Source</span><span>Image 2 image</span><span>Textured 3D</span></div>
-              </div>
-              <div class="profile-avatar-suite-grid">
-                <div class="field"><label for="profileAvatarWizardIntent">Step focus</label><select id="profileAvatarWizardIntent"><option value="head">Refine headshot</option><option value="body" selected>Create full-body concept</option><option value="final">Final avatar for 3D</option></select></div>
-                <div class="field"><label for="profileAvatarWizardPresentation">Presentation</label><select id="profileAvatarWizardPresentation"><option value="male">Male</option><option value="female">Female</option><option value="unisex" selected>Unisex</option></select></div>
-                <div class="field"><label for="profileAvatarWizardTop">Top / torso</label><select id="profileAvatarWizardTop"><option value="hoodie" selected>Hoodie</option><option value="t-shirt">T-shirt</option><option value="shirt">Shirt</option><option value="jacket">Jacket</option><option value="coat">Coat</option><option value="armour">Armour</option><option value="dress-top">Dress / fitted top</option></select></div>
-                <div class="field"><label for="profileAvatarWizardLegs">Legs</label><select id="profileAvatarWizardLegs"><option value="jeans" selected>Jeans</option><option value="trousers">Trousers</option><option value="shorts">Shorts</option><option value="leggings">Leggings</option><option value="skirt">Skirt</option></select></div>
-                <div class="field"><label for="profileAvatarWizardFeet">Feet / shoes</label><select id="profileAvatarWizardFeet"><option value="sneakers" selected>Sneakers</option><option value="boots">Boots</option><option value="formal shoes">Formal shoes</option><option value="sandals">Sandals</option><option value="barefoot">Barefoot</option></select></div>
-                <div class="field"><label for="profileAvatarWizardPose">Pose</label><select id="profileAvatarWizardPose"><option value="front standing">Front standing</option><option value="hero standing">Hero standing</option><option value="relaxed standing">Relaxed standing</option><option value="A-pose" selected>A-pose</option><option value="T-pose">T-pose</option></select></div>
-                <div class="field"><label for="profileAvatarWizardFraming">Framing</label><select id="profileAvatarWizardFraming"><option value="clean full-body portrait">Clean full-body portrait</option><option value="studio character sheet" selected>Studio character sheet</option><option value="single figure on plain background">Single figure, plain background</option></select></div>
-                <div class="field"><label for="profileAvatarWizardTexture">3D texture target</label><select id="profileAvatarWizardTexture"><option value="detailed" selected>Detailed textured avatar</option><option value="standard">Standard textured avatar</option><option value="flat">Flat colour concept</option></select></div>
-              </div>
-            </section>
           </div>
 
           <div class="avatar-lab-prompt-deck">
-            <div class="avatar-lab-prompt-toolbar">
-              <div class="field"><label for="profileAvatarPromptPreset">Prompt preset</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
-              <div class="field"><label for="profileAvatarPromptHistory">Reuse generation prompt</label><select id="profileAvatarPromptHistory"><option value="">Generation history…</option></select></div>
-              <button id="profileAvatarPromptReuseButton" type="button" disabled>Reuse prompt</button>
-              <button id="profileAvatarWizardComposeButton" type="button" data-button-presentation-ignore><span class="icon icon-edit" aria-hidden="true"></span><span>Apply preset + settings</span></button>
-            </div>
-            <textarea id="profileAvatarGrokPrompt" maxlength="4000" placeholder="Describe the head, body, clothing and final avatar. Presets and the settings above can compose this, or write a completely custom prompt." aria-label="Avatar generation prompt"></textarea>
-            <div class="profile-avatar-grok-controls">
-              <select id="profileAvatarGrokOutput" aria-label="Grok output"><option value="image">Image</option><option value="video">Video</option></select>
-              <input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" aria-label="Grok model" title="xAI Grok model">
-              <select id="profileAvatarGrokAspect" aria-label="Grok aspect ratio"><option value="2:3" selected>2:3 body</option><option value="auto">Auto aspect</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select>
-              <select id="profileAvatarGrokResolution" aria-label="Grok resolution"><option value="2k" selected>2K</option><option value="1k">1K</option><option value="480p">480p</option><option value="720p">720p</option></select>
-              <select id="profileAvatarGrokDuration" aria-label="Grok video duration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select>
-              <button id="profileAvatarGrokRunButton" type="button" data-button-presentation-ignore><span class="icon icon-render" aria-hidden="true"></span><span>Render with Grok</span></button>
-            </div>
-            <div class="profile-avatar-lab-controls">
-              <select id="profileAvatar3dModelSelect" aria-label="Tripo3D model"><option value="P1-20260311">P1</option><option value="v3.1-20260211" selected>v3.1</option><option value="v3.0-20250812">v3.0</option><option value="Turbo-v1.0-20250506">Turbo</option></select>
-              <select id="profileAvatar3dTextureSelect" aria-label="Texture quality"><option value="detailed" selected>Detailed texture</option><option value="standard">Standard texture</option></select>
-              <button id="profileAvatar3dGenerateButton" class="primary" type="button" data-button-presentation-ignore><span class="icon icon-render" aria-hidden="true"></span><span>Render 3D textured</span></button>
-              <button id="profileAvatar3dPreviewButton" type="button" data-button-presentation-ignore disabled><span class="icon icon-preview" aria-hidden="true"></span><span>Full 3D controls</span></button>
-              <button id="profileAvatar3dKeysButton" type="button" data-button-presentation-ignore><span class="icon icon-config" aria-hidden="true"></span><span>API keys</span></button>
-            </div>
-            <progress id="profileAvatar3dProgress" max="100" value="0" hidden></progress>
-            <div class="avatar-lab-provider-status"><small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable image or video generation.</small><small id="profileAvatar3dStatus">Add your Tripo3D API key in Config to enable 3D generation.</small></div>
+            <div class="avatar-lab-flow" aria-label="Avatar Lab steps"><span data-step="1">Choose source</span><span data-step="2">Render reference image</span><span data-step="3">Render textured 3D</span></div>
+
+            <section class="avatar-lab-primary" aria-label="Reference image generation">
+              <div class="avatar-lab-prompt-toolbar">
+                <div class="field"><label for="profileAvatarPromptPreset">Prompt preset</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
+                <div class="field"><label for="profileAvatarPromptHistory">Reuse a previous generation</label><select id="profileAvatarPromptHistory"><option value="">Generation history…</option></select></div>
+                <button id="profileAvatarPromptReuseButton" type="button" disabled>Reuse prompt</button>
+                <button id="profileAvatarWizardComposeButton" type="button" data-button-presentation-ignore><span class="icon icon-edit" aria-hidden="true"></span><span>Apply preset</span></button>
+              </div>
+              <textarea id="profileAvatarGrokPrompt" maxlength="4000" placeholder="Describe the avatar you want. The rig-ready preset already includes the full-body A-pose rules; Advanced settings can add clothing, pose and framing details." aria-label="Avatar generation prompt"></textarea>
+              <div class="avatar-lab-render-row">
+                <div class="avatar-lab-render-copy"><strong>Create the reference image</strong><small id="avatarLabCostStatus">xAI reports the exact generation cost when available. The source image stays unchanged.</small></div>
+                <button id="profileAvatarGrokRunButton" class="primary" type="button" data-button-presentation-ignore><span class="icon icon-render" aria-hidden="true"></span><span>Render reference image</span></button>
+              </div>
+            </section>
+
+            <section id="avatarLabActivity" class="avatar-lab-activity" hidden aria-live="polite" aria-atomic="true">
+              <div class="avatar-lab-activity-head"><strong id="avatarLabActivityTitle">Avatar Lab</strong><small id="avatarLabActivityMeta"></small></div>
+              <progress id="avatarLabActivityProgress" max="100" value="0"></progress>
+              <div id="avatarLabActivityMessage" class="avatar-lab-activity-message"></div>
+            </section>
+
+            <details id="avatarLabAdvanced" class="avatar-lab-advanced">
+              <summary>Advanced prompt & provider settings</summary>
+              <div class="avatar-lab-advanced-body">
+                <section class="profile-avatar-suite" aria-label="Avatar prompt settings">
+                  <div class="profile-avatar-suite-heading">
+                    <div><h4>Prompt details</h4><p>Optional controls that compose into the editable prompt above.</p></div>
+                    <div class="profile-avatar-suite-badges"><span>Identity</span><span>Clothes</span><span>Pose</span><span>3D target</span></div>
+                  </div>
+                  <div class="profile-avatar-suite-grid">
+                    <div class="field"><label for="profileAvatarWizardIntent">Step focus</label><select id="profileAvatarWizardIntent"><option value="head">Refine headshot</option><option value="body" selected>Create full-body concept</option><option value="final">Final avatar for 3D</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardPresentation">Presentation</label><select id="profileAvatarWizardPresentation"><option value="male">Male</option><option value="female">Female</option><option value="unisex" selected>Unisex</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardTop">Top / torso</label><select id="profileAvatarWizardTop"><option value="hoodie" selected>Hoodie</option><option value="t-shirt">T-shirt</option><option value="shirt">Shirt</option><option value="jacket">Jacket</option><option value="coat">Coat</option><option value="armour">Armour</option><option value="dress-top">Dress / fitted top</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardLegs">Legs</label><select id="profileAvatarWizardLegs"><option value="jeans" selected>Jeans</option><option value="trousers">Trousers</option><option value="shorts">Shorts</option><option value="leggings">Leggings</option><option value="skirt">Skirt</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardFeet">Feet / shoes</label><select id="profileAvatarWizardFeet"><option value="sneakers" selected>Sneakers</option><option value="boots">Boots</option><option value="formal shoes">Formal shoes</option><option value="sandals">Sandals</option><option value="barefoot">Barefoot</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardPose">Pose</label><select id="profileAvatarWizardPose"><option value="front standing">Front standing</option><option value="hero standing">Hero standing</option><option value="relaxed standing">Relaxed standing</option><option value="A-pose" selected>A-pose</option><option value="T-pose">T-pose</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardFraming">Framing</label><select id="profileAvatarWizardFraming"><option value="clean full-body portrait">Clean full-body portrait</option><option value="studio character sheet" selected>Studio character sheet</option><option value="single figure on plain background">Single figure, plain background</option></select></div>
+                    <div class="field"><label for="profileAvatarWizardTexture">3D texture target</label><select id="profileAvatarWizardTexture"><option value="detailed" selected>Detailed textured avatar</option><option value="standard">Standard textured avatar</option><option value="flat">Flat colour concept</option></select></div>
+                  </div>
+                </section>
+
+                <div class="avatar-lab-provider-settings">
+                  <section class="avatar-lab-provider-box" aria-label="xAI image settings">
+                    <header><strong>xAI / Grok image</strong><small>Reference generation</small></header>
+                    <div class="profile-avatar-grok-controls">
+                      <select id="profileAvatarGrokOutput" aria-label="Grok output"><option value="image">Image</option><option value="video">Video</option></select>
+                      <input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" aria-label="Grok model" title="xAI Grok model">
+                      <select id="profileAvatarGrokAspect" aria-label="Grok aspect ratio"><option value="2:3" selected>2:3 body</option><option value="auto">Auto aspect</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select>
+                      <select id="profileAvatarGrokResolution" aria-label="Grok resolution"><option value="2k" selected>2K</option><option value="1k">1K</option><option value="480p">480p</option><option value="720p">720p</option></select>
+                      <select id="profileAvatarGrokDuration" aria-label="Grok video duration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select>
+                    </div>
+                    <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable image or video generation.</small>
+                  </section>
+
+                  <section class="avatar-lab-provider-box" aria-label="Tripo3D settings">
+                    <header><strong>Tripo3D</strong><small id="avatarLabTripoWallet">Tripo balance shown after a request.</small></header>
+                    <div class="profile-avatar-lab-controls">
+                      <select id="profileAvatar3dModelSelect" aria-label="Tripo3D model"><option value="P1-20260311">P1</option><option value="v3.1-20260211" selected>v3.1</option><option value="v3.0-20250812">v3.0</option><option value="Turbo-v1.0-20250506">Turbo</option></select>
+                      <select id="profileAvatar3dTextureSelect" aria-label="Texture quality"><option value="detailed" selected>Detailed texture</option><option value="standard">Standard texture</option></select>
+                      <button id="profileAvatar3dDirectButton" type="button" data-button-presentation-ignore title="Advanced: bypass the reference-image step and send the original source directly to Tripo3D"><span class="icon icon-render" aria-hidden="true"></span><span>3D from source</span></button>
+                      <button id="profileAvatar3dKeysButton" type="button" data-button-presentation-ignore><span class="icon icon-config" aria-hidden="true"></span><span>API keys</span></button>
+                      <button id="profileAvatar3dPreviewAdvancedButton" type="button" data-button-presentation-ignore disabled><span class="icon icon-preview" aria-hidden="true"></span><span>3D controls</span></button>
+                    </div>
+                    <small id="profileAvatar3dStatus">Add your Tripo3D API key in Config to enable 3D generation.</small>
+                  </section>
+                </div>
+              </div>
+            </details>
+
+            <div class="avatar-lab-provider-status"><small>Paid requests are locked while active, so repeated clicks cannot start duplicate generations.</small><small>Prompts and compatible generation metadata remain stored with each Avatar Lab result.</small></div>
           </div>
         </div>
       </section>
@@ -18952,7 +19021,7 @@
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
-        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabSourceUploadButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileGameSummary', 'profileGameSummaryBody',
+        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabSourceUploadButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivityMeta', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabAdvanced', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dPreviewAdvancedButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
@@ -19366,6 +19435,9 @@
       avatarGrokPollTimer: null,
       avatarGrokPollBusy: false,
       avatarGrokUseAs3dSource: false,
+      avatarLabActivity: null,
+      avatarLabActivityTimer: null,
+      avatarLabTripoWallet: null,
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
       openAiMaxOutputTokens: [1024, 2048, 4096, 8192, 16384, 32768, 65536, 128000].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 16384,
       openAiConfirmAstra: readStorage('chat.ai.openai.confirmAstra') !== 'off',
@@ -20741,7 +20813,7 @@
       });
       elements.profileAvatarGrokRunButton?.addEventListener('click', () => { void runProfileAvatarGrok(); });
       elements.profileAvatarGrokUseProfileButton?.addEventListener('click', () => { void useGrokImageAsProfile(); });
-      elements.profileAvatarGrokUse3dButton?.addEventListener('click', () => { state.avatarGrokUseAs3dSource = true; renderAvatarLab(); });
+      elements.profileAvatarGrokUse3dButton?.addEventListener('click', () => { state.avatarGrokUseAs3dSource = true; setAvatarLabActivity('Reference selected for 3D', 'The generated full-body image will be sent to Tripo3D when you render.', 'success', 100); renderAvatarLab(); });
       elements.profileAvatarGrokOutput?.addEventListener('change', () => {
         const video = String(elements.profileAvatarGrokOutput?.value || 'image') === 'video';
         const current = String(elements.profileAvatarGrokModel?.value || '').trim();
@@ -20753,8 +20825,11 @@
       elements.profileAvatarPromptReuseButton?.addEventListener('click', reuseAvatarPromptHistory);
       elements.profileAvatarWizardComposeButton?.addEventListener('click', () => { refreshAvatarAutoPrompt(true); renderAvatarLab(); });
       ['profileAvatarPromptPreset','profileAvatarWizardIntent','profileAvatarWizardPresentation','profileAvatarWizardTop','profileAvatarWizardLegs','profileAvatarWizardFeet','profileAvatarWizardPose','profileAvatarWizardFraming','profileAvatarWizardTexture'].forEach((id) => { elements[id]?.addEventListener('change', () => { refreshAvatarAutoPrompt(false); renderAvatarLab(); }); });
-      elements.profileAvatar3dGenerateButton?.addEventListener('click', () => { void generateProfileAvatar3d(); });
+      elements.profileAvatar3dGenerateButton?.addEventListener('click', () => { state.avatarGrokUseAs3dSource = true; void generateProfileAvatar3d({ forceBaseSource: false }); });
+      elements.profileAvatar3dDirectButton?.addEventListener('click', () => { void generateProfileAvatar3d({ forceBaseSource: true }); });
+      elements.profileAvatarGrokImage?.addEventListener('load', () => { if (!elements.avatarLabModal?.hidden) renderAvatarLab(); });
       elements.profileAvatar3dPreviewButton?.addEventListener('click', () => { void openAvatar3dPreview(); });
+      elements.profileAvatar3dPreviewAdvancedButton?.addEventListener('click', () => { void openAvatar3dPreview(); });
       elements.profileAvatar3dKeysButton?.addEventListener('click', () => { closeAvatarLab(false); openConfig(); setTimeout(() => elements.tripoApiKeyInput?.focus?.(), 120); });
       document.addEventListener('keydown', (event) => { if(event.key==='Escape' && elements.avatarLabModal && !elements.avatarLabModal.hidden){ event.preventDefault(); closeAvatarLab(true); } });
       if (elements.profileWelcomeActionButton) elements.profileWelcomeActionButton.addEventListener('click', async () => {
@@ -22645,8 +22720,30 @@
 
         case 'error': {
           debugLog('error', 'server', message.code || 'error', message);
-          if (String(message.code || '').startsWith('avatar3d_')) { state.avatar3dPollBusy = false; renderAvatarLab(); }
-          if (String(message.code || '').startsWith('avatar_grok_')) { state.avatarGrokPollBusy = false; renderAvatarLab(); }
+          const errorCode = String(message.code || '');
+          const avatarErrorMessage = String(message.message || 'Avatar Lab request failed.');
+          if (errorCode.startsWith('avatar3d_')) {
+            state.avatar3dPollBusy = false;
+            const activeTask = avatarLabActive3dTask();
+            if (errorCode === 'avatar3d_status_failed' && activeTask?.taskId) {
+              setAvatarLabActivity('3D status check interrupted', `${avatarErrorMessage} Retrying the existing task; no new paid request will be started.`, 'running', activeTask.progress, 'Tripo3D');
+              scheduleAvatar3dPoll(activeTask.taskId, 5000);
+            } else {
+              setAvatarLabError(avatarErrorMessage, '3D generation failed');
+            }
+            renderAvatarLab();
+          }
+          if (errorCode.startsWith('avatar_grok_')) {
+            state.avatarGrokPollBusy = false;
+            const activeRequest = avatarLabActiveGrokTask();
+            if (errorCode === 'avatar_grok_status_failed' && activeRequest?.requestId) {
+              setAvatarLabActivity('xAI status check interrupted', `${avatarErrorMessage} Retrying the existing request; no new paid request will be started.`, 'running', activeRequest.progress, 'xAI');
+              scheduleAvatarGrokPoll(activeRequest.requestId, 5000);
+            } else {
+              setAvatarLabError(avatarErrorMessage, 'Reference generation failed');
+            }
+            renderAvatarLab();
+          }
           let errorText = `${message.code}: ${message.message}`;
           if (String(message.code || '').startsWith('translator_')) {
             setTranslatorStatus(message.message || 'Translator error.', 'error');
@@ -43964,6 +44061,63 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       renderAvatarLab();
     }
 
+    function avatarLabTerminalStatus(status) {
+      return ['ready','failed','error','banned','expired','cancelled'].includes(String(status || '').toLowerCase());
+    }
+    function avatarLabActive3dTask() {
+      return state.avatar3dItems.find((entry) => entry?.taskId === state.avatar3dActiveTaskId && !avatarLabTerminalStatus(entry?.status))
+        || state.avatar3dItems.find((entry) => entry && !avatarLabTerminalStatus(entry?.status))
+        || null;
+    }
+    function avatarLabActiveGrokTask() {
+      return state.avatarGrokItems.find((entry) => entry?.requestId === state.avatarGrokActiveRequestId && entry?.kind === 'video' && !avatarLabTerminalStatus(entry?.status))
+        || state.avatarGrokItems.find((entry) => entry?.kind === 'video' && !avatarLabTerminalStatus(entry?.status))
+        || null;
+    }
+    function avatarLabRequestBusy() {
+      return Boolean(state.avatarGrokPollBusy || state.avatar3dPollBusy || avatarLabActiveGrokTask() || avatarLabActive3dTask() || state.avatarLabActivity?.status === 'running');
+    }
+    function clearAvatarLabActivityTimer() {
+      if (state.avatarLabActivityTimer) clearInterval(state.avatarLabActivityTimer);
+      state.avatarLabActivityTimer = null;
+    }
+    function setAvatarLabActivity(title, message, status = 'running', progress = null, meta = '') {
+      const previous = state.avatarLabActivity;
+      const sameRun = status === 'running' && previous?.status === 'running' && previous?.title === title;
+      state.avatarLabActivity = {
+        title: String(title || 'Avatar Lab'),
+        message: String(message || ''),
+        status: ['running','error','success'].includes(status) ? status : 'running',
+        progress: Number.isFinite(Number(progress)) ? Math.max(0, Math.min(100, Number(progress))) : null,
+        meta: String(meta || ''),
+        startedAt: sameRun ? Number(previous.startedAt || Date.now()) : Date.now(),
+      };
+      if (state.avatarLabActivity.status === 'running') {
+        if (!state.avatarLabActivityTimer) state.avatarLabActivityTimer = setInterval(() => { if (!elements.avatarLabModal?.hidden) renderAvatarLab(); }, 1000);
+      } else {
+        clearAvatarLabActivityTimer();
+      }
+    }
+    function setAvatarLabError(message, title = 'Generation failed') {
+      setAvatarLabActivity(title, String(message || 'The provider request failed.'), 'error', null);
+    }
+    function formatAvatarLabUsd(value) {
+      const amount = Number(value);
+      if (!Number.isFinite(amount) || amount <= 0) return '';
+      return amount < .1 ? `$${amount.toFixed(4)}` : `$${amount.toFixed(3)}`;
+    }
+    function estimatedAvatarLabXaiCost() {
+      const output = String(elements.profileAvatarGrokOutput?.value || 'image') === 'video' ? 'video' : 'image';
+      const model = String(elements.profileAvatarGrokModel?.value || '').trim();
+      if (output === 'image' && model === 'grok-imagine-image') return { usd: .022, label: 'public xAI estimate · source + 1 image' };
+      if (output === 'video' && model === 'grok-imagine-video') {
+        const seconds = Math.max(1, Number(elements.profileAvatarGrokDuration?.value || 8));
+        const perSecond = String(elements.profileAvatarGrokResolution?.value || '480p') === '720p' ? .07 : .05;
+        return { usd: .002 + seconds * perSecond, label: `public xAI estimate · source + ${seconds}s video` };
+      }
+      return null;
+    }
+
     function disposeAvatarLabStage() {
       const stage=state.avatarLabStage;
       if (!stage) return;
@@ -44031,9 +44185,10 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
     function closeAvatarLab(restoreFocus=true) {
       if (!elements.avatarLabModal) return;
+      if (restoreFocus && elements.avatarLabModal.contains(document.activeElement)) elements.avatarLabGameButton?.focus?.({preventScroll:true});
       elements.avatarLabModal.hidden=true; elements.avatarLabModal.setAttribute('aria-hidden','true');
+      clearAvatarLabActivityTimer();
       state.avatarLabStageLoadingUrl=''; disposeAvatarLabStage();
-      if (restoreFocus) elements.avatarLabGameButton?.focus?.({preventScroll:true});
     }
 
     async function createAvatarLabSourceDataUrl(file) {
@@ -44058,34 +44213,88 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     function renderAvatarLab() {
       if (!elements.profileAvatarLab) return;
       const item=selectedAvatar3dItem();
-      const active=state.avatar3dItems.find((entry)=>entry?.taskId===state.avatar3dActiveTaskId)||null;
+      const active=avatarLabActive3dTask();
       const grokItem=selectedAvatarGrokItem();
-      const grokActive=state.avatarGrokItems.find((entry)=>entry?.requestId===state.avatarGrokActiveRequestId)||null;
+      const grokActive=avatarLabActiveGrokTask();
       const baseSource=profileAvatarLabSourcePreview();
       const imageReady=grokItem?.kind==='image'&&Boolean(grokItem?.url);
-      const sourceAvailable=Boolean(baseSource||(state.avatarGrokUseAs3dSource&&imageReady));
-      const canGenerate=state.registered&&!state.isAdmin&&state.tripoApiKeyConfigured&&sourceAvailable;
+      const generatedSourceAvailable=Boolean(state.avatarGrokUseAs3dSource&&imageReady);
+      const sourceAvailable=Boolean(baseSource||generatedSourceAvailable);
+      const busy=avatarLabRequestBusy();
+      const canGenerate=state.registered&&!state.isAdmin&&state.tripoApiKeyConfigured&&sourceAvailable&&!busy;
+      const canGenerateDirect=state.registered&&!state.isAdmin&&state.tripoApiKeyConfigured&&Boolean(baseSource)&&!busy;
       const grokPrompt=String(elements.profileAvatarGrokPrompt?.value||'').trim();
-      const canGrok=state.registered&&!state.isAdmin&&state.xaiApiKeyConfigured&&Boolean(baseSource)&&Boolean(grokPrompt);
+      const canGrok=state.registered&&!state.isAdmin&&state.xaiApiKeyConfigured&&Boolean(baseSource)&&Boolean(grokPrompt)&&!busy;
+
       if(elements.profileAvatarSuiteSourcePreview){elements.profileAvatarSuiteSourcePreview.hidden=!baseSource;if(baseSource&&elements.profileAvatarSuiteSourcePreview.src!==baseSource)elements.profileAvatarSuiteSourcePreview.src=baseSource;}
       if(elements.profileAvatarSuitePreviewMeta){
         const label=state.avatarLabSourceImage?`Uploaded source${state.avatarLabSourceName?` · ${state.avatarLabSourceName}`:''}`:baseSource?'Current profile photo':'No source selected yet.';
-        elements.profileAvatarSuitePreviewMeta.textContent=state.avatarGrokUseAs3dSource&&imageReady?`${label}. Generated image is selected for 3D.`:label;
+        elements.profileAvatarSuitePreviewMeta.textContent=state.avatarGrokUseAs3dSource&&imageReady?`${label}. Reference image selected for 3D.`:label;
       }
-      if(elements.avatarLabSourceResetButton) elements.avatarLabSourceResetButton.disabled=!state.avatarLabSourceImage;
-      if(elements.profileAvatar3dGenerateButton)elements.profileAvatar3dGenerateButton.disabled=!canGenerate||state.avatar3dPollBusy;
-      if(elements.profileAvatar3dPreviewButton)elements.profileAvatar3dPreviewButton.disabled=!item?.url;
-      if(elements.profileAvatarGrokRunButton)elements.profileAvatarGrokRunButton.disabled=!canGrok||state.avatarGrokPollBusy;
-      if(elements.profileAvatarGrokDuration)elements.profileAvatarGrokDuration.disabled=String(elements.profileAvatarGrokOutput?.value||'image')!=='video';
+      if(elements.avatarLabSourceUploadButton) elements.avatarLabSourceUploadButton.disabled=busy;
+      if(elements.avatarLabSourceResetButton) elements.avatarLabSourceResetButton.disabled=!state.avatarLabSourceImage||busy;
+      if(elements.avatarLabSourceInput) elements.avatarLabSourceInput.disabled=busy;
+
+      if(elements.profileAvatar3dGenerateButton){elements.profileAvatar3dGenerateButton.hidden=!imageReady;elements.profileAvatar3dGenerateButton.disabled=!canGenerate||!imageReady;const label=elements.profileAvatar3dGenerateButton.querySelector('span:last-child');if(label)label.textContent=active?'Rendering 3D…':'Render textured 3D';}
+      if(elements.profileAvatar3dDirectButton)elements.profileAvatar3dDirectButton.disabled=!canGenerateDirect;
+      if(elements.profileAvatar3dPreviewButton){elements.profileAvatar3dPreviewButton.hidden=!item?.url;elements.profileAvatar3dPreviewButton.disabled=!item?.url||busy;}
+      if(elements.profileAvatar3dPreviewAdvancedButton)elements.profileAvatar3dPreviewAdvancedButton.disabled=!item?.url||busy;
+      if(elements.profileAvatarGrokRunButton){elements.profileAvatarGrokRunButton.disabled=!canGrok;const label=elements.profileAvatarGrokRunButton.querySelector('span:last-child');if(label)label.textContent=grokActive||state.avatarGrokPollBusy?'Rendering…':'Render reference image';}
+
+      if(elements.profileAvatarGrokDuration)elements.profileAvatarGrokDuration.disabled=busy||String(elements.profileAvatarGrokOutput?.value||'image')!=='video';
       if(elements.profileAvatarGrokResolution){const video=String(elements.profileAvatarGrokOutput?.value||'image')==='video';const desired=String(elements.profileAvatarGrokResolution.value||'');if(video&&!['480p','720p'].includes(desired))elements.profileAvatarGrokResolution.value='480p';if(!video&&!['1k','2k'].includes(desired))elements.profileAvatarGrokResolution.value='1k';}
-      if(elements.profileAvatarGrokStatus)elements.profileAvatarGrokStatus.textContent=!state.xaiApiKeyConfigured?'Add your xAI / Grok API key in Config to enable image or video generation.':grokActive&&grokActive.status!=='ready'?`Grok: ${grokActive.status||'working'}${grokActive.progress!=null?` · ${Math.round(Number(grokActive.progress)||0)}%`:''}`:grokItem?.url?`${grokItem.kind==='video'?'Grok video':'Grok image'} ready. Prompt saved with this generation.`:baseSource?'Ready to run Grok on the selected source.':'Upload a source or add a profile photo first.';
+      for (const control of [elements.profileAvatarGrokOutput,elements.profileAvatarGrokModel,elements.profileAvatarGrokAspect,elements.profileAvatarGrokResolution,elements.profileAvatar3dModelSelect,elements.profileAvatar3dTextureSelect,elements.profileAvatarPromptPreset,elements.profileAvatarPromptHistory,elements.profileAvatarWizardComposeButton,elements.profileAvatarPromptReuseButton,elements.profileAvatarWizardIntent,elements.profileAvatarWizardPresentation,elements.profileAvatarWizardTop,elements.profileAvatarWizardLegs,elements.profileAvatarWizardFeet,elements.profileAvatarWizardPose,elements.profileAvatarWizardFraming,elements.profileAvatarWizardTexture]) {
+        if (control) control.disabled = busy || (control === elements.profileAvatarPromptReuseButton && !state.avatarPromptHistoryKey);
+      }
+      if(elements.profileAvatarGrokPrompt)elements.profileAvatarGrokPrompt.readOnly=busy;
+
+      if(elements.profileAvatarGrokStatus)elements.profileAvatarGrokStatus.textContent=!state.xaiApiKeyConfigured?'Add your xAI / Grok API key in Config to enable generation.':grokActive?`xAI: ${grokActive.status||'working'}${grokActive.progress!=null?` · ${Math.round(Number(grokActive.progress)||0)}%`:''}`:grokItem?.url?`${grokItem.kind==='video'?'Video':'Reference image'} ready. Prompt metadata saved.`:baseSource?'Ready to render a reference image.':'Choose a source first.';
       if(elements.profileAvatarGrokResult)elements.profileAvatarGrokResult.hidden=!grokItem?.url;
       if(elements.profileAvatarGrokImage){const show=grokItem?.kind==='image'&&grokItem?.url;elements.profileAvatarGrokImage.hidden=!show;if(show&&elements.profileAvatarGrokImage.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokImage.src=grokItem.url;}
       if(elements.profileAvatarGrokVideo){const show=grokItem?.kind==='video'&&grokItem?.url;elements.profileAvatarGrokVideo.hidden=!show;if(show&&elements.profileAvatarGrokVideo.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokVideo.src=grokItem.url;}
       if(elements.profileAvatarGrokUseProfileButton)elements.profileAvatarGrokUseProfileButton.hidden=!imageReady;
-      if(elements.profileAvatarGrokUse3dButton){elements.profileAvatarGrokUse3dButton.hidden=!imageReady;elements.profileAvatarGrokUse3dButton.textContent=state.avatarGrokUseAs3dSource?'Using for 3D':'Use for 3D';}
-      if(elements.profileAvatar3dProgress){const progress=Number(active?.progress);elements.profileAvatar3dProgress.hidden=!active||['ready','failed','error','banned','expired','cancelled'].includes(String(active.status||'').toLowerCase());elements.profileAvatar3dProgress.value=Number.isFinite(progress)?Math.max(0,Math.min(100,progress)):0;}
-      if(elements.profileAvatar3dStatus)elements.profileAvatar3dStatus.textContent=!state.tripoApiKeyConfigured?'Add your Tripo3D API key in Config to enable 3D generation.':active&&active.status!=='ready'?`Tripo3D: ${active.status||'working'}${active.progress!=null?` · ${Math.round(Number(active.progress)||0)}%`:''}`:item?.url?'3D avatar ready. Its generation prompt is stored with the model.':state.avatarGrokUseAs3dSource&&imageReady?'Ready to generate textured 3D from the generated full-body image.':sourceAvailable?'Ready to generate textured 3D from the selected source.':'Choose a source first.';
+      if(elements.profileAvatarGrokUse3dButton){elements.profileAvatarGrokUse3dButton.hidden=!imageReady;elements.profileAvatarGrokUse3dButton.disabled=busy;elements.profileAvatarGrokUse3dButton.textContent=state.avatarGrokUseAs3dSource?'Selected for 3D':'Use for 3D';}
+      if(elements.profileAvatarGrokResultMeta&&grokItem?.url){
+        const pixelSize=grokItem.kind==='image'&&elements.profileAvatarGrokImage?.naturalWidth&&elements.profileAvatarGrokImage?.naturalHeight?`${elements.profileAvatarGrokImage.naturalWidth}×${elements.profileAvatarGrokImage.naturalHeight}`:'';
+        const parts=[grokItem.kind==='video'?'Video':'Image',pixelSize,grokItem.aspectRatio||'',grokItem.resolution?String(grokItem.resolution).toUpperCase():'',formatAvatarLabUsd(grokItem.costUsd)].filter(Boolean);
+        elements.profileAvatarGrokResultMeta.textContent=parts.join(' · ');
+      }
+
+      const actualCost=formatAvatarLabUsd(grokItem?.costUsd);
+      const historyCost=state.avatarGrokItems.reduce((sum,entry)=>sum+(Number(entry?.costUsd)||0),0);
+      const estimate=estimatedAvatarLabXaiCost();
+      if(elements.avatarLabCostStatus){
+        if(actualCost) elements.avatarLabCostStatus.textContent=`Last xAI generation: ${actualCost}${historyCost>Number(grokItem?.costUsd||0)?` · Avatar Lab history: ${formatAvatarLabUsd(historyCost)}`:''}. Exact provider-reported cost.`;
+        else if(estimate) elements.avatarLabCostStatus.textContent=`Estimated xAI API cost ${formatAvatarLabUsd(estimate.usd)} (${estimate.label}, pricing snapshot 2026-09-20). Exact cost is stored when xAI returns it.`;
+        else elements.avatarLabCostStatus.textContent='xAI reports the exact generation cost when available. Custom model pricing is not guessed.';
+      }
+
+      if(elements.profileAvatar3dStatus)elements.profileAvatar3dStatus.textContent=!state.tripoApiKeyConfigured?'Add your Tripo3D API key in Config to enable 3D generation.':active?`Tripo3D: ${active.status||'working'}${active.progress!=null?` · ${Math.round(Number(active.progress)||0)}%`:''}`:item?.url?'3D avatar ready. The model and its prompt metadata are stored locally by Rantlist.':state.avatarGrokUseAs3dSource&&imageReady?'Reference image selected. Ready for textured 3D.':baseSource?'Advanced: source can be sent directly to 3D, but a full-body reference is more reliable.':'Choose a source first.';
+      if(elements.avatarLabTripoWallet){
+        const wallet=state.avatarLabTripoWallet;
+        elements.avatarLabTripoWallet.textContent=wallet&&Number.isFinite(Number(wallet.balance))?`Tripo balance: ${Number(wallet.balance).toLocaleString(undefined,{maximumFractionDigits:2})}${Number.isFinite(Number(wallet.frozen))?` · ${Number(wallet.frozen).toLocaleString(undefined,{maximumFractionDigits:2})} frozen`:''}`:'Tripo balance shown after a request.';
+      }
+
+      const derivedActivity = active ? {title:'Rendering textured 3D',message:`Tripo3D is ${active.status||'processing'} the avatar.${active.progress!=null?` Progress ${Math.round(Number(active.progress)||0)}%.`:''}`,status:'running',progress:active.progress,startedAt:Number(active.createdAt||Date.now()),meta:'Tripo3D'}
+        : grokActive ? {title:'Rendering with xAI',message:`xAI is ${grokActive.status||'processing'} the requested ${grokActive.kind||'output'}.${grokActive.progress!=null?` Progress ${Math.round(Number(grokActive.progress)||0)}%.`:''}`,status:'running',progress:grokActive.progress,startedAt:Number(grokActive.createdAt||Date.now()),meta:'xAI'}
+        : null;
+      const activity=derivedActivity?(state.avatarLabActivity?.status==='running'?{...state.avatarLabActivity,...derivedActivity,startedAt:state.avatarLabActivity.startedAt||derivedActivity.startedAt}:derivedActivity):state.avatarLabActivity;
+      if(elements.avatarLabActivity){
+        elements.avatarLabActivity.hidden=!activity;
+        elements.avatarLabActivity.classList.toggle('error',activity?.status==='error');
+        elements.avatarLabActivity.classList.toggle('success',activity?.status==='success');
+      }
+      if(activity){
+        if(elements.avatarLabActivityTitle)elements.avatarLabActivityTitle.textContent=activity.title||'Avatar Lab';
+        if(elements.avatarLabActivityMessage)elements.avatarLabActivityMessage.textContent=activity.message||'';
+        if(elements.avatarLabActivityProgress){
+          const progress=Number(activity.progress);
+          if(activity.status==='running'&&!Number.isFinite(progress)){elements.avatarLabActivityProgress.removeAttribute('value');elements.avatarLabActivityProgress.classList.add('indeterminate');}
+          else{elements.avatarLabActivityProgress.value=Number.isFinite(progress)?Math.max(0,Math.min(100,progress)):(activity.status==='success'?100:0);elements.avatarLabActivityProgress.classList.remove('indeterminate');}
+        }
+        if(elements.avatarLabActivityMeta){const elapsed=Math.max(0,Date.now()-Number(activity.startedAt||Date.now()));const seconds=Math.floor(elapsed/1000);elements.avatarLabActivityMeta.textContent=[activity.meta,activity.status==='running'?`${seconds}s`:''].filter(Boolean).join(' · ');}
+      }
+
       renderAvatarPromptHistory();
       if(!elements.avatarLabModal?.hidden) void refreshAvatarLabStage();
     }
@@ -44096,41 +44305,70 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const response=await fetch(source,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Could not read the source image.');
       const blob=await response.blob();return createAvatarLabSourceDataUrl(new File([blob],'avatar-lab-source.jpg',{type:blob.type||'image/jpeg'}));
     }
-    async function avatarLabSourceDataUrl() {
+    async function avatarLabSourceDataUrl(useGenerated = state.avatarGrokUseAs3dSource) {
       const grokItem=selectedAvatarGrokItem();
-      if(state.avatarGrokUseAs3dSource&&grokItem?.kind==='image'&&grokItem?.url){const response=await fetch(grokItem.url,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Could not read the generated image.');const blob=await response.blob();return createAvatarLabSourceDataUrl(new File([blob],'generated-avatar.jpg',{type:blob.type||'image/jpeg'}));}
+      if(useGenerated&&grokItem?.kind==='image'&&grokItem?.url){const response=await fetch(grokItem.url,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Could not read the generated image.');const blob=await response.blob();return createAvatarLabSourceDataUrl(new File([blob],'generated-avatar.jpg',{type:blob.type||'image/jpeg'}));}
       return profileAvatarSourceDataUrl();
     }
     function scheduleAvatarGrokPoll(requestId,delay=2500){clearTimeout(state.avatarGrokPollTimer);state.avatarGrokPollTimer=setTimeout(()=>{void pollAvatarGrokTask(requestId);},delay);}
-    async function pollAvatarGrokTask(requestId){const id=String(requestId||state.avatarGrokActiveRequestId||'').trim();if(!id||state.avatarGrokPollBusy)return;state.avatarGrokPollBusy=true;renderAvatarLab();try{const apiKey=await providerCredentialForRequest('xai');sendJson({type:'avatar.grok.status',requestId:id,apiKey});}catch(error){state.avatarGrokPollBusy=false;renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'xAI key unavailable'}`,true);}}
+    async function pollAvatarGrokTask(requestId){
+      const id=String(requestId||state.avatarGrokActiveRequestId||'').trim();if(!id||state.avatarGrokPollBusy)return;
+      state.avatarGrokPollBusy=true;setAvatarLabActivity('Rendering with xAI','Checking provider progress…','running',null,'xAI');renderAvatarLab();
+      try{const apiKey=await providerCredentialForRequest('xai');sendJson({type:'avatar.grok.status',requestId:id,apiKey});}
+      catch(error){state.avatarGrokPollBusy=false;setAvatarLabError(error?.message||'xAI key unavailable','Could not refresh xAI status');renderAvatarLab();}
+    }
     async function runProfileAvatarGrok(){
-      if(!state.registered||state.isAdmin)return;
+      if(!state.registered||state.isAdmin||avatarLabRequestBusy())return;
       try{
+        setAvatarLabActivity('Preparing reference image','Reading the source image and your xAI credential…','running',null,'xAI');renderAvatarLab();
         const [apiKey,sourceImage]=await Promise.all([providerCredentialForRequest('xai'),profileAvatarSourceDataUrl()]);
         const output=String(elements.profileAvatarGrokOutput?.value||'image')==='video'?'video':'image';
         const resolution=output==='video'?(elements.profileAvatarGrokResolution?.value==='720p'?'720p':'480p'):(elements.profileAvatarGrokResolution?.value==='2k'?'2k':'1k');
         const prompt=String(elements.profileAvatarGrokPrompt?.value||'').trim()||composeAvatarWizardPrompt();
         const source=state.avatarLabSourceImage?'uploaded-source':'profile-photo';
-        state.avatarGrokPollBusy=true;renderAvatarLab();
+        state.avatarGrokPollBusy=true;setAvatarLabActivity(output==='video'?'Rendering video with xAI':'Rendering reference image',output==='video'?'Request sent. Video generation can take a while; duplicate render actions are locked.':'Request sent. Waiting for xAI to generate and return the edited reference image…','running',null,'xAI');renderAvatarLab();
         sendJson({type:'avatar.grok.start',apiKey,sourceImage,prompt,promptMeta:avatarWizardPromptMeta({source}),output,model:String(elements.profileAvatarGrokModel?.value||(output==='video'?'grok-imagine-video':'grok-imagine-image')).trim(),aspectRatio:String(elements.profileAvatarGrokAspect?.value||'auto'),resolution,duration:Number(elements.profileAvatarGrokDuration?.value||8)});
-      }catch(error){state.avatarGrokPollBusy=false;renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Grok generation could not start'}`,true);}
+      }catch(error){state.avatarGrokPollBusy=false;setAvatarLabError(error?.message||'Grok generation could not start','Reference image failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Grok generation could not start'}`,true);}
     }
-    async function useGrokImageAsProfile(){const item=selectedAvatarGrokItem();if(item?.kind!=='image'||!item?.url)return;try{const response=await fetch(item.url,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Could not read the generated image.');const blob=await response.blob();state.editorAvatar=await createAvatarDataUrl(new File([blob],'grok-profile.jpg',{type:blob.type||'image/jpeg'}));state.avatarGrokUseAs3dSource=false;renderEditorAvatar();renderAvatarLab();addSystemMessage('Generated image selected as the profile photo. Save the profile to apply it.');}catch(error){addSystemMessage(`Avatar Lab: ${error?.message||'Could not use the generated image'}`,true);}}
-    function handleAvatarGrokMessage(message){const item=message?.item;if(item?.requestId){const index=state.avatarGrokItems.findIndex((entry)=>entry?.requestId===item.requestId);if(index>=0)state.avatarGrokItems[index]={...state.avatarGrokItems[index],...item};else state.avatarGrokItems.unshift(item);state.avatarGrokActiveRequestId=item.requestId;}state.avatarGrokPollBusy=false;renderAvatarLab();const status=String(item?.status||'').toLowerCase();if(item?.kind==='video'&&item?.requestId&&!['ready','failed','error','cancelled','expired'].includes(status))scheduleAvatarGrokPoll(item.requestId);if(item?.url)addSystemMessage(`Grok ${item.kind||'output'} ready.`);else if(message?.error)addSystemMessage(`Avatar Lab: ${message.error}`,true);}
+    async function useGrokImageAsProfile(){const item=selectedAvatarGrokItem();if(item?.kind!=='image'||!item?.url)return;try{const response=await fetch(item.url,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Could not read the generated image.');const blob=await response.blob();state.editorAvatar=await createAvatarDataUrl(new File([blob],'grok-profile.jpg',{type:blob.type||'image/jpeg'}));state.avatarGrokUseAs3dSource=false;renderEditorAvatar();setAvatarLabActivity('Profile photo prepared','The generated image is selected in the profile editor. Save the profile when ready.','success',100);renderAvatarLab();addSystemMessage('Generated image selected as the profile photo. Save the profile to apply it.');}catch(error){setAvatarLabError(error?.message||'Could not use the generated image','Profile image update failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Could not use the generated image'}`,true);}}
+    function handleAvatarGrokMessage(message){
+      const item=message?.item;
+      if(item?.requestId){const index=state.avatarGrokItems.findIndex((entry)=>entry?.requestId===item.requestId);if(index>=0)state.avatarGrokItems[index]={...state.avatarGrokItems[index],...item};else state.avatarGrokItems.unshift(item);state.avatarGrokActiveRequestId=item.requestId;}
+      state.avatarGrokPollBusy=false;
+      const status=String(item?.status||'').toLowerCase();
+      if(item?.kind==='video'&&item?.requestId&&!avatarLabTerminalStatus(status)){
+        setAvatarLabActivity('Rendering video with xAI',`Provider status: ${status||'working'}${item?.progress!=null?` · ${Math.round(Number(item.progress)||0)}%`:''}. New render actions remain locked.`, 'running', item?.progress, 'xAI');
+        scheduleAvatarGrokPoll(item.requestId);
+      } else if(item?.url){
+        const cost=formatAvatarLabUsd(item?.costUsd);
+        setAvatarLabActivity(item.kind==='video'?'Video ready':'Reference image ready',`${item.kind==='video'?'Generated video':'Generated reference image'} is ready.${cost?` Provider-reported cost: ${cost}.`:''}`, 'success', 100, 'xAI');
+      } else if(message?.error){
+        setAvatarLabError(message.error,'xAI generation failed');
+      }
+      renderAvatarLab();
+      if(item?.url)addSystemMessage(`Grok ${item.kind||'output'} ready.`);else if(message?.error)addSystemMessage(`Avatar Lab: ${message.error}`,true);
+    }
     function scheduleAvatar3dPoll(taskId,delay=2500){clearTimeout(state.avatar3dPollTimer);state.avatar3dPollTimer=setTimeout(()=>{void pollAvatar3dTask(taskId);},delay);}
-    async function pollAvatar3dTask(taskId){const id=String(taskId||state.avatar3dActiveTaskId||'').trim();if(!id||state.avatar3dPollBusy)return;state.avatar3dPollBusy=true;renderAvatarLab();try{const apiKey=await providerCredentialForRequest('tripo');sendJson({type:'avatar3d.tripo.status',taskId:id,apiKey});}catch(error){state.avatar3dPollBusy=false;renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Tripo3D key unavailable'}`,true);}}
-    async function generateProfileAvatar3d(){
-      if(!state.registered||state.isAdmin)return;
+    async function pollAvatar3dTask(taskId){
+      const id=String(taskId||state.avatar3dActiveTaskId||'').trim();if(!id||state.avatar3dPollBusy)return;
+      state.avatar3dPollBusy=true;setAvatarLabActivity('Rendering textured 3D','Checking Tripo3D task progress…','running',null,'Tripo3D');renderAvatarLab();
+      try{const apiKey=await providerCredentialForRequest('tripo');sendJson({type:'avatar3d.tripo.status',taskId:id,apiKey});}
+      catch(error){state.avatar3dPollBusy=false;setAvatarLabError(error?.message||'Tripo3D key unavailable','Could not refresh 3D status');renderAvatarLab();}
+    }
+    async function generateProfileAvatar3d({ forceBaseSource = false } = {}){
+      if(!state.registered||state.isAdmin||avatarLabRequestBusy())return;
       try{
-        const [apiKey,sourceImage]=await Promise.all([providerCredentialForRequest('tripo'),avatarLabSourceDataUrl()]);
+        const useGenerated=!forceBaseSource&&state.avatarGrokUseAs3dSource&&selectedAvatarGrokItem()?.kind==='image';
+        setAvatarLabActivity('Preparing textured 3D',useGenerated?'Preparing the generated full-body reference for Tripo3D…':'Preparing the original source for Tripo3D…','running',null,'Tripo3D');renderAvatarLab();
+        const [apiKey,sourceImage]=await Promise.all([providerCredentialForRequest('tripo'),avatarLabSourceDataUrl(useGenerated)]);
         if(elements.profileAvatarWizardTexture&&elements.profileAvatar3dTextureSelect&&elements.profileAvatarWizardTexture.value!=='flat')elements.profileAvatar3dTextureSelect.value=elements.profileAvatarWizardTexture.value==='standard'?'standard':'detailed';
         const grokItem=selectedAvatarGrokItem();
         let prompt=String(elements.profileAvatarGrokPrompt?.value||'').trim()||composeAvatarWizardPrompt();
         let promptMeta=avatarWizardPromptMeta({source:state.avatarLabSourceImage?'uploaded-source':'profile-photo'});
-        if(state.avatarGrokUseAs3dSource&&grokItem?.kind==='image'&&grokItem?.url){prompt=String(grokItem.prompt||prompt);promptMeta={...promptMeta,...(grokItem.promptMeta||{}),source:'generated-image',sourceRequestId:String(grokItem.requestId||'')};}
-        state.avatar3dPollBusy=true;renderAvatarLab();
+        if(useGenerated&&grokItem?.kind==='image'&&grokItem?.url){prompt=String(grokItem.prompt||prompt);promptMeta={...promptMeta,...(grokItem.promptMeta||{}),source:'generated-image',sourceRequestId:String(grokItem.requestId||'')};}
+        state.avatar3dPollBusy=true;setAvatarLabActivity('Starting textured 3D','Uploading the selected image and creating a Tripo3D task. Duplicate paid requests are locked.','running',null,'Tripo3D');renderAvatarLab();
         sendJson({type:'avatar3d.tripo.start',apiKey,sourceImage,prompt,promptMeta,modelVersion:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),textureQuality:String(elements.profileAvatar3dTextureSelect?.value||'detailed')});
-      }catch(error){state.avatar3dPollBusy=false;renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'generation could not start'}`,true);}
+      }catch(error){state.avatar3dPollBusy=false;setAvatarLabError(error?.message||'3D generation could not start','3D generation failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'generation could not start'}`,true);}
     }
     async function ensureAvatar3dPreviewModal() {
       let modal = document.getElementById('avatar3dPreviewModal'); if (modal) return modal;
@@ -44197,10 +44435,19 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         const index=state.avatar3dItems.findIndex((entry)=>entry?.taskId===item.taskId); if(index>=0) state.avatar3dItems[index]={...state.avatar3dItems[index],...item}; else state.avatar3dItems.unshift(item);
         state.avatar3dActiveTaskId=item.taskId;
       }
+      if (message?.wallet && Number.isFinite(Number(message.wallet.balance))) state.avatarLabTripoWallet={balance:Number(message.wallet.balance),frozen:Number.isFinite(Number(message.wallet.frozen))?Number(message.wallet.frozen):null};
       state.avatar3dPollBusy=false;
       if (message?.user) { state.selfUser=message.user; state.desiredProfile={nickname:message.user.nickname,metadata:message.user.metadata||{}}; updateRememberedProfileFromServer(message.user); }
+      const status=String(item?.status||'').toLowerCase();
+      if (item?.taskId && !avatarLabTerminalStatus(status)) {
+        setAvatarLabActivity('Rendering textured 3D',`Tripo3D status: ${status||'working'}${item?.progress!=null?` · ${Math.round(Number(item.progress)||0)}%`:''}. The render buttons stay locked until the task finishes.`, 'running', item?.progress, 'Tripo3D');
+        scheduleAvatar3dPoll(item.taskId);
+      } else if(item?.url) {
+        setAvatarLabActivity('Textured 3D ready','The GLB was downloaded to Rantlist and is ready in the stage.','success',100,'Tripo3D');
+      } else if(message?.error || ['failed','error','banned','expired','cancelled'].includes(status)) {
+        setAvatarLabError(message?.error || `Tripo3D task ended with status ${status || 'failed'}.`,'3D generation failed');
+      }
       renderAvatarLab();
-      const status=String(item?.status||'').toLowerCase(); if (item?.taskId && !['ready','failed','error','banned','expired','cancelled'].includes(status)) scheduleAvatar3dPoll(item.taskId);
       if(item?.url) addSystemMessage('3D avatar ready.'); else if(message?.error) addSystemMessage(`Avatar Lab: ${message.error}`,true);
     }
 
@@ -48465,10 +48712,10 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
 
     function closeConfig() {
+      if (elements.configDrawer.contains(document.activeElement)) elements.configButton.focus({ preventScroll: true });
       elements.configDrawer.hidden = true;
       elements.configDrawer.setAttribute('aria-hidden', 'true');
       if (document.documentElement.dataset.sideInspector === 'config') setDesktopSideInspector('');
-      elements.configButton.focus({ preventScroll: true });
       syncViewportHeight(true);
     }
 
