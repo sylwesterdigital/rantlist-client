@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.292">
+  <meta name="chat-ui-version" content="9.6.293">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16461,6 +16461,238 @@
       .avatar-lab-activity-message{white-space:normal;max-height:2.6em;}
       .avatar-lab-activity-steps span{font-size:7.5px;}
     }
+    /* r321: image-first Avatar Lab cards. The source/reference media use the full card;
+       controls float over the edges instead of shrinking the pictures. */
+    .avatar-lab-card select {
+      -webkit-appearance:none;
+      appearance:none;
+      padding-right:34px !important;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 20 20'%3E%3Cpath d='M4 7l6 6 6-6' fill='none' stroke='%23aebddd' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 7px center;
+      background-size:20px 20px;
+    }
+    .avatar-lab-reference-settings > summary::after,
+    .avatar-lab-advanced > summary::after,
+    .avatar-lab-provider-details > summary::after { font-size:19px; line-height:1; transform-origin:center; }
+    .avatar-lab-provider-details > summary { list-style:none; display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .avatar-lab-provider-details > summary::-webkit-details-marker { display:none; }
+    .avatar-lab-provider-details > summary::after { content:'▾'; color:var(--muted); }
+    .avatar-lab-provider-details[open] > summary::after { transform:rotate(180deg); }
+
+    .avatar-lab-float-card {
+      display:block;
+      height:calc(100% - 28px);
+      padding:0;
+      gap:0;
+      overflow:hidden;
+      isolation:isolate;
+      background:rgba(6,9,16,.94);
+    }
+    .avatar-lab-source-card { width:min(320px,28%); }
+    .avatar-lab-generated-card { width:min(360px,32%); max-height:none; overflow:hidden; }
+    .avatar-lab-float-card > header {
+      position:absolute;
+      z-index:8;
+      top:0; left:0; right:0;
+      min-height:38px;
+      padding:8px 9px 12px;
+      align-items:flex-start;
+      background:linear-gradient(180deg,rgba(4,8,16,.94),rgba(4,8,16,.68) 72%,transparent);
+      pointer-events:none;
+    }
+    .avatar-lab-float-card > header strong { font-size:12px; }
+    .avatar-lab-float-card > header small { max-width:62%; text-align:right; font-size:9.5px; line-height:1.25; }
+    .profile-avatar-suite-source {
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      min-height:0;
+      max-height:none;
+      aspect-ratio:auto;
+      object-fit:contain;
+      object-position:center;
+      border:0;
+      border-radius:0;
+      background:#05070c;
+    }
+    .avatar-lab-source-meta {
+      position:absolute;
+      z-index:7;
+      top:42px;
+      left:8px;
+      max-width:calc(100% - 16px);
+      padding:3px 6px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:7px;
+      background:rgba(5,9,16,.66);
+      backdrop-filter:blur(7px);
+      pointer-events:none;
+    }
+    .avatar-lab-source-meta small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:9px; }
+    .avatar-lab-card-actions {
+      position:absolute;
+      z-index:9;
+      left:8px;
+      bottom:8px;
+      display:flex;
+      grid-template-columns:none;
+      gap:5px;
+      padding:4px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      background:rgba(5,9,16,.74);
+      backdrop-filter:blur(8px);
+    }
+    .avatar-lab-card-actions button {
+      width:32px;
+      min-width:32px;
+      height:32px;
+      min-height:32px;
+      padding:5px;
+      border-radius:8px;
+    }
+    .avatar-lab-card-actions button .icon { width:17px; height:17px; }
+    .avatar-lab-card-actions button span:not(.icon) { display:none; }
+    #avatarLabSourceResetButton { width:auto; min-width:32px; padding-inline:8px; font-size:10px; }
+    .avatar-lab-source-render {
+      position:absolute;
+      z-index:9;
+      right:8px;
+      bottom:8px;
+      width:auto;
+      max-width:154px;
+      min-height:34px;
+      padding:5px 8px;
+      font-size:10.5px;
+      border-radius:9px;
+      box-shadow:0 5px 18px rgba(0,0,0,.28);
+    }
+    .avatar-lab-source-render .icon { width:16px; height:16px; }
+    #profileAvatarGrokStatus {
+      position:absolute;
+      z-index:7;
+      left:8px;
+      right:8px;
+      bottom:50px;
+      max-height:34px;
+      overflow:hidden;
+      padding:3px 6px;
+      border-radius:7px;
+      background:rgba(5,9,16,.62);
+      backdrop-filter:blur(7px);
+      font-size:9px;
+      line-height:1.25;
+      pointer-events:none;
+    }
+
+    .avatar-lab-generated-media {
+      position:absolute;
+      z-index:1;
+      inset:0;
+      min-height:0;
+      height:auto;
+      border:0;
+      border-radius:0;
+      background:#05070c;
+    }
+    .avatar-lab-generated-card img,.avatar-lab-generated-card video {
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      object-position:center;
+      background:#05070c;
+    }
+    .avatar-lab-reference-settings {
+      position:absolute;
+      z-index:10;
+      top:43px;
+      right:8px;
+      width:min(218px,calc(100% - 16px));
+    }
+    .avatar-lab-reference-settings > summary {
+      min-height:30px;
+      padding:4px 7px;
+      background:rgba(5,9,16,.78);
+      backdrop-filter:blur(8px);
+    }
+    .avatar-lab-reference-settings-panel { left:auto; right:0; width:min(280px,calc(100vw - 40px)); }
+    .profile-avatar-grok-actions {
+      position:absolute;
+      z-index:9;
+      left:8px;
+      right:8px;
+      bottom:8px;
+      display:flex;
+      flex-wrap:wrap;
+      grid-template-columns:none;
+      gap:5px;
+      align-items:center;
+      padding:4px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      background:rgba(5,9,16,.76);
+      backdrop-filter:blur(8px);
+    }
+    .profile-avatar-grok-actions button {
+      width:auto;
+      min-width:0;
+      min-height:32px;
+      padding:4px 8px;
+      font-size:10px;
+      line-height:1.15;
+    }
+    .profile-avatar-grok-actions .avatar-lab-render-3d {
+      grid-column:auto;
+      min-height:32px;
+      margin-left:auto;
+      font-size:10.5px;
+    }
+    .profile-avatar-grok-actions .avatar-lab-preview-3d { grid-column:auto; }
+    .avatar-lab-action-status {
+      position:absolute;
+      z-index:7;
+      left:8px;
+      right:8px;
+      bottom:50px;
+      grid-column:auto;
+      max-height:34px;
+      overflow:hidden;
+      padding:3px 6px;
+      border-radius:7px;
+      background:rgba(5,9,16,.62);
+      backdrop-filter:blur(7px);
+      font-size:9px;
+      line-height:1.25;
+      pointer-events:none;
+    }
+
+    .avatar-lab-body-hotspot { transition:transform .12s ease,background .12s ease,border-color .12s ease,box-shadow .12s ease; }
+    .avatar-lab-body-hotspot:hover:not(:disabled) { background:rgba(25,38,66,.9); }
+    .avatar-lab-body-hotspot[aria-pressed="true"] {
+      border-color:color-mix(in srgb,var(--accent) 88%,#fff);
+      background:color-mix(in srgb,var(--accent) 48%,rgba(8,13,24,.92));
+      box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 30%,transparent),0 8px 18px rgba(0,0,0,.22);
+      transform:translate(-50%,-50%) scale(1.08);
+    }
+    .avatar-lab-style-panel[data-selected-part] { border-color:color-mix(in srgb,var(--accent) 48%,var(--line)); }
+    .avatar-lab-style-panel[data-selected-part] #avatarLabPartEditorTitle::before { content:'Editing · '; color:var(--muted); font-weight:650; }
+
+    @media (max-width:720px){
+      .avatar-lab-float-card{height:calc(100% - 20px);}
+      .avatar-lab-source-card{width:min(235px,43%);}
+      .avatar-lab-generated-card{width:min(245px,44%);}
+      .avatar-lab-source-render{max-width:138px;font-size:9.5px;}
+      .profile-avatar-grok-actions button{font-size:9px;padding-inline:6px;}
+    }
+    @media (max-width:520px){
+      .avatar-lab-card-actions{gap:3px;padding:3px;}
+      .avatar-lab-card-actions button{width:29px;min-width:29px;height:29px;min-height:29px;}
+      .avatar-lab-source-render{min-height:31px;max-width:126px;padding-inline:6px;}
+      .avatar-lab-reference-settings{width:min(196px,calc(100% - 16px));}
+    }
+
     .avatar3d-preview-card { width:min(920px,96vw); }
     .avatar3d-preview-toolbar { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px; }
     .avatar3d-preview-control { display:grid; gap:6px; min-width:0; }
@@ -16506,7 +16738,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.292</small>
+          <small id="serverBrandVersion">v9.6.293</small>
         </span>
       </button>
     </div>
@@ -17496,7 +17728,7 @@
                 <summary><span>Reference settings</span><small id="avatarLabReferenceSettingsSummary">Image · 2:3 · 2K</small></summary>
                 <div class="avatar-lab-reference-settings-panel">
                   <div class="field"><label for="profileAvatarGrokOutput">Output</label><select id="profileAvatarGrokOutput"><option value="image">Image</option><option value="video">Video</option></select></div>
-                  <div class="field"><label for="profileAvatarGrokAspect">Aspect</label><select id="profileAvatarGrokAspect"><option value="2:3" selected>2:3 body</option><option value="auto">Auto</option><option value="1:1">1:1</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select></div>
+                  <div class="field"><label for="profileAvatarGrokAspect">Aspect</label><select id="profileAvatarGrokAspect"><option value="1:1" selected>1:1 square</option><option value="2:3">2:3 body</option><option value="auto">Auto</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select></div>
                   <div class="field"><label for="profileAvatarGrokResolution">Resolution</label><select id="profileAvatarGrokResolution"><option value="2k" selected>2K</option><option value="1k">1K</option><option value="480p">480p</option><option value="720p">720p</option></select></div>
                   <div class="field"><label for="profileAvatarGrokDuration">Duration</label><select id="profileAvatarGrokDuration"><option value="5">5s</option><option value="8" selected>8s</option><option value="10">10s</option><option value="15">15s</option></select></div>
                   <div class="field model"><label for="profileAvatarGrokModel">xAI model</label><input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" title="xAI Grok model"></div>
@@ -21076,7 +21308,7 @@
       elements.profileAvatarPromptHistory?.addEventListener('change', () => { state.avatarPromptHistoryKey=elements.profileAvatarPromptHistory.value||''; if(elements.profileAvatarPromptReuseButton)elements.profileAvatarPromptReuseButton.disabled=!state.avatarPromptHistoryKey; });
       elements.profileAvatarPromptReuseButton?.addEventListener('click', reuseAvatarPromptHistory);
       elements.profileAvatarWizardComposeButton?.addEventListener('click', () => { refreshAvatarAutoPrompt(true); renderAvatarLab(); });
-      document.querySelectorAll('[data-avatar-part]').forEach((button) => button.addEventListener('click', () => selectAvatarLabPart(button.dataset.avatarPart)));
+      document.querySelectorAll('.avatar-lab-body-hotspot[data-avatar-part]').forEach((button) => button.addEventListener('click', () => selectAvatarLabPart(button.dataset.avatarPart)));
       [elements.avatarLabPartColor,elements.avatarLabPartStyle,elements.avatarLabPartDetails].forEach((control) => control?.addEventListener('input', () => { updateAvatarLabPartDraft(); refreshAvatarAutoPrompt(false); renderAvatarLabStyleEditor(); }));
       elements.avatarLabPartColorEnabled?.addEventListener('change', () => { updateAvatarLabPartDraft(); refreshAvatarAutoPrompt(false); renderAvatarLabStyleEditor(); });
       ['profileAvatarPromptPreset','profileAvatarWizardIntent','profileAvatarWizardPresentation','profileAvatarWizardTop','profileAvatarWizardLegs','profileAvatarWizardFeet','profileAvatarWizardPose','profileAvatarWizardFraming','profileAvatarWizardTexture'].forEach((id) => { elements[id]?.addEventListener('change', () => { refreshAvatarAutoPrompt(false); renderAvatarLab(); }); });
@@ -44298,7 +44530,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       writeJsonStorage(avatarLabProviderStorageKey(),{
         output:String(elements.profileAvatarGrokOutput?.value||'image'),
         model:String(elements.profileAvatarGrokModel?.value||'grok-imagine-image').trim().slice(0,96),
-        aspect:String(elements.profileAvatarGrokAspect?.value||'2:3'),
+        aspect:String(elements.profileAvatarGrokAspect?.value||'1:1'),
         resolution:String(elements.profileAvatarGrokResolution?.value||'2k'),
         duration:String(elements.profileAvatarGrokDuration?.value||'8'),
         tripoModel:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),
@@ -44359,9 +44591,10 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const part=AVATAR_LAB_STYLE_PARTS[state.avatarLabPart]?state.avatarLabPart:'top';
       const config=AVATAR_LAB_STYLE_PARTS[part];
       const style=state.avatarLabStyle[part]||freshAvatarLabStyle()[part];
-      document.querySelectorAll('[data-avatar-part]').forEach((button)=>button.setAttribute('aria-pressed',button.dataset.avatarPart===part?'true':'false'));
+      document.querySelectorAll('.avatar-lab-body-hotspot[data-avatar-part]').forEach((button)=>button.setAttribute('aria-pressed',button.dataset.avatarPart===part?'true':'false'));
       document.querySelectorAll('[data-avatar-part-base]').forEach((field)=>{field.hidden=field.dataset.avatarPartBase!==part;});
       if(elements.avatarLabPartEditorTitle)elements.avatarLabPartEditorTitle.textContent=config.label;
+      const stylePanel=elements.avatarLabPartEditorTitle?.closest?.('.avatar-lab-style-panel'); if(stylePanel) stylePanel.dataset.selectedPart=part;
       if(elements.avatarLabPartColorEnabled)elements.avatarLabPartColorEnabled.checked=style.colorEnabled===true;
       if(elements.avatarLabPartColor){elements.avatarLabPartColor.value=style.color||config.color;elements.avatarLabPartColor.disabled=!style.colorEnabled;}
       if(elements.avatarLabPartStyle&&elements.avatarLabPartStyle.value!==style.style)elements.avatarLabPartStyle.value=style.style;
@@ -44750,7 +44983,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         if (control) control.disabled = busy || (control === elements.profileAvatarPromptReuseButton && !state.avatarPromptHistoryKey);
       }
       if(elements.avatarLabPartColor)elements.avatarLabPartColor.disabled=busy||!elements.avatarLabPartColorEnabled?.checked;
-      document.querySelectorAll('[data-avatar-part]').forEach((button)=>{button.disabled=busy;});
+      document.querySelectorAll('.avatar-lab-body-hotspot[data-avatar-part]').forEach((button)=>{button.disabled=busy;});
       if(elements.profileAvatarGrokPrompt)elements.profileAvatarGrokPrompt.readOnly=busy;
 
       if(elements.profileAvatarGrokStatus)elements.profileAvatarGrokStatus.textContent=!state.xaiApiKeyConfigured?'xAI / Grok API key missing. Add it in Config before rendering.':grokActive?`xAI: ${grokActive.status||'working'}${grokActive.progress!=null?` · ${Math.round(Number(grokActive.progress)||0)}%`:''}`:grokItem?.url?`${grokItem.kind==='video'?'Video':'Reference image'} ready. Prompt metadata saved.`:baseSource?'xAI ready.':'Choose a source first.';
@@ -44769,7 +45002,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       }
       if(elements.avatarLabReferenceSettingsSummary){
         const output=String(elements.profileAvatarGrokOutput?.value||'image')==='video'?'Video':'Image';
-        const aspect=String(elements.profileAvatarGrokAspect?.value||'auto');
+        const aspect=String(elements.profileAvatarGrokAspect?.value||'1:1');
         const resolution=String(elements.profileAvatarGrokResolution?.value||'').toUpperCase();
         const duration=output==='Video'?`${Number(elements.profileAvatarGrokDuration?.value||8)}s`:'';
         elements.avatarLabReferenceSettingsSummary.textContent=[output,aspect,resolution,duration].filter(Boolean).join(' · ');
@@ -44855,7 +45088,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         const prompt=String(elements.profileAvatarGrokPrompt?.value||'').trim()||composeAvatarWizardPrompt();
         const source=state.avatarLabSourceImage?'uploaded-source':'profile-photo';
         state.avatarGrokPollBusy=true;setAvatarLabActivity(output==='video'?'Rendering video with xAI':'Rendering reference image',output==='video'?'Request sent. Video generation can take a while; duplicate render actions are locked.':'Request sent. xAI is generating the edited reference image; duplicate render actions are locked.','running',36,'xAI');renderAvatarLab();
-        sendJson({type:'avatar.grok.start',apiKey,sourceImage,prompt,promptMeta:avatarWizardPromptMeta({source}),output,model:String(elements.profileAvatarGrokModel?.value||(output==='video'?'grok-imagine-video':'grok-imagine-image')).trim(),aspectRatio:String(elements.profileAvatarGrokAspect?.value||'auto'),resolution,duration:Number(elements.profileAvatarGrokDuration?.value||8)});
+        sendJson({type:'avatar.grok.start',apiKey,sourceImage,prompt,promptMeta:avatarWizardPromptMeta({source}),output,model:String(elements.profileAvatarGrokModel?.value||(output==='video'?'grok-imagine-video':'grok-imagine-image')).trim(),aspectRatio:String(elements.profileAvatarGrokAspect?.value||'1:1'),resolution,duration:Number(elements.profileAvatarGrokDuration?.value||8)});
       }catch(error){state.avatarGrokPollBusy=false;setAvatarLabError(error?.message||'Grok generation could not start','Reference image failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Grok generation could not start'}`,true);}
     }
     async function useGrokImageAsProfile(){const item=selectedAvatarGrokItem();if(item?.kind!=='image'||!item?.url)return;try{const response=await fetch(item.url,{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw new Error('Could not read the generated image.');const blob=await response.blob();state.editorAvatar=await createAvatarDataUrl(new File([blob],'grok-profile.jpg',{type:blob.type||'image/jpeg'}));state.avatarGrokUseAs3dSource=false;renderEditorAvatar();setAvatarLabActivity('Profile photo prepared','The generated image is selected in the profile editor. Save the profile when ready.','success',100);renderAvatarLab();addSystemMessage('Generated image selected as the profile photo. Save the profile to apply it.');}catch(error){setAvatarLabError(error?.message||'Could not use the generated image','Profile image update failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'Could not use the generated image'}`,true);}}

@@ -1,3 +1,7 @@
+## v0.1.130 — image-first Avatar Lab cards + safer Tripo recovery
+
+Synchronizes Rantlist 9.6.293 / r321. Source and reference images now fill their floating cards while upload/camera/profile/render/3D controls stay compact at the edges; new reference renders default to 1:1, Avatar Lab dropdown arrows are larger, and body-part hotspot selection has clear active feedback. Tripo V2 file upload uses the documented multipart `/upload` route with safe transient upload retries, readable trace-aware errors, and no automatic retry of ambiguous paid task creation. Existing profile/media/channel compatibility is preserved.
+
 ## v0.1.129 — fixed Avatar Lab workbench + precision reference controls
 
 Synchronizes Rantlist 9.6.292 / r320. Reference-image xAI settings stay discoverable in the fixed Reference card, the primary render action moves into the Source card, body-part customization gets the full lower desktop workspace with a fitted reference image, and provider choices persist per profile. Idle activity/empty-stage overlays no longer cover real content; active provider work shows staged progress, elapsed time and compact cost feedback. Existing profile/media/channel compatibility is preserved.
