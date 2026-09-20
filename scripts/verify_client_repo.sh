@@ -23,8 +23,13 @@ done
 "$ROOT/scripts/verify_github_release_transaction.sh"
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
-grep -q 'id="profileAvatarLab"' "$ROOT/web/index.html" || { echo "Working profile Avatar Lab missing from client snapshot" >&2; exit 1; }
+grep -q 'id="profileAvatarLab"' "$ROOT/web/index.html" || { echo "Avatar Lab workbench missing from client snapshot" >&2; exit 1; }
+grep -q 'id="avatarLabGameButton"' "$ROOT/web/index.html" || { echo "Games-tray Avatar Lab launcher missing" >&2; exit 1; }
+grep -q 'id="avatarLabModal"' "$ROOT/web/index.html" || { echo "Standalone Avatar Lab overlay missing" >&2; exit 1; }
+grep -q 'id="avatarLabStageCanvas"' "$ROOT/web/index.html" || { echo "Embedded Avatar Lab 3D stage missing" >&2; exit 1; }
+grep -q 'id="profileAvatarPromptHistory"' "$ROOT/web/index.html" || { echo "Avatar Lab reusable prompt history missing" >&2; exit 1; }
 grep -q 'id="profileAvatar3dGenerateButton"' "$ROOT/web/index.html" || { echo "Avatar Lab Generate 3D action missing" >&2; exit 1; }
+[[ -f "$ROOT/web/assets/icons/avatar-3d.svg" ]] || { echo "Avatar Lab 3D Games icon missing" >&2; exit 1; }
 ! grep -q 'profileWelcomeFutureSlot\|profileFutureCard\|Coming next' "$ROOT/web/index.html" || { echo "Roadmap-only Avatar Lab copy must not appear in UX" >&2; exit 1; }
 grep -q 'import AVFoundation' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS client lacks AVFoundation permission handling" >&2; exit 1; }
 grep -q 'requestCaptureAuthorization(type)' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS WebKit media capture is not gated by native camera/microphone permission" >&2; exit 1; }

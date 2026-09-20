@@ -1,3 +1,7 @@
+## v0.1.126 — standalone Avatar Lab workbench + reusable prompts
+
+Synchronizes Rantlist 9.6.289 / r317. Avatar Lab moves out of Profile into a dedicated Games-tray overlay with the source portrait, image-to-image result and embedded 3D stage available in one workbench. Rig-ready preset/custom prompts now combine with the Avatar Suite selectors, and generation prompt metadata is reusable without changing existing profile or identity data.
+
 ## v0.1.125 — integrated Avatar Suite wizard
 
 Synchronizes Rantlist 9.6.288 / r316. Profile Avatar Lab now guides the user from a webcam/uploaded headshot through an editable Grok full-body concept and into a detailed textured Tripo3D avatar, with clothing/body configuration and responsive controls.
