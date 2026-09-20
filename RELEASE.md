@@ -1,3 +1,7 @@
+## v0.1.131 — deployment CSP verification repair
+
+Synchronizes Rantlist **9.6.294 / r322** after the r321 server was activated successfully but its final transport probe falsely rejected the valid `connect-src 'self' blob: wss:` header. The server verifier is corrected without weakening WSS enforcement; the client snapshot/version metadata is advanced so the normal release workflow remains synchronized. No user data model changes.
+
 ## v0.1.130 — image-first Avatar Lab cards + safer Tripo recovery
 
 Synchronizes Rantlist 9.6.293 / r321. Avatar Lab now treats Source and Reference as image surfaces first, overlays compact controls instead of shrinking the media, defaults fresh reference renders to 1:1, enlarges dropdown chevrons, and makes body-part selection visibly interactive. The server-side Tripo flow switches to the documented V2 `/upload` multipart endpoint, retries only the non-billable upload stage on transient gateway failures, and returns clean trace-aware diagnostics without risking duplicate billed task creation. No destructive profile or media migration is introduced.

@@ -1,3 +1,7 @@
+## v0.1.131 — deployment CSP verification repair
+
+Synchronizes Rantlist **9.6.294 / r322**. This package carries the same Avatar Lab/client UI as r321 but aligns the public snapshot with the server deployment fix: the production CSP post-deploy check now accepts the intentional `blob:` source used by embedded GLB textures while still requiring `wss:` and rejecting insecure `ws:`. No profile, media, channel, message or avatar-history migration is introduced.
+
 ## v0.1.130 — image-first Avatar Lab cards + safer Tripo recovery
 
 Synchronizes Rantlist 9.6.293 / r321. Source and reference images now fill their floating cards while upload/camera/profile/render/3D controls stay compact at the edges; new reference renders default to 1:1, Avatar Lab dropdown arrows are larger, and body-part hotspot selection has clear active feedback. Tripo V2 file upload uses the documented multipart `/upload` route with safe transient upload retries, readable trace-aware errors, and no automatic retry of ambiguous paid task creation. Existing profile/media/channel compatibility is preserved.
