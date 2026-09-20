@@ -1,3 +1,7 @@
+## v0.1.128 — compact Avatar Lab + interactive body styling
+
+Synchronizes Rantlist 9.6.291 / r319. The Avatar Lab overlay now uses a compact flow header, fixed visual workbench and independently scrollable prompt/customization deck. Generated image/video media no longer reserves duplicate hidden space; webcam source capture, Profile shortcut, clickable body-part styling, transient provider activity, explicit disabled-action reasons and correctly stacked full 3D controls are included. Server generation starts accept normalized source images through the bounded Avatar Lab envelope instead of failing at the generic control-message limit. No destructive profile or media migration is introduced.
+
 ## v0.1.127 — guided Avatar Lab progress + reliable 3D preview
 
 Synchronizes Rantlist 9.6.290 / r318. The Avatar Lab overlay now makes the three-step generation path explicit, keeps advanced selectors out of the primary workflow, gives image and 3D render actions prominent placement, preserves portrait output proportions, shows active request/progress/error state, reports generation cost/balance where providers expose it, and fixes embedded GLB texture preview loading. Existing user/profile/channel/media compatibility remains unchanged.

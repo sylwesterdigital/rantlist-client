@@ -1,3 +1,7 @@
+## v0.1.128 — compact Avatar Lab + interactive body styling
+
+Synchronizes Rantlist 9.6.291 / r319. Avatar Lab keeps source/reference/3D visible while prompt customization scrolls independently, removes hidden-video layout waste, adds webcam source capture plus a Profile launcher, provides clickable body-part colour/style/details that persist per profile and with generation metadata, shows only contextual activity/error UI, explains disabled generation actions, fixes the Avatar Lab source-message size rejection, and places full 3D controls above the Lab overlay. Existing profile/media/channel compatibility is preserved.
+
 ## v0.1.127 — guided Avatar Lab progress + reliable 3D preview
 
 Synchronizes Rantlist 9.6.290 / r318. Avatar Lab now leads with source → reference image → textured 3D, moves the selector wall into collapsed Advanced settings, keeps render actions prominent, preserves generated-image aspect ratio/pixel dimensions, visibly locks paid requests while they run, surfaces xAI/Tripo failures in the overlay, fixes blob-backed GLB texture loading under production CSP, and records provider-reported xAI cost plus best-effort Tripo balance without rewriting existing profile/media data.
