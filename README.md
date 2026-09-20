@@ -1,3 +1,7 @@
+## Client package 0.1.132 / source 9.6.295
+
+Includes the r323 Avatar Lab integrated reference-style workbench and visible Tripo model selection.
+
 ## v0.1.131 — deployment CSP verification repair
 
 Synchronizes Rantlist **9.6.294 / r322**. This package carries the same Avatar Lab/client UI as r321 but aligns the public snapshot with the server deployment fix: the production CSP post-deploy check now accepts the intentional `blob:` source used by embedded GLB textures while still requiring `wss:` and rejecting insecure `ws:`. No profile, media, channel, message or avatar-history migration is introduced.

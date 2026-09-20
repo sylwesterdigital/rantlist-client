@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.294">
+  <meta name="chat-ui-version" content="9.6.295">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16693,6 +16693,106 @@
       .avatar-lab-reference-settings{width:min(196px,calc(100% - 16px));}
     }
 
+    /* r323: desktop Avatar Lab is a focused workbench. The reference image doubles as
+       the body-part styling surface; provider controls remain visible without a second image pane. */
+    .avatar-lab-card {
+      width:clamp(900px,65vw,1240px);
+      height:min(860px,calc(var(--app-height,100dvh) - 24px));
+      max-height:calc(var(--app-height,100dvh) - 24px);
+    }
+    .profile-avatar-lab { grid-template-rows:minmax(420px,1fr) minmax(170px,26%); }
+    .avatar-lab-workbench { min-height:420px; }
+    .avatar-lab-source-card { width:min(300px,30%); }
+    .avatar-lab-generated-card { width:min(340px,34%); overflow:visible; }
+    .avatar-lab-generated-media { overflow:hidden; border-radius:15px; }
+    .avatar-lab-generated-card > header { border-radius:15px 15px 0 0; }
+    .profile-avatar-suite-source { object-fit:contain; object-position:center; }
+    .avatar-lab-source-meta { top:40px; max-width:70%; }
+    .avatar-lab-card-actions { bottom:8px; }
+    .avatar-lab-card-actions button { width:30px; min-width:30px; height:30px; min-height:30px; padding:4px; }
+    .avatar-lab-card-actions #avatarLabSourceResetButton { width:auto; min-width:30px; padding-inline:7px; }
+    .avatar-lab-source-render { min-height:31px; padding:4px 8px; font-size:10px; }
+    #profileAvatarGrokStatus,.avatar-lab-action-status,#profileAvatar3dStatus { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+
+    .avatar-lab-reference-settings { top:42px; right:8px; width:min(205px,calc(100% - 92px)); }
+    .avatar-lab-reference-settings > summary { min-height:28px; padding:3px 6px; }
+    .avatar-lab-reference-settings > summary small { font-size:9px; }
+    .avatar-lab-reference-settings-panel { width:min(300px,calc(65vw - 40px)); }
+
+    .avatar-lab-style-popover { position:absolute; z-index:14; top:42px; left:8px; width:max-content; }
+    .avatar-lab-style-popover > summary {
+      list-style:none; display:inline-flex; align-items:center; gap:5px; min-height:28px; padding:3px 7px;
+      border:1px solid rgba(255,255,255,.16); border-radius:8px; background:rgba(5,9,16,.82);
+      backdrop-filter:blur(8px); cursor:pointer; font-size:10px; font-weight:850;
+    }
+    .avatar-lab-style-popover > summary::-webkit-details-marker { display:none; }
+    .avatar-lab-style-popover > summary .icon { width:14px; height:14px; }
+    .avatar-lab-style-popover[open] > summary { border-color:var(--accent); background:color-mix(in srgb,var(--accent) 24%,rgba(5,9,16,.92)); }
+    .avatar-lab-style-popover-panel {
+      position:absolute; top:34px; right:0; width:min(330px,38vw); max-height:min(420px,calc(var(--app-height,100dvh) - 190px));
+      overflow:auto; overscroll-behavior:contain; padding:8px; border:1px solid rgba(255,255,255,.18);
+      border-radius:12px; background:rgba(7,12,22,.97); box-shadow:0 18px 42px rgba(0,0,0,.46);
+    }
+    .avatar-lab-style-popover .avatar-lab-style-panel { overflow:visible; padding:8px; gap:8px; }
+    .avatar-lab-style-popover .profile-avatar-suite-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; }
+    .avatar-lab-style-popover #profileAvatarWizardComposeButton { width:100%; min-height:32px; }
+    .avatar-lab-compat-image { display:none!important; }
+
+    .avatar-lab-reference-hotspots { position:absolute; inset:0; z-index:6; pointer-events:none; }
+    .avatar-lab-reference-hotspots[hidden] { display:none!important; }
+    .avatar-lab-body-hotspot {
+      translate:-50% -50%; transform:none; pointer-events:auto;
+      min-width:54px; min-height:27px; padding:3px 7px; font-size:9.5px;
+    }
+    .avatar-lab-body-hotspot[aria-pressed="true"] { transform:scale(1.08); }
+    .avatar-lab-body-hotspot:active:not(:disabled) { transform:scale(.98); }
+    .avatar-lab-body-hotspot[aria-pressed="true"]:active:not(:disabled) { transform:scale(1.03); }
+
+    .avatar-lab-3d-settings {
+      position:absolute; z-index:10; left:8px; right:8px; bottom:48px; display:grid;
+      grid-template-columns:minmax(0,1fr) minmax(0,.8fr) 30px; gap:5px; align-items:end;
+      padding:5px; border:1px solid rgba(255,255,255,.12); border-radius:9px;
+      background:rgba(5,9,16,.78); backdrop-filter:blur(8px);
+    }
+    .avatar-lab-3d-settings label { display:grid; gap:2px; min-width:0; color:var(--muted); font-size:8px; }
+    .avatar-lab-3d-settings select { width:100%; min-width:0; min-height:27px; padding-block:2px; font-size:9.5px; }
+    .avatar-lab-3d-settings button { width:30px; min-width:30px; height:28px; min-height:28px; padding:4px; }
+    .avatar-lab-3d-settings button span:not(.icon) { display:none; }
+    .avatar-lab-3d-settings small { grid-column:1/-1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--muted); font-size:8px; }
+    .profile-avatar-grok-actions { bottom:8px; flex-wrap:nowrap; padding:3px; }
+    .profile-avatar-grok-actions button { min-height:30px; padding:3px 7px; font-size:9px; white-space:nowrap; }
+    .profile-avatar-grok-actions .avatar-lab-render-3d { margin-left:auto; min-height:30px; font-size:9.5px; }
+
+    .avatar-lab-prompt-deck { display:block; padding:9px; overflow:hidden; }
+    .avatar-lab-primary { height:100%; overflow:auto; display:grid; grid-template-rows:auto minmax(90px,1fr); gap:7px; padding:0; }
+    .avatar-lab-prompt-toolbar { grid-template-columns:minmax(150px,.7fr) minmax(220px,1.3fr) max-content; gap:7px; align-items:end; }
+    .avatar-lab-prompt-toolbar .field:nth-child(2) { grid-column:auto; }
+    .avatar-lab-prompt-toolbar button { min-height:32px; padding:4px 9px; }
+    #profileAvatarGrokPrompt { min-height:96px; height:100%; resize:none; font-size:12px; line-height:1.35; }
+    .avatar-lab-advanced { border:0; background:transparent; }
+
+    @media (max-width:1050px) {
+      .avatar-lab-card { width:min(92vw,980px); }
+      .avatar-lab-source-card { width:min(260px,29%); }
+      .avatar-lab-generated-card { width:min(300px,33%); }
+      .avatar-lab-style-popover-panel { width:min(310px,44vw); }
+    }
+    @media (max-width:760px) {
+      .avatar-lab-card { width:100vw; height:var(--app-height,100dvh); max-height:var(--app-height,100dvh); }
+      .profile-avatar-lab { grid-template-rows:minmax(340px,58%) minmax(0,42%); }
+      .avatar-lab-source-card { width:min(235px,43%); }
+      .avatar-lab-generated-card { width:min(245px,44%); }
+      .avatar-lab-style-popover-panel { position:fixed; left:8px; right:8px; top:92px; width:auto; max-height:calc(var(--app-height,100dvh) - 190px); }
+      .avatar-lab-3d-settings { grid-template-columns:minmax(0,1fr) minmax(0,1fr) 28px; }
+      .avatar-lab-prompt-toolbar { grid-template-columns:1fr 1fr max-content; }
+    }
+    @media (max-width:520px) {
+      .avatar-lab-prompt-toolbar { grid-template-columns:1fr max-content; }
+      .avatar-lab-prompt-toolbar .field:nth-child(2) { grid-column:1/-1; }
+      .avatar-lab-generated-card .profile-avatar-grok-actions button { padding-inline:5px; font-size:8.5px; }
+      .avatar-lab-3d-settings small { display:none; }
+    }
+
     .avatar3d-preview-card { width:min(920px,96vw); }
     .avatar3d-preview-toolbar { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; margin-top:12px; }
     .avatar3d-preview-control { display:grid; gap:6px; min-width:0; }
@@ -16738,7 +16838,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.294</small>
+          <small id="serverBrandVersion">v9.6.295</small>
         </span>
       </button>
     </div>
@@ -17697,7 +17797,7 @@
         <div class="avatar-lab-topbar">
           <span id="profileAvatarLabTitle" class="avatar-lab-a11y-title">Avatar Lab</span>
           <span id="avatarLabCostStatus" class="avatar-lab-cost-chip" title="Reference-image API cost">xAI cost —</span>
-          <div class="avatar-lab-flow" aria-label="Avatar Lab steps"><span data-step="1">Choose source</span><span data-step="2">Render reference</span><span data-step="3">Render textured 3D</span></div>
+          <div class="avatar-lab-flow" aria-label="Avatar Lab steps"><span data-step="1">Choose source</span><span data-step="2">Render 2D</span><span data-step="3">Render 3D</span></div>
           <button id="avatarLabCloseButton" class="icon-button" type="button" aria-label="Close Avatar Lab"><span class="icon icon-close"></span></button>
         </div>
         <div id="profileAvatarLab" class="profile-avatar-lab">
@@ -17713,19 +17813,21 @@
               <img id="profileAvatarSuiteSourcePreview" class="profile-avatar-suite-source" alt="Avatar Lab source preview" hidden>
               <div class="avatar-lab-source-meta"><small id="profileAvatarSuitePreviewMeta">No source selected yet.</small></div>
               <div class="avatar-lab-card-actions">
-                <button id="avatarLabSourceUploadButton" type="button"><span class="icon icon-photo" aria-hidden="true"></span><span>Upload</span></button>
-                <button id="avatarLabSourceCameraButton" type="button"><span class="icon icon-camera" aria-hidden="true"></span><span>Camera</span></button>
-                <button id="avatarLabSourceResetButton" type="button" title="Use the current profile photo instead">Profile</button>
+                <button id="avatarLabSourceUploadButton" type="button" title="Upload source"><span class="icon icon-photo" aria-hidden="true"></span><span>Upload</span></button>
+                <button id="avatarLabSourceCameraButton" type="button" title="Use webcam"><span class="icon icon-camera" aria-hidden="true"></span><span>Camera</span></button>
+                <button id="avatarLabSourceResetButton" type="button" title="Use current profile photo">Profile</button>
+                <button id="profileAvatar3dDirectButton" type="button" data-button-presentation-ignore title="3D directly from source"><span class="icon icon-avatar-3d" aria-hidden="true"></span><span>3D source</span></button>
               </div>
-              <button id="profileAvatarGrokRunButton" class="primary avatar-lab-source-render" type="button" data-button-presentation-ignore aria-describedby="profileAvatarGrokStatus"><span class="icon icon-render" aria-hidden="true"></span><span>Render reference</span></button>
-              <small id="profileAvatarGrokStatus">Add your xAI / Grok API key in Config to enable reference generation.</small>
+              <button id="profileAvatarGrokRunButton" class="primary avatar-lab-source-render" type="button" data-button-presentation-ignore><span class="icon icon-render" aria-hidden="true"></span><span>Render 2D</span></button>
+              <small id="profileAvatarGrokStatus" class="avatar-lab-a11y-title" aria-live="polite"></small>
               <input id="avatarLabSourceInput" type="file" accept="image/png,image/jpeg,image/webp,image/*" hidden>
             </article>
 
             <article id="profileAvatarGrokResult" class="avatar-lab-float-card avatar-lab-generated-card">
               <header><strong>2 · Reference image</strong><small id="profileAvatarGrokResultMeta">Not rendered yet</small></header>
+
               <details class="avatar-lab-reference-settings">
-                <summary><span>Reference settings</span><small id="avatarLabReferenceSettingsSummary">Image · 2:3 · 2K</small></summary>
+                <summary><span>2D settings</span><small id="avatarLabReferenceSettingsSummary">Image · 1:1 · 2K</small></summary>
                 <div class="avatar-lab-reference-settings-panel">
                   <div class="field"><label for="profileAvatarGrokOutput">Output</label><select id="profileAvatarGrokOutput"><option value="image">Image</option><option value="video">Video</option></select></div>
                   <div class="field"><label for="profileAvatarGrokAspect">Aspect</label><select id="profileAvatarGrokAspect"><option value="1:1" selected>1:1 square</option><option value="2:3">2:3 body</option><option value="auto">Auto</option><option value="16:9">16:9</option><option value="9:16">9:16</option><option value="4:3">4:3</option><option value="3:4">3:4</option><option value="3:2">3:2</option></select></div>
@@ -17734,17 +17836,61 @@
                   <div class="field model"><label for="profileAvatarGrokModel">xAI model</label><input id="profileAvatarGrokModel" type="text" value="grok-imagine-image" maxlength="96" title="xAI Grok model"></div>
                 </div>
               </details>
+
+              <details id="avatarLabAdvanced" class="avatar-lab-style-popover">
+                <summary title="Style the current reference image"><span class="icon icon-edit" aria-hidden="true"></span><span>Style</span></summary>
+                <div class="avatar-lab-style-popover-panel">
+                  <div class="avatar-lab-style-panel">
+                    <header><strong id="avatarLabPartEditorTitle">Top / torso</strong><small>Saved for this profile</small></header>
+                    <div class="avatar-lab-style-row">
+                      <div class="field"><label class="avatar-lab-colour-toggle"><input id="avatarLabPartColorEnabled" type="checkbox"><span>Colour</span></label><input id="avatarLabPartColor" type="color" value="#202020" disabled aria-label="Body part colour"></div>
+                      <div class="field"><label for="avatarLabPartStyle">Style / material</label><input id="avatarLabPartStyle" type="text" maxlength="96" placeholder="cotton, matte leather, denim…"></div>
+                    </div>
+                    <div class="field avatar-lab-part-base-field" data-avatar-part-base="top"><label for="profileAvatarWizardTop">Garment</label><select id="profileAvatarWizardTop"><option value="hoodie" selected>Hoodie</option><option value="t-shirt">T-shirt</option><option value="shirt">Shirt</option><option value="jacket">Jacket</option><option value="coat">Coat</option><option value="armour">Armour</option><option value="dress-top">Dress / fitted top</option></select></div>
+                    <div class="field avatar-lab-part-base-field" data-avatar-part-base="legs" hidden><label for="profileAvatarWizardLegs">Garment</label><select id="profileAvatarWizardLegs"><option value="jeans" selected>Jeans</option><option value="trousers">Trousers</option><option value="shorts">Shorts</option><option value="leggings">Leggings</option><option value="skirt">Skirt</option></select></div>
+                    <div class="field avatar-lab-part-base-field" data-avatar-part-base="feet" hidden><label for="profileAvatarWizardFeet">Footwear</label><select id="profileAvatarWizardFeet"><option value="sneakers" selected>Sneakers</option><option value="boots">Boots</option><option value="formal shoes">Formal shoes</option><option value="sandals">Sandals</option><option value="barefoot">Barefoot</option></select></div>
+                    <div class="field"><label for="avatarLabPartDetails">Details</label><textarea id="avatarLabPartDetails" maxlength="360" placeholder="print, logo, trim, jewellery, hair detail…"></textarea></div>
+                    <div class="profile-avatar-suite-grid" aria-label="General avatar settings">
+                      <div class="field"><label for="profileAvatarWizardPresentation">Presentation</label><select id="profileAvatarWizardPresentation"><option value="male">Male</option><option value="female">Female</option><option value="unisex" selected>Unisex</option></select></div>
+                      <div class="field"><label for="profileAvatarWizardPose">Pose</label><select id="profileAvatarWizardPose"><option value="front standing">Front</option><option value="hero standing">Hero</option><option value="relaxed standing">Relaxed</option><option value="A-pose" selected>A-pose</option><option value="T-pose">T-pose</option></select></div>
+                      <div class="field"><label for="profileAvatarWizardFraming">Framing</label><select id="profileAvatarWizardFraming"><option value="clean full-body portrait">Full body</option><option value="studio character sheet" selected>Character sheet</option><option value="single figure on plain background">Plain background</option></select></div>
+                      <div class="field"><label for="profileAvatarWizardTexture">3D target</label><select id="profileAvatarWizardTexture"><option value="detailed" selected>Detailed</option><option value="standard">Standard</option><option value="flat">Flat colour</option></select></div>
+                    </div>
+                    <button id="profileAvatarWizardComposeButton" type="button" data-button-presentation-ignore><span class="icon icon-edit" aria-hidden="true"></span><span>Apply style to prompt</span></button>
+                  </div>
+                </div>
+              </details>
+
               <div class="avatar-lab-generated-media">
-                <div id="profileAvatarGrokEmpty" class="avatar-lab-generated-placeholder">The full-body reference will appear here.</div>
-                <img id="profileAvatarGrokImage" alt="Generated Grok avatar" hidden>
+                <div id="profileAvatarGrokEmpty" class="avatar-lab-generated-placeholder">2D reference appears here.</div>
+                <img id="profileAvatarGrokImage" alt="Generated avatar reference" hidden>
                 <video id="profileAvatarGrokVideo" controls playsinline hidden></video>
+                <div id="avatarLabReferenceHotspots" class="avatar-lab-reference-hotspots" hidden aria-label="Reference-image body areas">
+                  <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="head" aria-pressed="false">Head</button>
+                  <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="top" aria-pressed="true">Top</button>
+                  <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="arms" aria-pressed="false">Arms</button>
+                  <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="legs" aria-pressed="false">Legs</button>
+                  <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="feet" aria-pressed="false">Feet</button>
+                </div>
+                <img id="profileAvatarBodyEditorImage" alt="" hidden aria-hidden="true" class="avatar-lab-compat-image">
+                <div id="avatarLabBodyEditorPlaceholder" hidden></div>
               </div>
+
+              <div class="avatar-lab-3d-settings" aria-label="Tripo3D settings">
+                <label><span>3D model</span><select id="profileAvatar3dModelSelect" aria-label="Tripo3D model"><option value="v3.1-20260211" selected>v3.1</option><option value="v3.0-20250812">v3.0</option><option value="Turbo-v1.0-20250506">Turbo</option><option value="P1-20260311">P1</option></select></label>
+                <label><span>Texture</span><select id="profileAvatar3dTextureSelect" aria-label="Texture quality"><option value="detailed" selected>Detailed</option><option value="standard">Standard</option></select></label>
+                <button id="profileAvatar3dKeysButton" type="button" data-button-presentation-ignore title="API keys"><span class="icon icon-config" aria-hidden="true"></span><span>Keys</span></button>
+                <small id="avatarLabTripoWallet">Balance appears after a request.</small>
+              </div>
+
               <div class="profile-avatar-grok-actions">
-                <button id="profileAvatarGrokUseProfileButton" type="button" hidden>Use as profile photo</button>
+                <button id="profileAvatarGrokUseProfileButton" type="button" hidden>Profile</button>
                 <button id="profileAvatarGrokUse3dButton" type="button" hidden>Use for 3D</button>
-                <button id="profileAvatar3dGenerateButton" class="primary avatar-lab-render-3d" type="button" data-button-presentation-ignore hidden><span class="icon icon-render" aria-hidden="true"></span><span>Render textured 3D</span></button>
-                <button id="profileAvatar3dPreviewButton" class="avatar-lab-preview-3d" type="button" data-button-presentation-ignore disabled hidden><span class="icon icon-preview" aria-hidden="true"></span><span>Open full 3D controls</span></button>
-                <small id="profileAvatar3dActionStatus" class="avatar-lab-action-status" aria-live="polite"></small>
+                <button id="profileAvatar3dGenerateButton" class="primary avatar-lab-render-3d" type="button" data-button-presentation-ignore hidden><span class="icon icon-render" aria-hidden="true"></span><span>Render 3D</span></button>
+                <button id="profileAvatar3dPreviewButton" class="avatar-lab-preview-3d" type="button" data-button-presentation-ignore disabled hidden><span class="icon icon-preview" aria-hidden="true"></span><span>3D controls</span></button>
+                <button id="profileAvatar3dPreviewAdvancedButton" type="button" data-button-presentation-ignore disabled hidden aria-hidden="true"></button>
+                <small id="profileAvatar3dActionStatus" class="avatar-lab-a11y-title" aria-live="polite"></small>
+                <small id="profileAvatar3dStatus" class="avatar-lab-a11y-title" aria-live="polite"></small>
               </div>
             </article>
 
@@ -17757,74 +17903,14 @@
           </div>
 
           <div class="avatar-lab-prompt-deck">
-            <details id="avatarLabAdvanced" class="avatar-lab-advanced" open>
-              <summary>Customize avatar</summary>
-              <div class="avatar-lab-advanced-body">
-                <section class="profile-avatar-suite" aria-label="Avatar prompt settings">
-                  <div class="profile-avatar-suite-heading">
-                    <div><h4>Style the character</h4><p>Use the full reference, select a body area, then set colour, material and only the details that matter.</p></div>
-                  </div>
-
-                  <div class="avatar-lab-style-editor">
-                    <div class="avatar-lab-body-map" aria-label="Clickable avatar body areas">
-                      <img id="profileAvatarBodyEditorImage" alt="Avatar reference for body-part styling" hidden>
-                      <div id="avatarLabBodyEditorPlaceholder" class="avatar-lab-body-placeholder">Render a reference image, or style the source before the first render.</div>
-                      <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="head" aria-pressed="false">Head</button>
-                      <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="top" aria-pressed="true">Top</button>
-                      <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="arms" aria-pressed="false">Arms</button>
-                      <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="legs" aria-pressed="false">Legs</button>
-                      <button class="avatar-lab-body-hotspot" type="button" data-avatar-part="feet" aria-pressed="false">Feet</button>
-                    </div>
-
-                    <div class="avatar-lab-style-panel">
-                      <header><strong id="avatarLabPartEditorTitle">Top / torso</strong><small>Remembered for this profile</small></header>
-                      <div class="avatar-lab-style-row">
-                        <div class="field"><label class="avatar-lab-colour-toggle"><input id="avatarLabPartColorEnabled" type="checkbox"><span>Use colour</span></label><input id="avatarLabPartColor" type="color" value="#202020" disabled aria-label="Body part colour"></div>
-                        <div class="field"><label for="avatarLabPartStyle">Style / material</label><input id="avatarLabPartStyle" type="text" maxlength="96" placeholder="e.g. oversized cotton, matte leather"></div>
-                      </div>
-                      <div class="field avatar-lab-part-base-field" data-avatar-part-base="top"><label for="profileAvatarWizardTop">Garment</label><select id="profileAvatarWizardTop"><option value="hoodie" selected>Hoodie</option><option value="t-shirt">T-shirt</option><option value="shirt">Shirt</option><option value="jacket">Jacket</option><option value="coat">Coat</option><option value="armour">Armour</option><option value="dress-top">Dress / fitted top</option></select></div>
-                      <div class="field avatar-lab-part-base-field" data-avatar-part-base="legs" hidden><label for="profileAvatarWizardLegs">Garment</label><select id="profileAvatarWizardLegs"><option value="jeans" selected>Jeans</option><option value="trousers">Trousers</option><option value="shorts">Shorts</option><option value="leggings">Leggings</option><option value="skirt">Skirt</option></select></div>
-                      <div class="field avatar-lab-part-base-field" data-avatar-part-base="feet" hidden><label for="profileAvatarWizardFeet">Footwear</label><select id="profileAvatarWizardFeet"><option value="sneakers" selected>Sneakers</option><option value="boots">Boots</option><option value="formal shoes">Formal shoes</option><option value="sandals">Sandals</option><option value="barefoot">Barefoot</option></select></div>
-                      <div class="field"><label for="avatarLabPartDetails">Details</label><textarea id="avatarLabPartDetails" maxlength="360" placeholder="e.g. small white rabbit print on the chest; no logos elsewhere"></textarea></div>
-                    </div>
-                  </div>
-
-                  <select id="profileAvatarWizardIntent" class="avatar-lab-internal-control" aria-hidden="true" tabindex="-1"><option value="head">Refine headshot</option><option value="body" selected>Create full-body concept</option><option value="final">Final avatar for 3D</option></select>
-                  <div class="profile-avatar-suite-grid" aria-label="General avatar settings">
-                    <div class="field"><label for="profileAvatarWizardPresentation">Presentation</label><select id="profileAvatarWizardPresentation"><option value="male">Male</option><option value="female">Female</option><option value="unisex" selected>Unisex</option></select></div>
-                    <div class="field"><label for="profileAvatarWizardPose">Pose</label><select id="profileAvatarWizardPose"><option value="front standing">Front standing</option><option value="hero standing">Hero standing</option><option value="relaxed standing">Relaxed standing</option><option value="A-pose" selected>A-pose</option><option value="T-pose">T-pose</option></select></div>
-                    <div class="field"><label for="profileAvatarWizardFraming">Framing</label><select id="profileAvatarWizardFraming"><option value="clean full-body portrait">Clean full-body portrait</option><option value="studio character sheet" selected>Studio character sheet</option><option value="single figure on plain background">Single figure, plain background</option></select></div>
-                    <div class="field"><label for="profileAvatarWizardTexture">3D texture target</label><select id="profileAvatarWizardTexture"><option value="detailed" selected>Detailed textured avatar</option><option value="standard">Standard textured avatar</option><option value="flat">Flat colour concept</option></select></div>
-                  </div>
-                </section>
-
-                <details class="avatar-lab-provider-details">
-                  <summary>3D provider options</summary>
-                  <div class="avatar-lab-provider-settings">
-                    <section class="avatar-lab-provider-box" aria-label="Tripo3D settings">
-                      <header><strong>Tripo3D</strong><small id="avatarLabTripoWallet">Tripo balance shown after a request.</small></header>
-                      <div class="profile-avatar-lab-controls">
-                        <select id="profileAvatar3dModelSelect" aria-label="Tripo3D model"><option value="P1-20260311">P1</option><option value="v3.1-20260211" selected>v3.1</option><option value="v3.0-20250812">v3.0</option><option value="Turbo-v1.0-20250506">Turbo</option></select>
-                        <select id="profileAvatar3dTextureSelect" aria-label="Texture quality"><option value="detailed" selected>Detailed texture</option><option value="standard">Standard texture</option></select>
-                        <button id="profileAvatar3dDirectButton" type="button" data-button-presentation-ignore title="Advanced: bypass the reference-image step and send the original source directly to Tripo3D"><span class="icon icon-render" aria-hidden="true"></span><span>3D from source</span></button>
-                        <button id="profileAvatar3dKeysButton" type="button" data-button-presentation-ignore><span class="icon icon-config" aria-hidden="true"></span><span>API keys</span></button>
-                        <button id="profileAvatar3dPreviewAdvancedButton" type="button" data-button-presentation-ignore disabled><span class="icon icon-preview" aria-hidden="true"></span><span>3D controls</span></button>
-                      </div>
-                      <small id="profileAvatar3dStatus">Add your Tripo3D API key in Config to enable 3D generation.</small>
-                    </section>
-                  </div>
-                </details>
-              </div>
-            </details>
-
             <section class="avatar-lab-primary" aria-label="Reference image generation prompt">
               <div class="avatar-lab-prompt-toolbar">
-                <div class="field"><label for="profileAvatarPromptPreset">Prompt preset</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
-                <div class="field"><label for="profileAvatarPromptHistory">Reuse a previous generation</label><select id="profileAvatarPromptHistory"><option value="">Generation history…</option></select></div>
-                <button id="profileAvatarPromptReuseButton" type="button" disabled>Reuse prompt</button>
-                <button id="profileAvatarWizardComposeButton" type="button" data-button-presentation-ignore><span class="icon icon-edit" aria-hidden="true"></span><span>Apply style</span></button>
+                <div class="field"><label for="profileAvatarPromptPreset">Prompt</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
+                <div class="field"><label for="profileAvatarPromptHistory">History</label><select id="profileAvatarPromptHistory"><option value="">Generation history…</option></select></div>
+                <button id="profileAvatarPromptReuseButton" type="button" disabled>Reuse</button>
               </div>
-              <textarea id="profileAvatarGrokPrompt" maxlength="4000" placeholder="Describe the avatar you want. Body-part styling is merged into this prompt when you choose Apply style." aria-label="Avatar generation prompt"></textarea>
+              <textarea id="profileAvatarGrokPrompt" maxlength="4000" placeholder="Describe the avatar. Open Style on the reference image to add body-part colour, material and details." aria-label="Avatar generation prompt"></textarea>
+              <select id="profileAvatarWizardIntent" class="avatar-lab-internal-control" aria-hidden="true" tabindex="-1"><option value="head">Refine headshot</option><option value="body" selected>Create full-body concept</option><option value="final">Final avatar for 3D</option></select>
             </section>
           </div>
         </div>
@@ -19493,7 +19579,7 @@
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
-        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLabAdvanced', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dPreviewAdvancedButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
+        'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLabReferenceHotspots', 'avatarLabAdvanced', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dPreviewButton', 'profileAvatar3dPreviewAdvancedButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
@@ -21309,12 +21395,14 @@
       elements.profileAvatarPromptReuseButton?.addEventListener('click', reuseAvatarPromptHistory);
       elements.profileAvatarWizardComposeButton?.addEventListener('click', () => { refreshAvatarAutoPrompt(true); renderAvatarLab(); });
       document.querySelectorAll('.avatar-lab-body-hotspot[data-avatar-part]').forEach((button) => button.addEventListener('click', () => selectAvatarLabPart(button.dataset.avatarPart)));
+      elements.avatarLabAdvanced?.addEventListener('toggle',()=>{renderAvatarLabStyleEditor();renderAvatarLab();});
       [elements.avatarLabPartColor,elements.avatarLabPartStyle,elements.avatarLabPartDetails].forEach((control) => control?.addEventListener('input', () => { updateAvatarLabPartDraft(); refreshAvatarAutoPrompt(false); renderAvatarLabStyleEditor(); }));
       elements.avatarLabPartColorEnabled?.addEventListener('change', () => { updateAvatarLabPartDraft(); refreshAvatarAutoPrompt(false); renderAvatarLabStyleEditor(); });
       ['profileAvatarPromptPreset','profileAvatarWizardIntent','profileAvatarWizardPresentation','profileAvatarWizardTop','profileAvatarWizardLegs','profileAvatarWizardFeet','profileAvatarWizardPose','profileAvatarWizardFraming','profileAvatarWizardTexture'].forEach((id) => { elements[id]?.addEventListener('change', () => { refreshAvatarAutoPrompt(false); renderAvatarLab(); }); });
       elements.profileAvatar3dGenerateButton?.addEventListener('click', () => { state.avatarGrokUseAs3dSource = true; void generateProfileAvatar3d({ forceBaseSource: false }); });
       elements.profileAvatar3dDirectButton?.addEventListener('click', () => { void generateProfileAvatar3d({ forceBaseSource: true }); });
-      elements.profileAvatarGrokImage?.addEventListener('load', () => { if (!elements.avatarLabModal?.hidden) renderAvatarLab(); });
+      elements.profileAvatarGrokImage?.addEventListener('load', () => { if (!elements.avatarLabModal?.hidden) { syncAvatarLabReferenceHotspots(); renderAvatarLab(); } });
+      window.addEventListener('resize', () => { if (!elements.avatarLabModal?.hidden) syncAvatarLabReferenceHotspots(); }, { passive:true });
       elements.profileAvatar3dPreviewButton?.addEventListener('click', () => { void openAvatar3dPreview(); });
       elements.profileAvatar3dPreviewAdvancedButton?.addEventListener('click', () => { void openAvatar3dPreview(); });
       elements.profileAvatar3dKeysButton?.addEventListener('click', () => { closeAvatarLab(false); openConfig(); setTimeout(() => elements.tripoApiKeyInput?.focus?.(), 120); });
@@ -44599,13 +44687,25 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.avatarLabPartColor){elements.avatarLabPartColor.value=style.color||config.color;elements.avatarLabPartColor.disabled=!style.colorEnabled;}
       if(elements.avatarLabPartStyle&&elements.avatarLabPartStyle.value!==style.style)elements.avatarLabPartStyle.value=style.style;
       if(elements.avatarLabPartDetails&&elements.avatarLabPartDetails.value!==style.details)elements.avatarLabPartDetails.value=style.details;
-      const selectedReference=selectedAvatarGrokItem();
-      const preferredImage=(selectedReference?.kind==='image'&&selectedReference?.url?selectedReference.url:state.avatarGrokItems.find((item)=>item?.kind==='image'&&item?.url)?.url) || profileAvatarLabSourcePreview();
-      if(elements.profileAvatarBodyEditorImage){
-        elements.profileAvatarBodyEditorImage.hidden=!preferredImage;
-        if(preferredImage){const href=/^data:/i.test(preferredImage)?preferredImage:new URL(preferredImage,location.href).href;if(elements.profileAvatarBodyEditorImage.src!==href)elements.profileAvatarBodyEditorImage.src=preferredImage;}
-      }
-      if(elements.avatarLabBodyEditorPlaceholder)elements.avatarLabBodyEditorPlaceholder.hidden=Boolean(preferredImage);
+      const selectedReference=state.avatarGrokItems.find((item)=>item?.kind==='image'&&item?.url)||null;
+      const preferredImage=selectedReference?.url || profileAvatarLabSourcePreview();
+      if(elements.profileAvatarBodyEditorImage) elements.profileAvatarBodyEditorImage.hidden=true;
+      if(elements.avatarLabBodyEditorPlaceholder) elements.avatarLabBodyEditorPlaceholder.hidden=true;
+      if(elements.avatarLabReferenceHotspots) elements.avatarLabReferenceHotspots.hidden=!(elements.avatarLabAdvanced?.open && preferredImage);
+    }
+    function syncAvatarLabReferenceHotspots() {
+      const overlay=elements.avatarLabReferenceHotspots;
+      const image=elements.profileAvatarGrokImage;
+      const host=image?.parentElement;
+      if(!overlay||!image||!host||overlay.hidden||image.hidden||!image.naturalWidth||!image.naturalHeight) return;
+      const hostWidth=Math.max(1,host.clientWidth), hostHeight=Math.max(1,host.clientHeight);
+      const scale=Math.min(hostWidth/image.naturalWidth,hostHeight/image.naturalHeight);
+      const width=Math.max(1,image.naturalWidth*scale), height=Math.max(1,image.naturalHeight*scale);
+      overlay.style.left=`${(hostWidth-width)/2}px`;
+      overlay.style.top=`${(hostHeight-height)/2}px`;
+      overlay.style.width=`${width}px`;
+      overlay.style.height=`${height}px`;
+      overlay.style.right='auto'; overlay.style.bottom='auto';
     }
     function composeAvatarStylePrompt(meta) {
       const lines=[];
@@ -44924,6 +45024,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const generatedSourceAvailable=Boolean(state.avatarGrokUseAs3dSource&&imageReady);
       const sourceAvailable=Boolean(baseSource||generatedSourceAvailable);
       const busy=avatarLabRequestBusy();
+      const styleMode=Boolean(elements.avatarLabAdvanced?.open);
       const grokPrompt=String(elements.profileAvatarGrokPrompt?.value||'').trim();
 
       const grokReason=!state.registered?'Sign in with a normal profile to render.'
@@ -44966,7 +45067,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         elements.profileAvatar3dGenerateButton.hidden=!imageReady;
         elements.profileAvatar3dGenerateButton.disabled=!canGenerate;
         elements.profileAvatar3dGenerateButton.title=tripoReason||'Create a textured 3D avatar from the generated reference image.';
-        const label=elements.profileAvatar3dGenerateButton.querySelector('span:last-child');if(label)label.textContent=active?'Rendering 3D…':'Render textured 3D';
+        const label=elements.profileAvatar3dGenerateButton.querySelector('span:last-child');if(label)label.textContent=active?'Rendering 3D…':'Render 3D';
       }
       if(elements.profileAvatar3dDirectButton){elements.profileAvatar3dDirectButton.disabled=!canGenerateDirect;elements.profileAvatar3dDirectButton.title=directReason||'Advanced: send the original source directly to Tripo3D.';}
       if(elements.profileAvatar3dPreviewButton){elements.profileAvatar3dPreviewButton.hidden=!item?.url;elements.profileAvatar3dPreviewButton.disabled=!item?.url;elements.profileAvatar3dPreviewButton.title=item?.url?'Open the 3D model in the full controls layer.':'No finished 3D model yet.';}
@@ -44974,7 +45075,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.profileAvatarGrokRunButton){
         elements.profileAvatarGrokRunButton.disabled=!canGrok;
         elements.profileAvatarGrokRunButton.title=grokReason||'Render a new reference image with the current prompt.';
-        const label=elements.profileAvatarGrokRunButton.querySelector('span:last-child');if(label)label.textContent=grokActive||state.avatarGrokPollBusy?'Rendering…':'Render reference image';
+        const label=elements.profileAvatarGrokRunButton.querySelector('span:last-child');if(label)label.textContent=grokActive||state.avatarGrokPollBusy?'Rendering 2D…':'Render 2D';
       }
 
       if(elements.profileAvatarGrokDuration)elements.profileAvatarGrokDuration.disabled=busy||String(elements.profileAvatarGrokOutput?.value||'image')!=='video';
@@ -44986,19 +45087,24 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       document.querySelectorAll('.avatar-lab-body-hotspot[data-avatar-part]').forEach((button)=>{button.disabled=busy;});
       if(elements.profileAvatarGrokPrompt)elements.profileAvatarGrokPrompt.readOnly=busy;
 
-      if(elements.profileAvatarGrokStatus)elements.profileAvatarGrokStatus.textContent=!state.xaiApiKeyConfigured?'xAI / Grok API key missing. Add it in Config before rendering.':grokActive?`xAI: ${grokActive.status||'working'}${grokActive.progress!=null?` · ${Math.round(Number(grokActive.progress)||0)}%`:''}`:grokItem?.url?`${grokItem.kind==='video'?'Video':'Reference image'} ready. Prompt metadata saved.`:baseSource?'xAI ready.':'Choose a source first.';
-      if(elements.profileAvatarGrokResult)elements.profileAvatarGrokResult.hidden=false;
-      if(elements.profileAvatarGrokEmpty)elements.profileAvatarGrokEmpty.hidden=Boolean(grokItem?.url);
-      if(elements.profileAvatarGrokImage){const show=grokItem?.kind==='image'&&grokItem?.url;elements.profileAvatarGrokImage.hidden=!show;if(show&&elements.profileAvatarGrokImage.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokImage.src=grokItem.url;}
-      if(elements.profileAvatarGrokVideo){const show=grokItem?.kind==='video'&&grokItem?.url;elements.profileAvatarGrokVideo.hidden=!show;if(show&&elements.profileAvatarGrokVideo.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokVideo.src=grokItem.url;}
-      if(elements.profileAvatarGrokUseProfileButton){elements.profileAvatarGrokUseProfileButton.hidden=!(grokItem?.kind==='image'&&grokItem?.url);elements.profileAvatarGrokUseProfileButton.disabled=busy;}
+      if(elements.profileAvatarGrokStatus){elements.profileAvatarGrokStatus.textContent=grokReason||'';}
+      if(elements.profileAvatarGrokResult){elements.profileAvatarGrokResult.hidden=false;elements.profileAvatarGrokResult.classList.toggle('style-mode',styleMode);}
+      const stylePreviewUrl=referenceImageItem?.url || (styleMode?baseSource:'');
+      const showVideo=!styleMode&&grokItem?.kind==='video'&&grokItem?.url;
+      if(elements.profileAvatarGrokEmpty)elements.profileAvatarGrokEmpty.hidden=Boolean(stylePreviewUrl||showVideo);
+      if(elements.profileAvatarGrokImage){const show=Boolean(stylePreviewUrl)&&!showVideo;elements.profileAvatarGrokImage.hidden=!show;if(show&&elements.profileAvatarGrokImage.src!==new URL(stylePreviewUrl,location.href).href)elements.profileAvatarGrokImage.src=stylePreviewUrl;}
+      if(elements.profileAvatarGrokVideo){elements.profileAvatarGrokVideo.hidden=!showVideo;if(showVideo&&elements.profileAvatarGrokVideo.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokVideo.src=grokItem.url;}
+      if(elements.avatarLabReferenceHotspots)elements.avatarLabReferenceHotspots.hidden=!(styleMode&&stylePreviewUrl);
+      if(styleMode&&stylePreviewUrl) requestAnimationFrame(syncAvatarLabReferenceHotspots);
+      if(elements.profileAvatarGrokUseProfileButton){elements.profileAvatarGrokUseProfileButton.hidden=!referenceImageItem?.url;elements.profileAvatarGrokUseProfileButton.disabled=busy;}
       if(elements.profileAvatarGrokUse3dButton){elements.profileAvatarGrokUse3dButton.hidden=!imageReady;elements.profileAvatarGrokUse3dButton.disabled=busy;elements.profileAvatarGrokUse3dButton.textContent=state.avatarGrokUseAs3dSource?'Selected for 3D':'Use for 3D';}
       if(elements.profileAvatarGrokResultMeta){
-        if(grokItem?.url){
-          const pixelSize=grokItem.kind==='image'&&elements.profileAvatarGrokImage?.naturalWidth&&elements.profileAvatarGrokImage?.naturalHeight?`${elements.profileAvatarGrokImage.naturalWidth}×${elements.profileAvatarGrokImage.naturalHeight}`:'';
-          const parts=[grokItem.kind==='video'?'Video':'Image',pixelSize,grokItem.aspectRatio||'',grokItem.resolution?String(grokItem.resolution).toUpperCase():'',formatAvatarLabUsd(grokItem.costUsd)].filter(Boolean);
+        const metaItem=styleMode&&referenceImageItem?.url?referenceImageItem:grokItem;
+        if(metaItem?.url){
+          const pixelSize=metaItem.kind==='image'&&elements.profileAvatarGrokImage?.naturalWidth&&elements.profileAvatarGrokImage?.naturalHeight?`${elements.profileAvatarGrokImage.naturalWidth}×${elements.profileAvatarGrokImage.naturalHeight}`:'';
+          const parts=[metaItem.kind==='video'?'Video':'Image',pixelSize,metaItem.aspectRatio||'',metaItem.resolution?String(metaItem.resolution).toUpperCase():'',formatAvatarLabUsd(metaItem.costUsd)].filter(Boolean);
           elements.profileAvatarGrokResultMeta.textContent=parts.join(' · ');
-        }else elements.profileAvatarGrokResultMeta.textContent='Not rendered yet';
+        }else elements.profileAvatarGrokResultMeta.textContent=styleMode&&baseSource?'Styling source':'Not rendered yet';
       }
       if(elements.avatarLabReferenceSettingsSummary){
         const output=String(elements.profileAvatarGrokOutput?.value||'image')==='video'?'Video':'Image';
@@ -45025,10 +45131,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         : baseSource?'Create a full-body reference image before 3D for more reliable results.'
         :'Choose a source first.';
       if(elements.profileAvatar3dStatus)elements.profileAvatar3dStatus.textContent=tripoStatusText;
-      if(elements.profileAvatar3dActionStatus){
-        elements.profileAvatar3dActionStatus.textContent=tripoStatusText;
-        elements.profileAvatar3dActionStatus.classList.toggle('error',!state.tripoApiKeyConfigured&&imageReady);
-      }
+      if(elements.profileAvatar3dActionStatus)elements.profileAvatar3dActionStatus.textContent=tripoReason||'';
       if(elements.avatarLabTripoWallet){
         const wallet=state.avatarLabTripoWallet;
         elements.avatarLabTripoWallet.textContent=wallet&&Number.isFinite(Number(wallet.balance))?`Balance ${Number(wallet.balance).toLocaleString(undefined,{maximumFractionDigits:2})}${Number.isFinite(Number(wallet.frozen))?` · ${Number(wallet.frozen).toLocaleString(undefined,{maximumFractionDigits:2})} frozen`:''}`:'Balance appears after a request.';
