@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.305">
+  <meta name="chat-ui-version" content="9.6.306">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17250,7 +17250,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.305</small>
+          <small id="serverBrandVersion">v9.6.306</small>
         </span>
       </button>
     </div>
@@ -28689,10 +28689,14 @@
       if (sent && preparingAi) {
         state.pendingAiAttachmentCount += normalized.length;
         const maxFiles = Math.max(1, Number(state.capabilities.chatAiAttachmentMaxFiles) || 8);
-        const specHint = /\/ai\s+(?:build|builder)(?:\s|$)/i.test(String(elements.messageInput?.value || '').trim())
+        const composerAiText = String(elements.messageInput?.value || '').trim();
+        const imageEditHint = /\/ai\s+image(?:\s|$)/i.test(composerAiText)
+          ? ` ${state.pendingAiAttachmentCount} reference file${state.pendingAiAttachmentCount === 1 ? '' : 's'} queued for the next /ai image request. Image attachments will be used as visual edit/reference inputs; select GPT-6 Astra in Config → Experimental AI if you want Astra to direct the edit.`
+          : '';
+        const specHint = /\/ai\s+(?:build|builder)(?:\s|$)/i.test(composerAiText)
           ? ' You can send /ai build with no additional text; attached .md/.txt/code/PDF/image files become the build specification.'
           : '';
-        addSystemMessage(`${state.pendingAiAttachmentCount} file${state.pendingAiAttachmentCount === 1 ? '' : 's'} attached to the next /ai request${state.pendingAiAttachmentCount >= maxFiles ? ` · server limit ${maxFiles}` : ''}.${specHint}`);
+        addSystemMessage(`${state.pendingAiAttachmentCount} file${state.pendingAiAttachmentCount === 1 ? '' : 's'} attached to the next /ai request${state.pendingAiAttachmentCount >= maxFiles ? ` · server limit ${maxFiles}` : ''}.${imageEditHint}${specHint}`);
       }
       return sent;
     }

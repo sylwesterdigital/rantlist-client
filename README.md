@@ -1,3 +1,7 @@
+## Client package 0.1.143 / source 9.6.306
+
+Rantlist `/ai image` now accepts attached image references through the existing OpenAI BYOK workflow. To use GPT-6 Astra for an edit: select **GPT-6 Astra** in **Config → Experimental AI**, type `/ai image <edit instruction>`, attach one or more images while that command is still in the composer, then send. Image attachments are passed as visual inputs and force image-edit mode; text-only `/ai image` continues to generate a new image. `/ai help` contains the same instructions. No user/profile/channel/media migration is introduced.
+
 ## Client package 0.1.142 / source 9.6.305
 
 Avatar Lab enables Tripo's `v3.5-20260815` texture model as a separate 3D setting and keeps the selected texture model with generation metadata. New sessions default to v3.5; older saved provider settings remain compatible.

@@ -1,3 +1,7 @@
+## v0.1.143 — Astra reference-image editing in `/ai`
+
+Synchronizes Rantlist **9.6.306 / r334**. `/ai image` can now use the exact image attachments queued with the command as GPT Image edit/reference inputs. The selected OpenAI mainline model remains user-controlled; selecting GPT-6 Astra enables the requested Astra-directed flow without silently changing models. `/ai help` and the composer attachment notice explain the order: type the command, attach image(s), then send. Text-only image generation remains unchanged and all output continues through normal protected Rantlist media.
+
 ## v0.1.142 — Tripo texture v3.5
 
 Synchronizes Rantlist **9.6.305 / r333**. Avatar Lab 3D settings now expose Tripo texture model `v3.5-20260815` independently from the geometry model, with v3.5 used by default for new sessions. Fast/Standard/Detailed/Extreme texture quality is available; Fast automatically pins v3.5. Existing saved provider settings and model history remain compatible.
