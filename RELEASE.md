@@ -1,3 +1,7 @@
+## v0.1.141 — bitmap model previews + iOS Avatar Lab repair
+
+Synchronizes Rantlist **9.6.304 / r332**. Avatar Lab model cards now display persisted JPEG bitmaps captured from the single visible 3D stage; the gallery creates no WebGL renderers. The stage renderer is reused across model changes and close/reopen cycles, pausing while hidden to avoid iOS/Safari context-budget churn. Mobile/iOS uses a dedicated full-screen stage-first layout with compact Source/Reference cards, settings sheets, Style bottom sheet, collapsed model drawer and a scrollable prompt workspace. No destructive profile/media/model migration.
+
 ## v0.1.131 — deployment CSP verification repair
 
 Synchronizes Rantlist **9.6.294 / r322** after the r321 server was activated successfully but its final transport probe falsely rejected the valid `connect-src 'self' blob: wss:` header. The server verifier is corrected without weakening WSS enforcement; the client snapshot/version metadata is advanced so the normal release workflow remains synchronized. No user data model changes.

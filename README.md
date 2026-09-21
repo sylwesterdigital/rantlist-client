@@ -562,3 +562,8 @@ Mirrors Rantlist 9.6.303 / rantlist-deploy-r331: fullscreen Source/Reference ins
 ## Avatar Lab package 0.1.139
 
 Mirrors Rantlist 9.6.302 / rantlist-deploy-r330 with fullscreen Source/Reference image inspection and the removal of the accidental default eight-model Tripo history cap. Existing model-size/free-space safety remains non-destructive.
+
+
+## Avatar Lab r332 / client 0.1.141
+
+The synchronized 9.6.304 browser client uses bitmap-only My Models thumbnails and a single reusable visible-stage WebGL renderer. Mobile/iOS gets a dedicated compact full-screen Avatar Lab composition.
