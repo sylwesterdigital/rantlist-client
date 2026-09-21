@@ -1,3 +1,7 @@
+## v0.1.142 — Tripo texture v3.5
+
+Synchronizes Rantlist **9.6.305 / r333**. Avatar Lab 3D settings now expose Tripo texture model `v3.5-20260815` independently from the geometry model, with v3.5 used by default for new sessions. Fast/Standard/Detailed/Extreme texture quality is available; Fast automatically pins v3.5. Existing saved provider settings and model history remain compatible.
+
 ## v0.1.141 — bitmap model previews + iOS Avatar Lab repair
 
 Synchronizes Rantlist **9.6.304 / r332**. Avatar Lab model cards now display persisted JPEG bitmaps captured from the single visible 3D stage; the gallery creates no WebGL renderers. The stage renderer is reused across model changes and close/reopen cycles, pausing while hidden to avoid iOS/Safari context-budget churn. Mobile/iOS uses a dedicated full-screen stage-first layout with compact Source/Reference cards, settings sheets, Style bottom sheet, collapsed model drawer and a scrollable prompt workspace. No destructive profile/media/model migration.
