@@ -1,3 +1,8 @@
+
+## v0.1.144 — existing-image conversion in Image AI
+
+Synchronizes Rantlist **9.6.307 / r335**. Open any stored chat image and choose **Image AI → Convert / edit image** to use that exact image as the source. The dialog now exposes **GPT-6 Astra · OpenAI**, **Grok Imagine 2.0 · xAI**, and **Grok Imagine 1.0 · xAI** when the matching BYOK key is available, with conversion presets plus a custom prompt. The generated image is posted as new protected media; the source remains unchanged. `/ai help` documents this actual flow and no longer tells users to attach an image to a command in the composer.
+
 ## v0.1.143 — Astra reference-image editing in `/ai`
 
 Synchronizes Rantlist **9.6.306 / r334**. `/ai image` can now use the exact image attachments queued with the command as GPT Image edit/reference inputs. The selected OpenAI mainline model remains user-controlled; selecting GPT-6 Astra enables the requested Astra-directed flow without silently changing models. `/ai help` and the composer attachment notice explain the order: type the command, attach image(s), then send. Text-only image generation remains unchanged and all output continues through normal protected Rantlist media.

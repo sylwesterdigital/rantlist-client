@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.306">
+  <meta name="chat-ui-version" content="9.6.307">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -7980,7 +7980,13 @@
     @keyframes media-ai-status-pulse { 0%, 100% { opacity: .62; } 50% { opacity: 1; } }
     @media (prefers-reduced-motion: reduce) { [data-media-ai-processing="true"] { animation: none; } }
     .media-ai-analysis-error { color: var(--danger); }
-    .media-ai-card, .transcript-ai-card { width: min(560px, calc(100vw - 24px)); }
+    .media-ai-card { width: min(660px, calc(100vw - 24px)); }
+    .transcript-ai-card { width: min(560px, calc(100vw - 24px)); }
+    .media-ai-source-preview { display: grid; place-items: center; min-height: 120px; max-height: 240px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: #070a10; }
+    .media-ai-source-preview img { display: block; width: 100%; height: min(240px, 34vh); object-fit: contain; }
+    .media-ai-task-row { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 10px; align-items: end; }
+    .media-ai-task-field { display: grid; gap: 5px; min-width: 0; }
+    .media-ai-convert-note { margin: 0; color: var(--muted); font-size: var(--ui-small-font-size, 12px); line-height: 1.35; }
     .media-ai-current, .transcript-ai-current { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: color-mix(in srgb, var(--panel-3) 82%, transparent); overflow-wrap: anywhere; font-size: var(--ui-font-size, 14px); line-height: 1.5; }
     .transcript-ai-source-title { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .transcript-ai-source-meta { color: var(--muted); font-size: var(--ui-small-font-size, 12px); }
@@ -7989,6 +7995,7 @@
     .media-ai-result-section { font-weight: 800; }
     .media-ai-result-line { margin: 0; }
     .media-ai-prompt { min-height: 104px; resize: vertical; }
+    @media (max-width: 620px) { .media-ai-task-row { grid-template-columns: 1fr; } .media-ai-source-preview img { height: min(210px, 30vh); } }
     .media-placeholder.is-audio {
       width: min(460px, 78vw);
       min-width: min(270px, 72vw);
@@ -17250,7 +17257,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.306</small>
+          <small id="serverBrandVersion">v9.6.307</small>
         </span>
       </button>
     </div>
@@ -18961,22 +18968,42 @@
     <form id="mediaAiForm" class="modal-card media-ai-card" autocomplete="off">
       <header class="modal-header"><h2>Image AI</h2><button id="mediaAiCloseButton" class="icon-button" type="button" aria-label="Close"><span class="icon icon-close"></span></button></header>
       <div class="modal-body poll-form-grid">
-        <label for="mediaAiPresetSelect">Action</label>
-        <select id="mediaAiPresetSelect">
-          <option value="detail">Describe in detail</option>
-          <option value="alt">Accessibility alt text</option>
-          <option value="text">Extract visible text</option>
-          <option value="document">Explain chart / document</option>
-          <option value="objects">Objects and scene</option>
-          <option value="caption">Generate caption</option>
-          <option value="custom">Custom question</option>
-        </select>
-        <label for="mediaAiPromptInput">Question or instruction</label>
-        <textarea id="mediaAiPromptInput" class="media-ai-prompt" maxlength="1200" placeholder="Describe this image in detail."></textarea>
+        <div id="mediaAiSourcePreview" class="media-ai-source-preview"><img id="mediaAiSourceImage" alt="Selected source image"></div>
+        <div class="media-ai-task-row">
+          <label class="media-ai-task-field" for="mediaAiTaskSelect"><span>Mode</span><select id="mediaAiTaskSelect"><option value="convert">Convert / edit image</option><option value="analyze">Analyze image</option></select></label>
+          <label id="mediaAiConvertModelField" class="media-ai-task-field" for="mediaAiConvertModelSelect"><span>Image model</span><select id="mediaAiConvertModelSelect"></select></label>
+        </div>
+        <div id="mediaAiAnalyzeFields" class="poll-form-grid" hidden>
+          <label for="mediaAiPresetSelect">Analysis</label>
+          <select id="mediaAiPresetSelect">
+            <option value="detail">Describe in detail</option>
+            <option value="alt">Accessibility alt text</option>
+            <option value="text">Extract visible text</option>
+            <option value="document">Explain chart / document</option>
+            <option value="objects">Objects and scene</option>
+            <option value="caption">Generate caption</option>
+            <option value="custom">Custom question</option>
+          </select>
+        </div>
+        <div id="mediaAiConvertFields" class="poll-form-grid">
+          <label for="mediaAiConvertPresetSelect">Conversion</label>
+          <select id="mediaAiConvertPresetSelect">
+            <option value="custom">Custom edit</option>
+            <option value="restyle">Restyle while preserving the subject</option>
+            <option value="avatar">Full-body avatar reference</option>
+            <option value="clothing">Change clothing / outfit</option>
+            <option value="background">Change background</option>
+            <option value="enhance">Clean up / enhance</option>
+            <option value="illustration">Turn into an illustration</option>
+          </select>
+          <p class="media-ai-convert-note">The selected chat image is the source. The result is posted as a new image; the original is not changed.</p>
+        </div>
+        <label id="mediaAiPromptLabel" for="mediaAiPromptInput">Edit instruction</label>
+        <textarea id="mediaAiPromptInput" class="media-ai-prompt" maxlength="2400" placeholder="Describe how this image should change."></textarea>
         <div id="mediaAiCurrent" class="media-ai-current" hidden></div>
         <p id="mediaAiStatus" class="hint" aria-live="polite"></p>
       </div>
-      <footer class="modal-footer"><button id="mediaAiCancelButton" type="button">Cancel</button><button id="mediaAiRunButton" class="primary" type="submit">Run analysis</button></footer>
+      <footer class="modal-footer"><button id="mediaAiCancelButton" type="button">Cancel</button><button id="mediaAiRunButton" class="primary" type="submit">Generate image</button></footer>
     </form>
   </div>
 
@@ -20025,7 +20052,7 @@
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
         'diagnosticSummary', 'diagnosticVerboseInput', 'messageClientInfoInput', 'diagnosticTokenForm', 'diagnosticTokenInput', 'diagnosticServerButton', 'diagnosticRefreshButton', 'diagnosticCopyButton', 'diagnosticDownloadButton', 'diagnosticClearButton', 'diagnosticLog',
-        'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu', 'mediaAiModal', 'mediaAiForm', 'mediaAiCloseButton', 'mediaAiCancelButton', 'mediaAiPresetSelect', 'mediaAiPromptInput', 'mediaAiCurrent', 'mediaAiStatus', 'mediaAiRunButton', 'transcriptAiModal', 'transcriptAiForm', 'transcriptAiCloseButton', 'transcriptAiCancelButton', 'transcriptAiPresetSelect', 'transcriptAiPromptInput', 'transcriptAiCurrent', 'transcriptAiStatus', 'transcriptAiRunButton',
+        'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu', 'mediaAiModal', 'mediaAiForm', 'mediaAiCloseButton', 'mediaAiCancelButton', 'mediaAiSourcePreview', 'mediaAiSourceImage', 'mediaAiTaskSelect', 'mediaAiAnalyzeFields', 'mediaAiConvertFields', 'mediaAiConvertModelField', 'mediaAiConvertModelSelect', 'mediaAiConvertPresetSelect', 'mediaAiPromptLabel', 'mediaAiPresetSelect', 'mediaAiPromptInput', 'mediaAiCurrent', 'mediaAiStatus', 'mediaAiRunButton', 'transcriptAiModal', 'transcriptAiForm', 'transcriptAiCloseButton', 'transcriptAiCancelButton', 'transcriptAiPresetSelect', 'transcriptAiPromptInput', 'transcriptAiCurrent', 'transcriptAiStatus', 'transcriptAiRunButton',
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
         'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
@@ -21491,14 +21518,26 @@
         if (preset) elements.mediaAiPromptInput.value = preset;
         elements.mediaAiPromptInput.focus();
       });
+      elements.mediaAiConvertPresetSelect.addEventListener('change', () => {
+        const preset = MEDIA_AI_CONVERT_PRESETS[String(elements.mediaAiConvertPresetSelect.value || '')] || '';
+        if (preset) elements.mediaAiPromptInput.value = preset;
+        else if (elements.mediaAiConvertPresetSelect.value === 'custom' && !elements.mediaAiPromptInput.value.trim()) elements.mediaAiPromptInput.value = '';
+        elements.mediaAiPromptInput.focus();
+      });
+      elements.mediaAiTaskSelect.addEventListener('change', () => renderMediaAiTaskUi());
+      elements.mediaAiConvertModelSelect.addEventListener('change', () => writeStorage('chat.media.aiConvertModel', elements.mediaAiConvertModelSelect.value));
       elements.mediaAiCloseButton.addEventListener('click', closeMediaAiModal);
       elements.mediaAiCancelButton.addEventListener('click', closeMediaAiModal);
       elements.mediaAiModal.addEventListener('click', (event) => { if (event.target === elements.mediaAiModal) closeMediaAiModal(); });
-      elements.mediaAiForm.addEventListener('submit', (event) => {
+      elements.mediaAiForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const messageId = state.activeMediaAiMessageId;
         const prompt = elements.mediaAiPromptInput.value.trim();
         if (!messageId || !prompt) return;
+        if (elements.mediaAiTaskSelect.value === 'convert') {
+          await requestMediaAiConversion(messageId, prompt);
+          return;
+        }
         if (requestMediaAiAnalysis(messageId, prompt, { force: true })) {
           elements.mediaAiStatus.textContent = 'Analysis requested…';
           elements.mediaAiRunButton.disabled = true;
@@ -23535,6 +23574,9 @@
           break;
         case 'media.ai.updated':
           updateMediaAi(message);
+          break;
+        case 'media.ai.convert.status':
+          updateMediaAiConversionStatus(message);
           break;
         case 'room.badge.updated':
           if (sameRoom(message.room, state.currentRoom)) {
@@ -46859,6 +46901,15 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       caption: 'Write a concise neutral caption for this image.',
     });
 
+    const MEDIA_AI_CONVERT_PRESETS = Object.freeze({
+      restyle: 'Restyle this image while preserving the main subject, identity, pose, composition, and important details. Change only the visual style described below.',
+      avatar: 'Create exactly one clean full-body character reference from this subject. Preserve identity and recognizable facial features. Front-facing, full body visible, neutral A-pose, plain studio background, even lighting, hands and feet fully visible.',
+      clothing: 'Keep the same person, face, body, pose, and background. Change only the clothing/outfit as described below.',
+      background: 'Keep the subject unchanged and replace only the background as described below. Preserve edges, lighting consistency, and natural contact shadows.',
+      enhance: 'Clean up and enhance this image while preserving the subject and composition. Improve clarity, lighting, detail, and consistency without inventing new objects.',
+      illustration: 'Convert this image into a polished illustration while preserving the subject, pose, composition, and recognizable details.',
+    });
+
     const TRANSCRIPT_AI_PRESETS = Object.freeze({
       summary: 'Summarize this transcript. Start with a concise overview, then list the most important points.',
       keypoints: 'Extract the key points from this transcript. Group related ideas and remove repetition.',
@@ -47994,34 +48045,163 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       }
     }
 
+    function mediaAiConversionAvailable() {
+      return Boolean(state.openAiApiKeyConfigured || state.xaiApiKeyConfigured);
+    }
+
+    function refreshMediaAiConvertModels() {
+      const select = elements.mediaAiConvertModelSelect;
+      if (!select) return false;
+      const prior = String(readStorage('chat.media.aiConvertModel') || select.value || '');
+      select.textContent = '';
+      const add = (value, label) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = label;
+        select.append(option);
+      };
+      if (state.openAiApiKeyConfigured) add('openai:gpt-6-astra', 'GPT-6 Astra · OpenAI');
+      if (state.xaiApiKeyConfigured) {
+        add('xai:grok-imagine-image-2.0', 'Grok Imagine 2.0 · xAI');
+        add('xai:grok-imagine-image', 'Grok Imagine 1.0 · xAI');
+      }
+      if (!select.options.length) {
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Add an OpenAI or xAI API key in Config';
+        option.disabled = true;
+        option.selected = true;
+        select.append(option);
+        return false;
+      }
+      const values = [...select.options].map((option) => option.value);
+      select.value = values.includes(prior) ? prior : values[0];
+      return true;
+    }
+
+    function renderMediaAiTaskUi() {
+      const converting = elements.mediaAiTaskSelect?.value === 'convert';
+      const analysisAvailable = state.mediaAiMode !== 'off' && state.capabilities.mediaAi === true;
+      const conversionAvailable = refreshMediaAiConvertModels();
+      if (elements.mediaAiAnalyzeFields) elements.mediaAiAnalyzeFields.hidden = converting;
+      if (elements.mediaAiConvertFields) elements.mediaAiConvertFields.hidden = !converting;
+      if (elements.mediaAiConvertModelField) elements.mediaAiConvertModelField.hidden = !converting;
+      if (elements.mediaAiPromptLabel) elements.mediaAiPromptLabel.textContent = converting ? 'Edit / conversion prompt' : 'Question or instruction';
+      if (elements.mediaAiRunButton) {
+        elements.mediaAiRunButton.textContent = converting ? 'Generate image' : 'Run analysis';
+        elements.mediaAiRunButton.disabled = converting ? !conversionAvailable : !analysisAvailable;
+      }
+      if (converting) {
+        if (!elements.mediaAiPromptInput.value.trim() || MEDIA_AI_PRESETS && Object.values(MEDIA_AI_PRESETS).includes(elements.mediaAiPromptInput.value.trim())) {
+          const preset = MEDIA_AI_CONVERT_PRESETS[String(elements.mediaAiConvertPresetSelect.value || '')] || '';
+          elements.mediaAiPromptInput.value = preset;
+        }
+        elements.mediaAiPromptInput.placeholder = 'Describe exactly how the selected image should change.';
+        elements.mediaAiStatus.textContent = conversionAvailable
+          ? 'The selected image will be used directly as the conversion source. Choose a model, preset or custom prompt, then generate.'
+          : 'Save an OpenAI or xAI API key in Config → Experimental AI to convert this image.';
+      } else {
+        if (!analysisAvailable) elements.mediaAiStatus.textContent = 'Image analysis is off on this device. Enable Experimental image AI in Config, or switch to Convert / edit.';
+        elements.mediaAiPromptInput.placeholder = 'Ask a question about this image.';
+      }
+    }
+
+    async function requestMediaAiConversion(messageId, prompt) {
+      const data = state.messageData.get(String(messageId || ''));
+      if (!data?.file || !isMediaAiImageFile(data.file)) return false;
+      const selection = String(elements.mediaAiConvertModelSelect?.value || '');
+      const [provider, ...modelParts] = selection.split(':');
+      const model = modelParts.join(':');
+      if (!['openai', 'xai'].includes(provider) || !model) {
+        elements.mediaAiStatus.textContent = 'Choose an available image conversion model.';
+        return false;
+      }
+      if (provider === 'openai' && !state.openAiApiKeyConfigured) {
+        elements.mediaAiStatus.textContent = 'Add your OpenAI API key in Config → Experimental AI first.';
+        return false;
+      }
+      if (provider === 'xai' && !state.xaiApiKeyConfigured) {
+        elements.mediaAiStatus.textContent = 'Add your xAI API key in Config → Experimental AI first.';
+        return false;
+      }
+      if (provider === 'openai' && !confirmPaidOpenAiRequest('gpt-6-astra', 'image conversion')) return false;
+      let aiApiKey = '';
+      try { aiApiKey = await providerCredentialForRequest(provider); }
+      catch (error) {
+        elements.mediaAiStatus.textContent = `Could not read the ${provider === 'openai' ? 'OpenAI' : 'xAI'} API key: ${error?.message || 'credential unavailable'}.`;
+        return false;
+      }
+      elements.mediaAiRunButton.disabled = true;
+      elements.mediaAiStatus.textContent = `Starting ${provider === 'openai' ? 'Astra' : 'Grok'} image conversion…`;
+      return sendJson({
+        type: 'media.ai.convert',
+        messageId: String(messageId || ''),
+        prompt: String(prompt || '').trim().slice(0, 2400),
+        provider,
+        model,
+        aiApiKey,
+        aiOpenAiStore: provider === 'openai' && state.openAiDurableBackground === true,
+        aiOpenAiMaxOutputTokens: provider === 'openai' ? normalizedOpenAiMaxOutputTokens(state.openAiMaxOutputTokens) : undefined,
+      });
+    }
+
+    function updateMediaAiConversionStatus(message) {
+      if (String(message?.messageId || '') !== String(state.activeMediaAiMessageId || '')) return;
+      const stage = String(message?.stage || '');
+      const labels = {
+        preparing: 'Preparing the selected image…',
+        submitted: 'Image conversion submitted…',
+        queued: 'Provider queued the conversion…',
+        in_progress: 'Provider is generating the edited image…',
+        reconnecting: 'Reconnecting to the provider…',
+        saving: 'Saving the generated image to this channel…',
+        completed: 'Conversion complete. The new image was posted to this channel.',
+        failed: `Conversion failed${message?.detail ? `: ${message.detail}` : '.'}`,
+      };
+      elements.mediaAiStatus.textContent = labels[stage] || `Image conversion · ${stage || 'working'}…`;
+      if (['completed', 'failed'].includes(stage)) elements.mediaAiRunButton.disabled = false;
+    }
+
     function renderMediaAiModalCurrent(messageId, suppliedAi = null) {
       const data = state.messageData.get(messageId);
       const ai = normalizeMediaAi(suppliedAi || data?.file?.ai);
       const entries = mediaAiHistoryEntries(ai);
       elements.mediaAiCurrent.textContent = '';
       elements.mediaAiCurrent.hidden = !entries.length;
-      elements.mediaAiRunButton.disabled = ai?.status === 'processing';
+      if (elements.mediaAiTaskSelect?.value !== 'convert') elements.mediaAiRunButton.disabled = ai?.status === 'processing';
       if (entries.length) appendMediaAiHistory(elements.mediaAiCurrent, ai);
       clearMediaAiProcessingLabel(elements.mediaAiStatus);
       if (ai?.status === 'processing') markMediaAiProcessingLabel(elements.mediaAiStatus, 'Analysis requested · waiting for Qwen', ai.updatedAt);
       else if (ai?.status === 'complete') elements.mediaAiStatus.textContent = `${Math.max(entries.length, Number(ai.analysisCount) || 0)} analysis${Math.max(entries.length, Number(ai.analysisCount) || 0) === 1 ? '' : 'es'} stored for this image.`;
       else if (ai?.status === 'error') elements.mediaAiStatus.textContent = 'Latest analysis failed; earlier analyses are preserved.';
-      else elements.mediaAiStatus.textContent = `${state.capabilities.mediaAiProvider || 'Hetzner Experiments'} · experimental`;
+      else if (elements.mediaAiTaskSelect?.value !== 'convert') elements.mediaAiStatus.textContent = `${state.capabilities.mediaAiProvider || 'Hetzner Experiments'} · experimental`;
       const latestFinished = entries.find((entry) => entry.status !== 'processing');
-      if (latestFinished?.prompt) elements.mediaAiPromptInput.value = latestFinished.prompt;
+      if (latestFinished?.prompt && elements.mediaAiTaskSelect?.value !== 'convert') elements.mediaAiPromptInput.value = latestFinished.prompt;
     }
 
     function openMediaAiModal(messageId) {
-      const data = state.messageData.get(messageId);
-      if (!data?.file || !isMediaAiImageFile(data.file) || state.mediaAiMode === 'off' || !state.capabilities.mediaAi) return;
+      const data = state.messageData.get(String(messageId || ''));
+      if (!data?.file || !isMediaAiImageFile(data.file)) return;
+      const analysisAvailable = state.mediaAiMode !== 'off' && state.capabilities.mediaAi === true;
+      const conversionAvailable = mediaAiConversionAvailable();
+      if (!analysisAvailable && !conversionAvailable) {
+        addSystemMessage('Image AI needs either Experimental image AI enabled for analysis, or an OpenAI/xAI API key for image conversion.', true);
+        return;
+      }
       state.activeMediaAiMessageId = String(messageId);
       elements.mediaAiPresetSelect.value = 'detail';
+      elements.mediaAiConvertPresetSelect.value = 'custom';
+      if (elements.mediaAiSourceImage) {
+        elements.mediaAiSourceImage.src = String(data.file.previewUrl || data.file.url || '');
+        elements.mediaAiSourceImage.alt = data.file.name ? `Source: ${data.file.name}` : 'Selected source image';
+      }
       const ai = normalizeMediaAi(data.file.ai);
       const latestFinished = mediaAiHistoryEntries(ai).find((entry) => entry.status !== 'processing');
-      elements.mediaAiPromptInput.value = latestFinished?.prompt || mediaAiPresetPrompt('detail');
-      elements.mediaAiStatus.textContent = `${state.capabilities.mediaAiProvider || 'Hetzner Experiments'} · experimental`;
+      elements.mediaAiTaskSelect.value = conversionAvailable ? 'convert' : 'analyze';
+      elements.mediaAiPromptInput.value = conversionAvailable ? '' : (latestFinished?.prompt || mediaAiPresetPrompt('detail'));
       renderMediaAiModalCurrent(messageId);
       elements.mediaAiModal.hidden = false;
+      renderMediaAiTaskUi();
       requestAnimationFrame(() => elements.mediaAiPromptInput.focus());
     }
 
@@ -48030,6 +48210,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       state.activeMediaAiMessageId = null;
       clearMediaAiProcessingLabel(elements.mediaAiStatus);
       elements.mediaAiStatus.textContent = '';
+      if (elements.mediaAiSourceImage) elements.mediaAiSourceImage.removeAttribute('src');
       elements.mediaAiRunButton.disabled = false;
     }
 
