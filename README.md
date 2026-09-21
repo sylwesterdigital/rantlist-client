@@ -1,3 +1,7 @@
+## v0.1.146 — Avatar Lab stage, model gallery and console lifecycle repair
+
+Synchronizes Rantlist **9.6.309 / r337**. Focusing the channel Message composer now closes Avatar Lab/Avatar Maker, My Models reconciles stable cards instead of rebuilding thumbnails during polling, newly completed Tripo models carry authoritative selection state and load immediately into the single shared Three.js stage, and stage initialization is serialized to prevent competing WebGL renderers. Focus/`aria-hidden` handling, provider password forms and the trusted Helena iframe sandbox warning are also repaired. No stored user/profile/channel/message/media/model data is migrated.
+
 ## v0.1.145 — safe xAI TLS recovery
 
 Synchronizes Rantlist **9.6.308 / r336**. xAI/Grok BYOK requests now recover from transient socket resets that occur before the TLS handshake completes: those provably unsubmitted requests may retry up to two times on fresh connections, with an IPv4 fallback first. Paid POSTs are still never automatically repeated after TLS is established or provider acceptance becomes ambiguous. Image AI shows a reconnecting phase during safe recovery, and xAI text chat now shares the hardened transport used by Grok Imagine image/video requests. No stored user/profile/channel/message/media data is migrated.

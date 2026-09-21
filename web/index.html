@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.308">
+  <meta name="chat-ui-version" content="9.6.309">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -5922,6 +5922,7 @@
     .config-section:last-child { border-bottom: 0; margin-bottom: 0; }
     .config-section h3 { margin: 0 0 var(--space-3); font-size: 13px; }
     .config-row { display: grid; gap: var(--space-2); margin-bottom: var(--space-3); }
+    .config-provider-key-form { display: contents; }
     .config-row label { color: var(--muted); font-size: 12px; }
     .config-row select { width: 100%; padding: 5px 8px; }
     .theme-editor { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); }
@@ -17257,7 +17258,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.308</small>
+          <small id="serverBrandVersion">v9.6.309</small>
         </span>
       </button>
     </div>
@@ -17565,32 +17566,38 @@
             <select id="hetznerAiModelSelect" aria-describedby="hetznerAiModelHint"></select>
           </div>
           <p id="hetznerAiModelHint" class="hint">Choose the model for normal /ai text chat. Hetzner and Local Llama use server-managed inference; OpenAI models require your own key.</p>
-          <div class="config-row" data-config-feature="openai-byok">
-            <label for="openAiApiKeyInput">OpenAI API key</label>
-            <input id="openAiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" aria-describedby="openAiApiKeyHint">
-          </div>
-          <div class="config-actions" data-config-feature="openai-byok">
-            <button id="openAiApiKeySaveButton" type="button">Save key securely</button>
-            <button id="openAiApiKeyClearButton" type="button">Clear key</button>
-            <button id="openAiWalletResetButton" type="button">Reset local spend</button>
-          </div>
-          <p id="openAiApiKeyHint" class="hint">Native apps use Keychain/Keystore; browsers keep the key only in page memory. The key is never written to WebView/browser localStorage and is sent only for your OpenAI request.</p>
-          <div class="config-row" data-config-feature="creative-byok">
-            <label for="tripoApiKeyInput">Tripo3D API key</label>
-            <input id="tripoApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Tripo API key" aria-describedby="tripoApiKeyHint">
-          </div>
-          <div class="config-actions" data-config-feature="creative-byok">
-            <button id="tripoApiKeySaveButton" type="button">Save Tripo key</button><button id="tripoApiKeyClearButton" type="button">Clear</button>
-          </div>
-          <p id="tripoApiKeyHint" class="hint">Used only when you start or recover your own Avatar Lab generation.</p>
-          <div class="config-row" data-config-feature="creative-byok">
-            <label for="xaiApiKeyInput">xAI / Grok API key</label>
-            <input id="xaiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="xAI API key" aria-describedby="xaiApiKeyHint">
-          </div>
-          <div class="config-actions" data-config-feature="creative-byok">
-            <button id="xaiApiKeySaveButton" type="button">Save xAI key</button><button id="xaiApiKeyClearButton" type="button">Clear</button>
-          </div>
-          <p id="xaiApiKeyHint" class="hint">Used only for your explicit xAI / Grok actions. When you select a Grok chat model or run Avatar Lab, the key is attached only to that request and is not stored by the server.</p>
+          <form id="openAiApiKeyForm" class="config-provider-key-form" autocomplete="off">
+            <div class="config-row" data-config-feature="openai-byok">
+              <label for="openAiApiKeyInput">OpenAI API key</label>
+              <input id="openAiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="sk-…" aria-describedby="openAiApiKeyHint">
+            </div>
+            <div class="config-actions" data-config-feature="openai-byok">
+              <button id="openAiApiKeySaveButton" type="button">Save key securely</button>
+              <button id="openAiApiKeyClearButton" type="button">Clear key</button>
+              <button id="openAiWalletResetButton" type="button">Reset local spend</button>
+            </div>
+            <p id="openAiApiKeyHint" class="hint">Native apps use Keychain/Keystore; browsers keep the key only in page memory. The key is never written to WebView/browser localStorage and is sent only for your OpenAI request.</p>
+          </form>
+          <form id="tripoApiKeyForm" class="config-provider-key-form" autocomplete="off">
+            <div class="config-row" data-config-feature="creative-byok">
+              <label for="tripoApiKeyInput">Tripo3D API key</label>
+              <input id="tripoApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="Tripo API key" aria-describedby="tripoApiKeyHint">
+            </div>
+            <div class="config-actions" data-config-feature="creative-byok">
+              <button id="tripoApiKeySaveButton" type="button">Save Tripo key</button><button id="tripoApiKeyClearButton" type="button">Clear</button>
+            </div>
+            <p id="tripoApiKeyHint" class="hint">Used only when you start or recover your own Avatar Lab generation.</p>
+          </form>
+          <form id="xaiApiKeyForm" class="config-provider-key-form" autocomplete="off">
+            <div class="config-row" data-config-feature="creative-byok">
+              <label for="xaiApiKeyInput">xAI / Grok API key</label>
+              <input id="xaiApiKeyInput" type="password" autocomplete="off" spellcheck="false" placeholder="xAI API key" aria-describedby="xaiApiKeyHint">
+            </div>
+            <div class="config-actions" data-config-feature="creative-byok">
+              <button id="xaiApiKeySaveButton" type="button">Save xAI key</button><button id="xaiApiKeyClearButton" type="button">Clear</button>
+            </div>
+            <p id="xaiApiKeyHint" class="hint">Used only for your explicit xAI / Grok actions. When you select a Grok chat model or run Avatar Lab, the key is attached only to that request and is not stored by the server.</p>
+          </form>
           <label class="config-toggle-row" data-config-feature="openai-byok" for="openAiDurableBackgroundInput">
             <span>Extended OpenAI jobs (&gt;10 min)</span>
             <input id="openAiDurableBackgroundInput" type="checkbox" aria-describedby="openAiDurableBackgroundHint">
@@ -19803,7 +19810,7 @@
       <button id="helenaDrawingCloseButton" class="exit-control" type="button" title="Close WebGL Draw" aria-label="Close WebGL Draw"><span class="icon icon-close" aria-hidden="true"></span></button>
     </header>
     <div class="helena-drawing-frame-shell">
-      <iframe id="helenaDrawingFrame" class="helena-drawing-frame" title="Helena Paint WebGL drawing app" data-src="/helena-draw/?embed=rantlist" sandbox="allow-scripts allow-same-origin allow-downloads allow-forms allow-modals allow-popups" allow="clipboard-read; clipboard-write"></iframe>
+      <iframe id="helenaDrawingFrame" class="helena-drawing-frame" title="Helena Paint WebGL drawing app" data-src="/helena-draw/?embed=rantlist" allow="clipboard-read; clipboard-write"></iframe>
     </div>
   </section>
 
@@ -20462,6 +20469,7 @@
       avatar3dPollBusy: false,
       avatar3dPreview: null,
       avatarLabStage: null,
+      avatarLabStageInitPromise: null,
       avatarLabStageLoadingUrl: '',
       avatarLabSourceImage: '',
       avatarLabSourceName: '',
@@ -20488,6 +20496,7 @@
       avatarLabStyleLoadedFor: '',
       avatarLabProviderLoadedFor: '',
       avatarLabReturnFocus: null,
+      avatarLabImageViewerReturnFocus: null,
       profileCameraPurpose: 'profile',
       openAiDurableBackground: readStorage('chat.ai.openai.durableBackground') === 'on',
       openAiMaxOutputTokens: [1024, 2048, 4096, 8192, 16384, 32768, 65536, 128000].includes(Number(readStorage('chat.ai.openai.maxOutputTokens'))) ? Number(readStorage('chat.ai.openai.maxOutputTokens')) : 16384,
@@ -21340,6 +21349,7 @@
         renderChatAiSettings();
         renderMediaAiSettings();
       });
+      elements.openAiApiKeyInput?.form?.addEventListener('submit', (event) => event.preventDefault());
       elements.openAiApiKeySaveButton?.addEventListener('click', async () => {
         const key = String(elements.openAiApiKeyInput?.value || '').trim();
         if (!validOpenAiApiKey(key)) return addSystemMessage('Enter a valid OpenAI API key before saving.', true);
@@ -21370,6 +21380,7 @@
         }
       });
       const bindProviderKeyControls = (provider, input, saveButton, clearButton) => {
+        input?.form?.addEventListener('submit', (event) => event.preventDefault());
         saveButton?.addEventListener('click', async () => {
           const key = String(input?.value || '').trim();
           if (!validProviderApiKey(key)) return addSystemMessage(`Enter a valid ${provider === 'tripo' ? 'Tripo3D' : 'xAI'} API key before saving.`, true);
@@ -22086,6 +22097,8 @@
         refreshComposerVisualState();
       });
       elements.messageInput.addEventListener('focus', () => {
+        if (elements.avatarLabModal && !elements.avatarLabModal.hidden) closeAvatarLab(false);
+        if (state.avatarMakerOpen) closeAvatarMakerStage(false);
         if (isRantlistIOSApp()) return;
         setTimeout(() => syncViewportHeight(false), 60);
         setTimeout(() => syncViewportHeight(false), 320);
@@ -23125,11 +23138,12 @@
         case 'avatar3d.ready':
           handleAvatar3dMessage(message); break;
         case 'avatar3d.preview.saved':
-          if(message.item?.taskId){const index=state.avatar3dItems.findIndex((entry)=>entry?.taskId===message.item.taskId);if(index>=0)state.avatar3dItems[index]={...state.avatar3dItems[index],...message.item};else state.avatar3dItems.unshift(message.item);}renderAvatar3dModels(); break;
+          mergeAvatar3dItemState(message.item);renderAvatar3dModels(); break;
         case 'avatar3d.selected':
           state.avatar3dItems=Array.isArray(message.items)?message.items:state.avatar3dItems;
+          if(message.item?.taskId)state.avatar3dActiveTaskId=message.item.taskId;
           if(message.user){state.selfUser=message.user;state.desiredProfile={nickname:message.user.nickname,metadata:message.user.metadata||{}};updateRememberedProfileFromServer(message.user);}
-          renderAvatarLab(); break;
+          renderAvatarLab();void refreshAvatarLabStage(); break;
         case 'avatar.grok.list':
           state.avatarGrokItems = Array.isArray(message.items) ? message.items : []; renderAvatarLab();
           { const pending=state.avatarGrokItems.find((item)=>item?.kind==='video' && !['ready','failed','error','cancelled','expired'].includes(String(item.status||'').toLowerCase())); if(pending?.requestId){state.avatarGrokActiveRequestId=pending.requestId; scheduleAvatarGrokPoll(pending.requestId,700);} }
@@ -45158,7 +45172,9 @@
     }
 
     function selectedAvatar3dItem() {
-      return state.avatar3dItems.find((item) => item?.selected && (item?.displayUrl || item?.riggedUrl || item?.url)) || state.avatar3dItems.find((item) => item?.displayUrl || item?.riggedUrl || item?.url) || null;
+      const usable=(item)=>Boolean(item?.displayUrl || item?.riggedUrl || item?.url);
+      const active=state.avatar3dItems.find((item)=>item?.taskId===state.avatar3dActiveTaskId && usable(item));
+      return (active?.selected ? active : null) || state.avatar3dItems.find((item)=>item?.selected && usable(item)) || active || state.avatar3dItems.find(usable) || null;
     }
     function selectedAvatarGrokItem() {
       return state.avatarGrokItems.find((item) => item?.requestId === state.avatarGrokActiveRequestId && item?.url)
@@ -45191,23 +45207,36 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.avatarLabImageViewerModeButton){elements.avatarLabImageViewerModeButton.textContent=next==='native'?'Fit':'100%';elements.avatarLabImageViewerModeButton.setAttribute('aria-pressed',next==='native'?'true':'false');elements.avatarLabImageViewerModeButton.title=next==='native'?'Fit the entire image inside the window':'Show image at native pixel size and allow scrolling';}
     }
     function toggleAvatarLabImageViewerMode(){const frame=elements.avatarLabImageViewerImage?.closest?.('.avatar-lab-image-viewer-frame');setAvatarLabImageViewerMode(frame?.dataset?.viewMode==='native'?'fit':'native');}
+    function focusOutsideBeforeHide(container, preferred=null) {
+      const active=document.activeElement;
+      if(!(container instanceof HTMLElement) || !(active instanceof HTMLElement) || !container.contains(active))return;
+      if(preferred instanceof HTMLElement && preferred.isConnected && !container.contains(preferred) && !preferred.hidden){try{preferred.focus({preventScroll:true});return;}catch{}}
+      try{active.blur();}catch{}
+    }
+    function setHiddenDialogState(container, hidden) {
+      if(!container)return;
+      if(hidden){container.inert=true;container.setAttribute('aria-hidden','true');container.hidden=true;}
+      else{container.hidden=false;container.inert=false;container.setAttribute('aria-hidden','false');}
+    }
     function openAvatarLabImageViewer(kind='source', explicitUrl='') {
       const selected=selectedAvatarGrokItem();
       const reference=(selected?.kind==='image'&&selected?.url)?selected:state.avatarGrokItems.find((entry)=>entry?.kind==='image'&&entry?.url)||null;
       const src=String(explicitUrl||'').trim() || (kind==='reference' ? String(reference?.url||'') : profileAvatarLabSourcePreview());
       if(!src||!elements.avatarLabImageViewer||!elements.avatarLabImageViewerImage)return;
+      state.avatarLabImageViewerReturnFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
       elements.avatarLabImageViewerImage.src=src;
       elements.avatarLabImageViewerImage.alt=kind==='reference'?'Generated Avatar Lab reference image':'Avatar Lab source image';
       setAvatarLabImageViewerMode('fit');
-      elements.avatarLabImageViewer.hidden=false;
-      elements.avatarLabImageViewer.setAttribute('aria-hidden','false');
+      setHiddenDialogState(elements.avatarLabImageViewer,false);
       elements.avatarLabImageViewerCloseButton?.focus?.({preventScroll:true});
     }
     function closeAvatarLabImageViewer(){
       if(!elements.avatarLabImageViewer||elements.avatarLabImageViewer.hidden)return false;
-      elements.avatarLabImageViewer.hidden=true;
-      elements.avatarLabImageViewer.setAttribute('aria-hidden','true');
+      const returnFocus=state.avatarLabImageViewerReturnFocus;
+      focusOutsideBeforeHide(elements.avatarLabImageViewer,returnFocus);
+      setHiddenDialogState(elements.avatarLabImageViewer,true);
       elements.avatarLabImageViewerImage?.removeAttribute('src');
+      state.avatarLabImageViewerReturnFocus=null;
       setAvatarLabImageViewerMode('fit');
       return true;
     }
@@ -45790,31 +45819,38 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
     async function ensureAvatarLabStageCore(){
       if(state.avatarLabStage?.renderer && !state.avatarLabStage.contextLost)return state.avatarLabStage;
-      if(state.avatarLabStage)disposeAvatarLabStage({loseContext:false});
-      const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js');
-      const [{GLTFLoader},{OrbitControls}]=await Promise.all([
-        import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/loaders/GLTFLoader.js'),
-        import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/controls/OrbitControls.js'),
-      ]);
-      const canvas=elements.avatarLabStageCanvas;
-      if(!canvas)throw new Error('3D stage canvas is unavailable.');
-      const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
-      renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
-      const scene=new THREE.Scene();scene.background=new THREE.Color(String(elements.avatarLabStageBg?.value||'#1f2738'));
-      const ambient=new THREE.HemisphereLight(0xffffff,0x25304d,1.5);scene.add(ambient);
-      const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(2.6,3.8,3.1);scene.add(key);
-      const rim=new THREE.DirectionalLight(0xffffff,1.4);rim.position.set(-3,2.4,-2.5);scene.add(rim);
-      const floorMaterial=new THREE.MeshStandardMaterial({color:0x222b42,roughness:.95,metalness:.02,transparent:true,opacity:.88});
-      const floor=new THREE.Mesh(new THREE.CircleGeometry(6,64),floorMaterial);floor.rotation.x=-Math.PI/2;scene.add(floor);
-      const camera=new THREE.PerspectiveCamera(34,1,.01,1000);
-      const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.07;
-      const resize=()=>{const host=canvas.parentElement;const w=Math.max(220,host?.clientWidth||640),h=Math.max(240,host?.clientHeight||500);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
-      resize();const observer=new ResizeObserver(resize);observer.observe(canvas.parentElement);
-      const stage={url:'',model:null,renderer,controls,observer,scene,camera,ambient,key,rim,floor,floorMaterial,center:null,size:null,max:1,targetY:0,THREE,GLTFLoader,canvas,active:false,contextLost:false};
-      const onContextLost=(event)=>{event.preventDefault();stage.contextLost=true;stage.active=false;try{renderer.setAnimationLoop(null);}catch{};if(elements.avatarLabStageStatus){elements.avatarLabStageStatus.hidden=false;elements.avatarLabStageStatus.textContent='3D graphics context paused. Restoring…';}};
-      const onContextRestored=()=>{stage.contextLost=false;stage.url='';clearAvatarLabStageModel(stage);state.avatarLabStageLoadingUrl='';resumeAvatarLabStage();setTimeout(()=>void refreshAvatarLabStage(),0);};
-      stage.onContextLost=onContextLost;stage.onContextRestored=onContextRestored;canvas.addEventListener('webglcontextlost',onContextLost,false);canvas.addEventListener('webglcontextrestored',onContextRestored,false);
-      state.avatarLabStage=stage;syncAvatarLabStageAppearance();resumeAvatarLabStage();return stage;
+      if(state.avatarLabStageInitPromise)return state.avatarLabStageInitPromise;
+      state.avatarLabStageInitPromise=(async()=>{
+        if(state.avatarLabStage?.renderer && !state.avatarLabStage.contextLost)return state.avatarLabStage;
+        if(state.avatarLabStage)disposeAvatarLabStage({loseContext:false});
+        const THREE=await import('https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js');
+        const [{GLTFLoader},{OrbitControls}]=await Promise.all([
+          import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/loaders/GLTFLoader.js'),
+          import('https://cdn.jsdelivr.net/npm/three@0.182.0/examples/jsm/controls/OrbitControls.js'),
+        ]);
+        const canvas=elements.avatarLabStageCanvas;
+        if(!canvas)throw new Error('3D stage canvas is unavailable.');
+        const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'high-performance'});
+        renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;
+        const scene=new THREE.Scene();scene.background=new THREE.Color(String(elements.avatarLabStageBg?.value||'#1f2738'));
+        const ambient=new THREE.HemisphereLight(0xffffff,0x25304d,1.5);scene.add(ambient);
+        const key=new THREE.DirectionalLight(0xffffff,2.2);key.position.set(2.6,3.8,3.1);scene.add(key);
+        const rim=new THREE.DirectionalLight(0xffffff,1.4);rim.position.set(-3,2.4,-2.5);scene.add(rim);
+        const floorMaterial=new THREE.MeshStandardMaterial({color:0x222b42,roughness:.95,metalness:.02,transparent:true,opacity:.88});
+        const floor=new THREE.Mesh(new THREE.CircleGeometry(6,64),floorMaterial);floor.rotation.x=-Math.PI/2;scene.add(floor);
+        const camera=new THREE.PerspectiveCamera(34,1,.01,1000);
+        const controls=new OrbitControls(camera,canvas);controls.enableDamping=true;controls.dampingFactor=.07;
+        const resize=()=>{const host=canvas.parentElement;const w=Math.max(220,host?.clientWidth||640),h=Math.max(240,host?.clientHeight||500);renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();};
+        resize();const observer=new ResizeObserver(resize);observer.observe(canvas.parentElement);
+        const stage={url:'',model:null,renderer,controls,observer,scene,camera,ambient,key,rim,floor,floorMaterial,center:null,size:null,max:1,targetY:0,THREE,GLTFLoader,canvas,active:false,contextLost:false};
+        const onContextLost=(event)=>{event.preventDefault();stage.contextLost=true;stage.active=false;try{renderer.setAnimationLoop(null);}catch{};if(elements.avatarLabStageStatus){elements.avatarLabStageStatus.hidden=false;elements.avatarLabStageStatus.textContent='3D graphics context paused. Restoring…';}};
+        const onContextRestored=()=>{stage.contextLost=false;stage.url='';clearAvatarLabStageModel(stage);state.avatarLabStageLoadingUrl='';resumeAvatarLabStage();setTimeout(()=>void refreshAvatarLabStage(),0);};
+        stage.onContextLost=onContextLost;stage.onContextRestored=onContextRestored;canvas.addEventListener('webglcontextlost',onContextLost,false);canvas.addEventListener('webglcontextrestored',onContextRestored,false);
+        state.avatarLabStage=stage;syncAvatarLabStageAppearance();
+        if(elements.avatarLabModal?.hidden)pauseAvatarLabStage();else resumeAvatarLabStage();
+        return stage;
+      })();
+      try{return await state.avatarLabStageInitPromise;}finally{state.avatarLabStageInitPromise=null;}
     }
     function loadAvatarLabStageSettings(){
       const saved=readJsonStorage('chat.avatarLab.stage.v1');if(!saved||typeof saved!=='object')return;
@@ -45881,7 +45917,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       loadAvatarLabStageSettings();
       if(avatarLabModelsView()==='full') state.avatarLabModelsView='compact';
       if(innerWidth<760 && avatarLabModelsView()==='compact') state.avatarLabModelsView='collapsed';
-      elements.avatarLabModal.hidden=false; elements.avatarLabModal.setAttribute('aria-hidden','false');
+      setHiddenDialogState(elements.avatarLabModal,false);
       initAvatarLabFloatingCards();
       setDesktopSideInspector('avatar-lab');
       refreshAvatarAutoPrompt(false);
@@ -45893,12 +45929,13 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       closeAvatarLabImageViewer();
       if (!elements.avatarLabModal) return;
       const returnFocus=state.avatarLabReturnFocus;
-      elements.avatarLabModal.hidden=true; elements.avatarLabModal.setAttribute('aria-hidden','true');
+      const focusTarget=restoreFocus?(returnFocus?.isConnected?returnFocus:elements.avatarLabGameButton):null;
+      focusOutsideBeforeHide(elements.avatarLabModal,focusTarget);
+      setHiddenDialogState(elements.avatarLabModal,true);
       if (document.documentElement.dataset.sideInspector === 'avatar-lab') setDesktopSideInspector('');
       clearAvatarLabActivityTimer();
       state.avatarLabActivity=null;
       state.avatarLabStageLoadingUrl=''; pauseAvatarLabStage();
-      if (restoreFocus) (returnFocus?.isConnected?returnFocus:elements.avatarLabGameButton)?.focus?.({preventScroll:true});
       state.avatarLabReturnFocus=null;
     }
 
@@ -46137,10 +46174,12 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       return ['collapsed','compact','full'].includes(value)?value:'compact';
     }
     function setAvatarLabModelsView(mode,{persist=true}={}){
+      const previous=avatarLabModelsView();
       const next=['collapsed','compact','full'].includes(mode)?mode:'compact';
       state.avatarLabModelsView=next;
       if(persist && next!=='full') writeStorage('chat.avatarLab.modelsView.v1',next);
       syncAvatarLabModelsView();
+      if(previous==='collapsed'&&next!=='collapsed'&&state.registered&&!state.isAdmin)sendJson({type:'avatar3d.list'});
     }
     function syncAvatarLabModelsView(){
       const panel=elements.avatarLabModelsPanel;if(!panel)return;
@@ -46153,26 +46192,35 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
     function hydrateAvatarLabModelThumbnail(item,img,placeholder){
       if(!img)return;const url=String(item?.thumbnailUrl||item?.sourcePreviewUrl||'').trim();
-      if(!url){img.removeAttribute('src');img.hidden=true;if(placeholder)placeholder.hidden=false;return;}
-      img.onload=()=>{img.hidden=false;if(placeholder)placeholder.hidden=true;};
-      img.onerror=()=>{img.hidden=true;if(placeholder)placeholder.hidden=false;};
-      img.src=url;
+      if(!url){if(img.dataset.avatarThumbUrl){img.removeAttribute('src');img.dataset.avatarThumbUrl='';}img.hidden=true;if(placeholder)placeholder.hidden=false;return;}
+      if(img.dataset.avatarThumbUrl===url&&img.getAttribute('src'))return;
+      img.dataset.avatarThumbUrl=url;img.onload=()=>{if(img.dataset.avatarThumbUrl!==url)return;img.hidden=false;if(placeholder)placeholder.hidden=true;};img.onerror=()=>{if(img.dataset.avatarThumbUrl!==url)return;img.hidden=true;if(placeholder)placeholder.hidden=false;};img.src=url;
     }
-
+    function createAvatar3dModelCard(taskId){
+      const card=document.createElement('article');card.className='avatar-lab-model-card';card.dataset.avatarModelCard=taskId;
+      card.innerHTML='<div class="avatar-lab-model-thumb"><img alt="3D preview" hidden><span class="avatar-lab-model-thumb-placeholder icon icon-avatar-3d" aria-hidden="true"></span></div><div class="avatar-lab-model-info"><strong></strong><small></small></div><div class="avatar-lab-model-actions"></div>';
+      return card;
+    }
+    function updateAvatar3dModelCard(card,item){
+      const taskId=String(item?.taskId||'');const model=String(item?.modelVersion||'Tripo').replace(/-20\d{6}$/,'');const textureModel=String(item?.textureVersion||'').replace(/-20\d{6}$/,'');const created=item?.createdAt?new Date(item.createdAt).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+      const rig=String(item?.rigStatus||'');const status=rig==='ready'?'Mixamo rigged':rig==='checking'?'Checking rig…':rig==='rigging'?`Rigging${item?.rigProgress!=null?` ${Math.round(Number(item.rigProgress)||0)}%`:''}`:rig==='failed'?'Rig failed':String(item?.status||'').replace(/_/g,' ');
+      card.dataset.avatarModelCard=taskId;card.classList.toggle('selected',Boolean(item?.selected));
+      if(item?.url){card.dataset.avatarModelAction='select';card.dataset.taskId=taskId;card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label',item.selected?'Selected 3D model; click to reload it on the stage':'Use this 3D model on the stage');}
+      else{delete card.dataset.avatarModelAction;delete card.dataset.taskId;card.removeAttribute('tabindex');card.removeAttribute('role');card.removeAttribute('aria-label');}
+      const strong=card.querySelector('.avatar-lab-model-info strong'),small=card.querySelector('.avatar-lab-model-info small'),img=card.querySelector('.avatar-lab-model-thumb img'),placeholder=card.querySelector('.avatar-lab-model-thumb-placeholder'),thumb=card.querySelector('.avatar-lab-model-thumb'),actions=card.querySelector('.avatar-lab-model-actions');
+      if(strong)strong.textContent=model;if(small)small.textContent=[textureModel?`Tex ${textureModel}`:'',created,status].filter(Boolean).join(' · ');if(img)img.alt=`${model} 3D preview`;
+      let badge=thumb?.querySelector('.avatar-lab-rig-badge');if(item?.riggedUrl&&!badge&&thumb){badge=document.createElement('span');badge.className='avatar-lab-rig-badge';badge.textContent='Mixamo';thumb.append(badge);}else if(!item?.riggedUrl&&badge)badge.remove();
+      if(actions){actions.replaceChildren();if(item?.url&&!item?.riggedUrl&&!['checking','rigging'].includes(rig)){const btn=document.createElement('button');btn.type='button';btn.dataset.avatarModelAction='rig';btn.dataset.taskId=taskId;btn.textContent='Rig';btn.title=item?.rigError?`Retry Mixamo rig: ${item.rigError}`:'Check humanoid riggability, then create a Mixamo-compatible biped skeleton';btn.disabled=avatarLabRequestBusy()||!state.tripoApiKeyConfigured;actions.append(btn);}const downloadUrl=item?.riggedUrl||item?.url;if(downloadUrl){const link=document.createElement('a');link.className='button-like';link.href=downloadUrl;link.download='';link.textContent=item?.riggedUrl?'Rigged GLB':'GLB';actions.append(link);}}
+      hydrateAvatarLabModelThumbnail(item,img,placeholder);
+    }
     function renderAvatar3dModels(){
-      const grid=elements.avatarLabModelsGrid;if(!grid)return;syncAvatarLabModelsView();grid.replaceChildren();const items=Array.isArray(state.avatar3dItems)?state.avatar3dItems:[];
+      const grid=elements.avatarLabModelsGrid;if(!grid)return;syncAvatarLabModelsView();const items=Array.isArray(state.avatar3dItems)?state.avatar3dItems:[];
       if(elements.avatarLabModelsMeta)elements.avatarLabModelsMeta.textContent=items.length?`${items.length} model${items.length===1?'':'s'}`:'No models yet';
-      if(!items.length){const empty=document.createElement('div');empty.className='avatar-lab-model-empty';empty.textContent='Your Tripo models will stay available here.';grid.append(empty);return;}
-      for(const item of items){
-        const card=document.createElement('article');card.className='avatar-lab-model-card';card.classList.toggle('selected',Boolean(item?.selected));if(item?.url){card.dataset.avatarModelAction='select';card.dataset.taskId=String(item.taskId||'');card.tabIndex=0;card.setAttribute('role','button');card.setAttribute('aria-label',item.selected?'Selected 3D model; click to reload it on the stage':'Use this 3D model on the stage');}
-        const model=String(item?.modelVersion||'Tripo').replace(/-20\d{6}$/,'');const textureModel=String(item?.textureVersion||'').replace(/-20\d{6}$/,'');const created=item?.createdAt?new Date(item.createdAt).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-        const rig=String(item?.rigStatus||'');const status=rig==='ready'?'Mixamo rigged':rig==='checking'?'Checking rig…':rig==='rigging'?`Rigging${item?.rigProgress!=null?` ${Math.round(Number(item.rigProgress)||0)}%`:''}`:rig==='failed'?'Rig failed':String(item?.status||'').replace(/_/g,' ');
-        card.innerHTML=`<div class="avatar-lab-model-thumb"><img alt="${escapeHtml(model)} 3D preview" hidden><span class="avatar-lab-model-thumb-placeholder icon icon-avatar-3d" aria-hidden="true"></span>${item?.riggedUrl?'<span class="avatar-lab-rig-badge">Mixamo</span>':''}</div><div class="avatar-lab-model-info"><strong>${escapeHtml(model)}</strong><small>${escapeHtml([textureModel?`Tex ${textureModel}`:'',created,status].filter(Boolean).join(' · '))}</small></div><div class="avatar-lab-model-actions"></div>`;
-        const actions=card.querySelector('.avatar-lab-model-actions');
-        if(item?.url&&!item?.riggedUrl&&!['checking','rigging'].includes(rig)){const btn=document.createElement('button');btn.type='button';btn.dataset.avatarModelAction='rig';btn.dataset.taskId=String(item.taskId||'');btn.textContent='Rig';btn.title=item?.rigError?`Retry Mixamo rig: ${item.rigError}`:'Check humanoid riggability, then create a Mixamo-compatible biped skeleton';btn.disabled=avatarLabRequestBusy()||!state.tripoApiKeyConfigured;actions.append(btn);}
-        const downloadUrl=item?.riggedUrl||item?.url;if(downloadUrl){const link=document.createElement('a');link.className='button-like';link.href=downloadUrl;link.download='';link.textContent=item?.riggedUrl?'Rigged GLB':'GLB';actions.append(link);}
-        grid.append(card);hydrateAvatarLabModelThumbnail(item,card.querySelector('.avatar-lab-model-thumb img'),card.querySelector('.avatar-lab-model-thumb-placeholder'));
-      }
+      const existing=new Map(Array.from(grid.querySelectorAll('.avatar-lab-model-card[data-avatar-model-card]')).map((card)=>[String(card.dataset.avatarModelCard||''),card]));
+      if(!items.length){for(const card of existing.values())card.remove();let empty=grid.querySelector('.avatar-lab-model-empty');if(!empty){empty=document.createElement('div');empty.className='avatar-lab-model-empty';empty.textContent='Your Tripo models will stay available here.';grid.append(empty);}return;}
+      grid.querySelector('.avatar-lab-model-empty')?.remove();const keep=new Set();let cursor=grid.firstElementChild;
+      for(const item of items){const taskId=String(item?.taskId||'').trim();if(!taskId)continue;keep.add(taskId);let card=existing.get(taskId);if(!card)card=createAvatar3dModelCard(taskId);updateAvatar3dModelCard(card,item);if(card!==cursor)grid.insertBefore(card,cursor);cursor=card.nextElementSibling;}
+      for(const [taskId,card] of existing){if(!keep.has(taskId))card.remove();}
     }
 
     function selectAvatar3dModel(taskId){if(!taskId||!state.registered||state.isAdmin)return;sendJson({type:'avatar3d.select',taskId});}
@@ -46202,10 +46250,16 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         sendJson({type:'avatar3d.tripo.start',apiKey,sourceImage,sourceName:useGenerated?'Generated reference':(state.avatarLabSourceName||'Avatar Lab source'),prompt,promptMeta,modelVersion:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),textureVersion:String(elements.profileAvatar3dTextureVersionSelect?.value||'v3.5-20260815'),textureQuality:String(elements.profileAvatar3dTextureSelect?.value||'detailed'),autoRig:Boolean(elements.profileAvatar3dAutoRigInput?.checked)});
       }catch(error){state.avatar3dPollBusy=false;setAvatarLabError(error?.message||'3D generation could not start','3D generation failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'generation could not start'}`,true);}
     }
+    function mergeAvatar3dItemState(item) {
+      if(!item?.taskId)return;
+      if(item.selected)state.avatar3dItems=state.avatar3dItems.map((entry)=>entry?.taskId===item.taskId?entry:{...entry,selected:false});
+      const index=state.avatar3dItems.findIndex((entry)=>entry?.taskId===item.taskId);
+      if(index>=0)state.avatar3dItems[index]={...state.avatar3dItems[index],...item};else state.avatar3dItems.unshift(item);
+    }
     function handleAvatar3dMessage(message) {
       const item=message?.item;
+      if(Array.isArray(message?.items))state.avatar3dItems=message.items;else mergeAvatar3dItemState(item);
       if (item?.taskId) {
-        const index=state.avatar3dItems.findIndex((entry)=>entry?.taskId===item.taskId); if(index>=0) state.avatar3dItems[index]={...state.avatar3dItems[index],...item}; else state.avatar3dItems.unshift(item);
         state.avatar3dActiveTaskId=item.taskId;
       }
       if (message?.wallet && Number.isFinite(Number(message.wallet.balance))) state.avatarLabTripoWallet={balance:Number(message.wallet.balance),frozen:Number.isFinite(Number(message.wallet.frozen))?Number(message.wallet.frozen):null};
@@ -46227,6 +46281,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         setAvatarLabError(`Tripo3D task ended with status ${status || 'failed'}.`,'3D generation failed');
       }
       renderAvatarLab();
+      if(item?.url)void refreshAvatarLabStage();
       if(item?.url) addSystemMessage('3D avatar ready.'); else if(message?.error) addSystemMessage(`Avatar Lab: ${message.error}`,true);
     }
 
@@ -50198,8 +50253,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       renderProfileGameSummary();
       if (!elements.configDrawer.hidden) closeConfig();
       if (!elements.channelSettingsDrawer.hidden) closeChannelSettings(false);
-      elements.profilePanel.hidden = false;
-      elements.profilePanel.setAttribute('aria-hidden', 'false');
+      setHiddenDialogState(elements.profilePanel, false);
       if (elements.profileSharedMediaNotice) elements.profileSharedMediaNotice.hidden = state.registered || !hasPendingSharedMediaLink();
       elements.profileInvitePinInput.value = state.pendingExternalInvitePin || '';
       elements.profileDialogBody.scrollTop = 0;
@@ -50222,10 +50276,9 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const baselineScale = state.profileUiScalePreviewBaseline;
       state.profileUiScalePreviewBaseline = null;
       if (Number.isFinite(Number(baselineScale))) applyProfileUiScale(baselineScale, { persist: true });
-      elements.profilePanel.hidden = true;
-      elements.profilePanel.setAttribute('aria-hidden', 'true');
+      focusOutsideBeforeHide(elements.profilePanel, restoreFocus ? elements.profileMenuButton : null);
+      setHiddenDialogState(elements.profilePanel, true);
       if (document.documentElement.dataset.sideInspector === 'profile') setDesktopSideInspector('');
-      if (restoreFocus) elements.profileMenuButton.focus({ preventScroll: true });
       syncViewportHeight(true);
     }
 
