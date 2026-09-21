@@ -1,3 +1,11 @@
+## v0.1.151 — demand-loaded media + lightweight Avatar Lab previews
+
+Synchronizes Rantlist **9.6.314 / r342**. Hidden Avatar Lab image libraries no longer fetch full-resolution AI/source images; visible cards use lazy lightweight derivatives and originals load only for explicit full-size/profile/3D actions. Timeline video/HLS sources are deferred until playback, timeline hydration is limited to the nearby viewport and suspended while Avatar Lab or a hidden tab obscures chat. The compact media **source** links and SVG image previews from v0.1.150 are retained. No stored media/history/model data is deleted or migrated.
+
+## v0.1.150 — compact source links + SVG image previews
+
+Synchronizes Rantlist **9.6.313 / r341**. Imported media now shows a small clickable **source** link instead of the full `Source: https://…` URL. Dragged/dropped SVG files behave like images with an inline thumbnail and full-screen viewer; raw SVG remains download-only and the dedicated inline preview is sandboxed by the server. No stored user/profile/channel/message/media/model data is migrated.
+
 ## v0.1.149 — `/yt` merged-audio verification repair
 
 Synchronizes Rantlist **9.6.312 / r340**. `/yt` no longer rejects a successfully merged video merely because yt-dlp's `.info.json` still describes a video-only source representation. The server verifies the completed downloaded container itself for an audio stream with ffprobe/ffmpeg before accepting or rejecting the import. Existing quality selection, limits, queueing and media-preservation behavior are unchanged.

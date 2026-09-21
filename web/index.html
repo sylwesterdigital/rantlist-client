@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.312">
+  <meta name="chat-ui-version" content="9.6.314">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -6645,25 +6645,28 @@
     .media-inline-caption[hidden] { display: none; }
     .media-inline-caption.is-source-caption {
       min-width: 0;
-      margin-top: 0;
+      margin: 3px 0 0;
       display: flex;
       align-items: center;
-      gap: 5px;
       color: var(--message-muted-ink, var(--muted));
       font-size: 10px;
-      line-height: 1.2;
+      line-height: 1.1;
       white-space: nowrap;
     }
-    .media-inline-caption.is-source-caption > span { flex: 0 0 auto; font-weight: 700; }
     .media-inline-caption.is-source-caption > a {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      min-height: 18px;
+      padding: 1px 5px;
+      border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+      border-radius: 999px;
       color: inherit;
-      text-decoration: underline;
-      text-underline-offset: 2px;
+      font-weight: 700;
+      text-decoration: none;
+      opacity: .82;
     }
+    .media-inline-caption.is-source-caption > a:hover,
+    .media-inline-caption.is-source-caption > a:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 2px; }
 
     .media-viewer {
       position: fixed;
@@ -17259,7 +17262,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.312</small>
+          <small id="serverBrandVersion">v9.6.314</small>
         </span>
       </button>
     </div>
@@ -18338,7 +18341,7 @@
               <div class="avatar-lab-generated-media">
                 <div id="profileAvatarGrokEmpty" class="avatar-lab-generated-placeholder">2D reference appears here.</div>
                 <img id="profileAvatarGrokImage" alt="Generated avatar reference" hidden>
-                <video id="profileAvatarGrokVideo" controls playsinline hidden></video>
+                <video id="profileAvatarGrokVideo" controls playsinline preload="none" hidden></video>
 
                 <img id="profileAvatarBodyEditorImage" alt="" hidden aria-hidden="true" class="avatar-lab-compat-image">
                 <div id="avatarLabBodyEditorPlaceholder" hidden></div>
@@ -20200,6 +20203,7 @@
         maxPollOptions: 8,
         maxChunkBytes: 256 * 1024,
         safeImageMimes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif'],
+        previewImageMimes: ['image/png', 'image/jpeg', 'image/gif', 'image/webp', 'image/avif', 'image/svg+xml'],
         safeAudioMimes: ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac', 'audio/flac'],
         safeVideoMimes: ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-m4v'],
         maxRoomBackgroundBytes: 2 * 1024 * 1024,
@@ -20486,6 +20490,7 @@
       avatarGrokItems: [],
       avatarLabSourceItems: [],
       avatarLabImagesOpen: false,
+      avatarLabImageObserver: null,
       avatarGrokActiveRequestId: '',
       avatarGrokPollTimer: null,
       avatarGrokPollBusy: false,
@@ -28613,6 +28618,7 @@
       gif: 'image/gif',
       webp: 'image/webp',
       avif: 'image/avif',
+      svg: 'image/svg+xml',
       mp4: 'video/mp4',
       m4v: 'video/x-m4v',
       mov: 'video/quicktime',
@@ -28680,6 +28686,29 @@
       return COMPOSER_EXTENSION_MIMES[composerFileExtension(file?.name)] || declared || 'application/octet-stream';
     }
 
+    function isSvgImageMime(value) {
+      return String(value || '').trim().toLowerCase().split(';')[0] === 'image/svg+xml';
+    }
+
+    function isPreviewImageMime(value) {
+      const mime = String(value || '').trim().toLowerCase().split(';')[0];
+      const configured = Array.isArray(state.capabilities.previewImageMimes) ? state.capabilities.previewImageMimes : state.capabilities.safeImageMimes;
+      return configured.includes(mime) || state.capabilities.safeImageMimes.includes(mime) || isSvgImageMime(mime);
+    }
+
+    function previewImageSource(file) {
+      if (!file) return '';
+      if (!isSvgImageMime(file.mime)) return file.previewUrl || file.url || '';
+      if (file.previewUrl) return file.previewUrl;
+      const raw = String(file.url || '').trim();
+      if (!raw) return '';
+      try {
+        const url = new URL(raw, location.href);
+        if (url.origin === location.origin && /^\/files\/[A-Fa-f0-9-]{36}$/.test(url.pathname)) url.searchParams.set('preview', '1');
+        return url.href;
+      } catch { return raw; }
+    }
+
     function normalizeComposerFile(file) {
       if (!(file instanceof Blob)) return null;
       const mime = composerFileMime(file);
@@ -28696,7 +28725,7 @@
 
     function composerFileClass(file) {
       const mime = composerFileMime(file);
-      if (state.capabilities.safeImageMimes.includes(mime)) return 'image';
+      if (isPreviewImageMime(mime)) return 'image';
       if (state.capabilities.safeVideoMimes.includes(mime)) return 'video';
       if (mime.startsWith('audio/') || state.capabilities.safeAudioMimes.includes(mime)) return 'audio';
       return 'file';
@@ -28846,7 +28875,7 @@
 
     function createOutgoingMediaUploadPreview(file, transferId, options = {}) {
       const mime = composerFileMime(file);
-      const isImage = state.capabilities.safeImageMimes.includes(mime);
+      const isImage = isPreviewImageMime(mime);
       const isVideo = state.capabilities.safeVideoMimes.includes(mime);
       if ((!isImage && !isVideo) || !transferId || options.backgroundUpload) return null;
 
@@ -29188,7 +29217,7 @@
         file && file.url && (
           file.kind === 'voice' ||
           String(file.mime || '').startsWith('audio/') ||
-          state.capabilities.safeImageMimes.includes(file.mime) ||
+          isPreviewImageMime(file.mime) ||
           state.capabilities.safeVideoMimes.includes(file.mime)
         )
       );
@@ -29203,7 +29232,7 @@
     function preferredTimelineImageSource(file) {
       if (!file) return '';
       if (isAnimatedGifFile(file)) return file.url || file.previewUrl || '';
-      return file.previewUrl || file.url || '';
+      return previewImageSource(file);
     }
 
     function mediaMessageIdFromFile(file) {
@@ -29364,16 +29393,16 @@
       const mime = String(file?.mime || '').toLowerCase();
       const src = absoluteMediaUrl(file.url);
       let media = null;
-      if (state.capabilities.safeImageMimes.includes(mime)) {
+      if (isPreviewImageMime(mime)) {
         const image = document.createElement('img');
-        image.src = src;
+        image.src = absoluteMediaUrl(previewImageSource(file));
         image.alt = file.name || 'Shared image';
         media = image;
       } else if (state.capabilities.safeVideoMimes.includes(mime)) {
         const video = document.createElement('video');
         video.src = src;
         video.controls = true;
-        video.preload = 'metadata';
+        video.preload = 'none';
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
         media = video;
@@ -29437,7 +29466,7 @@
       const isVoice = file.kind === 'voice';
       const mime = String(file.mime || '').trim().toLowerCase();
       const isAudio = isVoice || mime.startsWith('audio/') || state.capabilities.safeAudioMimes.includes(mime);
-      const isImage = state.capabilities.safeImageMimes.includes(file.mime);
+      const isImage = isPreviewImageMime(file.mime);
       const isVideo = state.capabilities.safeVideoMimes.includes(file.mime);
       const isHelenaProject = isHelenaPaintProjectFile(file);
       const needsMainAction = !isAudio && (!isImage && !isVideo);
@@ -29487,18 +29516,17 @@
       const caption = document.createElement('p');
       caption.className = 'media-inline-caption';
       const captionText = String(file.caption || '').trim();
-      const importedSourceMatch = isAudio ? /^Source:\s*(https?:\/\/\S+)\s*$/i.exec(captionText) : null;
+      const importedSourceMatch = /^Source:\s*(https?:\/\/\S+)\s*$/i.exec(captionText);
       if (importedSourceMatch) {
         caption.classList.add('is-source-caption');
-        const sourceLabel = document.createElement('span');
-        sourceLabel.textContent = 'Source';
         const sourceLink = document.createElement('a');
         sourceLink.href = importedSourceMatch[1];
         sourceLink.target = '_blank';
         sourceLink.rel = 'noopener noreferrer';
-        sourceLink.textContent = (() => { try { return new URL(importedSourceMatch[1]).hostname.replace(/^www\./i, ''); } catch { return importedSourceMatch[1]; } })();
+        sourceLink.textContent = 'source';
         sourceLink.title = importedSourceMatch[1];
-        caption.append(sourceLabel, sourceLink);
+        sourceLink.setAttribute('aria-label', `Open source: ${importedSourceMatch[1]}`);
+        caption.append(sourceLink);
       } else {
         caption.textContent = captionText;
       }
@@ -29549,7 +29577,7 @@
       const preview = document.createElement('img');
       const timelineFollowIntent = captureTimelineMediaFollowIntent();
       preview.className = `drawing-artwork-preview${sticker ? ' sticker-preview' : ''}`;
-      preview.src = absoluteMediaUrl(file.url);
+      observeTimelineMedia(preview, preferredTimelineImageSource(file) || file.url);
       preview.alt = artwork.caption ? `${sticker ? 'Sticker' : 'Drawing preview'}: ${artwork.caption}` : (sticker ? 'Sticker' : 'Drawing preview');
       preview.loading = 'lazy';
       preview.addEventListener('load', () => settleTimelineMediaAtBottom(timelineFollowIntent));
@@ -29795,12 +29823,24 @@
       if (!item.history) scrollMessages();
     }
 
+    function timelineMediaHydrationSuspended() {
+      return document.visibilityState === 'hidden' || Boolean(elements.avatarLabModal && !elements.avatarLabModal.hidden);
+    }
+
+    function timelineMediaNodeNearViewport(node, margin = 180) {
+      if (!(node instanceof Element) || !node.isConnected) return false;
+      const root = elements.messageViewport;
+      const rect = node.getBoundingClientRect();
+      const rootRect = root?.getBoundingClientRect?.() || { top: 0, bottom: window.innerHeight || document.documentElement.clientHeight || 0 };
+      return rect.bottom >= rootRect.top - margin && rect.top <= rootRect.bottom + margin;
+    }
+
     function ensureTimelineMediaObserver() {
       if (state.timelineMediaObserver || typeof IntersectionObserver !== 'function') return state.timelineMediaObserver;
       state.timelineMediaObserver = new IntersectionObserver((entries) => {
         for (const entry of entries) {
           const node = entry.target;
-          if (entry.isIntersecting || entry.intersectionRatio > 0) {
+          if ((entry.isIntersecting || entry.intersectionRatio > 0) && !timelineMediaHydrationSuspended()) {
             const timer = state.timelineMediaUnloadTimers.get(node);
             if (timer) clearTimeout(timer);
             state.timelineMediaUnloadTimers.delete(node);
@@ -29808,17 +29848,20 @@
           } else {
             const previous = state.timelineMediaUnloadTimers.get(node);
             if (previous) clearTimeout(previous);
-            const timer = setTimeout(() => dehydrateTimelineMedia(node), 12_000);
+            const delay = timelineMediaHydrationSuspended() ? 0 : 8_000;
+            const timer = setTimeout(() => dehydrateTimelineMedia(node), delay);
             state.timelineMediaUnloadTimers.set(node, timer);
           }
         }
-      }, { root: elements.messageViewport || null, rootMargin: '700px 0px', threshold: [0, 0.01] });
+      }, { root: elements.messageViewport || null, rootMargin: '180px 0px', threshold: [0, 0.01] });
       return state.timelineMediaObserver;
     }
 
-    function observeTimelineMedia(node, src) {
-      if (!node || !src) return;
-      node.dataset.timelineMediaSrc = absoluteMediaUrl(src);
+    function observeTimelineMedia(node, src = '', options = {}) {
+      if (!node) return;
+      if (src) node.dataset.timelineMediaSrc = absoluteMediaUrl(src);
+      if (options.poster) node.dataset.timelineMediaPoster = absoluteMediaUrl(options.poster);
+      if (options.playbackOnly) node.dataset.timelinePlaybackOnly = '1';
       const observer = ensureTimelineMediaObserver();
       if (!observer) {
         hydrateTimelineMedia(node);
@@ -29827,16 +29870,26 @@
       observer.observe(node);
     }
 
-    function hydrateTimelineMedia(node) {
-      if (!node?.dataset?.timelineMediaSrc) return;
+    function hydrateTimelineMedia(node, options = {}) {
+      if (!node || (!node.dataset?.timelineMediaSrc && !node.dataset?.timelineMediaPoster)) return;
+      const playback = options.playback === true;
+      if (timelineMediaHydrationSuspended() && !playback) return;
+      if (node.tagName === 'VIDEO' && node.dataset.timelineMediaPoster && node.poster !== node.dataset.timelineMediaPoster) {
+        node.poster = node.dataset.timelineMediaPoster;
+        if (node.dataset.timelinePosterPrimed !== '1') {
+          node.dataset.timelinePosterPrimed = '1';
+          primeTimelineVideoAspectFromPoster(node, node.dataset.timelineMediaPoster);
+        }
+      }
+      if (node.dataset.timelinePlaybackOnly === '1' && !playback) return;
       const src = node.dataset.timelineMediaSrc;
-      if (node.currentSrc === src || node.src === src) return;
+      if (!src || node.currentSrc === src || node.src === src) return;
       node.src = src;
-      if (node.tagName === 'VIDEO' || node.tagName === 'AUDIO') node.load?.();
+      if ((node.tagName === 'VIDEO' || node.tagName === 'AUDIO') && playback) node.load?.();
     }
 
     function dehydrateTimelineMedia(node) {
-      if (!node?.dataset?.timelineMediaSrc || !node.isConnected) return;
+      if (!node?.isConnected) return;
       if ((node.tagName === 'VIDEO' || node.tagName === 'AUDIO') && !node.paused) return;
       if (node.tagName === 'IMG') {
         node.removeAttribute('src');
@@ -29848,6 +29901,22 @@
         node.load?.();
       }
     }
+
+    function suspendTimelineMediaHydration() {
+      for (const node of elements.messageList?.querySelectorAll?.('[data-timeline-media-src], [data-timeline-media-poster]') || []) dehydrateTimelineMedia(node);
+    }
+
+    function refreshTimelineMediaHydration() {
+      if (timelineMediaHydrationSuspended()) return;
+      for (const node of elements.messageList?.querySelectorAll?.('[data-timeline-media-src], [data-timeline-media-poster]') || []) {
+        if (timelineMediaNodeNearViewport(node)) hydrateTimelineMedia(node);
+      }
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') suspendTimelineMediaHydration();
+      else requestAnimationFrame(refreshTimelineMediaHydration);
+    });
 
     function preferredTimelineVideoSource(file, video) {
       const stream = String(file?.streamUrl || '').trim();
@@ -30442,12 +30511,20 @@
         video.className = 'media-preview-video';
         video.controls = state.mediaStoryMode !== 'stories';
         video.classList.toggle('media-story-launcher', state.mediaStoryMode === 'stories');
-        video.preload = 'metadata';
+        video.preload = 'none';
         video.tabIndex = 0;
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
         video.setAttribute('aria-label', `Open ${file.name || 'video'} in channel media viewer`);
-        video.poster = file.previewUrl ? absoluteMediaUrl(file.previewUrl) : '';
+        const timelinePoster = file.previewUrl ? absoluteMediaUrl(file.previewUrl) : '';
+        const ensurePlaybackSource = () => {
+          if (state.mediaStoryMode === 'stories') return;
+          hydrateTimelineMedia(video, { playback: true });
+        };
+        video.addEventListener('pointerdown', ensurePlaybackSource, { capture: true });
+        video.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') ensurePlaybackSource();
+        }, { capture: true });
         const openStoryVideo = (event) => {
           if (state.mediaStoryMode !== 'stories') return;
           event.preventDefault();
@@ -30460,9 +30537,8 @@
           if (event.key !== 'Enter' && event.key !== ' ') return;
           openStoryVideo(event);
         });
-        if (video.poster) primeTimelineVideoAspectFromPoster(video, video.poster, timelineFollowIntent);
         const source = preferredTimelineVideoSource(file, video);
-        if (source) observeTimelineMedia(video, source);
+        if (source || timelinePoster) observeTimelineMedia(video, source, { playbackOnly: true, poster: timelinePoster });
         video.addEventListener('loadedmetadata', () => {
           fitTimelineVideoAspect(video, video.videoWidth, video.videoHeight);
           settleTimelineMediaAtBottom(timelineFollowIntent);
@@ -30470,7 +30546,7 @@
         video.addEventListener('error', () => {
           if (file.streamUrl && video.dataset.timelineMediaSrc === absoluteMediaUrl(file.streamUrl) && file.url) {
             video.dataset.timelineMediaSrc = absoluteMediaUrl(file.url);
-            hydrateTimelineMedia(video);
+            hydrateTimelineMedia(video, { playback: true });
             return;
           }
           debugLog('error', 'media.video', 'video-error', { file, src: video.currentSrc || video.src });
@@ -30490,7 +30566,7 @@
         return video;
       }
 
-      if (state.capabilities.safeImageMimes.includes(file.mime) && file.url) {
+      if (isPreviewImageMime(file.mime) && file.url) {
         const timelineSrc = preferredTimelineImageSource(file);
         if (!timelineSrc) {
           const note = document.createElement('button');
@@ -30546,11 +30622,11 @@
     function channelMediaStoryFileType(file) {
       const mime = String(file?.mime || '').toLowerCase();
       if (state.capabilities.safeVideoMimes.includes(mime)) return 'video';
-      if (state.capabilities.safeImageMimes.includes(mime)) return 'image';
+      if (isPreviewImageMime(mime)) return 'image';
       if (String(file?.streamUrl || '').trim()) return 'video';
       const name = String(file?.name || file?.url || '').toLowerCase().split(/[?#]/, 1)[0];
       if (/\.(mp4|m4v|mov|webm)$/.test(name)) return 'video';
-      if (/\.(png|jpe?g|gif|webp|avif)$/.test(name)) return 'image';
+      if (/\.(png|jpe?g|gif|webp|avif|svg)$/.test(name)) return 'image';
       return '';
     }
 
@@ -30563,6 +30639,7 @@
       const mime = String(file?.mime || '').toLowerCase();
       const preview = absoluteMediaUrl(file?.previewUrl || '');
       if (mime === 'image/gif') return original;
+      if (isSvgImageMime(mime)) return absoluteMediaUrl(previewImageSource(file));
       return preview || original;
     }
 
@@ -31601,7 +31678,7 @@
     }
 
     function isMediaViewerImage(file) {
-      return Boolean(file?.url && state.capabilities.safeImageMimes.includes(file.mime));
+      return Boolean(file?.url && isPreviewImageMime(file.mime));
     }
 
     function collectMediaViewerItems(anchorFile) {
@@ -31615,7 +31692,7 @@
         items.push({
           key,
           file,
-          src: absoluteMediaUrl(file.url),
+          src: absoluteMediaUrl(previewImageSource(file)),
           downloadUrl: absoluteMediaUrl(file.downloadUrl || file.url),
           name: String(file.name || 'Image'),
         });
@@ -38136,7 +38213,7 @@
       if (!file || typeof file !== 'object') return null;
       const mime = String(file.mime || '').toLowerCase();
       const previewUrl = mime.startsWith('image/')
-        ? String(file.previewUrl || file.url || '').trim()
+        ? String(previewImageSource(file) || '').trim()
         : (mime.startsWith('video/') ? String(file.previewUrl || '').trim() : (mime.startsWith('audio/') ? String(file.audioCoverUrl || '').trim() : ''));
       if (!previewUrl) return null;
       return {
@@ -45698,6 +45775,51 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       });
       try{const saved=JSON.parse(readStorage('chat.avatarLab.logsPosition.v1')||'null');if(saved&&innerWidth>=900){requestAnimationFrame(()=>{const workbench=panel.closest('.avatar-lab-workbench');if(!workbench)return;const wr=workbench.getBoundingClientRect();const maxX=Math.max(0,wr.width-panel.offsetWidth),maxY=Math.max(0,wr.height-panel.offsetHeight);panel.style.left=`${Math.round(maxX*Math.max(0,Math.min(1,Number(saved.x)||0)))}px`;panel.style.top=`${Math.round(maxY*Math.max(0,Math.min(1,Number(saved.y)||0)))}px`;panel.style.right='auto';panel.style.bottom='auto';panel.style.transform='none';});}}catch{}
     }
+    function avatarLabDisplayUrl(item) {
+      return String(item?.previewUrl || item?.url || '').trim();
+    }
+    function avatarLabSourceDisplayUrl(sourceUrl) {
+      const raw=String(sourceUrl||'').trim();if(!raw)return '';
+      let rawPath='';try{rawPath=new URL(raw,location.href).pathname;}catch{}
+      const item=(Array.isArray(state.avatarLabSourceItems)?state.avatarLabSourceItems:[]).find((entry)=>{const candidate=String(entry?.url||'').trim();if(candidate===raw)return true;if(!rawPath||!candidate)return false;try{return new URL(candidate,location.href).pathname===rawPath;}catch{return false;}});
+      return String(item?.previewUrl||raw);
+    }
+    function setAvatarLabDisplayImage(image, displayUrl, fallbackUrl='') {
+      if(!image)return;
+      const display=String(displayUrl||'').trim(),fallback=String(fallbackUrl||'').trim();
+      image.dataset.avatarLabFallbackUrl=fallback;
+      if(image.dataset.avatarLabFallbackBound!=='1'){
+        image.dataset.avatarLabFallbackBound='1';
+        image.addEventListener('error',()=>{const next=String(image.dataset.avatarLabFallbackUrl||'').trim();if(!next)return;const absolute=new URL(next,location.href).href;if(image.src===absolute)return;image.dataset.avatarLabFallbackUrl='';image.src=next;});
+      }
+      if(!display){image.removeAttribute('src');return;}
+      const absolute=new URL(display,location.href).href;if(image.src!==absolute)image.src=display;
+    }
+    function resetAvatarLabImageObserver(){try{state.avatarLabImageObserver?.disconnect?.();}catch{}state.avatarLabImageObserver=null;}
+    function observeAvatarLabLibraryImage(image,item){
+      const src=avatarLabDisplayUrl(item),fallback=String(item?.url||'').trim();if(!image||!src)return;
+      image.dataset.avatarLabLibrarySrc=src;image.dataset.avatarLabLibraryFallback=fallback;
+      const load=()=>{if(image.src)return;setAvatarLabDisplayImage(image,image.dataset.avatarLabLibrarySrc,image.dataset.avatarLabLibraryFallback);};
+      if(typeof IntersectionObserver!=='function'){load();return;}
+      if(!state.avatarLabImageObserver){state.avatarLabImageObserver=new IntersectionObserver((entries)=>{for(const entry of entries){if(!entry.isIntersecting&&entry.intersectionRatio<=0)continue;const node=entry.target;setAvatarLabDisplayImage(node,node.dataset.avatarLabLibrarySrc,node.dataset.avatarLabLibraryFallback);state.avatarLabImageObserver?.unobserve?.(node);}},{root:elements.avatarLabImagesGrid||null,rootMargin:'120px 0px',threshold:[0,0.01]});}
+      state.avatarLabImageObserver.observe(image);
+    }
+    function configureAvatarLabGeneratedVideo(video,item,show){
+      if(!video)return;video.preload='none';
+      const source=show?String(item?.url||'').trim():'';const poster=show?String(item?.previewUrl||'').trim():'';
+      const absoluteSource=source?new URL(source,location.href).href:'';
+      if(video.dataset.avatarLabVideoSrc!==absoluteSource){video.pause?.();video.removeAttribute('src');video.load?.();video.dataset.avatarLabVideoSrc=absoluteSource;}
+      if(poster){const absolutePoster=new URL(poster,location.href).href;if(video.poster!==absolutePoster)video.poster=poster;}else video.removeAttribute('poster');
+      video.hidden=!show;
+      if(!show){video.pause?.();video.removeAttribute('src');video.load?.();return;}
+      if(video.dataset.avatarLabVideoBound!=='1'){
+        video.dataset.avatarLabVideoBound='1';
+        const ensure=()=>{const next=String(video.dataset.avatarLabVideoSrc||'');if(next&&!video.currentSrc&&video.src!==next){video.src=next;video.load?.();}};
+        video.addEventListener('pointerdown',ensure,{capture:true});
+        video.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' ')ensure();},{capture:true});
+      }
+    }
+
     function avatarLabImageEntries(){
       const sources=(Array.isArray(state.avatarLabSourceItems)?state.avatarLabSourceItems:[]).filter((item)=>item?.url).map((item)=>({...item,libraryKind:'source',libraryAt:Number(item.updatedAt||item.createdAt)||0}));
       const refs=(Array.isArray(state.avatarGrokItems)?state.avatarGrokItems:[]).filter((item)=>item?.kind==='image'&&item?.url).map((item)=>({...item,libraryKind:'reference',libraryAt:Number(item.updatedAt||item.createdAt)||0}));
@@ -45708,11 +45830,12 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.avatarLabImagesCount)elements.avatarLabImagesCount.textContent=String(items.length);
       if(elements.avatarLabImagesButton)elements.avatarLabImagesButton.setAttribute('aria-expanded',state.avatarLabImagesOpen?'true':'false');
       if(elements.avatarLabImagesPanel)elements.avatarLabImagesPanel.hidden=!state.avatarLabImagesOpen;
-      const grid=elements.avatarLabImagesGrid;if(!grid)return;grid.replaceChildren();
+      const grid=elements.avatarLabImagesGrid;if(!grid)return;resetAvatarLabImageObserver();grid.replaceChildren();
+      if(!state.avatarLabImagesOpen)return;
       if(!items.length){const empty=document.createElement('div');empty.className='avatar-lab-log-empty';empty.textContent='Source snapshots and generated reference images used by Avatar Lab will appear here.';grid.append(empty);return;}
       for(const item of items){
         const card=document.createElement('article');card.className='avatar-lab-image-library-card';card.tabIndex=0;card.setAttribute('role','button');card.title=item.libraryKind==='source'?'Use this saved image as the current Source':'Use this generated image as the current Reference';
-        const img=document.createElement('img');img.src=item.url;img.alt=item.libraryKind==='source'?'Saved Avatar Lab source':'Saved generated reference';img.loading='lazy';
+        const img=document.createElement('img');img.alt=item.libraryKind==='source'?'Saved Avatar Lab source':'Saved generated reference';img.loading='lazy';img.decoding='async';observeAvatarLabLibraryImage(img,item);
         const meta=document.createElement('div');meta.className='avatar-lab-image-library-meta';const strong=document.createElement('strong');strong.textContent=item.libraryKind==='source'?'Source':'Reference';const small=document.createElement('small');const when=item.libraryAt?new Date(item.libraryAt).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';small.textContent=[when,item.libraryKind==='reference'&&item.costUsd?formatAvatarLabUsd(item.costUsd):'',item.origin||''].filter(Boolean).join(' · ');meta.append(strong,small);
         const view=document.createElement('button');view.type='button';view.className='avatar-lab-image-library-view';view.title='Fullscreen preview';view.setAttribute('aria-label','Fullscreen preview');view.innerHTML='<span class="icon icon-fullscreen" aria-hidden="true"></span>';
         const use=()=>{if(item.libraryKind==='source'){state.avatarLabSourceImage=String(item.url||'');state.avatarLabSourceName='Saved source';state.avatarGrokUseAs3dSource=false;setAvatarLabActivity('Saved source selected','This saved image is now the current Avatar Lab source.','success',100);}else{state.avatarGrokActiveRequestId=String(item.requestId||'');state.avatarGrokUseAs3dSource=true;setAvatarLabActivity('Saved reference selected','This generated image is now the current reference and 3D source.','success',100);}renderAvatarLab();};
@@ -46005,6 +46128,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(avatarLabModelsView()==='full') state.avatarLabModelsView='compact';
       if(innerWidth<760 && avatarLabModelsView()==='compact') state.avatarLabModelsView='collapsed';
       setHiddenDialogState(elements.avatarLabModal,false);
+      suspendTimelineMediaHydration();
       initAvatarLabFloatingCards();
       setDesktopSideInspector('avatar-lab');
       refreshAvatarAutoPrompt(false);
@@ -46024,6 +46148,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       state.avatarLabActivity=null;
       state.avatarLabStageLoadingUrl=''; pauseAvatarLabStage();
       state.avatarLabReturnFocus=null;
+      requestAnimationFrame(refreshTimelineMediaHydration);
     }
 
     async function createAvatarLabSourceDataUrl(file) {
@@ -46090,7 +46215,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
 
       if(elements.profileAvatarSuiteSourcePreview){
         elements.profileAvatarSuiteSourcePreview.hidden=!baseSource;
-        if(baseSource&&elements.profileAvatarSuiteSourcePreview.src!==baseSource)elements.profileAvatarSuiteSourcePreview.src=baseSource;
+        if(baseSource)setAvatarLabDisplayImage(elements.profileAvatarSuiteSourcePreview,avatarLabSourceDisplayUrl(baseSource),baseSource);else elements.profileAvatarSuiteSourcePreview.removeAttribute('src');
       }
       if(elements.profileAvatarSuitePreviewMeta){
         const label=state.avatarLabSourceImage?`Uploaded source${state.avatarLabSourceName?` · ${state.avatarLabSourceName}`:''}`:baseSource?'Current profile photo':'No source selected yet.';
@@ -46125,11 +46250,12 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
 
       if(elements.profileAvatarGrokStatus){elements.profileAvatarGrokStatus.textContent=grokReason||'';}
       if(elements.profileAvatarGrokResult){elements.profileAvatarGrokResult.hidden=false;elements.profileAvatarGrokResult.classList.toggle('style-mode',styleMode);}
-      const stylePreviewUrl=referenceImageItem?.url || (styleMode?baseSource:'');
+      const stylePreviewOriginal=referenceImageItem?.url || (styleMode?baseSource:'');
+      const stylePreviewUrl=referenceImageItem?.url ? avatarLabDisplayUrl(referenceImageItem) : (styleMode?avatarLabSourceDisplayUrl(baseSource):'');
       const showVideo=!styleMode&&grokItem?.kind==='video'&&grokItem?.url;
       if(elements.profileAvatarGrokEmpty)elements.profileAvatarGrokEmpty.hidden=Boolean(stylePreviewUrl||showVideo);
-      if(elements.profileAvatarGrokImage){const show=Boolean(stylePreviewUrl)&&!showVideo;elements.profileAvatarGrokImage.hidden=!show;if(show&&elements.profileAvatarGrokImage.src!==new URL(stylePreviewUrl,location.href).href)elements.profileAvatarGrokImage.src=stylePreviewUrl;}
-      if(elements.profileAvatarGrokVideo){elements.profileAvatarGrokVideo.hidden=!showVideo;if(showVideo&&elements.profileAvatarGrokVideo.src!==new URL(grokItem.url,location.href).href)elements.profileAvatarGrokVideo.src=grokItem.url;}
+      if(elements.profileAvatarGrokImage){const show=Boolean(stylePreviewUrl)&&!showVideo;elements.profileAvatarGrokImage.hidden=!show;if(show)setAvatarLabDisplayImage(elements.profileAvatarGrokImage,stylePreviewUrl,stylePreviewOriginal);else elements.profileAvatarGrokImage.removeAttribute('src');}
+      if(elements.profileAvatarGrokVideo)configureAvatarLabGeneratedVideo(elements.profileAvatarGrokVideo,grokItem,Boolean(showVideo));
       if(elements.avatarLabReferenceHotspots)elements.avatarLabReferenceHotspots.hidden=!(styleMode&&stylePreviewUrl);
       if(styleMode&&stylePreviewUrl) requestAnimationFrame(syncAvatarLabReferenceHotspots);
       if(elements.profileAvatarGrokUseProfileButton){elements.profileAvatarGrokUseProfileButton.hidden=!referenceImageItem?.url;elements.profileAvatarGrokUseProfileButton.disabled=busy;}
