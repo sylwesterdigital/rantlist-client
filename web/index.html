@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.309">
+  <meta name="chat-ui-version" content="9.6.312">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -16804,7 +16804,8 @@
         min-width:0;
         min-height:0;
         background:transparent!important;
-        pointer-events:auto;
+        /* Desktop Avatar Lab is docked beside chat, so the chat side must remain interactive. */
+        pointer-events:none;
       }
       .avatar-lab-modal > .avatar-lab-card {
         grid-column:2;
@@ -17258,7 +17259,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.309</small>
+          <small id="serverBrandVersion">v9.6.312</small>
         </span>
       </button>
     </div>
@@ -17668,6 +17669,11 @@
             <input id="videoTranscodePromptInput" type="checkbox" role="switch">
           </label>
           <p id="videoTranscodePromptHint" class="hint">Off by default. When enabled, sending an ordinary video from Video, File, Camera, recording, drag/drop or recovered native sharing asks for an HLS transcoding preset before upload bytes are sent. The original master is always retained.</p>
+          <label class="config-toggle-row" for="ytdlpVideoImportInput">
+            <span>Enable /yt video downloads</span>
+            <input id="ytdlpVideoImportInput" type="checkbox" role="switch" aria-describedby="ytdlpVideoImportHint">
+          </label>
+          <p id="ytdlpVideoImportHint" class="hint">Off by default. When enabled, type /yt followed by a public media URL. X/Twitter clips use the best quality that fits the server/storage ceiling automatically; YouTube, Odysee and other site-specific yt-dlp extractors show the qualities actually reported for that item.</p>
           <div class="config-row" data-config-feature="youtube-audio-import">
             <label for="youtubeAudioImportQualitySelect">Default yt-dlp quality</label>
             <select id="youtubeAudioImportQualitySelect">
@@ -19665,7 +19671,7 @@
       <div class="modal-body youtube-import-body">
         <div class="youtube-import-source"><strong id="youtubeImportMediaTitle">Media</strong><span id="youtubeImportMeta"></span></div>
         <div class="youtube-import-quota"><div><strong>Storage</strong><span id="youtubeImportQuotaText"></span></div><div class="youtube-import-quota-track"><span id="youtubeImportQuotaBar"></span></div><small id="youtubeImportQuotaHint"></small></div>
-        <label class="youtube-import-quality-row"><span>Encoding quality</span><select id="youtubeImportQualitySelect"></select></label>
+        <label class="youtube-import-quality-row"><span id="youtubeImportQualityLabel">Encoding quality</span><select id="youtubeImportQualitySelect"></select></label>
         <div id="youtubeImportEstimate" class="youtube-import-estimate"></div>
         <label id="youtubeImportLongConfirmRow" class="youtube-import-confirm" hidden><input id="youtubeImportLongConfirm" type="checkbox"><span id="youtubeImportLongConfirmText">I want to import this long item.</span></label>
         <label id="youtubeImportVeryLongConfirmRow" class="youtube-import-confirm warning" hidden><input id="youtubeImportVeryLongConfirm" type="checkbox"><span id="youtubeImportVeryLongConfirmText">I understand this very long import may occupy the queue for a long time.</span></label>
@@ -20054,7 +20060,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'ytdlpVideoImportInput', 'ytdlpVideoImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualityLabel', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -20511,6 +20517,7 @@
       chatAiContextEnabled: readStorage('chat.ai.context') === 'on',
       youtubeAudioImportEnabled: true,
       youtubeAudioImportQuality: ['preserve', 'aac256', 'aac192', 'aac128', 'aac96', 'aac64'].includes(readStorage('chat.youtube.audioImportQuality')) ? readStorage('chat.youtube.audioImportQuality') : 'preserve',
+      ytdlpVideoImportEnabled: readStorage('chat.ytdlp.videoImport') === 'on',
       youtubeImportOffer: null,
       chatAiPromptHistoryEnabled: readStorage('chat.ai.promptHistory') === 'on',
       chatAiPromptHistoryCursor: null,
@@ -21433,6 +21440,11 @@
         writeStorage('chat.youtube.audioImport', state.youtubeAudioImportEnabled ? 'on' : 'off');
         renderChatAiSettings();
       });
+      elements.ytdlpVideoImportInput?.addEventListener('change', () => {
+        state.ytdlpVideoImportEnabled = elements.ytdlpVideoImportInput.checked === true;
+        writeStorage('chat.ytdlp.videoImport', state.ytdlpVideoImportEnabled ? 'on' : 'off');
+        renderChatAiSettings();
+      });
       elements.youtubeAudioImportQualitySelect?.addEventListener('change', () => {
         const selected = String(elements.youtubeAudioImportQualitySelect.value || 'preserve');
         if (['preserve', 'aac256', 'aac192', 'aac128', 'aac96', 'aac64'].includes(selected)) {
@@ -21448,16 +21460,23 @@
       elements.youtubeImportCancelButton?.addEventListener('click', () => closeYoutubeImportModal(true));
       elements.youtubeImportBackdrop?.addEventListener('click', () => closeYoutubeImportModal(true));
       elements.youtubeImportPostLinkButton?.addEventListener('click', () => {
-        const offerId = String(state.youtubeImportOffer?.offerId || '');
+        const offer = state.youtubeImportOffer;
+        const offerId = String(offer?.offerId || '');
         if (!offerId) return closeYoutubeImportModal(false);
-        sendJson({ type: 'youtube.audio.import.post-link', offerId });
+        const importKind = offer?.importKind === 'video' ? 'video' : 'audio';
+        sendJson({ type: importKind === 'video' ? 'youtube.video.import.post-link' : 'youtube.audio.import.post-link', offerId });
         closeYoutubeImportModal(false);
       });
       elements.youtubeImportConfirmButton?.addEventListener('click', () => {
         const offer = state.youtubeImportOffer;
         if (!offer?.offerId) return;
-        const quality = String(elements.youtubeImportQualitySelect?.value || state.youtubeAudioImportQuality || 'preserve');
-        const sent = sendJson({
+        const videoImport = offer.importKind === 'video';
+        const quality = String(elements.youtubeImportQualitySelect?.value || (videoImport ? 'best' : state.youtubeAudioImportQuality || 'preserve'));
+        const sent = sendJson(videoImport ? {
+          type: 'youtube.video.import.confirm',
+          offerId: offer.offerId,
+          quality,
+        } : {
           type: 'youtube.audio.import.confirm',
           offerId: offer.offerId,
           quality,
@@ -21465,8 +21484,10 @@
           confirmVeryLong: elements.youtubeImportVeryLongConfirm?.checked === true,
         });
         if (sent) {
-          state.youtubeAudioImportQuality = quality;
-          writeStorage('chat.youtube.audioImportQuality', quality);
+          if (!videoImport) {
+            state.youtubeAudioImportQuality = quality;
+            writeStorage('chat.youtube.audioImportQuality', quality);
+          }
           closeYoutubeImportModal(false);
         }
       });
@@ -22097,7 +22118,8 @@
         refreshComposerVisualState();
       });
       elements.messageInput.addEventListener('focus', () => {
-        if (elements.avatarLabModal && !elements.avatarLabModal.hidden) closeAvatarLab(false);
+        // Avatar Lab is a docked side workspace: typing in the room must not close it.
+        // Avatar Maker remains a modal editing surface and still yields to the composer.
         if (state.avatarMakerOpen) closeAvatarMakerStage(false);
         if (isRantlistIOSApp()) return;
         setTimeout(() => syncViewportHeight(false), 60);
@@ -23005,6 +23027,7 @@
           applyMediaLibraryItemDetail(message);
           break;
         case 'youtube.audio.import.offer':
+        case 'youtube.video.import.offer':
           openYoutubeImportOffer(message);
           break;
 
@@ -23071,6 +23094,19 @@
           break;
         }
 
+        case 'youtube.video.import.status': {
+          const stage = String(message.stage || 'processing');
+          const detail = String(message.detail || '').trim();
+          if (elements.uploadStatus) elements.uploadStatus.textContent = detail || '/yt video import…';
+          if (stage === 'error') addSystemMessage(`/yt video import failed: ${detail || 'unknown error'}`, true);
+          else if (stage === 'cancelled') {
+            setTimeout(() => { if (elements.uploadStatus?.textContent === detail) elements.uploadStatus.textContent = ''; }, 2000);
+          } else if (stage === 'ready') {
+            setTimeout(() => { if (elements.uploadStatus?.textContent === detail) elements.uploadStatus.textContent = ''; }, 3500);
+          }
+          break;
+        }
+
         case 'gif.gallery.snapshot':
           state.customGifs = Array.isArray(message.items) ? message.items.filter((item) => item?.id && item?.url) : [];
           state.customGifUsage = {
@@ -23131,7 +23167,7 @@
           break;
 
         case 'avatar3d.list':
-          state.avatar3dItems = Array.isArray(message.items) ? message.items : []; renderAvatarLab();
+          reconcileAvatar3dSnapshot(message.items); renderAvatarLab();
           { const pending=state.avatar3dItems.find((item)=>item && !['ready','failed','error','banned','expired','cancelled'].includes(String(item.status||'').toLowerCase())); if(pending?.taskId){state.avatar3dActiveTaskId=pending.taskId; scheduleAvatar3dPoll(pending.taskId,700);} }
           break;
         case 'avatar3d.status':
@@ -23140,7 +23176,7 @@
         case 'avatar3d.preview.saved':
           mergeAvatar3dItemState(message.item);renderAvatar3dModels(); break;
         case 'avatar3d.selected':
-          state.avatar3dItems=Array.isArray(message.items)?message.items:state.avatar3dItems;
+          if(Array.isArray(message.items))reconcileAvatar3dSnapshot(message.items);
           if(message.item?.taskId)state.avatar3dActiveTaskId=message.item.taskId;
           if(message.user){state.selfUser=message.user;state.desiredProfile={nickname:message.user.nickname,metadata:message.user.metadata||{}};updateRememberedProfileFromServer(message.user);}
           renderAvatarLab();void refreshAvatarLabStage(); break;
@@ -24423,23 +24459,28 @@
     }
 
     function closeYoutubeImportModal(notifyServer = true) {
-      const offerId = String(state.youtubeImportOffer?.offerId || '');
+      const offer = state.youtubeImportOffer;
+      const offerId = String(offer?.offerId || '');
+      const importKind = offer?.importKind === 'video' ? 'video' : 'audio';
       state.youtubeImportOffer = null;
       if (elements.youtubeImportModal) elements.youtubeImportModal.hidden = true;
-      if (notifyServer && offerId) sendJson({ type: 'youtube.audio.import.cancel', offerId });
+      if (notifyServer && offerId) sendJson({ type: importKind === 'video' ? 'youtube.video.import.cancel' : 'youtube.audio.import.cancel', offerId });
     }
 
     function updateYoutubeImportOfferEstimate() {
       const offer = state.youtubeImportOffer;
       if (!offer || !elements.youtubeImportQualitySelect) return;
+      const videoImport = offer.importKind === 'video';
       const selected = (Array.isArray(offer.qualities) ? offer.qualities : []).find((item) => item?.id === elements.youtubeImportQualitySelect.value);
       const duration = Math.max(0, Number(offer.durationSeconds) || 0);
       const estimated = Math.max(0, Number(selected?.estimatedBytes) || 0);
       const remaining = offer.storage?.quotaBytes > 0 ? Math.max(0, Number(offer.storage.remainingBytes) || 0) : null;
       if (elements.youtubeImportEstimate) {
         const size = estimated ? `Estimated output ${formatBytes(estimated)}` : 'Output size will be measured during download';
-        const bitrate = selected?.preserveSource ? 'source audio/container preserved when possible' : `${Math.max(0, Number(selected?.bitrateKbps) || 0)} kbps AAC/M4A`;
-        elements.youtubeImportEstimate.innerHTML = `<strong>${escapeHtml(size)}</strong><span>${escapeHtml(bitrate)}${duration ? ` · ${escapeHtml(formatDuration(duration * 1000))}` : ''}</span>`;
+        const detail = videoImport
+          ? (Number(selected?.height) > 0 ? `${Math.round(Number(selected.height))}p video + audio${Number(selected?.fps) > 30 ? ` · ${Math.round(Number(selected.fps))} fps` : ''}` : 'best available video + audio')
+          : (selected?.preserveSource ? 'source audio/container preserved when possible' : `${Math.max(0, Number(selected?.bitrateKbps) || 0)} kbps AAC/M4A`);
+        elements.youtubeImportEstimate.innerHTML = `<strong>${escapeHtml(size)}</strong><span>${escapeHtml(detail)}${duration ? ` · ${escapeHtml(formatDuration(duration * 1000))}` : ''}</span>`;
       }
       const overQuota = remaining != null && estimated > 0 && estimated > remaining;
       const overServer = estimated > 0 && Number(offer.serverMaxBytes) > 0 && estimated > Number(offer.serverMaxBytes);
@@ -24456,7 +24497,10 @@
         if (overDuration) parts.push(`Server maximum is ${formatDuration(Number(offer.maxDurationSeconds) * 1000)}.`);
         else if (overQuota) parts.push('This quality is larger than your currently available storage quota.');
         else if (selected?.allowed === false) parts.push('This quality is unavailable under current server/quota limits.');
-        else parts.push(`Queued imports are shared fairly between users; up to ${Math.max(1, Number(state.capabilities.youtubeAudioImportConcurrency) || 1)} run at once.`);
+        else {
+          const concurrency = videoImport ? state.capabilities.ytdlpVideoImportConcurrency : state.capabilities.youtubeAudioImportConcurrency;
+          parts.push(`Queued imports are shared fairly between users; up to ${Math.max(1, Number(concurrency) || 1)} run at once.`);
+        }
         if (needsVeryLong) parts.push('Very long media requires both confirmations.');
         else if (needsLong) parts.push('Long media requires confirmation before queueing.');
         elements.youtubeImportQueueHint.textContent = parts.join(' ');
@@ -24464,10 +24508,23 @@
     }
 
     function openYoutubeImportOffer(message) {
+      const videoImport = message?.importKind === 'video';
+      if (videoImport && message.autoStartQuality) {
+        const quality = String(message.autoStartQuality || 'best');
+        if (sendJson({ type: 'youtube.video.import.confirm', offerId: message.offerId, quality })) {
+          if (elements.uploadStatus) elements.uploadStatus.textContent = `X/Twitter /yt download starting · ${String((message.qualities || []).find((item)=>item?.id===quality)?.label || 'best available')}.`;
+        }
+        return;
+      }
       state.youtubeImportOffer = message;
       if (!elements.youtubeImportModal) return;
       const duration = Math.max(0, Number(message.durationSeconds) || 0);
-      elements.youtubeImportMediaTitle.textContent = String(message.title || 'Media import');
+      const title = elements.youtubeImportModal.querySelector?.('#youtubeImportTitle');
+      if (title) title.textContent = videoImport ? 'Import video' : 'Import media';
+      if (elements.youtubeImportQualityLabel) elements.youtubeImportQualityLabel.textContent = videoImport ? 'Video quality' : 'Encoding quality';
+      if (elements.youtubeImportConfirmButton) elements.youtubeImportConfirmButton.textContent = videoImport ? 'Queue video' : 'Queue import';
+      if (elements.youtubeImportPostLinkButton) elements.youtubeImportPostLinkButton.textContent = videoImport ? 'Post source link' : 'Post link';
+      elements.youtubeImportMediaTitle.textContent = String(message.title || (videoImport ? 'Video import' : 'Media import'));
       elements.youtubeImportMeta.textContent = `${String(message.extractor || 'yt-dlp')}${duration ? ` · ${formatDuration(duration * 1000)}` : ''}`;
       const storage = message.storage && typeof message.storage === 'object' ? message.storage : {};
       const used = Math.max(0, Number(storage.usedBytes) || 0);
@@ -24489,7 +24546,7 @@
         option.disabled = item.allowed === false;
         elements.youtubeImportQualitySelect.append(option);
       }
-      const preferred = String(message.preferredQuality || state.youtubeAudioImportQuality || 'preserve');
+      const preferred = String(message.preferredQuality || (videoImport ? 'best' : state.youtubeAudioImportQuality || 'preserve'));
       const preferredOption = [...elements.youtubeImportQualitySelect.options].find((option) => option.value === preferred && !option.disabled);
       const firstAllowed = [...elements.youtubeImportQualitySelect.options].find((option) => !option.disabled);
       if (preferredOption) elements.youtubeImportQualitySelect.value = preferredOption.value;
@@ -24499,7 +24556,7 @@
       elements.youtubeImportLongConfirmRow.hidden = message.longConfirmationRequired !== true;
       elements.youtubeImportVeryLongConfirmRow.hidden = message.veryLongConfirmationRequired !== true;
       if (message.longConfirmationRequired === true) elements.youtubeImportLongConfirmText.textContent = `This item is ${formatDuration(duration * 1000)}. Queue this long import.`;
-      if (message.veryLongConfirmationRequired === true) elements.youtubeImportVeryLongConfirmText.textContent = `This item is over 7 hours. I understand it may use substantial bandwidth, storage and queue time.`;
+      if (message.veryLongConfirmationRequired === true) elements.youtubeImportVeryLongConfirmText.textContent = `This item is ${formatDuration(duration * 1000)}. I understand it may use substantial bandwidth, storage and queue time.`;
       elements.youtubeImportModal.hidden = false;
       updateYoutubeImportOfferEstimate();
       setTimeout(() => elements.youtubeImportQualitySelect?.focus(), 0);
@@ -24522,6 +24579,36 @@
             : `Message is too large (${byteLength} bytes).`,
           true
         );
+        return;
+      }
+
+      const ytdlpVideoMatch = text.match(/^\/yt(?:\s+(.+))?$/i);
+      if (ytdlpVideoMatch) {
+        if (state.messageReplyDraft) {
+          addSystemMessage('/yt starts a new video attachment and cannot be used as a reply command.', true);
+          return;
+        }
+        if (state.ytdlpVideoImportEnabled !== true) {
+          addSystemMessage('Enable /yt video downloads in Config → Media first.', true);
+          return;
+        }
+        if (state.capabilities.ytdlpVideoImport !== true) {
+          addSystemMessage('/yt video downloads are unavailable on this server.', true);
+          return;
+        }
+        const videoUrl = mediaUrlOnly(String(ytdlpVideoMatch[1] || '').trim());
+        if (!videoUrl) {
+          addSystemMessage('Use /yt <public media URL>.', true);
+          return;
+        }
+        const sent = sendJson({ type: 'youtube.video.inspect', url: videoUrl, expiresInMs: state.outgoingExpiresInMs });
+        if (sent) {
+          stopTyping(true);
+          elements.messageInput.value = '';
+          resizeComposerInput();
+          refreshComposerVisualState();
+          elements.messageInput.focus();
+        }
         return;
       }
 
@@ -45895,8 +45982,8 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         if(elements.avatarLabModal.hidden||state.avatarLabStage!==stage||state.avatarLabStageLoadingUrl!==url){disposeAvatarLabSceneGraph(model);return;}
         const rigBoneNames=[];model.traverse((node)=>{if(node?.isBone)rigBoneNames.push(String(node.name||''));});const fingerBoneNames=rigBoneNames.filter((name)=>/(?:thumb|index|middle|ring|pinky|little|finger)/i.test(name));
         const box=new stage.THREE.Box3().setFromObject(model),size=new stage.THREE.Vector3(),center=new stage.THREE.Vector3();box.getSize(size);box.getCenter(center);const max=Math.max(.001,size.x,size.y,size.z);
-        const old=stage.model;if(old){stage.scene.remove(old);disposeAvatarLabSceneGraph(old);}stage.model=model;stage.scene.add(model);stage.url=url;stage.center=center;stage.size=size;stage.max=max;stage.targetY=center.y+size.y*.08;
-        stage.floor.position.y=box.min.y-max*.025;stage.floor.scale.setScalar(Math.max(.2,max*.55));stage.controls.target.set(center.x,stage.targetY,center.z);stage.camera.position.set(center.x,stage.targetY+max*.1,center.z+max*2.25);stage.controls.update();syncAvatarLabStageAppearance();stage.renderer.render(stage.scene,stage.camera);
+        const old=stage.model;const preserveView=Boolean(old&&stage.camera&&stage.controls&&stage.center);let savedCameraOffset=null,savedPanOffset=null;if(preserveView){const oldBaseTarget=new stage.THREE.Vector3(stage.center.x,stage.targetY,stage.center.z);savedCameraOffset=stage.camera.position.clone().sub(stage.controls.target);savedPanOffset=stage.controls.target.clone().sub(oldBaseTarget);}if(old){stage.scene.remove(old);disposeAvatarLabSceneGraph(old);}stage.model=model;stage.scene.add(model);stage.url=url;stage.center=center;stage.size=size;stage.max=max;stage.targetY=center.y+size.y*.08;
+        stage.floor.position.y=box.min.y-max*.025;stage.floor.scale.setScalar(Math.max(.2,max*.55));if(preserveView&&savedCameraOffset&&savedPanOffset){const nextTarget=new stage.THREE.Vector3(center.x,stage.targetY,center.z).add(savedPanOffset);stage.controls.target.copy(nextTarget);stage.camera.position.copy(nextTarget).add(savedCameraOffset);}else{stage.controls.target.set(center.x,stage.targetY,center.z);stage.camera.position.set(center.x,stage.targetY+max*.1,center.z+max*2.25);}stage.controls.update();syncAvatarLabStageAppearance();stage.renderer.render(stage.scene,stage.camera);
         if(elements.avatarLabStageStatus){const rigNote=item?.riggedUrl?` · Mixamo · ${fingerBoneNames.length?`${fingerBoneNames.length} finger bones detected`:'no finger chains detected'}`:'';elements.avatarLabStageStatus.textContent=`3D ready · drag to orbit · scroll/pinch to zoom${rigNote}`;}
         void captureAvatarLabStagePreview(item,stage);
       }catch(error){if(model&&model!==stage?.model)disposeAvatarLabSceneGraph(model);if(state.avatarLabStageLoadingUrl!==url&&stage?.url!==url)return;if(elements.avatarLabStageStatus){elements.avatarLabStageStatus.hidden=false;elements.avatarLabStageStatus.textContent=`3D preview unavailable: ${error?.message||'load failed'}`;}}
@@ -46213,8 +46300,16 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(actions){actions.replaceChildren();if(item?.url&&!item?.riggedUrl&&!['checking','rigging'].includes(rig)){const btn=document.createElement('button');btn.type='button';btn.dataset.avatarModelAction='rig';btn.dataset.taskId=taskId;btn.textContent='Rig';btn.title=item?.rigError?`Retry Mixamo rig: ${item.rigError}`:'Check humanoid riggability, then create a Mixamo-compatible biped skeleton';btn.disabled=avatarLabRequestBusy()||!state.tripoApiKeyConfigured;actions.append(btn);}const downloadUrl=item?.riggedUrl||item?.url;if(downloadUrl){const link=document.createElement('a');link.className='button-like';link.href=downloadUrl;link.download='';link.textContent=item?.riggedUrl?'Rigged GLB':'GLB';actions.append(link);}}
       hydrateAvatarLabModelThumbnail(item,img,placeholder);
     }
+    function avatar3dGalleryItems(){
+      const items=Array.isArray(state.avatar3dItems)?state.avatar3dItems:[];
+      return [...items].sort((a,b)=>{const created=Number(b?.createdAt||0)-Number(a?.createdAt||0);if(created)return created;return String(a?.taskId||'').localeCompare(String(b?.taskId||''));});
+    }
+    function reconcileAvatar3dSnapshot(items){
+      const incoming=Array.isArray(items)?items:[];const previous=new Map((Array.isArray(state.avatar3dItems)?state.avatar3dItems:[]).map((entry)=>[String(entry?.taskId||''),entry]));
+      state.avatar3dItems=incoming.map((entry)=>{const taskId=String(entry?.taskId||'');const prior=previous.get(taskId);if(!prior)return entry;return {...prior,...entry,thumbnailUrl:entry?.thumbnailUrl||prior?.thumbnailUrl||null,sourcePreviewUrl:entry?.sourcePreviewUrl||prior?.sourcePreviewUrl||null};});
+    }
     function renderAvatar3dModels(){
-      const grid=elements.avatarLabModelsGrid;if(!grid)return;syncAvatarLabModelsView();const items=Array.isArray(state.avatar3dItems)?state.avatar3dItems:[];
+      const grid=elements.avatarLabModelsGrid;if(!grid)return;syncAvatarLabModelsView();const items=avatar3dGalleryItems();
       if(elements.avatarLabModelsMeta)elements.avatarLabModelsMeta.textContent=items.length?`${items.length} model${items.length===1?'':'s'}`:'No models yet';
       const existing=new Map(Array.from(grid.querySelectorAll('.avatar-lab-model-card[data-avatar-model-card]')).map((card)=>[String(card.dataset.avatarModelCard||''),card]));
       if(!items.length){for(const card of existing.values())card.remove();let empty=grid.querySelector('.avatar-lab-model-empty');if(!empty){empty=document.createElement('div');empty.className='avatar-lab-model-empty';empty.textContent='Your Tripo models will stay available here.';grid.append(empty);}return;}
@@ -46258,7 +46353,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
     function handleAvatar3dMessage(message) {
       const item=message?.item;
-      if(Array.isArray(message?.items))state.avatar3dItems=message.items;else mergeAvatar3dItemState(item);
+      if(Array.isArray(message?.items))reconcileAvatar3dSnapshot(message.items);else mergeAvatar3dItemState(item);
       if (item?.taskId) {
         state.avatar3dActiveTaskId=item.taskId;
       }
@@ -47705,6 +47800,25 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
             : `Ready · URL-only messages supported by a site-specific yt-dlp extractor open an import chooser every time. The chooser shows quality/estimated size and your current quota; ${durationLabel}; ${serverLimitLabel}; ${concurrency} concurrent imports with a fair shared queue of ${maxQueue}. Unsupported URLs post normally.`;
         }
       }
+      if (elements.ytdlpVideoImportInput || elements.ytdlpVideoImportHint) {
+        const videoImportAvailable = state.capabilities.ytdlpVideoImport === true;
+        const serverMaxBytes = Math.max(0, Number(state.capabilities.ytdlpVideoImportMaxBytes) || 0);
+        const maxDurationSeconds = Math.max(0, Number(state.capabilities.ytdlpVideoImportMaxDurationSeconds) || 0);
+        const concurrency = Math.max(1, Number(state.capabilities.ytdlpVideoImportConcurrency) || 1);
+        const maxQueue = Math.max(1, Number(state.capabilities.ytdlpVideoImportMaxQueue) || 1);
+        if (elements.ytdlpVideoImportInput) {
+          elements.ytdlpVideoImportInput.checked = state.ytdlpVideoImportEnabled === true;
+          elements.ytdlpVideoImportInput.disabled = !videoImportAvailable;
+        }
+        if (elements.ytdlpVideoImportHint) {
+          const durationLabel = maxDurationSeconds ? `up to ${formatDuration(maxDurationSeconds * 1000)}` : 'administrator duration limit';
+          const sizeLabel = serverMaxBytes ? `hard final-file ceiling ${formatBytes(serverMaxBytes)}` : 'administrator file ceiling';
+          elements.ytdlpVideoImportHint.textContent = !videoImportAvailable
+            ? '/yt is unavailable because the server yt-dlp/FFmpeg runtime is not ready or the server feature gate is disabled.'
+            : `${state.ytdlpVideoImportEnabled ? 'On' : 'Off'} · /yt <URL> downloads video with audio through a site-specific yt-dlp extractor. X/Twitter auto-selects the best quality that fits the server/storage ceiling; YouTube, Odysee and other supported sites show the qualities reported for that item. ${sizeLabel}; ${durationLabel}; ${concurrency} concurrent download${concurrency === 1 ? '' : 's'}; shared queue ${maxQueue}.`;
+        }
+      }
+
       if (elements.chatAiPromptHistoryInput) {
         const promptHistoryAvailable = state.capabilities.chatAiPromptHistory !== false;
         elements.chatAiPromptHistoryInput.checked = state.chatAiPromptHistoryEnabled === true;

@@ -1,3 +1,15 @@
+## v0.1.149 — `/yt` merged-audio verification repair
+
+Synchronizes Rantlist **9.6.312 / r340**. `/yt` no longer rejects a successfully merged video merely because yt-dlp's `.info.json` still describes a video-only source representation. The server verifies the completed downloaded container itself for an audio stream with ffprobe/ffmpeg before accepting or rejecting the import. Existing quality selection, limits, queueing and media-preservation behavior are unchanged.
+
+## v0.1.148 — persistent 3D view + opt-in /yt video downloads
+
+Synchronizes Rantlist **9.6.311 / r339**. Switching My Models now replaces only the loaded model and preserves the current Avatar Lab orbit, pan and zoom instead of snapping back to the default camera. Config → Media adds an off-by-default `/yt` video-download toggle; `/yt <URL>` uses the server-managed yt-dlp runtime, auto-selects the best bounded X/Twitter quality, and shows actual available resolution choices for YouTube, Odysee and other site-specific extractors. Downloads are bounded by server size/duration, queue and per-profile storage limits; existing media/history is never deleted to make room.
+
+## v0.1.147 — persistent Avatar Lab and stable My Models order
+
+Synchronizes Rantlist **9.6.310 / r338**. The docked Avatar Lab now remains open while typing in the channel, and its desktop backdrop no longer intercepts clicks on the chat side. My Models uses deterministic creation-time order, reconciles model snapshots by task ID, and preserves already known preview URLs so selection/status refreshes do not reshuffle cards or make previews disappear. No stored user/profile/channel/message/media/model data is migrated.
+
 ## v0.1.146 — Avatar Lab stage, model gallery and console lifecycle repair
 
 Synchronizes Rantlist **9.6.309 / r337**. Focusing the channel Message composer now closes Avatar Lab/Avatar Maker, My Models reconciles stable cards instead of rebuilding thumbnails during polling, newly completed Tripo models carry authoritative selection state and load immediately into the single shared Three.js stage, and stage initialization is serialized to prevent competing WebGL renderers. Focus/`aria-hidden` handling, provider password forms and the trusted Helena iframe sandbox warning are also repaired. No stored user/profile/channel/message/media/model data is migrated.
