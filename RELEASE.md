@@ -1,3 +1,7 @@
+## v0.1.152 — Tripo-native My Models previews
+
+Synchronizes Rantlist **9.6.315 / r343**. My Models now uses Tripo's own rendered-image output instead of capturing screenshots from the live 3D stage. Compact/full model cards are larger image-first previews with overlaid metadata, hidden scrollbars and remembered desktop dragging. **Loading 3D stage…** reuses the channel typing rainbow animation while model replacement continues to preserve orbit, pan and zoom. Existing stored models and legacy previews remain compatible.
+
 ## v0.1.151 — demand-loaded media + lightweight Avatar Lab previews
 
 Synchronizes Rantlist **9.6.314 / r342**. Hidden Avatar Lab image libraries no longer fetch full-resolution AI/source images; visible cards use lazy lightweight derivatives and originals load only for explicit full-size/profile/3D actions. Timeline video/HLS sources are deferred until playback, timeline hydration is limited to the nearby viewport and suspended while Avatar Lab or a hidden tab obscures chat. The compact media **source** links and SVG image previews from v0.1.150 are retained. No stored media/history/model data is deleted or migrated.
