@@ -1,3 +1,7 @@
+## v0.1.162 — Stage targeted performance and collaborative still frames
+
+Synchronizes Rantlist **9.6.325 / r353** sanitized browser core. The server's embedded Stage now caches/culls ground and NPC raycast targets, coalesces editor GUI rebuilds, yields during large scene snapshots, keeps the current player's Rapier body when remote geometry changes arrive, shares bounded JPEG previews of committed captured image frames and replicates remote avatar heading/speed. The previous desktop Stage button and native macOS/iOS/Android wrappers are unchanged. Raw HAR/trace bytes, deployed multi-device physics and GPU/call performance were not available for verification.
+
 ## v0.1.161 — Stage icon centering and moving remote avatars
 
 Synchronizes the Rantlist **9.6.324 / r352** public browser core. The desktop Stage switch now keeps its icon fully centered and contained; explicit changes to the active Stage player's avatar publish coalesced appearance to channel peers with server-ACK retries. Remote built-in avatars use deduplicated bounded same-origin GLB loading, distinct skinned rig clones with movement/jump animation, stable roster reconciliation, and visible fallbacks for missing/private GLBs or out-of-order presence. The macOS/iOS/Android native wrappers and Downloads-watcher release process are preserved. Live GPU/WebXR, calls and cross-device model-asset compatibility remain to be tested.
