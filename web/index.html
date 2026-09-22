@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.321">
+  <meta name="chat-ui-version" content="9.6.322">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -642,111 +642,26 @@
     .message-viewport.stage-world-open #messageList::before {
       opacity: 0 !important;
     }
-    .message-stage-button {
-      position: absolute;
-      z-index: 14;
-      left: calc(50% + 48px);
-      bottom: 12px;
-      transform: translateX(-50%);
-      width: 38px;
-      height: 38px;
-      min-width: 38px;
-      min-height: 38px;
-      padding: 0;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
-      background: color-mix(in srgb, var(--panel) 88%, transparent);
-      color: var(--text);
-      box-shadow: 0 7px 20px rgba(0,0,0,.14);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      opacity: .92;
-      transition: opacity .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    /* r350: no Stage control on the editor canvas; desktop switch is in the chat header. */
+    .desktop-stage-button .icon { width:19px; height:19px; }
+    .desktop-stage-button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
+    .stage-feed-button[hidden] { display:none!important; }
+    .message-viewport .chat-stage-layer.stage-editor-layer { pointer-events:auto; z-index:1; }
+    .chat-stage-layer.stage-editor-layer iframe.stage-editor-frame { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#0b1020; }
+    .message-viewport.stage-world-open #messageList { position:absolute; z-index:5; inset:0; width:100%; height:100%; overflow-x:hidden; overflow-y:auto; background:transparent!important; pointer-events:auto; }
+    .message-viewport.stage-world-open:not(.stage-chat-visible) #messageList { visibility:hidden; opacity:0; pointer-events:none; }
+    .message-viewport.stage-world-open.stage-chat-visible #messageList { visibility:visible; opacity:1; }
+    .stage-eye-button { position:absolute; z-index:16; right:12px; bottom:12px; width:44px; height:44px; padding:0; display:grid; place-items:center; border:1px solid var(--line); border-radius:12px; cursor:pointer; background:color-mix(in srgb,var(--panel) 88%,transparent); color:var(--text); box-shadow:0 7px 22px #0005; }
+    .stage-eye-button[hidden] {display:none!important;}
+    .stage-eye-button img {width:23px;height:23px;filter:grayscale(1) brightness(2.4);}
+    .stage-edit-status {position:absolute;z-index:16;right:8px;top:8px;max-width:min(380px,90%);background:rgba(6,11,25,.87);color:#edf6ff;padding:7px 10px;font-size:12px;line-height:1.45;border-radius:9px;pointer-events:none;}
+    .stage-edit-status[hidden] {display:none!important;}
+    .message-viewport.stage-world-open .chat-stage-status {z-index:16;top:14px;max-width:90%;white-space:normal;text-align:center;}
+    @media(max-width:850px) {
+      .desktop-stage-button,.stage-feed-button,.stage-eye-button {display:none!important;}
+      .mobile-nav {grid-template-columns:repeat(6,minmax(0,1fr));}
     }
-    .message-to-bottom-button[hidden] + .message-stage-button { left: 50%; }
-    .message-stage-button:hover { opacity: 1; border-color: var(--accent); }
-    .message-stage-button:active:not(:disabled) { transform: translateX(-50%); }
-    .message-stage-button[aria-pressed="true"] {
-      opacity: 1;
-      border-color: color-mix(in srgb, var(--accent) 84%, #fff 16%);
-      background: color-mix(in srgb, var(--accent) 24%, var(--panel) 76%);
-      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent), 0 9px 26px color-mix(in srgb, var(--accent) 20%, transparent);
-    }
-    .message-stage-button .icon { width: 19px; height: 19px; }
-
-    /* r349: Stage stays full-size; only individual left/right bubbles change density. */
-    .chat-stage-layer.stage-editor-layer { pointer-events:auto; z-index:1; }
-    .chat-stage-layer.stage-editor-layer iframe.stage-editor-frame {
-      position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#0b1020;
-    }
-    .message-viewport.stage-world-open #messageList {
-      position:absolute; z-index:5; inset:0; width:100%; height:100%;
-      overflow-x:hidden; overflow-y:auto; background:transparent !important;
-      pointer-events:none; /* Stage editing is reachable between speech bubbles. */
-      transition:opacity .18s ease;
-    }
-    .message-viewport.stage-world-open #messageList > .message {
-      pointer-events:auto; /* Bubble actions, reactions and text stay interactive. */
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="medium"] #messageList .message:not(.system) {
-      max-width:min(68%,590px); font-size:13px; line-height:1.35;
-      padding:calc(var(--message-padding) * .8); margin-bottom:8px;
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="small"] #messageList .message:not(.system) {
-      max-width:min(52%,420px); font-size:11.5px; line-height:1.3;
-      padding:calc(var(--message-padding) * .65); margin-bottom:6px;
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message:not(.system) {
-      max-width:min(38%,300px); font-size:10px; line-height:1.25;
-      padding:calc(var(--message-padding) * .5); margin-bottom:4px;
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="small"] #messageList .message-head,
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message-head {
-      font-size:10px; min-height:0; gap:3px;
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message-head { font-size:9px; }
-    .message-viewport.stage-world-open[data-stage-overlay="small"] #messageList .message-text,
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message-text {
-      font-size:inherit; line-height:inherit;
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message-avatar {width:19px;height:19px;}
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .media-preview,
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .media-video-shell,
-    .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message-media {
-      max-width:170px; max-height:120px;
-    }
-    .message-viewport.stage-world-open[data-stage-overlay="hidden"] #messageList {
-      visibility:hidden; opacity:0; pointer-events:none;
-    }
-    .stage-overlay-button,.stage-feed-button {
-      position:absolute; z-index:15; bottom:12px; display:none;
-      min-width:38px; min-height:38px; padding:0 9px; border:1px solid var(--line);
-      border-radius:999px; background:color-mix(in srgb,var(--panel) 90%,transparent);
-      color:var(--text); box-shadow:0 7px 20px rgba(0,0,0,.2);
-      backdrop-filter:blur(12px); font-size:11px; font-weight:800; cursor:pointer;
-    }
-    .message-viewport.stage-world-open .stage-overlay-button,
-    .message-viewport.stage-world-open .stage-feed-button {display:grid;place-items:center;}
-    .stage-overlay-button {left:calc(50% + 102px);}
-    .stage-feed-button {left:calc(50% + 154px);}
-    .stage-edit-status {
-      position:absolute; z-index:16; right:8px;top:8px; max-width:200px;
-      background:rgba(6,11,25,.75); color:#edf6ff; padding:5px 8px;
-      font-size:10px; border-radius:8px; pointer-events:none;
-    }
-    .stage-edit-status[hidden]{display:none!important;}
-    .message-viewport.stage-world-open .chat-stage-status{z-index:16;top:45px;}
-    @media(max-width:520px){
-      .message-viewport.stage-world-open[data-stage-overlay="medium"] #messageList .message:not(.system){max-width:72%;}
-      .message-viewport.stage-world-open[data-stage-overlay="small"] #messageList .message:not(.system){max-width:60%;}
-      .message-viewport.stage-world-open[data-stage-overlay="nano"] #messageList .message:not(.system){max-width:46%;}
-      .stage-feed-button{left:auto;right:6px;}
-      .stage-overlay-button{left:auto;right:51px;}
-      .message-stage-button{left:calc(50% + 44px);}
-    }
-    @media(prefers-reduced-motion:reduce){.message-viewport.stage-world-open #messageList{transition:none;}}
+    @media(prefers-reduced-motion:reduce) {.message-viewport.stage-world-open #messageList {transition:none;}}
 
     .message {
       --user-color: #6e8bff;
@@ -17558,6 +17473,14 @@
     }
     :root[data-native-ios-app="true"] .avatar-lab-card{padding-bottom:env(safe-area-inset-bottom,0px);}
 
+
+    /* r350 final mobile-nav override: keep Stage directly after Calls. */
+    @media(max-width:850px) {
+      .desktop-stage-button,.stage-feed-button,.stage-eye-button { display:none!important; }
+      #mobileNav { grid-template-columns:repeat(5,minmax(0,1fr)); }
+      #mobileNav:has(.mobile-nav-room-toggle) { grid-template-columns:repeat(6,minmax(0,1fr)); }
+      #mobileNav button { min-width:0; }
+    }
 </style>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
@@ -17573,7 +17496,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.321</small>
+          <small id="serverBrandVersion">v9.6.322</small>
         </span>
       </button>
     </div>
@@ -19066,6 +18989,8 @@
             <button id="channelLeaveButton" class="icon-button channel-leave-button exit-control" type="button" title="Leave direct channel" aria-label="Leave direct channel" hidden><span class="icon icon-remove"></span></button>
             <button id="channelShareButton" class="icon-button channel-share-button" type="button" title="Share channel" aria-label="Share channel" hidden disabled><span class="icon icon-send"></span></button>
             <button id="channelSettingsButton" class="icon-button channel-settings-button" type="button" title="Channel settings" aria-label="Channel settings" hidden disabled><span class="icon icon-config"></span></button>
+            <button id="stageFeedButton" class="icon-button stage-feed-button" type="button" title="3D message columns: parallel" aria-label="Change 3D message column arrangement" hidden>Ⅱ</button>
+            <button id="desktopStageButton" class="icon-button desktop-stage-button" data-button-presentation-ignore type="button" title="Enter 3D Stage" aria-label="Enter 3D Stage" aria-pressed="false"><span class="icon icon-avatar-3d" aria-hidden="true"></span></button>
           </span>
         </div>
         <span id="channelUserRailHeaderHome" class="channel-user-rail-home" aria-hidden="true"></span>
@@ -19117,9 +19042,7 @@
           </div>
           <div id="messageList" aria-live="polite"></div>
           <button id="messageToBottomButton" class="message-to-bottom-button" data-button-presentation-ignore type="button" title="Jump to latest message" aria-label="Jump to latest message" hidden><span class="icon icon-bottom" aria-hidden="true"></span><span class="message-to-bottom-count" aria-hidden="true"></span></button>
-          <button id="messageStageButton" class="message-stage-button" data-button-presentation-ignore type="button" title="Enter Stage 1266" aria-label="Enter 3D Stage" aria-pressed="false"><span class="icon icon-avatar-3d" aria-hidden="true"></span></button>
-          <button id="stageOverlayButton" class="stage-overlay-button" data-button-presentation-ignore type="button" title="2D conversation overlay: full" aria-label="Change 2D message overlay size">2D</button>
-          <button id="stageFeedButton" class="stage-feed-button" data-button-presentation-ignore type="button" title="3D message columns: parallel" aria-label="Change 3D message column arrangement">Ⅱ</button>
+          <button id="stageEyeButton" class="stage-eye-button" data-button-presentation-ignore type="button" title="Show 2D chat over Stage" aria-label="Show 2D chat over Stage" hidden><img src="/assets/icons/eye.svg" width="22" height="22" alt="" aria-hidden="true"></button>
           <div id="stageEditStatus" class="stage-edit-status" aria-live="polite" hidden></div>
           <div id="messageTargetOverlay" class="message-target-overlay" hidden aria-live="polite">
             <span id="targetPill" class="target-pill" hidden>
@@ -19268,6 +19191,7 @@
     <button type="button" data-ui-button data-ui-short="Chat" data-mobile-panel="chat" class="active" aria-label="Chat"><span class="icon icon-chat ui-button-icon" aria-hidden="true"></span><span class="ui-button-label ui-button-label-full">Chat</span><span class="ui-button-label ui-button-label-short">Chat</span></button>
     <button type="button" data-ui-button data-ui-short="Users" data-mobile-panel="users" aria-label="Users"><span class="icon icon-users ui-button-icon" aria-hidden="true"></span><span class="ui-button-label ui-button-label-full">Users</span><span class="ui-button-label ui-button-label-short">Users</span></button>
     <button type="button" data-ui-button data-ui-short="Calls" data-mobile-panel="calls" aria-label="Calls"><span class="icon icon-calls ui-button-icon" aria-hidden="true"></span><span class="ui-button-label ui-button-label-full">Calls</span><span class="ui-button-label ui-button-label-short">Calls</span></button>
+    <button id="mobileStageButton" type="button" data-ui-button data-ui-short="Stage" data-mobile-panel="stage" aria-label="Enter 3D Stage" aria-pressed="false"><span class="icon icon-avatar-3d ui-button-icon" aria-hidden="true"></span><span class="ui-button-label ui-button-label-full">Stage</span><span class="ui-button-label ui-button-label-short">3D</span></button>
     <button id="mobileConfigButton" type="button" data-ui-button data-ui-short="Config" aria-label="Configuration"><span class="icon icon-config ui-button-icon" aria-hidden="true"></span><span class="ui-button-label ui-button-label-full">Config</span><span class="ui-button-label ui-button-label-short">Config</span></button>
   </nav>
 
@@ -20397,7 +20321,7 @@
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
-        'messageViewport', 'messageList', 'chatStageLayer', 'chatStageMount', 'chatStageStatus', 'messageToBottomButton', 'messageStageButton', 'stageOverlayButton', 'stageFeedButton', 'stageEditStatus', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
+        'messageViewport', 'messageList', 'chatStageLayer', 'chatStageMount', 'chatStageStatus', 'messageToBottomButton', 'desktopStageButton', 'mobileStageButton', 'stageEyeButton', 'stageFeedButton', 'stageEditStatus', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
@@ -20780,8 +20704,8 @@
       chatStageWorldHideTimer: 0,
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
       stageRevision: 0, stageWorldSnapshot: null, stageWorldRoom: '', stageFeedObserver: null,
-      stageFeedTimer: 0, stageOverlayMode: 'full', stageFeedMode: 'parallel', stageIsJoined: false,
-      stageFrameLoadTimer: 0,
+      stageFeedTimer: 0, stageOverlayVisible: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
+      stageFrameLoadTimer: 0, stageFrameLoadNonce: 0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
       customTheme: readJsonStorage('chat.ui.customTheme') || null,
@@ -22846,8 +22770,8 @@
         updateMessageToBottomButton();
       }, { passive: true });
       elements.messageToBottomButton.addEventListener('click', jumpMessageListToBottom);
-      elements.messageStageButton?.addEventListener('click', () => { void setChatStageWorldOpen(); });
-      elements.stageOverlayButton?.addEventListener('click', cycleStageOverlay);
+      elements.desktopStageButton?.addEventListener('click', () => { void setChatStageWorldOpen(); });
+      elements.stageEyeButton?.addEventListener('click', showStageChatOverlay);
       elements.stageFeedButton?.addEventListener('click', cycleStageFeed);
       window.addEventListener('message', handleStageFrameMessage);
 
@@ -23739,10 +23663,19 @@
 
         case 'room.joined':
           if(state.stageIframe && !sameRoom(message.room,state.currentRoom)) {
-            // A hidden but retained editor must not expose the previous room's scene.
-            // Same-room 2D/3D toggles and reconnects still reuse the warm iframe.
-            destroyStageFrame();
-            if(state.chatStageWorldOpen) void ensureChatStageWorld();
+            // Keep the same WASM/WebGL iframe across channel switches; reset only
+            // the static room world, feed, and volatile participant subscription.
+            stopChatStageWorldAnimation();
+            state.stageRevision=0;state.stageWorldSnapshot=null;
+            state.stageWorldRoom='';state.stagePendingSnapshot=null;state.stageAwaitingAck=false;
+            if(state.stageReady) {
+              postToStage('room',{room:message.room});
+              postToStage('feed',{room:message.room,items:[]});
+              if(elements.chatStageStatus && state.chatStageWorldOpen) {
+                elements.chatStageStatus.hidden=false;
+                elements.chatStageStatus.textContent='Switching channel world…';
+              }
+            }
           }
           if (!sameRoom(state.currentRoom, message.room)) {
             state.currentRoom = message.room;
@@ -23790,8 +23723,11 @@
           applyChatBackground();
           renderChatBackgroundEditor();
           refreshControls();
-          setMobilePanel('chat');
-          if(state.chatStageWorldOpen) startChatStageWorldAnimation();
+          // A channel switch does not force an already open Stage into 2D.
+          if(state.chatStageWorldOpen) {
+            if(mobileRoomRailNavIsAvailable()) setMobilePanel('stage');
+            startChatStageWorldAnimation();
+          } else setMobilePanel('chat');
           break;
 
         case 'stage.world.state':
@@ -23799,7 +23735,18 @@
         case 'stage.world.conflict':
           handleStageServerMessage(message); break;
         case 'stage.world.presence':
-          if(state.chatStageWorldOpen && (!message.room || message.room===stageRoomKey())) stageStatus('A participant '+(message.action==='join'?'entered':'left')+' Stage');
+        case 'stage.world.motion':
+          if(state.chatStageWorldOpen && message.room===stageRoomKey()) {
+            if(message.clientId) {
+              const id=String(message.clientId);
+              if(message.action==='leave') state.stagePeerPlayers.delete(id);
+              else if(state.stagePeerPlayers.has(id) || state.stagePeerPlayers.size<36) {
+                state.stagePeerPlayers.set(id,{...state.stagePeerPlayers.get(id), clientId:id, nickname:message.nickname||state.stagePeerPlayers.get(id)?.nickname, pose:message.pose||state.stagePeerPlayers.get(id)?.pose, seq:message.seq});
+              }
+            }
+            postToStage('peer',{action:message.action||'move',clientId:message.clientId,nickname:message.nickname,pose:message.pose,seq:message.seq});
+            if(message.type==='stage.world.presence') stageStatus('A participant '+(message.action==='join'?'entered':'left')+' Stage');
+          }
           break;
 
         case 'history.snapshot':
@@ -30094,12 +30041,12 @@
     }
 
     function timelineMediaHydrationSuspended() {
-      return document.visibilityState === 'hidden' || Boolean(elements.avatarLabModal && !elements.avatarLabModal.hidden) || (state.chatStageWorldOpen && ['nano','hidden'].includes(state.stageOverlayMode));
+      return document.visibilityState === 'hidden' || Boolean(elements.avatarLabModal && !elements.avatarLabModal.hidden) || (state.chatStageWorldOpen && !state.stageOverlayVisible);
     }
 
     function timelineMediaNodeNearViewport(node, margin = 180) {
       if (!(node instanceof Element) || !node.isConnected) return false;
-      const root = state.chatStageWorldOpen && state.stageOverlayMode !== 'full' ? elements.messageList : elements.messageViewport;
+      const root = state.chatStageWorldOpen ? elements.messageList : elements.messageViewport;
       const rect = node.getBoundingClientRect();
       const rootRect = root?.getBoundingClientRect?.() || { top: 0, bottom: window.innerHeight || document.documentElement.clientHeight || 0 };
       return rect.bottom >= rootRect.top - margin && rect.top <= rootRect.bottom + margin;
@@ -44634,22 +44581,15 @@
       state.stageIframe.contentWindow.postMessage({source:'rantlist.chat',event,...data}, location.origin);
     }
     function stageRoomKey() {return state.currentRoom ? normalizeRoomKey(state.currentRoom) : '';}
-    function syncStageOverlayButton() {
-      if (!elements.stageOverlayButton) return;
-      const label = ({full:'2D',medium:'M',small:'S',nano:'N',hidden:'○'})[state.stageOverlayMode] || '2D';
-      elements.messageViewport.dataset.stageOverlay=state.stageOverlayMode;
-      elements.stageOverlayButton.textContent=label;
-      elements.stageOverlayButton.title='2D conversation: '+state.stageOverlayMode+' · click to change';
-      elements.stageOverlayButton.setAttribute('aria-label',elements.stageOverlayButton.title);
+    function syncStageChatOverlay() {
+      elements.messageViewport.classList.toggle('stage-chat-visible', state.chatStageWorldOpen && state.stageOverlayVisible);
+      if(elements.stageEyeButton) elements.stageEyeButton.hidden = !state.chatStageWorldOpen || state.stageOverlayVisible || mobileRoomRailNavIsAvailable();
     }
-    function cycleStageOverlay() {
-      if (!state.chatStageWorldOpen) return;
-      const modes=['full','medium','small','nano','hidden'];
-      state.stageOverlayMode=modes[(modes.indexOf(state.stageOverlayMode)+1)%modes.length];
-      syncStageOverlayButton();
-      if (state.stageOverlayMode==='hidden') suspendTimelineMediaHydration();
-      else requestAnimationFrame(refreshTimelineMediaHydration);
-      if (state.stageOverlayMode!=='hidden') updateMessageToBottomButton();
+    function showStageChatOverlay() {
+      if(!state.chatStageWorldOpen || mobileRoomRailNavIsAvailable()) return;
+      state.stageOverlayVisible = true;
+      syncStageChatOverlay();
+      requestAnimationFrame(refreshTimelineMediaHydration);
     }
     function cycleStageFeed() {
       if (!state.chatStageWorldOpen) return;
@@ -44690,6 +44630,8 @@
       state.stageFeedObserver?.disconnect();state.stageFeedObserver=null;
       clearTimeout(state.stageFeedTimer);
       state.stageIsJoined=false;
+      state.stagePeerPlayers.clear();
+      postToStage('peers',{players:[]});
       if (state.socket?.readyState===WebSocket.OPEN) sendJson({type:'stage.world.leave'});
     }
     function startChatStageWorldAnimation() {
@@ -44714,6 +44656,8 @@
       state.stageWorldSnapshot=null;
       state.stageRevision=0;
       state.stageWorldRoom='';
+      ++state.stageFrameLoadNonce;
+      clearTimeout(state.stageFrameLoadTimer);
       state.stageIframe?.remove();state.stageIframe=null;
     }
     function flushStageSnapshot() {
@@ -44736,17 +44680,28 @@
         // Initialize once even if Stage finished loading while 2D chat was visible.
         // Subsequent toggles resume this exact iframe and never re-fetch Rapier.
         postToStage('init',{snapshot:state.stageWorldSnapshot});
+        // Join and presence packets can arrive before the heavy iframe loads.
+        postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
         postToStage('layout',{layout:state.stageFeedMode});
         if(state.chatStageWorldOpen) {
           startChatStageWorldAnimation();
-          if(elements.chatStageStatus) {elements.chatStageStatus.textContent='Stage 1266 · '+(data.xr?'WebXR available':'desktop 3D');setTimeout(()=>{if(state.chatStageWorldOpen)elements.chatStageStatus.hidden=true;},2500);}
+          if(elements.chatStageStatus) {elements.chatStageStatus.textContent='Loading channel scene… '+(data.xr?'WebXR available':'desktop 3D');/* 'applied' dismisses load status; slow-load timer warns at 8 seconds. */}
         }
         if(!state.chatStageWorldOpen || document.hidden) postToStage('pause');
+      } else if(data.event==='motion' && state.chatStageWorldOpen && state.stageIsJoined && stageRoomKey()===state.stageWorldRoom && !document.hidden) {
+        if(data.pose && typeof data.pose==='object' && state.socket?.readyState===WebSocket.OPEN) sendJson({type:'stage.world.motion',pose:data.pose,seq:++state.stageMotionSeq});
       } else if(data.event==='snapshot' && state.chatStageWorldOpen && data.snapshot && stageRoomKey()===state.stageWorldRoom) {
         state.stagePendingSnapshot=data.snapshot;
         flushStageSnapshot();
-      } else if(data.event==='error') stageStatus(String(data.detail||'Stage error').slice(0,180),true);
-      else if(data.event==='applied') stageStatus('Shared scene updated');
+      } else if(data.event==='progress') {
+        if(elements.chatStageStatus){elements.chatStageStatus.hidden=false;elements.chatStageStatus.textContent=String(data.detail||'Applying Stage scene…').slice(0,180);}
+      } else if(data.event==='error') {
+        if(elements.chatStageStatus){elements.chatStageStatus.hidden=false;elements.chatStageStatus.textContent='Stage: '+String(data.detail||'Could not finish loading').slice(0,150);}
+        stageStatus(String(data.detail||'Stage error').slice(0,180),true);
+      } else if(data.event==='applied') {
+        if(elements.chatStageStatus) elements.chatStageStatus.hidden=true;
+        stageStatus('Shared scene updated');
+      }
     }
     function handleStageServerMessage(message) {
       if(!state.chatStageWorldOpen || (message.room && message.room!==stageRoomKey())) return;
@@ -44756,12 +44711,24 @@
           state.stageRevision=Number(message.revision)||0;
           state.stageWorldSnapshot=message.snapshot||null;
           state.stageIsJoined=true;
+          // Static scene commits omit 'players': never discard active remote players.
+          if(Array.isArray(message.players)) {
+            state.stagePeerPlayers.clear();
+            for(const peer of message.players.slice(0,36)) if(peer?.clientId) state.stagePeerPlayers.set(String(peer.clientId),peer);
+            postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
+          }
+          postToStage('joined');
           // A remote commit with an unacknowledged local edit is not silently merged.
           if(state.stageAwaitingAck || state.stagePendingSnapshot) {
             state.stagePendingSnapshot=null;
             stageStatus('Concurrent scene update; uncommitted local changes were not merged',true);
           }
           if(message.snapshot) postToStage('world',{snapshot:message.snapshot});
+          else if(state.stageReady && elements.chatStageStatus) {
+            // Fresh channel: its built-in empty/default Stage is already ready.
+            elements.chatStageStatus.textContent='Stage ready · new channel world';
+            setTimeout(()=>{if(state.chatStageWorldOpen && state.stageWorldRoom===message.room)elements.chatStageStatus.hidden=true;},2200);
+          }
           flushStageSnapshot();
           break;
         case 'stage.world.ack':
@@ -44788,42 +44755,47 @@
       iframe.title='Stage 1266 collaborative 3D world editor';
       iframe.setAttribute('allow','xr-spatial-tracking; camera; microphone; fullscreen');
       iframe.setAttribute('allowfullscreen','');
-      iframe.src='/stage/';
+      // Give Chat/call controls a painted frame before fetching the heavy Stage runtime.
       state.stageIframe=iframe; // Single lazy iframe retained across 2D/3D toggles.
       elements.chatStageMount.appendChild(iframe);
-      state.stageFrameLoadTimer=setTimeout(()=>{if(state.chatStageWorldOpen && !state.stageReady && elements.chatStageStatus){elements.chatStageStatus.hidden=false;elements.chatStageStatus.textContent='Stage still loading. Check Stage assets or network.';}},24000);
+      const frameLoadNonce=++state.stageFrameLoadNonce;
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        if(state.stageIframe===iframe && state.stageFrameLoadNonce===frameLoadNonce) iframe.src='/stage/';
+      }));
+      state.stageFrameLoadTimer=setTimeout(()=>{if(state.chatStageWorldOpen && !state.stageReady && elements.chatStageStatus){elements.chatStageStatus.hidden=false;elements.chatStageStatus.textContent='Stage is still loading 3D assets and Rapier. Chat and calls remain available.';}},8000);
       return iframe;
     }
     async function setChatStageWorldOpen(forceOpen=null) {
       const open=typeof forceOpen==='boolean'?forceOpen:!state.chatStageWorldOpen;
+      if(open && !stageRoomKey()) {stageStatus('Join a channel before entering Stage',true);return;}
       clearTimeout(state.chatStageWorldHideTimer);
+      if(open===state.chatStageWorldOpen && (!open || state.stageIframe?.isConnected)) return;
       state.chatStageWorldOpen=open;
-      elements.messageStageButton?.setAttribute('aria-pressed',String(open));
-      elements.messageStageButton?.setAttribute('aria-label',open?'Return to 2D chat':'Enter 3D Stage');
-      elements.messageStageButton.title=open?'Return to 2D chat':'Enter 3D Stage';
-      if(!open){
+      state.stageOverlayVisible=false; // On every entry the Stage is unobstructed.
+      elements.desktopStageButton?.setAttribute('aria-pressed',String(open));
+      elements.desktopStageButton?.setAttribute('aria-label',open?'Return to 2D chat':'Enter 3D Stage');
+      if(elements.desktopStageButton) elements.desktopStageButton.title=open?'Return to 2D chat':'Enter 3D Stage';
+      elements.mobileStageButton?.setAttribute('aria-pressed',String(open));
+      if(elements.stageFeedButton) elements.stageFeedButton.hidden=!open;
+      syncStageChatOverlay();
+      if(!open) {
         stopChatStageWorldAnimation();
         requestAnimationFrame(refreshTimelineMediaHydration);
         elements.messageViewport.classList.remove('stage-world-open');
         elements.chatStageLayer.setAttribute('aria-hidden','true');
-        // Keep Stage iframe warm for instant return, but release its rendering/GPU work.
         state.chatStageWorldHideTimer=setTimeout(()=>{if(!state.chatStageWorldOpen)elements.chatStageLayer.hidden=true;},280);
         return;
       }
+      // No heavy synchronous work runs before the loader becomes visible.
       elements.chatStageLayer.hidden=false;
       elements.chatStageLayer.setAttribute('aria-hidden','false');
-      syncStageOverlayButton();
       elements.messageViewport.classList.add('stage-world-open');
-      if(!state.stageReady) {
-        elements.chatStageStatus.hidden=false;
-        elements.chatStageStatus.textContent='Loading full Stage 1266…';
-      } else {
-        // Resume the existing WebGL world; reassigning iframe.src would reload Rapier.
-        elements.chatStageStatus.hidden=true;
-      }
+      syncStageChatOverlay();
+      suspendTimelineMediaHydration();
+      elements.chatStageStatus.hidden=false;
+      elements.chatStageStatus.textContent=state.stageReady?'Connecting to this channel…':'Preparing 3D world… Chat and calls remain available.';
       await ensureChatStageWorld();
-      if(!state.chatStageWorldOpen) return; // Closed while initial load was pending.
-      startChatStageWorldAnimation();
+      if(state.chatStageWorldOpen) startChatStageWorldAnimation();
     }
 
     function updateMessageToBottomButton() {
@@ -53040,9 +53012,19 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
 
     function setMobilePanel(name) {
+      if(name==='stage' && !stageRoomKey()) {
+        stageStatus('Join a channel before entering Stage',true);
+        name='chat';
+      }
+      if(name==='stage') {
+        if(!state.chatStageWorldOpen) void setChatStageWorldOpen(true);
+      } else if(state.chatStageWorldOpen) {
+        void setChatStageWorldOpen(false); // Chat always restores the original 2D view.
+      }
       state.activeMobilePanel = name;
       syncViewportHeight(false);
-      for (const panel of document.querySelectorAll('.panel:not(#roomsPanel)')) panel.classList.toggle('mobile-active', panel.dataset.panel === name);
+      const panelName=name==='stage'?'chat':name;
+      for (const panel of document.querySelectorAll('.panel:not(#roomsPanel)')) panel.classList.toggle('mobile-active', panel.dataset.panel === panelName);
       for (const button of elements.mobileNav.querySelectorAll('[data-mobile-panel]')) button.classList.toggle('active', button.dataset.mobilePanel === name);
       if (name === 'chat') { scrollMessages(); requestAnimationFrame(refreshReadCandidates); }
     }
