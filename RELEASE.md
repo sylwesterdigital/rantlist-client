@@ -1,3 +1,7 @@
+## v0.1.154 — My Models stylesheet placement repair
+
+Synchronizes Rantlist **9.6.317 / r345**. The remaining My Models vertical-strip regression came from the r332-r344 Avatar Lab CSS being embedded inside the Drawing Table portable-SVG template rather than the document stylesheet, so the browser never applied the intended gallery rules. The CSS is restored to the page, portable SVG export is clean again, and My Models stays draggable without inheriting Source/Reference float-card visuals. Compact mode is explicitly 520-860px on desktop; Tripo previews, stable ordering, hidden scrollbars, full mode and preserved 3D stage camera state remain unchanged.
+
 ## v0.1.153 — My Models compact/collapsed layout repair
 
 Synchronizes Rantlist **9.6.316 / r344**. My Models remains draggable, but no longer inherits the Source/Reference image-card geometry that could squeeze a collapsed gallery into a near-zero-width vertical strip. Compact mode keeps a bounded horizontal gallery and collapsed mode is a readable horizontal control bar. Tripo previews, stable ordering, hidden scrollbars, full-gallery mode and preserved 3D stage camera state are unchanged.

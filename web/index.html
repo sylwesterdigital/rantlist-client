@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.316">
+  <meta name="chat-ui-version" content="9.6.317">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17247,6 +17247,152 @@
     .avatar-lab-image-library-view .icon{width:14px!important;height:14px!important;}
     @media(max-width:1099px){.avatar-lab-images-panel{left:8px!important;right:8px!important;top:64px!important;width:auto!important;max-height:60vh!important;transform:none!important;}.avatar-lab-images-grid{grid-template-columns:repeat(auto-fill,minmax(105px,1fr));}}
 
+
+    /* r345: recover Avatar Lab UI rules that were accidentally embedded in the portable-SVG font template. */
+    /* r332: iPhone/iOS Avatar Lab is a stage-first full-screen workspace. The WebGL
+       stage remains the only live 3D surface; media, settings and galleries are
+       ordinary DOM/bitmap UI layered around it. */
+    @media (max-width:760px){
+      .avatar-lab-modal{padding:0!important;inset:0!important;}
+      .avatar-lab-card{width:100vw!important;height:var(--app-height,100dvh)!important;max-height:var(--app-height,100dvh)!important;border-radius:0!important;border:0!important;grid-template-rows:auto minmax(0,1fr)!important;}
+      .avatar-lab-topbar{min-height:44px!important;height:44px!important;gap:5px!important;padding:5px 48px 5px 7px!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;white-space:nowrap!important;}
+      .avatar-lab-topbar::-webkit-scrollbar{display:none!important;}
+      #avatarLabCloseButton{position:fixed!important;top:5px!important;right:5px!important;z-index:1005!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;background:rgba(5,9,16,.88)!important;}
+      .avatar-lab-flow{flex:0 0 auto!important;gap:3px!important;overflow:visible!important;}
+      .avatar-lab-flow span{padding:4px 6px!important;font-size:9px!important;}
+      .avatar-lab-flow span::before{width:15px!important;height:15px!important;font-size:8px!important;}
+      .avatar-lab-topbar-settings{position:static!important;display:flex!important;gap:4px!important;flex:0 0 auto!important;}
+      .avatar-lab-topbar .avatar-lab-topbar-settings-menu{position:static!important;min-width:auto!important;}
+      .avatar-lab-topbar .avatar-lab-topbar-settings-menu>summary{min-height:30px!important;padding:4px 7px!important;font-size:9px!important;}
+      .avatar-lab-topbar .avatar-lab-topbar-settings-menu>summary small{display:none!important;}
+      .avatar-lab-topbar-log-button{min-height:30px!important;height:30px!important;padding:4px 7px!important;font-size:9px!important;}
+      .avatar-lab-cost-chip{display:none!important;}
+      .avatar-lab-topbar .avatar-lab-reference-settings-panel,
+      .avatar-lab-topbar .avatar-lab-topbar-settings-panel,
+      .avatar-lab-topbar .avatar-lab-3d-settings.avatar-lab-topbar-settings-panel{position:fixed!important;z-index:1002!important;top:48px!important;left:8px!important;right:8px!important;width:auto!important;max-height:min(64dvh,520px)!important;overflow:auto!important;border-radius:12px!important;}
+
+      .profile-avatar-lab{min-height:0!important;grid-template-rows:minmax(310px,58%) minmax(0,42%)!important;}
+      .avatar-lab-workbench{position:relative!important;display:block!important;min-height:0!important;padding:6px!important;overflow:hidden!important;background:#101624!important;}
+      .avatar-lab-stage{position:absolute!important;inset:6px!important;display:block!important;border-radius:14px!important;overflow:hidden!important;}
+      .avatar-lab-stage-status{top:8px!important;max-width:58%!important;padding:4px 7px!important;font-size:9px!important;}
+      .avatar-lab-stage-empty{inset:32% 20% auto!important;min-height:72px!important;padding:8px!important;font-size:10px!important;}
+
+      .avatar-lab-source-card,.avatar-lab-generated-card{position:absolute!important;z-index:20!important;top:10px!important;bottom:auto!important;width:clamp(108px,31vw,132px)!important;height:auto!important;min-height:132px!important;max-height:min(34dvh,224px)!important;padding:0!important;overflow:hidden!important;border-radius:12px!important;background:rgba(6,10,18,.80)!important;backdrop-filter:blur(10px)!important;box-shadow:0 9px 26px rgba(0,0,0,.28)!important;}
+      .avatar-lab-source-card{left:10px!important;right:auto!important;}
+      .avatar-lab-generated-card{right:10px!important;left:auto!important;display:block!important;}
+      .avatar-lab-source-card>.avatar-lab-float-handle,.avatar-lab-generated-card>.avatar-lab-float-handle{position:absolute!important;z-index:25!important;top:0!important;left:0!important;right:0!important;min-height:27px!important;padding:5px 6px 14px!important;font-size:8.5px!important;background:linear-gradient(180deg,rgba(4,8,15,.94),rgba(4,8,15,.50),transparent)!important;pointer-events:none!important;}
+      .avatar-lab-float-handle strong{font-size:9px!important;}.avatar-lab-float-handle small{font-size:7px!important;max-width:48%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
+      .profile-avatar-suite-source{display:block!important;width:100%!important;height:auto!important;max-height:min(30dvh,200px)!important;object-fit:contain!important;object-position:center!important;border:0!important;border-radius:12px!important;background:transparent!important;}
+      .avatar-lab-generated-media{display:block!important;width:100%!important;height:auto!important;min-height:132px!important;max-height:min(30dvh,200px)!important;border:0!important;border-radius:12px!important;background:transparent!important;overflow:hidden!important;}
+      .avatar-lab-generated-card img,.avatar-lab-generated-card video{display:block!important;width:100%!important;height:auto!important;max-height:min(30dvh,200px)!important;object-fit:contain!important;background:transparent!important;}
+      .avatar-lab-generated-placeholder{min-height:132px!important;padding:36px 8px 52px!important;font-size:8px!important;}
+      .avatar-lab-source-meta{display:none!important;}
+      .avatar-lab-image-view-button{z-index:30!important;top:29px!important;right:4px!important;width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important;padding:0!important;}
+      .avatar-lab-card-actions{position:absolute!important;z-index:28!important;left:4px!important;bottom:4px!important;display:flex!important;gap:2px!important;padding:2px!important;border-radius:8px!important;background:rgba(4,8,15,.76)!important;}
+      .avatar-lab-card-actions button{width:25px!important;min-width:25px!important;height:25px!important;min-height:25px!important;padding:3px!important;font-size:0!important;}
+      .avatar-lab-card-actions #avatarLabSourceResetButton{font-size:7px!important;width:auto!important;min-width:28px!important;padding:3px 4px!important;}
+      .avatar-lab-source-render{position:absolute!important;z-index:28!important;right:4px!important;bottom:4px!important;width:34px!important;min-width:34px!important;min-height:29px!important;padding:3px!important;border-radius:8px!important;font-size:0!important;}
+      .avatar-lab-source-render .icon{width:15px!important;height:15px!important;}
+      .profile-avatar-grok-actions{position:absolute!important;z-index:28!important;left:4px!important;right:4px!important;bottom:4px!important;display:flex!important;gap:2px!important;padding:2px!important;border-radius:8px!important;background:rgba(4,8,15,.76)!important;}
+      .profile-avatar-grok-actions button{min-height:27px!important;padding:3px 5px!important;font-size:7.5px!important;}
+      .profile-avatar-grok-actions .avatar-lab-render-3d{margin-left:auto!important;min-width:32px!important;font-size:0!important;}
+      .profile-avatar-grok-actions .avatar-lab-render-3d .icon{width:15px!important;height:15px!important;}
+
+      .avatar-lab-stage-tools{left:8px!important;bottom:8px!important;z-index:32!important;}
+      .avatar-lab-stage-tools-panel{max-width:calc(100vw - 28px)!important;grid-template-columns:repeat(3,minmax(62px,1fr))!important;padding:7px!important;background:rgba(5,9,16,.92)!important;}
+      .avatar-lab-stage .avatar-lab-style-popover{position:absolute!important;z-index:34!important;right:8px!important;bottom:8px!important;top:auto!important;left:auto!important;width:max-content!important;}
+      .avatar-lab-stage .avatar-lab-style-popover>summary{min-height:30px!important;padding:4px 8px!important;border-radius:9px!important;}
+      .avatar-lab-stage .avatar-lab-style-popover[open] .avatar-lab-style-popover-panel{position:fixed!important;z-index:1001!important;left:8px!important;right:8px!important;top:auto!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-width:none!important;max-height:min(58dvh,520px)!important;overflow:auto!important;padding:10px!important;border-radius:14px!important;background:rgba(6,10,18,.97)!important;box-shadow:0 -16px 44px rgba(0,0,0,.48)!important;}
+      .avatar-lab-stage .avatar-lab-style-panel{gap:8px!important;}
+      .avatar-lab-style-row{grid-template-columns:76px minmax(0,1fr)!important;}
+      .avatar-lab-colour-swatch{width:76px!important;grid-template-columns:35px 35px!important;gap:6px!important;}
+      .avatar-lab-colour-swatch input[type="checkbox"],.avatar-lab-colour-swatch input[type="color"]{width:35px!important;height:35px!important;min-width:35px!important;min-height:35px!important;}
+      .avatar-lab-style-row #avatarLabPartStyle{height:35px!important;min-height:35px!important;}
+
+      .avatar-lab-models-panel{position:absolute!important;z-index:31!important;left:50%!important;right:auto!important;bottom:8px!important;transform:translateX(-50%)!important;width:auto!important;max-width:72%!important;max-height:38px!important;padding:4px 6px!important;border-radius:10px!important;background:rgba(5,9,16,.84)!important;backdrop-filter:blur(9px)!important;}
+      .avatar-lab-models-panel>header{min-height:28px!important;gap:5px!important;}.avatar-lab-models-panel>header strong{font-size:10px!important;}.avatar-lab-models-panel>header small{font-size:7px!important;}
+      .avatar-lab-models-panel.is-collapsed .avatar-lab-models-grid{display:none!important;}
+      .avatar-lab-models-panel.is-compact{width:calc(100% - 24px)!important;max-width:none!important;max-height:118px!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{overflow-x:auto!important;overflow-y:hidden!important;display:grid!important;grid-auto-flow:column!important;grid-auto-columns:150px!important;grid-template-columns:none!important;gap:5px!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-card{height:76px!important;grid-template-columns:62px minmax(0,1fr)!important;padding:4px!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-thumb{width:62px!important;height:66px!important;}
+      .avatar-lab-models-panel.is-full{position:fixed!important;z-index:1000!important;inset:44px 0 0!important;transform:none!important;width:100vw!important;max-width:none!important;max-height:none!important;padding:10px!important;border-radius:0!important;background:var(--panel)!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-models-grid{overflow:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-flow:row!important;gap:8px!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-card{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:120px auto auto!important;min-height:184px!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-thumb{width:100%!important;height:120px!important;}
+
+      .avatar-lab-prompt-deck{min-height:0!important;display:block!important;overflow:auto!important;padding:8px!important;overscroll-behavior:contain!important;}
+      .avatar-lab-primary{height:auto!important;min-height:100%!important;overflow:visible!important;display:grid!important;grid-template-rows:auto minmax(145px,1fr)!important;gap:7px!important;}
+      .avatar-lab-prompt-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:6px!important;}
+      .avatar-lab-prompt-toolbar .field:nth-child(2){grid-column:auto!important;}
+      .avatar-lab-prompt-actions{grid-column:1/-1!important;display:flex!important;justify-content:flex-end!important;gap:5px!important;}
+      .avatar-lab-prompt-actions button{width:auto!important;min-height:30px!important;padding:3px 7px!important;font-size:9px!important;}
+      #profileAvatarGrokPrompt{min-height:145px!important;height:auto!important;resize:none!important;padding:10px!important;font-size:11px!important;line-height:1.38!important;}
+
+      .avatar-lab-activity{position:fixed!important;z-index:1003!important;left:12px!important;right:12px!important;top:50%!important;bottom:auto!important;width:auto!important;min-width:0!important;max-width:none!important;transform:translateY(-50%)!important;padding:10px!important;background:rgba(5,9,16,.76)!important;}
+      .avatar-lab-activity progress{height:14px!important;}
+      .avatar-lab-images-panel,.avatar-lab-logs-panel{position:fixed!important;z-index:1002!important;left:8px!important;right:8px!important;top:54px!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-height:none!important;transform:none!important;border-radius:14px!important;}
+      .avatar-lab-images-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
+    }
+    /* r343: provider thumbnails, image-first model cards, hidden gallery scrollbars and stage-loading motion. */
+    .avatar-lab-models-grid{scrollbar-width:none!important;-ms-overflow-style:none!important;overscroll-behavior:contain!important;}
+    .avatar-lab-models-grid::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;}
+    .avatar-lab-models-panel>header.avatar-lab-models-handle{cursor:grab;touch-action:none;user-select:none;}
+    .avatar-lab-models-panel.is-dragging>header.avatar-lab-models-handle{cursor:grabbing;}
+    .avatar-lab-stage-status.is-loading{color:transparent!important;-webkit-text-fill-color:transparent!important;background-image:linear-gradient(90deg,#ff315c 0%,#ff8a2b 14.285%,#ffe85c 28.57%,#39dc88 42.855%,#36c8ff 57.14%,#7b6cff 71.425%,#f05cff 85.71%,#ff315c 100%)!important;background-size:240px 100%!important;background-repeat:repeat-x!important;background-position:0 50%!important;-webkit-background-clip:text!important;background-clip:text!important;animation:typing-rainbow-flow 3.2s linear infinite!important;}
+    @media (prefers-reduced-motion:reduce){.avatar-lab-stage-status.is-loading{animation:none!important;background-position:0 50%!important;}}
+    @media (min-width:1100px){
+      .avatar-lab-models-panel.is-compact{width:min(820px,66%)!important;max-height:156px!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{grid-auto-columns:196px!important;gap:7px!important;padding:0 2px 7px!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-card{position:relative!important;display:block!important;height:108px!important;min-height:108px!important;padding:0!important;overflow:hidden!important;border-radius:11px!important;background:#111827!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-thumb{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:0!important;background:#111827!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;background:#111827!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-info{position:absolute!important;z-index:3!important;left:0!important;right:0!important;top:0!important;padding:7px 8px 19px!important;display:grid!important;gap:2px!important;background:linear-gradient(180deg,rgba(4,8,16,.88),rgba(4,8,16,.38),transparent)!important;pointer-events:none!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-info strong{font-size:10.5px!important;color:#fff!important;text-shadow:0 1px 2px #000!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-info small{font-size:7.5px!important;color:rgba(255,255,255,.82)!important;text-shadow:0 1px 2px #000!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-actions{position:absolute!important;z-index:4!important;left:5px!important;right:5px!important;bottom:5px!important;display:flex!important;justify-content:flex-end!important;gap:4px!important;pointer-events:none!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-actions button,.avatar-lab-models-panel.is-compact .avatar-lab-model-actions .button-like{pointer-events:auto!important;min-height:24px!important;padding:2px 6px!important;background:rgba(5,9,16,.78)!important;backdrop-filter:blur(5px)!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-rig-badge{left:6px!important;right:auto!important;bottom:6px!important;z-index:4!important;padding:2px 5px!important;font-size:7px!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-models-grid{scrollbar-width:none!important;padding-bottom:14px!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-card{position:relative!important;display:block!important;min-height:190px!important;height:190px!important;padding:0!important;overflow:hidden!important;border-radius:12px!important;background:#111827!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-thumb{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:0!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-info{position:absolute!important;z-index:3!important;left:0!important;right:0!important;top:0!important;padding:9px 10px 28px!important;background:linear-gradient(180deg,rgba(4,8,16,.9),rgba(4,8,16,.36),transparent)!important;pointer-events:none!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-info strong{font-size:13px!important;color:#fff!important;}.avatar-lab-models-panel.is-full .avatar-lab-model-info small{font-size:9px!important;color:rgba(255,255,255,.84)!important;}
+      .avatar-lab-models-panel.is-full .avatar-lab-model-actions{position:absolute!important;z-index:4!important;left:7px!important;right:7px!important;bottom:7px!important;justify-content:flex-end!important;pointer-events:none!important;}.avatar-lab-models-panel.is-full .avatar-lab-model-actions>*{pointer-events:auto!important;}
+    }
+    @media (max-width:1099px){
+      .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{padding-bottom:7px!important;scrollbar-width:none!important;}
+      .avatar-lab-models-panel.is-compact .avatar-lab-model-card{position:relative!important;overflow:hidden!important;}
+    }
+    /* r344: My Models uses the float-card drag controller, but not the Source/Reference
+       image-card sizing/header layout. In r343 those generic rules made a collapsed
+       model gallery shrink to an empty vertical strip because its only visible header
+       was absolutely positioned and therefore contributed no intrinsic width. */
+    .avatar-lab-models-panel{height:auto!important;min-height:0!important;box-sizing:border-box!important;}
+    .avatar-lab-models-panel>.avatar-lab-models-handle{position:relative!important;inset:auto!important;min-height:24px!important;padding:0!important;background:none!important;pointer-events:auto!important;}
+    .avatar-lab-models-panel.is-collapsed{width:clamp(210px,24vw,280px)!important;height:38px!important;min-width:210px!important;min-height:38px!important;max-height:38px!important;padding:6px 7px!important;}
+    .avatar-lab-models-panel.is-collapsed>.avatar-lab-models-handle{height:24px!important;white-space:nowrap!important;}
+    .avatar-lab-models-panel.is-collapsed .avatar-lab-models-header-actions{flex:0 0 auto!important;}
+    @media (min-width:1100px){
+      .avatar-lab-models-panel.is-compact{width:clamp(420px,66%,820px)!important;height:156px!important;min-width:420px!important;min-height:128px!important;max-width:calc(100% - 24px)!important;}
+      .avatar-lab-models-panel.is-full{height:auto!important;min-width:0!important;}
+    }
+    @media (max-width:1099px){
+      .avatar-lab-models-panel{height:auto!important;}
+      .avatar-lab-models-panel.is-collapsed{width:min(280px,calc(100% - 16px))!important;min-width:0!important;}
+    }
+    /* r345: My Models uses the drag controller without inheriting Source/Reference float-card visuals.
+       Keep compact/collapsed geometry explicit so the panel cannot collapse to a vertical sliver. */
+    .avatar-lab-models-panel[data-avatar-float]{will-change:left,top;}
+    .avatar-lab-models-panel.is-dragging{z-index:35!important;box-shadow:0 20px 48px rgba(0,0,0,.44)!important;}
+    @media (min-width:1100px){
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-compact{display:grid!important;grid-template-rows:24px minmax(0,1fr)!important;width:clamp(520px,58vw,860px)!important;min-width:520px!important;max-width:calc(100% - 24px)!important;height:156px!important;min-height:156px!important;max-height:156px!important;overflow:hidden!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-compact>.avatar-lab-models-grid{display:grid!important;min-width:0!important;min-height:0!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-collapsed{display:grid!important;grid-template-rows:24px!important;width:clamp(230px,24vw,300px)!important;min-width:230px!important;height:38px!important;min-height:38px!important;max-height:38px!important;overflow:hidden!important;}
+    }
+    :root[data-native-ios-app="true"] .avatar-lab-card{padding-bottom:env(safe-area-inset-bottom,0px);}
+
 </style>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
@@ -17262,7 +17408,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.316</small>
+          <small id="serverBrandVersion">v9.6.317</small>
         </span>
       </button>
     </div>
@@ -18370,7 +18516,7 @@
               <header id="avatarLabLogsHandle" class="avatar-lab-logs-handle" title="Drag activity log"><strong>Activity log</strong><div><button id="avatarLabLogsClearButton" type="button">Clear</button><button id="avatarLabLogsCloseButton" type="button" aria-label="Close activity log">×</button></div></header>
               <div id="avatarLabLogsList" class="avatar-lab-logs-list" role="log" aria-live="polite"></div>
             </section>
-            <section id="avatarLabModelsPanel" class="avatar-lab-models-panel avatar-lab-float-card is-compact" data-avatar-float="models" aria-label="My Models">
+            <section id="avatarLabModelsPanel" class="avatar-lab-models-panel is-compact" data-avatar-float="models" aria-label="My Models">
               <header class="avatar-lab-models-handle avatar-lab-float-handle" title="Drag model gallery"><strong>My Models</strong><small id="avatarLabModelsMeta">No models yet</small><span class="avatar-lab-models-header-actions"><button id="avatarLabModelsCollapseButton" type="button" title="Collapse model gallery" aria-label="Collapse model gallery">−</button><button id="avatarLabModelsFullButton" type="button" title="Open full model gallery">Full</button></span></header>
               <div id="avatarLabModelsGrid" class="avatar-lab-models-grid"></div>
             </section>
@@ -27876,140 +28022,6 @@
 
 
 
-    /* r332: iPhone/iOS Avatar Lab is a stage-first full-screen workspace. The WebGL
-       stage remains the only live 3D surface; media, settings and galleries are
-       ordinary DOM/bitmap UI layered around it. */
-    @media (max-width:760px){
-      .avatar-lab-modal{padding:0!important;inset:0!important;}
-      .avatar-lab-card{width:100vw!important;height:var(--app-height,100dvh)!important;max-height:var(--app-height,100dvh)!important;border-radius:0!important;border:0!important;grid-template-rows:auto minmax(0,1fr)!important;}
-      .avatar-lab-topbar{min-height:44px!important;height:44px!important;gap:5px!important;padding:5px 48px 5px 7px!important;overflow-x:auto!important;overflow-y:visible!important;scrollbar-width:none!important;white-space:nowrap!important;}
-      .avatar-lab-topbar::-webkit-scrollbar{display:none!important;}
-      #avatarLabCloseButton{position:fixed!important;top:5px!important;right:5px!important;z-index:1005!important;width:34px!important;height:34px!important;min-width:34px!important;min-height:34px!important;background:rgba(5,9,16,.88)!important;}
-      .avatar-lab-flow{flex:0 0 auto!important;gap:3px!important;overflow:visible!important;}
-      .avatar-lab-flow span{padding:4px 6px!important;font-size:9px!important;}
-      .avatar-lab-flow span::before{width:15px!important;height:15px!important;font-size:8px!important;}
-      .avatar-lab-topbar-settings{position:static!important;display:flex!important;gap:4px!important;flex:0 0 auto!important;}
-      .avatar-lab-topbar .avatar-lab-topbar-settings-menu{position:static!important;min-width:auto!important;}
-      .avatar-lab-topbar .avatar-lab-topbar-settings-menu>summary{min-height:30px!important;padding:4px 7px!important;font-size:9px!important;}
-      .avatar-lab-topbar .avatar-lab-topbar-settings-menu>summary small{display:none!important;}
-      .avatar-lab-topbar-log-button{min-height:30px!important;height:30px!important;padding:4px 7px!important;font-size:9px!important;}
-      .avatar-lab-cost-chip{display:none!important;}
-      .avatar-lab-topbar .avatar-lab-reference-settings-panel,
-      .avatar-lab-topbar .avatar-lab-topbar-settings-panel,
-      .avatar-lab-topbar .avatar-lab-3d-settings.avatar-lab-topbar-settings-panel{position:fixed!important;z-index:1002!important;top:48px!important;left:8px!important;right:8px!important;width:auto!important;max-height:min(64dvh,520px)!important;overflow:auto!important;border-radius:12px!important;}
-
-      .profile-avatar-lab{min-height:0!important;grid-template-rows:minmax(310px,58%) minmax(0,42%)!important;}
-      .avatar-lab-workbench{position:relative!important;display:block!important;min-height:0!important;padding:6px!important;overflow:hidden!important;background:#101624!important;}
-      .avatar-lab-stage{position:absolute!important;inset:6px!important;display:block!important;border-radius:14px!important;overflow:hidden!important;}
-      .avatar-lab-stage-status{top:8px!important;max-width:58%!important;padding:4px 7px!important;font-size:9px!important;}
-      .avatar-lab-stage-empty{inset:32% 20% auto!important;min-height:72px!important;padding:8px!important;font-size:10px!important;}
-
-      .avatar-lab-source-card,.avatar-lab-generated-card{position:absolute!important;z-index:20!important;top:10px!important;bottom:auto!important;width:clamp(108px,31vw,132px)!important;height:auto!important;min-height:132px!important;max-height:min(34dvh,224px)!important;padding:0!important;overflow:hidden!important;border-radius:12px!important;background:rgba(6,10,18,.80)!important;backdrop-filter:blur(10px)!important;box-shadow:0 9px 26px rgba(0,0,0,.28)!important;}
-      .avatar-lab-source-card{left:10px!important;right:auto!important;}
-      .avatar-lab-generated-card{right:10px!important;left:auto!important;display:block!important;}
-      .avatar-lab-source-card>.avatar-lab-float-handle,.avatar-lab-generated-card>.avatar-lab-float-handle{position:absolute!important;z-index:25!important;top:0!important;left:0!important;right:0!important;min-height:27px!important;padding:5px 6px 14px!important;font-size:8.5px!important;background:linear-gradient(180deg,rgba(4,8,15,.94),rgba(4,8,15,.50),transparent)!important;pointer-events:none!important;}
-      .avatar-lab-float-handle strong{font-size:9px!important;}.avatar-lab-float-handle small{font-size:7px!important;max-width:48%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important;}
-      .profile-avatar-suite-source{display:block!important;width:100%!important;height:auto!important;max-height:min(30dvh,200px)!important;object-fit:contain!important;object-position:center!important;border:0!important;border-radius:12px!important;background:transparent!important;}
-      .avatar-lab-generated-media{display:block!important;width:100%!important;height:auto!important;min-height:132px!important;max-height:min(30dvh,200px)!important;border:0!important;border-radius:12px!important;background:transparent!important;overflow:hidden!important;}
-      .avatar-lab-generated-card img,.avatar-lab-generated-card video{display:block!important;width:100%!important;height:auto!important;max-height:min(30dvh,200px)!important;object-fit:contain!important;background:transparent!important;}
-      .avatar-lab-generated-placeholder{min-height:132px!important;padding:36px 8px 52px!important;font-size:8px!important;}
-      .avatar-lab-source-meta{display:none!important;}
-      .avatar-lab-image-view-button{z-index:30!important;top:29px!important;right:4px!important;width:27px!important;height:27px!important;min-width:27px!important;min-height:27px!important;padding:0!important;}
-      .avatar-lab-card-actions{position:absolute!important;z-index:28!important;left:4px!important;bottom:4px!important;display:flex!important;gap:2px!important;padding:2px!important;border-radius:8px!important;background:rgba(4,8,15,.76)!important;}
-      .avatar-lab-card-actions button{width:25px!important;min-width:25px!important;height:25px!important;min-height:25px!important;padding:3px!important;font-size:0!important;}
-      .avatar-lab-card-actions #avatarLabSourceResetButton{font-size:7px!important;width:auto!important;min-width:28px!important;padding:3px 4px!important;}
-      .avatar-lab-source-render{position:absolute!important;z-index:28!important;right:4px!important;bottom:4px!important;width:34px!important;min-width:34px!important;min-height:29px!important;padding:3px!important;border-radius:8px!important;font-size:0!important;}
-      .avatar-lab-source-render .icon{width:15px!important;height:15px!important;}
-      .profile-avatar-grok-actions{position:absolute!important;z-index:28!important;left:4px!important;right:4px!important;bottom:4px!important;display:flex!important;gap:2px!important;padding:2px!important;border-radius:8px!important;background:rgba(4,8,15,.76)!important;}
-      .profile-avatar-grok-actions button{min-height:27px!important;padding:3px 5px!important;font-size:7.5px!important;}
-      .profile-avatar-grok-actions .avatar-lab-render-3d{margin-left:auto!important;min-width:32px!important;font-size:0!important;}
-      .profile-avatar-grok-actions .avatar-lab-render-3d .icon{width:15px!important;height:15px!important;}
-
-      .avatar-lab-stage-tools{left:8px!important;bottom:8px!important;z-index:32!important;}
-      .avatar-lab-stage-tools-panel{max-width:calc(100vw - 28px)!important;grid-template-columns:repeat(3,minmax(62px,1fr))!important;padding:7px!important;background:rgba(5,9,16,.92)!important;}
-      .avatar-lab-stage .avatar-lab-style-popover{position:absolute!important;z-index:34!important;right:8px!important;bottom:8px!important;top:auto!important;left:auto!important;width:max-content!important;}
-      .avatar-lab-stage .avatar-lab-style-popover>summary{min-height:30px!important;padding:4px 8px!important;border-radius:9px!important;}
-      .avatar-lab-stage .avatar-lab-style-popover[open] .avatar-lab-style-popover-panel{position:fixed!important;z-index:1001!important;left:8px!important;right:8px!important;top:auto!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-width:none!important;max-height:min(58dvh,520px)!important;overflow:auto!important;padding:10px!important;border-radius:14px!important;background:rgba(6,10,18,.97)!important;box-shadow:0 -16px 44px rgba(0,0,0,.48)!important;}
-      .avatar-lab-stage .avatar-lab-style-panel{gap:8px!important;}
-      .avatar-lab-style-row{grid-template-columns:76px minmax(0,1fr)!important;}
-      .avatar-lab-colour-swatch{width:76px!important;grid-template-columns:35px 35px!important;gap:6px!important;}
-      .avatar-lab-colour-swatch input[type="checkbox"],.avatar-lab-colour-swatch input[type="color"]{width:35px!important;height:35px!important;min-width:35px!important;min-height:35px!important;}
-      .avatar-lab-style-row #avatarLabPartStyle{height:35px!important;min-height:35px!important;}
-
-      .avatar-lab-models-panel{position:absolute!important;z-index:31!important;left:50%!important;right:auto!important;bottom:8px!important;transform:translateX(-50%)!important;width:auto!important;max-width:72%!important;max-height:38px!important;padding:4px 6px!important;border-radius:10px!important;background:rgba(5,9,16,.84)!important;backdrop-filter:blur(9px)!important;}
-      .avatar-lab-models-panel>header{min-height:28px!important;gap:5px!important;}.avatar-lab-models-panel>header strong{font-size:10px!important;}.avatar-lab-models-panel>header small{font-size:7px!important;}
-      .avatar-lab-models-panel.is-collapsed .avatar-lab-models-grid{display:none!important;}
-      .avatar-lab-models-panel.is-compact{width:calc(100% - 24px)!important;max-width:none!important;max-height:118px!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{overflow-x:auto!important;overflow-y:hidden!important;display:grid!important;grid-auto-flow:column!important;grid-auto-columns:150px!important;grid-template-columns:none!important;gap:5px!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-card{height:76px!important;grid-template-columns:62px minmax(0,1fr)!important;padding:4px!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-thumb{width:62px!important;height:66px!important;}
-      .avatar-lab-models-panel.is-full{position:fixed!important;z-index:1000!important;inset:44px 0 0!important;transform:none!important;width:100vw!important;max-width:none!important;max-height:none!important;padding:10px!important;border-radius:0!important;background:var(--panel)!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-models-grid{overflow:auto!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-flow:row!important;gap:8px!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-card{display:grid!important;grid-template-columns:1fr!important;grid-template-rows:120px auto auto!important;min-height:184px!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-thumb{width:100%!important;height:120px!important;}
-
-      .avatar-lab-prompt-deck{min-height:0!important;display:block!important;overflow:auto!important;padding:8px!important;overscroll-behavior:contain!important;}
-      .avatar-lab-primary{height:auto!important;min-height:100%!important;overflow:visible!important;display:grid!important;grid-template-rows:auto minmax(145px,1fr)!important;gap:7px!important;}
-      .avatar-lab-prompt-toolbar{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:6px!important;}
-      .avatar-lab-prompt-toolbar .field:nth-child(2){grid-column:auto!important;}
-      .avatar-lab-prompt-actions{grid-column:1/-1!important;display:flex!important;justify-content:flex-end!important;gap:5px!important;}
-      .avatar-lab-prompt-actions button{width:auto!important;min-height:30px!important;padding:3px 7px!important;font-size:9px!important;}
-      #profileAvatarGrokPrompt{min-height:145px!important;height:auto!important;resize:none!important;padding:10px!important;font-size:11px!important;line-height:1.38!important;}
-
-      .avatar-lab-activity{position:fixed!important;z-index:1003!important;left:12px!important;right:12px!important;top:50%!important;bottom:auto!important;width:auto!important;min-width:0!important;max-width:none!important;transform:translateY(-50%)!important;padding:10px!important;background:rgba(5,9,16,.76)!important;}
-      .avatar-lab-activity progress{height:14px!important;}
-      .avatar-lab-images-panel,.avatar-lab-logs-panel{position:fixed!important;z-index:1002!important;left:8px!important;right:8px!important;top:54px!important;bottom:calc(8px + env(safe-area-inset-bottom,0px))!important;width:auto!important;max-height:none!important;transform:none!important;border-radius:14px!important;}
-      .avatar-lab-images-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;}
-    }
-    /* r343: provider thumbnails, image-first model cards, hidden gallery scrollbars and stage-loading motion. */
-    .avatar-lab-models-grid{scrollbar-width:none!important;-ms-overflow-style:none!important;overscroll-behavior:contain!important;}
-    .avatar-lab-models-grid::-webkit-scrollbar{display:none!important;width:0!important;height:0!important;}
-    .avatar-lab-models-panel>header.avatar-lab-models-handle{cursor:grab;touch-action:none;user-select:none;}
-    .avatar-lab-models-panel.is-dragging>header.avatar-lab-models-handle{cursor:grabbing;}
-    .avatar-lab-stage-status.is-loading{color:transparent!important;-webkit-text-fill-color:transparent!important;background-image:linear-gradient(90deg,#ff315c 0%,#ff8a2b 14.285%,#ffe85c 28.57%,#39dc88 42.855%,#36c8ff 57.14%,#7b6cff 71.425%,#f05cff 85.71%,#ff315c 100%)!important;background-size:240px 100%!important;background-repeat:repeat-x!important;background-position:0 50%!important;-webkit-background-clip:text!important;background-clip:text!important;animation:typing-rainbow-flow 3.2s linear infinite!important;}
-    @media (prefers-reduced-motion:reduce){.avatar-lab-stage-status.is-loading{animation:none!important;background-position:0 50%!important;}}
-    @media (min-width:1100px){
-      .avatar-lab-models-panel.is-compact{width:min(820px,66%)!important;max-height:156px!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{grid-auto-columns:196px!important;gap:7px!important;padding:0 2px 7px!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-card{position:relative!important;display:block!important;height:108px!important;min-height:108px!important;padding:0!important;overflow:hidden!important;border-radius:11px!important;background:#111827!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-thumb{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:0!important;background:#111827!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;background:#111827!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-info{position:absolute!important;z-index:3!important;left:0!important;right:0!important;top:0!important;padding:7px 8px 19px!important;display:grid!important;gap:2px!important;background:linear-gradient(180deg,rgba(4,8,16,.88),rgba(4,8,16,.38),transparent)!important;pointer-events:none!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-info strong{font-size:10.5px!important;color:#fff!important;text-shadow:0 1px 2px #000!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-info small{font-size:7.5px!important;color:rgba(255,255,255,.82)!important;text-shadow:0 1px 2px #000!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-actions{position:absolute!important;z-index:4!important;left:5px!important;right:5px!important;bottom:5px!important;display:flex!important;justify-content:flex-end!important;gap:4px!important;pointer-events:none!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-actions button,.avatar-lab-models-panel.is-compact .avatar-lab-model-actions .button-like{pointer-events:auto!important;min-height:24px!important;padding:2px 6px!important;background:rgba(5,9,16,.78)!important;backdrop-filter:blur(5px)!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-rig-badge{left:6px!important;right:auto!important;bottom:6px!important;z-index:4!important;padding:2px 5px!important;font-size:7px!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-models-grid{scrollbar-width:none!important;padding-bottom:14px!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-card{position:relative!important;display:block!important;min-height:190px!important;height:190px!important;padding:0!important;overflow:hidden!important;border-radius:12px!important;background:#111827!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-thumb{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;border-radius:0!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-thumb img{width:100%!important;height:100%!important;object-fit:cover!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-info{position:absolute!important;z-index:3!important;left:0!important;right:0!important;top:0!important;padding:9px 10px 28px!important;background:linear-gradient(180deg,rgba(4,8,16,.9),rgba(4,8,16,.36),transparent)!important;pointer-events:none!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-info strong{font-size:13px!important;color:#fff!important;}.avatar-lab-models-panel.is-full .avatar-lab-model-info small{font-size:9px!important;color:rgba(255,255,255,.84)!important;}
-      .avatar-lab-models-panel.is-full .avatar-lab-model-actions{position:absolute!important;z-index:4!important;left:7px!important;right:7px!important;bottom:7px!important;justify-content:flex-end!important;pointer-events:none!important;}.avatar-lab-models-panel.is-full .avatar-lab-model-actions>*{pointer-events:auto!important;}
-    }
-    @media (max-width:1099px){
-      .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{padding-bottom:7px!important;scrollbar-width:none!important;}
-      .avatar-lab-models-panel.is-compact .avatar-lab-model-card{position:relative!important;overflow:hidden!important;}
-    }
-    /* r344: My Models uses the float-card drag controller, but not the Source/Reference
-       image-card sizing/header layout. In r343 those generic rules made a collapsed
-       model gallery shrink to an empty vertical strip because its only visible header
-       was absolutely positioned and therefore contributed no intrinsic width. */
-    .avatar-lab-models-panel.avatar-lab-float-card{height:auto!important;min-height:0!important;}
-    .avatar-lab-models-panel.avatar-lab-float-card>.avatar-lab-models-handle{position:relative!important;inset:auto!important;min-height:24px!important;padding:0!important;background:none!important;pointer-events:auto!important;}
-    .avatar-lab-models-panel.is-collapsed{width:clamp(210px,24vw,280px)!important;height:38px!important;min-width:210px!important;min-height:38px!important;max-height:38px!important;padding:6px 7px!important;}
-    .avatar-lab-models-panel.is-collapsed>.avatar-lab-models-handle{height:24px!important;white-space:nowrap!important;}
-    .avatar-lab-models-panel.is-collapsed .avatar-lab-models-header-actions{flex:0 0 auto!important;}
-    @media (min-width:1100px){
-      .avatar-lab-models-panel.is-compact{width:clamp(420px,66%,820px)!important;height:156px!important;min-width:420px!important;min-height:128px!important;max-width:calc(100% - 24px)!important;}
-      .avatar-lab-models-panel.is-full{height:auto!important;min-width:0!important;}
-    }
-    @media (max-width:1099px){
-      .avatar-lab-models-panel.avatar-lab-float-card{height:auto!important;}
-      .avatar-lab-models-panel.is-collapsed{width:min(280px,calc(100% - 16px))!important;min-width:0!important;}
-    }
-    :root[data-native-ios-app="true"] .avatar-lab-card{padding-bottom:env(safe-area-inset-bottom,0px);}
 </style></defs><rect`):svg;}catch{return svg;}
     }
 
@@ -45995,7 +46007,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
     function applyAvatarLabFloatPositions(){
       if(innerWidth<1100)return;const workbench=elements.profileAvatarLab?.querySelector?.('.avatar-lab-workbench');if(!workbench)return;const saved=avatarLabFloatPositions();
-      for(const card of workbench.querySelectorAll('.avatar-lab-float-card[data-avatar-float]')){const key=String(card.dataset.avatarFloat||'');if(key==='models'&&avatarLabModelsView()==='full')continue;const pos=saved[key];if(!pos)continue;const wr=workbench.getBoundingClientRect(),cr=card.getBoundingClientRect();const maxX=Math.max(0,wr.width-cr.width),maxY=Math.max(0,wr.height-cr.height);const x=Math.round(maxX*Math.max(0,Math.min(1,Number(pos.x)||0))),y=Math.round(maxY*Math.max(0,Math.min(1,Number(pos.y)||0)));card.style.setProperty('left',`${x}px`,'important');card.style.setProperty('right','auto','important');card.style.setProperty('top',`${y}px`,'important');card.style.setProperty('bottom','auto','important');card.style.setProperty('transform','none','important');}
+      for(const card of workbench.querySelectorAll('[data-avatar-float]')){const key=String(card.dataset.avatarFloat||'');if(key==='models'&&avatarLabModelsView()==='full')continue;const pos=saved[key];if(!pos)continue;const wr=workbench.getBoundingClientRect(),cr=card.getBoundingClientRect();const maxX=Math.max(0,wr.width-cr.width),maxY=Math.max(0,wr.height-cr.height);const x=Math.round(maxX*Math.max(0,Math.min(1,Number(pos.x)||0))),y=Math.round(maxY*Math.max(0,Math.min(1,Number(pos.y)||0)));card.style.setProperty('left',`${x}px`,'important');card.style.setProperty('right','auto','important');card.style.setProperty('top',`${y}px`,'important');card.style.setProperty('bottom','auto','important');card.style.setProperty('transform','none','important');}
     }
     function bindAvatarLabFloatCard(card){
       if(!card||card.dataset.avatarFloatBound==='1')return;
@@ -46046,7 +46058,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         document.addEventListener('pointercancel',stop);
       });
     }
-    function initAvatarLabFloatingCards(){document.querySelectorAll('.avatar-lab-float-card[data-avatar-float]').forEach(bindAvatarLabFloatCard);requestAnimationFrame(applyAvatarLabFloatPositions);}
+    function initAvatarLabFloatingCards(){document.querySelectorAll('[data-avatar-float]').forEach(bindAvatarLabFloatCard);requestAnimationFrame(applyAvatarLabFloatPositions);}
 
     function disposeAvatarLabSceneGraph(root) {
       try { root?.traverse?.((node)=>{try{node.geometry?.dispose?.();const materials=Array.isArray(node.material)?node.material:[node.material];for(const material of materials){if(!material)continue;for(const value of Object.values(material)){if(value?.isTexture)value.dispose?.();}material.dispose?.();}}catch{}}); } catch {}
