@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.326">
+  <meta name="chat-ui-version" content="9.6.332">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17519,7 +17519,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.326</small>
+          <small id="serverBrandVersion">v9.6.332</small>
         </span>
       </button>
     </div>
@@ -20726,6 +20726,7 @@
       chatStageWorldAnimationFrame: 0,
       chatStageWorldHideTimer: 0,
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
+      stageEditQueue: [],stageEditAwaitingAck: false,stageEditRetryTimer: 0,stageSnapshotInFlight:null,stageEditing:[],
       stageRevision: 0, stageWorldSnapshot: null, stageWorldRoom: '', stageFeedObserver: null,
       stageFeedTimer: 0, stageOverlayVisible: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
       stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageAppearanceDesired:null,stageAppearanceSeq:0,stageAppearancePendingSeq:0,stageAppearanceSendAt:0,stageAppearanceRetryTimer:0,stageActionSeq:0,
@@ -23689,8 +23690,8 @@
             // Keep the same WASM/WebGL iframe across channel switches; reset only
             // the static room world, feed, and volatile participant subscription.
             stopChatStageWorldAnimation();
-            state.stageRevision=0;state.stageWorldSnapshot=null;
-            state.stageWorldRoom='';state.stagePendingSnapshot=null;state.stageAwaitingAck=false;state.stageOwnPose=null;state.stageLastLocalPose=null;state.stageLastLocalPoseRoom='';
+            state.stageRevision=0;state.stageWorldSnapshot=null;stagePhysicsObjects.clear();
+            state.stageWorldRoom='';state.stagePendingSnapshot=null;state.stageSnapshotInFlight=null;state.stageAwaitingAck=false;state.stageEditQueue.length=0;state.stageEditAwaitingAck=false;state.stageOwnPose=null;state.stageLastLocalPose=null;state.stageLastLocalPoseRoom='';
             if(state.stageReady) {
               postToStage('room',{room:message.room});
               postToStage('feed',{room:message.room,items:[]});
@@ -23754,6 +23755,50 @@
           } else setMobilePanel('chat');
           break;
 
+        case 'stage.physics.impact':
+        case 'stage.physics.motion':
+        case 'stage.physics.contact':
+          if(state.chatStageWorldOpen&&message.room===stageRoomKey()&&message.revision===state.stageRevision){
+            if(message.type==='stage.physics.contact')postToStage('physics-contact',{body:message});
+            else {
+              if(stagePhysicsObjects.size<96||stagePhysicsObjects.has(message.id))stagePhysicsObjects.set(message.id,message);
+              postToStage('physics',{body:message});
+            }
+          }
+          break;
+        case 'stage.physics.lease':
+          if(message.room===stageRoomKey())postToStage('physics-lease',message);
+          break;
+        case 'stage.physics.stale':
+          // The next authoritative channel scene refresh resolves this revision.
+          stagePhysicsObjects.clear();postToStage('physics-reset');
+          if(message.revision!==state.stageRevision&&stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.join'});
+          break;
+        case 'stage.edit.presence':
+          if(message.room===stageRoomKey()){
+            if(message.phase==='end')state.stageEditing=state.stageEditing.filter(entry=>entry.id!==message.id||entry.owner!==message.owner);
+            else {
+              const saved={id:message.id,owner:message.owner,nickname:message.nickname,kind:message.kind,ttlMs:message.ttlMs};
+              const index=state.stageEditing.findIndex(entry=>entry.id===message.id);
+              if(index>=0)state.stageEditing[index]=saved;else if(state.stageEditing.length<48)state.stageEditing.push(saved);
+            }
+            postToStage('presence',{presence:message});
+          }
+          break;
+        case 'stage.edit.presence.ack':
+        case 'stage.edit.presence.reject':handleStageServerMessage(message);break;
+        case 'stage.world.edit':
+          if(message.room===stageRoomKey()){
+            if(message.revision!==state.stageRevision+1){sendJson({type:'stage.world.join'});break;}
+            const next=applyEditToCachedStage(state.stageWorldSnapshot,message.edit);
+            if(!next){sendJson({type:'stage.world.join'});break;}
+            state.stageWorldSnapshot=next;state.stageRevision=message.revision;
+            stagePhysicsObjects.clear();postToStage('physics-reset');
+            postToStage('edit',{edit:message.edit});
+          }
+          break;
+        case 'stage.world.edit.ack':
+        case 'stage.world.edit.reject':
         case 'stage.world.state':
         case 'stage.world.ack':
         case 'stage.world.conflict':
@@ -44607,6 +44652,7 @@
 
 
     // Inspect transport and renderer separately instead of assuming every lag is network traffic.
+    const stagePhysicsObjects=new Map(); // volatile latest body transforms; never chat history
     const stageNetMetrics={startedAt:Date.now(),outBytes:0,inBytes:0,outPackets:{},inPackets:{},droppedMotion:0,pingMs:null,longTasks:[],socketHighWater:0};
     let stageProbeTimer=0,stageProbeObserver=null;
     window.getRantlistStageDiagnostics=()=>{
@@ -44699,6 +44745,9 @@
       clearTimeout(state.stageFeedTimer);
       state.stageIsJoined=false;
       state.stagePeerPlayers.clear();
+      state.stageEditing=[];
+      state.stageEditQueue.length=0;state.stageEditAwaitingAck=false;
+      clearTimeout(state.stageEditRetryTimer);
       postToStage('peers',{players:[]});
       if (state.socket?.readyState===WebSocket.OPEN) sendJson({type:'stage.world.leave'});
     }
@@ -44719,23 +44768,55 @@
     function destroyStageFrame() {
       stopChatStageWorldAnimation();
       state.stageReady=false;
-      state.stageAwaitingAck=false;
-      state.stagePendingSnapshot=null;
+      state.stageAwaitingAck=false;state.stageEditAwaitingAck=false;
+      state.stageEditQueue.length=0;clearTimeout(state.stageEditRetryTimer);
+      state.stagePendingSnapshot=null;state.stageSnapshotInFlight=null;
       state.stageWorldSnapshot=null;
+      state.stageEditing=[];
       state.stageRevision=0;
       state.stageWorldRoom='';
       ++state.stageFrameLoadNonce;
       clearTimeout(state.stageFrameLoadTimer);
       state.stageIframe?.remove();state.stageIframe=null;
     }
+    function applyEditToCachedStage(snapshot,edit){
+      if(!snapshot||!Array.isArray(snapshot.objects)||!edit)return snapshot;
+      const objects=[...snapshot.objects];
+      if(edit.op==='clone'){
+        if(objects.some(item=>item.id===edit.id))return snapshot;
+        const source=objects.find(item=>item.id===edit.sourceId);if(!source)return null;
+        objects.push({...JSON.parse(JSON.stringify(source)),id:edit.id,name:edit.name,createdAt:Date.now(),
+          position:edit.position,quaternion:edit.quaternion,scale:edit.scale,attachedParticleEmitterIds:[]});
+      }else if(edit.op==='geometry'){
+        const index=objects.findIndex(item=>item.id===edit.id);if(index<0)return null;
+        objects[index]={...objects[index],type:'customExtrude',customGeometry:edit.customGeometry,physicsMode:edit.physicsMode,geometryParams:undefined};
+      }else if(edit.op==='transform'){
+        const index=objects.findIndex(item=>item.id===edit.id);if(index<0)return null;
+        objects[index]={...objects[index],position:edit.position,quaternion:edit.quaternion,scale:edit.scale};
+      }
+      return {...snapshot,objects};
+    }
+    function flushStageEditQueue(){
+      if(state.stageEditAwaitingAck||state.stageAwaitingAck||!state.stageEditQueue.length)return;
+      // A complete snapshot already includes any queued local edits. Do not let
+      // both commit paths wait for each other when a complex edit follows a clone.
+      if(state.stagePendingSnapshot){state.stageEditQueue.length=0;flushStageSnapshot();return;}
+      if(!state.stageIsJoined||state.socket?.readyState!==WebSocket.OPEN)return;
+      if(!state.stageWorldSnapshot){state.stageEditQueue.length=0;postToStage('publish');return;}
+      if(state.socket.bufferedAmount>48*1024){
+        clearTimeout(state.stageEditRetryTimer);state.stageEditRetryTimer=setTimeout(flushStageEditQueue,160);return;
+      }
+      const edit=state.stageEditQueue[0];
+      if(sendJson({type:'stage.world.edit',baseRevision:state.stageRevision,edit}))state.stageEditAwaitingAck=true;
+    }
     function flushStageSnapshot() {
-      if(state.stageAwaitingAck || !state.stagePendingSnapshot || !state.stageIsJoined || !state.stageWorldRoom) return;
+      if(state.stageAwaitingAck || state.stageEditAwaitingAck || state.stageEditQueue.length || !state.stagePendingSnapshot || !state.stageIsJoined || !state.stageWorldRoom) return;
       if (!state.socket || state.socket.readyState!==WebSocket.OPEN) return;
       const snapshot=state.stagePendingSnapshot;
       state.stagePendingSnapshot=null;
-      state.stageAwaitingAck=true;
+      state.stageAwaitingAck=true;state.stageSnapshotInFlight=snapshot;
       if(!sendJson({type:'stage.world.commit',baseRevision:state.stageRevision,snapshot})) {
-        state.stageAwaitingAck=false;state.stagePendingSnapshot=snapshot;
+        state.stageAwaitingAck=false;state.stageSnapshotInFlight=null;state.stagePendingSnapshot=snapshot;
       }
     }
     function sendStageAppearance(){
@@ -44777,6 +44858,8 @@
         if(state.stageIsJoined)postToStage('joined');
         // Join and presence packets can arrive before the heavy iframe loads.
         postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
+        postToStage('presence-snapshot',{editing:state.stageEditing});
+        postToStage('physics-snapshot',{objects:[...stagePhysicsObjects.values()]});
         postToStage('layout',{layout:state.stageFeedMode});
         if(state.chatStageWorldOpen) {
           startChatStageWorldAnimation();
@@ -44787,13 +44870,44 @@
         if(data.pose && typeof data.pose==='object'){state.stageLastLocalPose=data.pose;state.stageLastLocalPoseRoom=stageRoomKey();
           if(state.socket?.readyState===WebSocket.OPEN && state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.motion',pose:data.pose,seq:++state.stageMotionSeq});
           else stageNetMetrics.droppedMotion++;}
+      } else if((data.event==='physics-impact'||data.event==='physics-motion'||data.event==='physics-contact')
+        &&state.chatStageWorldOpen&&state.stageIsJoined&&stageRoomKey()===state.stageWorldRoom
+        &&state.socket?.readyState===WebSocket.OPEN){
+        // Backpressure drops motion, not chat, calls or reliable editor commits.
+        if(state.socket.bufferedAmount<((data.event==='physics-impact'||data.event==='physics-contact')?48*1024:24*1024)){
+          sendJson({type:data.event==='physics-impact'?'stage.physics.impact':data.event==='physics-contact'?'stage.physics.contact':'stage.physics.motion',
+            revision:state.stageRevision,seq:data.seq,body:data.body});
+        }else stageNetMetrics.droppedMotion++;
       } else if(data.event==='appearance' && state.chatStageWorldOpen && state.stageIsJoined) {
         queueStageAppearance(data.appearance);
       } else if(data.event==='action' && data.action==='jump' && state.chatStageWorldOpen && state.stageIsJoined && state.socket?.readyState===WebSocket.OPEN) {
         if(state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.action',action:'jump',seq:++state.stageActionSeq,pose:data.pose});
+      } else if(data.event==='presence' && state.chatStageWorldOpen && state.stageIsJoined && stageRoomKey()===state.stageWorldRoom
+        && state.socket?.readyState===WebSocket.OPEN && data.id && ['begin','move','hold','end'].includes(data.phase)){
+        // Selection/lease lifecycle is reliable. Dispose of intermediate poses,
+        // never fill the socket in a long render frame or during a call.
+        if(data.phase!=='move'&&data.phase!=='hold'||state.socket.bufferedAmount<24*1024)
+          sendJson({type:'stage.edit.presence',phase:data.phase,id:data.id,seq:data.seq,
+            revision:state.stageRevision,kind:data.kind,transform:data.transform});
+      } else if(data.event==='edit' && state.chatStageWorldOpen && data.edit && stageRoomKey()===state.stageWorldRoom){
+        if(state.stageEditQueue.length>=24){state.stageEditQueue.length=0;postToStage('publish');}
+        else{state.stageEditQueue.push(data.edit);flushStageEditQueue();}
+      } else if(data.event==='resync' && state.chatStageWorldOpen && state.socket?.readyState===WebSocket.OPEN){
+        sendJson({type:'stage.world.join'});
       } else if(data.event==='snapshot' && state.chatStageWorldOpen && data.snapshot && stageRoomKey()===state.stageWorldRoom) {
-        state.stagePendingSnapshot=data.snapshot;
+        // Remote previews move local display meshes but must never leak into an
+        // unrelated full-scene commit. Restore the latest acknowledged versions
+        // of geometry currently held by a different editor before publishing.
+        let snapshot=data.snapshot;
+        if(state.stageEditing.length&&Array.isArray(snapshot.objects)&&Array.isArray(state.stageWorldSnapshot?.objects)){
+          const locked=new Set(state.stageEditing.map(entry=>entry.id));
+          const canonical=new Map(state.stageWorldSnapshot.objects.filter(obj=>locked.has(obj.id)).map(obj=>[obj.id,obj]));
+          snapshot={...snapshot,objects:snapshot.objects.map(obj=>canonical.get(obj.id)||obj)};
+        }
+        state.stagePendingSnapshot=snapshot;
         flushStageSnapshot();
+      } else if(data.event==='notice') {
+        stageStatus(String(data.detail||'Stage object is being edited').slice(0,160),true);
       } else if(data.event==='lag') {
         stageStatus(String(data.detail||'Stage is busy').slice(0,180),true);
       } else if(data.event==='progress') {
@@ -44807,16 +44921,21 @@
       }
     }
     function handleStageServerMessage(message) {
-      if(!state.chatStageWorldOpen || (message.room && message.room!==stageRoomKey())) return;
+      if((!state.chatStageWorldOpen && !['stage.world.edit.ack','stage.world.edit.reject','stage.world.ack','stage.world.conflict'].includes(message.type)) ||
+        (message.room && message.room!==stageRoomKey())) return;
       const type=message.type;
       stageNetMetrics.inPackets[type]=(stageNetMetrics.inPackets[type]||0)+1;
       stageNetMetrics.inBytes+=JSON.stringify(message).length;
       switch(message.type) {
         case 'stage.world.state':
           state.stageWorldRoom=message.room||stageRoomKey();
+          if(state.stageRevision!==Number(message.revision)){
+            stagePhysicsObjects.clear();postToStage('physics-reset');
+          }
           state.stageRevision=Number(message.revision)||0;
           state.stageWorldSnapshot=message.snapshot||null;
           state.stageIsJoined=true;
+          if(Array.isArray(message.editing)){state.stageEditing=message.editing.slice(0,48);postToStage('presence-snapshot',{editing:state.stageEditing});}
           if(Array.isArray(message.players)) {
             state.stageOwnPose=message.ownPose||null;
             state.stageOwnAppearance=state.stageAppearanceDesired||message.ownAppearance||null;
@@ -44836,8 +44955,8 @@
           // not overwrite the latest user's choice with an older disk profile.
           if(state.stageAppearanceDesired)sendStageAppearance();
           // A remote commit with an unacknowledged local edit is not silently merged.
-          if(state.stageAwaitingAck || state.stagePendingSnapshot) {
-            state.stagePendingSnapshot=null;
+          if(state.stageAwaitingAck || state.stagePendingSnapshot || state.stageEditAwaitingAck) {
+            state.stagePendingSnapshot=null;state.stageEditQueue.length=0;state.stageEditAwaitingAck=false;
             stageStatus('Concurrent scene update; uncommitted local changes were not merged',true);
           }
           if(message.snapshot) postToStage('world',{snapshot:message.snapshot});
@@ -44846,7 +44965,12 @@
             elements.chatStageStatus.textContent='Stage ready · new channel world';
             setTimeout(()=>{if(state.chatStageWorldOpen && state.stageWorldRoom===message.room)elements.chatStageStatus.hidden=true;},2200);
           }
-          flushStageSnapshot();
+          if(Array.isArray(message.physics)){
+            stagePhysicsObjects.clear();
+            for(const body of message.physics.slice(0,96))if(body?.id)stagePhysicsObjects.set(body.id,body);
+            postToStage('physics-snapshot',{objects:[...stagePhysicsObjects.values()]});
+          }
+          flushStageEditQueue();flushStageSnapshot();
           break;
         case 'stage.world.appearance.ack':
           if(message.seq===state.stageAppearancePendingSeq&&message.seq===state.stageAppearanceSeq){
@@ -44860,17 +44984,50 @@
             state.stageAppearanceRetryTimer=setTimeout(sendStageAppearance,Math.max(1150,Math.min(4000,Number(message.retryAfterMs)||1800)));
           }
           break;
+        case 'stage.edit.presence.reject':
+          stageStatus(message.reason==='editing_by_other'?'This geometry is being edited by another participant':'Stage edit session: '+String(message.reason||'unavailable'),true);
+          postToStage('presence-reject',{id:message.id,reason:message.reason});
+          break;
+        case 'stage.edit.presence.ack':
+          postToStage('presence-ack',{id:message.id,seq:message.seq});
+          break;
+        case 'stage.world.edit.ack':
+          state.stageRevision=Number(message.revision)||state.stageRevision;
+          if(state.stageEditQueue.length){
+            const own=state.stageEditQueue.shift();
+            state.stageWorldSnapshot=applyEditToCachedStage(state.stageWorldSnapshot,message.edit||own);
+          }
+          state.stageEditAwaitingAck=false;
+          stagePhysicsObjects.clear();postToStage('physics-reset');
+          flushStageEditQueue();flushStageSnapshot();
+          break;
+        case 'stage.world.edit.reject':
+          state.stageEditAwaitingAck=false;
+          if(message.reason==='rate_limited'){
+            clearTimeout(state.stageEditRetryTimer);
+            state.stageEditRetryTimer=setTimeout(flushStageEditQueue,Math.max(600,Math.min(3000,Number(message.retryAfterMs)||1000)));
+          }else{
+            state.stageEditQueue.length=0;
+            if(message.reason==='stage_baseline_required'||message.reason==='invalid_stage_edit')postToStage('publish');
+            else stageStatus('Stage edit was not saved: '+String(message.reason||'unknown error'),true);
+          }
+          break;
         case 'stage.world.ack':
           state.stageRevision=Number(message.revision)||state.stageRevision;
+          stagePhysicsObjects.clear();postToStage('physics-reset');
           state.stageAwaitingAck=false;
+          if(state.stageSnapshotInFlight)state.stageWorldSnapshot=state.stageSnapshotInFlight;
+          state.stageSnapshotInFlight=null;
           stageStatus('Scene shared with channel');
-          flushStageSnapshot();
+          flushStageEditQueue();flushStageSnapshot();
           break;
         case 'stage.world.conflict':
           state.stageRevision=Number(message.revision)||0;
+          stagePhysicsObjects.clear();postToStage('physics-reset');
           state.stageWorldSnapshot=message.snapshot||null;
-          state.stageAwaitingAck=false;
+          state.stageAwaitingAck=false;state.stageSnapshotInFlight=null;
           state.stagePendingSnapshot=null;
+          state.stageEditQueue.length=0;state.stageEditAwaitingAck=false;
           if(message.snapshot) postToStage('world',{snapshot:message.snapshot});
           stageStatus('Concurrent edit: loaded newer shared scene. Your local edit was not merged.',true);
           break;

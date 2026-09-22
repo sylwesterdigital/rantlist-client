@@ -1,3 +1,19 @@
+## v0.1.168 / Stage r359
+
+Compact revisioned geometry edits for ordinary clones and completed transformations, local peer collider updates, and fallback full snapshots for complex geometry.
+
+## 0.1.167 / Stage r358
+
+Corrected fixed-object collision reactions and initial Rapier contact capture. Native chat and calls unchanged. This package synchronizes browser source v9.6.330 / r358.
+
+## v0.1.165 — Stage remote avatar scale parity
+
+Synchronizes Rantlist browser core **9.6.328 / r356**. Shared built-in avatars are now drawn at the same scale as the owner: the Stage peer renderer no longer fits model bounds or overwrites the GLB's intrinsic scale, and applies the saved `runnerScale`, vertical offset and rotation to a separate outer wrapper. Size-only changes no longer reload peer rigs. The server ZIP contains the Stage 3D renderer fix; this client ZIP updates the synchronized sanitized browser and preserves the existing native wrappers. Deploy server first using the Downloads watcher; real two-browser validation remains necessary.
+
+## v0.1.164 — Stage settings initialization hotfix
+
+Synchronizes Rantlist browser core **9.6.327 / r355**. The Stage scene-settings GUI previously accessed its timer before initialization during first boot. Refresh scheduling state now initializes before the world; initial hidden GUI creation is deferred until after the renderer starts, while the Stage remains usable if optional GUI controls fail. Existing multiplayer, avatar, geometry-edit and call paths are unchanged. Native wrappers are unchanged. Verify GPU and live call behaviour on deployed devices.
+
 ## v0.1.163 — Stage startup ReferenceError hotfix
 
 Synchronizes Rantlist **9.6.326 / r354** browser core. The server fixes r353's ground-contact initialization order so the first player can be created without a JavaScript temporal-dead-zone error. Also removes the redundant `allowfullscreen` iframe flag; fullscreen remains enabled in `allow`. All previous movement, avatar, image-frame, scene-edit and call features are otherwise unchanged. Native macOS/iOS/Android wrappers are unchanged. Real GPU and live call tests must run after deployment.

@@ -1,3 +1,27 @@
+## rantlist-deploy-r360 — visible collaboration leases and confirmed geometry cuts
+
+Server 9.6.332 / r360, client 0.1.169. Channel-scoped temporary geometry selection and transform presence (bounded 10-second lease with heartbeat) displays the active editor above selected geometry and holds remote Rapier objects kinematically until focus release. Pointer movement is a dropped-under-backpressure pose preview, the final transform is a durable revisioned edit, and a supported single-mesh cut is a validated indexed-mesh patch. Multi-object/opening cuts and advanced edits retain the atomic full-scene commit fallback. Never broadcast unconfirmed preview geometry.
+
+## v0.1.168 — Stage geometry edit synchronization
+
+Uses verified browser core v9.6.331 / r359. Transform-end and ordinary geometry clone updates now flow as compact persistent multiplayer edits. Full snapshots remain for multi-object/complex edits. macOS/iOS wrappers and Downloads watcher layout are unchanged.
+
+## v0.1.167 — visible multiplayer collision reactions
+
+Browser core **9.6.330 / r358**. Dynamic object collisions now retain their Rapier motion stream across rebuilt player colliders and from the first physics tick; fixed obstacles display a synchronized collision reaction and receive the local player pose without wrongly moving fixed geometry. The native wrappers, calls and Downloads watcher are unchanged. Multi-device GPU/latency results are not claimed.
+
+## v0.1.166 — compact shared dynamic-object physics
+
+Synchronizes the Rantlist browser core **9.6.329 / r357**. The server Stage iframe handles local Rapier collision events against nearby movable objects, announces short-lived ownership and publishes sparse transform/velocity changes over the channel WebSocket. Remote clients replay the state in their local Rapier world; fixed geometry remains local and scene snapshots are still revisioned. The native wrappers, Stage iframe retention, voice/video calls and existing deployment watcher are unchanged. Live two-device collision fidelity and performance require validation after deployment.
+
+## v0.1.165 — Stage remote avatar scale parity
+
+Synchronizes Rantlist browser core **9.6.328 / r356**. Shared built-in avatars are now drawn at the same scale as the owner: the Stage peer renderer no longer fits model bounds or overwrites the GLB's intrinsic scale, and applies the saved `runnerScale`, vertical offset and rotation to a separate outer wrapper. Size-only changes no longer reload peer rigs. The server ZIP contains the Stage 3D renderer fix; this client ZIP updates the synchronized sanitized browser and preserves the existing native wrappers. Deploy server first using the Downloads watcher; real two-browser validation remains necessary.
+
+## v0.1.164 — Stage settings initialization hotfix
+
+Synchronizes Rantlist browser core **9.6.327 / r355**. The Stage scene-settings GUI previously accessed its timer before initialization during first boot. Refresh scheduling state now initializes before the world; initial hidden GUI creation is deferred until after the renderer starts, while the Stage remains usable if optional GUI controls fail. Existing multiplayer, avatar, geometry-edit and call paths are unchanged. Native wrappers are unchanged. Verify GPU and live call behaviour on deployed devices.
+
 ## v0.1.163 — Stage startup ReferenceError hotfix
 
 Synchronizes Rantlist **9.6.326 / r354** browser core. The server fixes r353's ground-contact initialization order so the first player can be created without a JavaScript temporal-dead-zone error. Also removes the redundant `allowfullscreen` iframe flag; fullscreen remains enabled in `allow`. All previous movement, avatar, image-frame, scene-edit and call features are otherwise unchanged. Native macOS/iOS/Android wrappers are unchanged. Real GPU and live call tests must run after deployment.
