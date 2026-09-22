@@ -1,3 +1,7 @@
+## v0.1.157 — Stage Rapier WebAssembly CSP repair
+
+Synchronizes Rantlist **9.6.320 / r348**. The server permits Rapier WebAssembly compilation in the `/stage/` iframe through the narrowly scoped CSP source `'wasm-unsafe-eval'`; the main chat page continues to disallow JavaScript evaluation. This client includes the matching sanitized browser source and preserves existing macOS, iOS and Android native wrappers. The native release workflow still synchronizes from the verified server first. The missing matching Stage 1266 asset folders are not supplied by this client ZIP, and live GPU/XR behavior requires testing on the deployed site.
+
 ## v0.1.156 — Full Stage 1266 + shared channel world and 3D chat feed
 
 Synchronizes Rantlist **9.6.319 / r347**. The Stage button now opens the supplied Stage 1266 editor (Three.js/Rapier/WebXR) inside the chat viewport rather than the rotating cube. Authorized channel participants share revision-checked scene snapshots and see recent messages as 3D cards in a vertical, horizontal or circular feed. The second Stage control cycles 2D message overlays through full, medium, small, nano and hidden. Stage initializes only on demand; matching Stage 1266 static assets must be installed separately for guaranteed fidelity. Full synchronized multiplayer physics and private model asset transfer are not part of this release.
