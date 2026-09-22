@@ -1,3 +1,7 @@
+## v0.1.163 — Stage startup ReferenceError hotfix
+
+Synchronizes Rantlist **9.6.326 / r354** browser core. The server fixes r353's ground-contact initialization order so the first player can be created without a JavaScript temporal-dead-zone error. Also removes the redundant `allowfullscreen` iframe flag; fullscreen remains enabled in `allow`. All previous movement, avatar, image-frame, scene-edit and call features are otherwise unchanged. Native macOS/iOS/Android wrappers are unchanged. Real GPU and live call tests must run after deployment.
+
 ## v0.1.162 — Stage targeted performance and collaborative still frames
 
 Synchronizes Rantlist **9.6.325 / r353** sanitized browser core. The server's embedded Stage now caches/culls ground and NPC raycast targets, coalesces editor GUI rebuilds, yields during large scene snapshots, keeps the current player's Rapier body when remote geometry changes arrive, shares bounded JPEG previews of committed captured image frames and replicates remote avatar heading/speed. The previous desktop Stage button and native macOS/iOS/Android wrappers are unchanged. Raw HAR/trace bytes, deployed multi-device physics and GPU/call performance were not available for verification.
