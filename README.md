@@ -1,3 +1,7 @@
+## v0.1.155 — Rantlist Stage communication POC
+
+Synchronizes Rantlist **9.6.318 / r346**. A new 3D/Stage toggle beside the chat jump-to-bottom control switches the message viewport into a lazy WebGL world while the normal message timeline keeps scrolling above it. The first POC intentionally renders only a rotating lit cube with floor/grid; it does not yet embed the full Stage 1266 editor, Rapier physics or multiplayer world state. Three.js loads only on first explicit Stage activation and the render loop stops when Stage mode or the app/tab is inactive. No persisted channels, messages, profiles, media or Avatar Lab data is changed.
+
 ## v0.1.154 — My Models stylesheet placement repair
 
 Synchronizes Rantlist **9.6.317 / r345**. The remaining My Models vertical-strip regression came from the r332-r344 Avatar Lab CSS being embedded inside the Drawing Table portable-SVG template rather than the document stylesheet, so the browser never applied the intended gallery rules. The CSS is restored to the page, portable SVG export is clean again, and My Models stays draggable without inheriting Source/Reference float-card visuals. Compact mode is explicitly 520-860px on desktop; Tripo previews, stable ordering, hidden scrollbars, full mode and preserved 3D stage camera state remain unchanged.

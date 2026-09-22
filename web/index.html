@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.317">
+  <meta name="chat-ui-version" content="9.6.318">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -585,6 +585,96 @@
       font-weight: 850;
     }
     .message-to-bottom-button[data-unread-count]:not([data-unread-count="0"]) .message-to-bottom-count { display: grid; }
+
+    /* r346: Stage POC keeps chat/messages as the communication layer while a lazy WebGL world lives behind it. */
+    .chat-stage-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      opacity: 0;
+      transform: scale(1.015);
+      transform-origin: center;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 42%),
+        linear-gradient(180deg, color-mix(in srgb, var(--panel-3) 76%, #050914 24%), color-mix(in srgb, var(--panel) 84%, #02050b 16%));
+      transition: opacity 220ms ease, transform 260ms ease;
+    }
+    .chat-stage-layer[hidden] { display: none !important; }
+    .message-viewport.stage-world-open .chat-stage-layer {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .chat-stage-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      opacity: .98;
+    }
+    .chat-stage-status {
+      position: absolute;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      max-width: calc(100% - 24px);
+      padding: 5px 9px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--panel) 82%, transparent);
+      color: var(--muted);
+      box-shadow: 0 7px 20px rgba(0,0,0,.14);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      font-size: 10px;
+      font-weight: 760;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .chat-stage-status[hidden] { display: none !important; }
+    #messageList {
+      z-index: 2;
+    }
+    .message-viewport.stage-world-open #messageList {
+      background-color: transparent !important;
+      background-image: none !important;
+    }
+    .message-viewport.stage-world-open #messageList::before {
+      opacity: 0 !important;
+    }
+    .message-stage-button {
+      position: absolute;
+      z-index: 14;
+      left: calc(50% + 48px);
+      bottom: 12px;
+      transform: translateX(-50%);
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      min-height: 38px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      border: 1px solid color-mix(in srgb, var(--line) 72%, transparent);
+      background: color-mix(in srgb, var(--panel) 88%, transparent);
+      color: var(--text);
+      box-shadow: 0 7px 20px rgba(0,0,0,.14);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: .92;
+      transition: opacity .16s ease, border-color .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+    .message-to-bottom-button[hidden] + .message-stage-button { left: 50%; }
+    .message-stage-button:hover { opacity: 1; border-color: var(--accent); }
+    .message-stage-button:active:not(:disabled) { transform: translateX(-50%); }
+    .message-stage-button[aria-pressed="true"] {
+      opacity: 1;
+      border-color: color-mix(in srgb, var(--accent) 84%, #fff 16%);
+      background: color-mix(in srgb, var(--accent) 24%, var(--panel) 76%);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent), 0 9px 26px color-mix(in srgb, var(--accent) 20%, transparent);
+    }
+    .message-stage-button .icon { width: 19px; height: 19px; }
     .message {
       --user-color: #6e8bff;
       --message-surface: var(--user-color);
@@ -1091,6 +1181,8 @@
     .message-viewport.has-context-overlay .typing-indicator { bottom: 46px; }
     .message-viewport.has-typing-indicator .message-to-bottom-button { bottom: 48px; }
     .message-viewport.has-context-overlay.has-typing-indicator .message-to-bottom-button { bottom: 92px; }
+    .message-viewport.has-typing-indicator .message-stage-button { bottom: 48px; }
+    .message-viewport.has-context-overlay.has-typing-indicator .message-stage-button { bottom: 92px; }
     .typing-bubble {
       display: inline-flex;
       align-items: center;
@@ -17408,7 +17500,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.317</small>
+          <small id="serverBrandVersion">v9.6.318</small>
         </span>
       </button>
     </div>
@@ -18939,6 +19031,10 @@
         <span id="channelUserRailWorkspaceHome" class="channel-user-rail-home" aria-hidden="true"></span>
         <div class="panel-body">
         <div id="messageViewport" class="message-viewport">
+          <div id="chatStageLayer" class="chat-stage-layer" hidden aria-hidden="true">
+            <canvas id="chatStageCanvas" class="chat-stage-canvas" aria-label="3D Stage preview"></canvas>
+            <div id="chatStageStatus" class="chat-stage-status" role="status" aria-live="polite" hidden>Loading 3D Stage…</div>
+          </div>
           <div id="mediaMiniPlayer" class="media-mini-player" hidden aria-label="Media player">
             <button id="mediaMiniPlayPauseButton" type="button" aria-label="Play or pause current media">▶</button>
             <button id="mediaMiniTitleButton" class="media-mini-title" type="button" title="Open current media">Media</button>
@@ -18948,6 +19044,7 @@
           </div>
           <div id="messageList" aria-live="polite"></div>
           <button id="messageToBottomButton" class="message-to-bottom-button" data-button-presentation-ignore type="button" title="Jump to latest message" aria-label="Jump to latest message" hidden><span class="icon icon-bottom" aria-hidden="true"></span><span class="message-to-bottom-count" aria-hidden="true"></span></button>
+          <button id="messageStageButton" class="message-stage-button" data-button-presentation-ignore type="button" title="Enter 3D Stage" aria-label="Enter 3D Stage" aria-pressed="false"><span class="icon icon-avatar-3d" aria-hidden="true"></span></button>
           <div id="messageTargetOverlay" class="message-target-overlay" hidden aria-live="polite">
             <span id="targetPill" class="target-pill" hidden>
               <span class="icon icon-chat" aria-hidden="true"></span>
@@ -20224,7 +20321,7 @@
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
-        'messageViewport', 'messageList', 'messageToBottomButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
+        'messageViewport', 'messageList', 'chatStageLayer', 'chatStageCanvas', 'chatStageStatus', 'messageToBottomButton', 'messageStageButton', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
         'translatorModal', 'translatorCard', 'translatorWindowHeader', 'translatorMinimizeButton', 'translatorCloseButton', 'translatorPaneSwapButton', 'translatorLiveTab', 'translatorSessionsTab', 'translatorSessionCount', 'translatorConversationView', 'translatorSessionsView', 'translatorSessionList', 'translatorNewSessionButton', 'translatorTargetLanguage', 'translatorSourceLanguage', 'translatorTranslatedText', 'translatorSourceText', 'translatorListenButton', 'translatorListenLabel', 'translatorSwapButton', 'translatorEngine', 'translatorAutoSpeak', 'translatorCopyTranslationButton', 'translatorCopySourceButton', 'translatorSpeakButton', 'translatorRotateButton', 'translatorClearButton', 'translatorFontDecreaseButton', 'translatorFontIncreaseButton', 'translatorStatus', 'translatorDeleteModal', 'translatorDeleteNoButton', 'translatorDeleteYesButton',
@@ -20600,6 +20697,11 @@
       mediaBatchViewer: null,
       timelineMediaObserver: null,
       timelineMediaUnloadTimers: new WeakMap(),
+      chatStageWorldOpen: false,
+      chatStageWorld: null,
+      chatStageWorldInitPromise: null,
+      chatStageWorldAnimationFrame: 0,
+      chatStageWorldHideTimer: 0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
       customTheme: readJsonStorage('chat.ui.customTheme') || null,
@@ -22664,10 +22766,12 @@
         updateMessageToBottomButton();
       }, { passive: true });
       elements.messageToBottomButton.addEventListener('click', jumpMessageListToBottom);
+      elements.messageStageButton?.addEventListener('click', () => { void setChatStageWorldOpen(); });
 
       window.addEventListener('beforeunload', () => {
         stopVoiceRecording(true);
         stopTyping(true);
+        stopChatStageWorldAnimation();
         for (const url of state.objectUrls) URL.revokeObjectURL(url);
       });
 
@@ -22675,9 +22779,11 @@
         if (document.hidden) {
           if (state.voiceRecorder && state.voiceRecorder.state !== 'inactive') stopVoiceRecording(true);
           stopTyping(true);
+          stopChatStageWorldAnimation();
         } else {
           syncViewportHeight(true);
           refreshReadCandidates();
+          if (state.chatStageWorldOpen) startChatStageWorldAnimation();
           checkServerVersion(true).catch(() => {});
         }
       });
@@ -44408,6 +44514,188 @@
       cancelAnimationFrame(state.messageScrollRestoreRaf);
       const anchor = state.messageScrollAnchor;
       state.messageScrollRestoreRaf = requestAnimationFrame(() => restoreMessageScrollAnchor(anchor));
+    }
+
+
+    function resizeChatStageWorld(runtime = state.chatStageWorld) {
+      if (!runtime || !elements.chatStageCanvas || !elements.messageViewport) return;
+      const width = Math.max(1, Math.round(elements.chatStageCanvas.clientWidth || elements.messageViewport.clientWidth || 1));
+      const height = Math.max(1, Math.round(elements.chatStageCanvas.clientHeight || elements.messageViewport.clientHeight || 1));
+      if (runtime.width === width && runtime.height === height) return;
+      runtime.width = width;
+      runtime.height = height;
+      runtime.renderer.setPixelRatio(Math.min(Number(window.devicePixelRatio) || 1, 1.5));
+      runtime.renderer.setSize(width, height, false);
+      runtime.camera.aspect = width / height;
+      runtime.camera.updateProjectionMatrix();
+    }
+
+    function stopChatStageWorldAnimation() {
+      if (!state.chatStageWorldAnimationFrame) return;
+      cancelAnimationFrame(state.chatStageWorldAnimationFrame);
+      state.chatStageWorldAnimationFrame = 0;
+    }
+
+    function startChatStageWorldAnimation() {
+      const runtime = state.chatStageWorld;
+      if (!runtime || !state.chatStageWorldOpen || document.hidden || state.chatStageWorldAnimationFrame) return;
+      runtime.lastFrameAt = performance.now();
+      const tick = (now) => {
+        if (!state.chatStageWorldOpen || document.hidden || !state.chatStageWorld) {
+          state.chatStageWorldAnimationFrame = 0;
+          return;
+        }
+        const current = state.chatStageWorld;
+        resizeChatStageWorld(current);
+        const delta = Math.min(.05, Math.max(0, (now - Number(current.lastFrameAt || now)) / 1000));
+        current.lastFrameAt = now;
+        current.cubeGroup.rotation.y += delta * .68;
+        current.cubeGroup.rotation.x = Math.sin(now * .00043) * .16;
+        current.cubeGroup.position.y = .18 + Math.sin(now * .00105) * .09;
+        current.renderer.render(current.scene, current.camera);
+        state.chatStageWorldAnimationFrame = requestAnimationFrame(tick);
+      };
+      state.chatStageWorldAnimationFrame = requestAnimationFrame(tick);
+    }
+
+    async function ensureChatStageWorld() {
+      if (state.chatStageWorld) return state.chatStageWorld;
+      if (state.chatStageWorldInitPromise) return state.chatStageWorldInitPromise;
+      state.chatStageWorldInitPromise = (async () => {
+        const THREE = await import('three');
+        const canvas = elements.chatStageCanvas;
+        if (!canvas) throw new Error('3D Stage canvas is unavailable.');
+        const renderer = new THREE.WebGLRenderer({
+          canvas,
+          antialias: true,
+          alpha: true,
+          powerPreference: 'high-performance',
+        });
+        renderer.setClearColor(0x000000, 0);
+        if ('outputColorSpace' in renderer && THREE.SRGBColorSpace) renderer.outputColorSpace = THREE.SRGBColorSpace;
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x07101f, .035);
+
+        const camera = new THREE.PerspectiveCamera(52, 1, .1, 100);
+        camera.position.set(0, 1.35, 4.8);
+        camera.lookAt(0, .18, 0);
+
+        const ambient = new THREE.HemisphereLight(0xcde8ff, 0x161d35, 1.55);
+        scene.add(ambient);
+        const key = new THREE.DirectionalLight(0xffffff, 2.25);
+        key.position.set(3.5, 5.2, 4.2);
+        scene.add(key);
+        const rim = new THREE.DirectionalLight(0x8ea6ff, 1.25);
+        rim.position.set(-4, 2.5, -2.5);
+        scene.add(rim);
+
+        const cubeGroup = new THREE.Group();
+        const boxGeometry = new THREE.BoxGeometry(1.48, 1.48, 1.48, 4, 4, 4);
+        const accent = String(getComputedStyle(document.documentElement).getPropertyValue('--accent') || '#6ea8fe').trim() || '#6ea8fe';
+        const cube = new THREE.Mesh(boxGeometry, new THREE.MeshStandardMaterial({
+          color: new THREE.Color(accent),
+          roughness: .28,
+          metalness: .18,
+        }));
+        const edges = new THREE.LineSegments(
+          new THREE.EdgesGeometry(boxGeometry),
+          new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: .42 }),
+        );
+        cubeGroup.add(cube, edges);
+        cubeGroup.position.y = .18;
+        scene.add(cubeGroup);
+
+        const floor = new THREE.Mesh(
+          new THREE.CircleGeometry(4.8, 64),
+          new THREE.MeshStandardMaterial({ color: 0x111b31, roughness: .95, metalness: 0, transparent: true, opacity: .82 }),
+        );
+        floor.rotation.x = -Math.PI / 2;
+        floor.position.y = -1.03;
+        scene.add(floor);
+
+        const grid = new THREE.GridHelper(9, 18, 0x6ea8fe, 0x2a3857);
+        grid.position.y = -1.015;
+        if (Array.isArray(grid.material)) {
+          for (const material of grid.material) { material.transparent = true; material.opacity = .28; }
+        } else {
+          grid.material.transparent = true;
+          grid.material.opacity = .28;
+        }
+        scene.add(grid);
+
+        const runtime = {
+          THREE,
+          renderer,
+          scene,
+          camera,
+          cubeGroup,
+          boxGeometry,
+          width: 0,
+          height: 0,
+          lastFrameAt: performance.now(),
+          resizeObserver: null,
+        };
+        if ('ResizeObserver' in window) {
+          runtime.resizeObserver = new ResizeObserver(() => resizeChatStageWorld(runtime));
+          runtime.resizeObserver.observe(elements.messageViewport);
+        }
+        state.chatStageWorld = runtime;
+        resizeChatStageWorld(runtime);
+        return runtime;
+      })();
+      try {
+        return await state.chatStageWorldInitPromise;
+      } finally {
+        state.chatStageWorldInitPromise = null;
+      }
+    }
+
+    async function setChatStageWorldOpen(forceOpen = null) {
+      const open = typeof forceOpen === 'boolean' ? forceOpen : !state.chatStageWorldOpen;
+      clearTimeout(state.chatStageWorldHideTimer);
+      state.chatStageWorldHideTimer = 0;
+      state.chatStageWorldOpen = open;
+      elements.messageStageButton?.setAttribute('aria-pressed', open ? 'true' : 'false');
+      elements.messageStageButton?.setAttribute('aria-label', open ? 'Return to 2D chat' : 'Enter 3D Stage');
+      if (elements.messageStageButton) elements.messageStageButton.title = open ? 'Return to 2D chat' : 'Enter 3D Stage';
+
+      if (!open) {
+        stopChatStageWorldAnimation();
+        elements.messageViewport?.classList.remove('stage-world-open');
+        elements.chatStageLayer?.setAttribute('aria-hidden', 'true');
+        state.chatStageWorldHideTimer = window.setTimeout(() => {
+          if (!state.chatStageWorldOpen && elements.chatStageLayer) elements.chatStageLayer.hidden = true;
+        }, 280);
+        return;
+      }
+
+      if (elements.chatStageLayer) {
+        elements.chatStageLayer.hidden = false;
+        elements.chatStageLayer.setAttribute('aria-hidden', 'false');
+      }
+      if (elements.chatStageStatus) {
+        elements.chatStageStatus.hidden = false;
+        elements.chatStageStatus.textContent = 'Loading 3D Stage…';
+      }
+      requestAnimationFrame(() => elements.messageViewport?.classList.add('stage-world-open'));
+
+      try {
+        await ensureChatStageWorld();
+        if (!state.chatStageWorldOpen) return;
+        if (elements.chatStageStatus) {
+          elements.chatStageStatus.textContent = 'Stage POC · chat remains live above the 3D world';
+          window.setTimeout(() => {
+            if (state.chatStageWorldOpen && elements.chatStageStatus) elements.chatStageStatus.hidden = true;
+          }, 1600);
+        }
+        startChatStageWorldAnimation();
+      } catch (error) {
+        console.warn('3D Stage preview could not start.', error);
+        if (elements.chatStageStatus) {
+          elements.chatStageStatus.hidden = false;
+          elements.chatStageStatus.textContent = '3D Stage unavailable in this browser.';
+        }
+      }
     }
 
     function updateMessageToBottomButton() {
