@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.323">
+  <meta name="chat-ui-version" content="9.6.324">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -643,12 +643,31 @@
       opacity: 0 !important;
     }
     /* r350: no Stage control on the editor canvas; desktop switch is in the chat header. */
-    .desktop-stage-button {background:#177a42!important; color:#fff!important; border:2px solid #88e6aa!important;box-shadow:0 0 0 2px #164b2e55,0 3px 10px #0003!important;min-width:44px;min-height:42px;transition:filter .15s,transform .15s;}
-    .desktop-stage-button:hover,.desktop-stage-button:focus-visible {background:#e47a18!important;color:#111!important;border-color:#ffca78!important;filter:brightness(1.1);}
-    .desktop-stage-button .icon { width:24px; height:24px;filter:brightness(0) invert(1); }
-    .desktop-stage-button[aria-pressed="true"] {background:#e47a18!important;border-color:#ffca78!important;color:#101820!important;}
-    .desktop-stage-button[aria-pressed="true"] .icon {filter:brightness(0);}
-    .desktop-stage-button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
+    /* r352: header controls may be shrunk by channel layouts and accessibility modes.
+       Keep the Stage icon centered entirely within a real, fixed-size circular hit area. */
+    #desktopStageButton.desktop-stage-button {
+      display: inline-grid !important; place-items: center !important;
+      align-items: center !important; justify-items: center !important;
+      flex: 0 0 44px !important; box-sizing: border-box !important;
+      width: 44px !important; min-width: 44px !important; max-width: 44px !important;
+      height: 44px !important; min-height: 44px !important; max-height: 44px !important;
+      padding: 0 !important; margin: 0 !important; line-height: 1 !important;
+      overflow: hidden; border-radius: 50% !important;
+      background: #168b47 !important; color: #fff !important;
+      border: 2px solid #9bffc0 !important; box-shadow: 0 0 0 2px #164b2e55,0 3px 10px #0003 !important;
+      transition: background .15s ease, filter .15s ease;
+    }
+    #desktopStageButton.desktop-stage-button > .icon-avatar-3d {
+      display: block !important; width: 20px !important; height: 20px !important;
+      min-width: 20px !important; min-height: 20px !important;
+      max-width: 20px !important; max-height: 20px !important;
+      position: static !important; inset: auto !important; margin: 0 !important;
+      padding: 0 !important; transform: none !important; filter: none !important;
+      background-color: currentColor !important; justify-self: center !important; align-self: center !important;
+    }
+    #desktopStageButton.desktop-stage-button:hover,
+    #desktopStageButton.desktop-stage-button:focus-visible { background:#e58324!important;color:#18202b!important;border-color:#ffcb7b!important; }
+    #desktopStageButton.desktop-stage-button[aria-pressed="true"] {background:#e58324!important;color:#18202b!important;border-color:#ffcb7b!important;}
     .stage-feed-button[hidden] { display:none!important; }
     .message-viewport .chat-stage-layer.stage-editor-layer { pointer-events:auto; z-index:1; }
     .chat-stage-layer.stage-editor-layer iframe.stage-editor-frame { position:absolute; inset:0; width:100%; height:100%; border:0; display:block; background:#0b1020; }
@@ -17500,7 +17519,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.323</small>
+          <small id="serverBrandVersion">v9.6.324</small>
         </span>
       </button>
     </div>
@@ -20709,7 +20728,7 @@
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
       stageRevision: 0, stageWorldSnapshot: null, stageWorldRoom: '', stageFeedObserver: null,
       stageFeedTimer: 0, stageOverlayVisible: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
-      stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageActionSeq:0,
+      stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageAppearanceDesired:null,stageAppearanceSeq:0,stageAppearancePendingSeq:0,stageAppearanceSendAt:0,stageAppearanceRetryTimer:0,stageActionSeq:0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
       customTheme: readJsonStorage('chat.ui.customTheme') || null,
@@ -23738,6 +23757,8 @@
         case 'stage.world.state':
         case 'stage.world.ack':
         case 'stage.world.conflict':
+        case 'stage.world.appearance.ack':
+        case 'stage.world.appearance.throttled':
           handleStageServerMessage(message); break;
         case 'stage.world.presence':
         case 'stage.world.motion':
@@ -23751,7 +23772,11 @@
                 state.stagePeerPlayers.set(id,{...state.stagePeerPlayers.get(id), clientId:id, nickname:message.nickname||state.stagePeerPlayers.get(id)?.nickname, pose:message.pose||state.stagePeerPlayers.get(id)?.pose, appearance:message.appearance||state.stagePeerPlayers.get(id)?.appearance, seq:message.type==='stage.world.motion'?message.seq:state.stagePeerPlayers.get(id)?.seq});
               }
             }
-            postToStage('peer',{action:message.action||(message.type==='stage.world.action'?'jump':message.type==='stage.world.appearance'?'appearance':'move'),clientId:message.clientId,nickname:message.nickname,appearance:message.appearance,pose:message.pose,seq:message.seq});
+            // An appearance packet may precede presence after reconnect. Carry the
+            // cached profile into the first real pose rather than spawning a ghost
+            // with no GLB until a second appearance update happens to arrive.
+            const cached=state.stagePeerPlayers.get(String(message.clientId||''));
+            postToStage('peer',{action:message.action||(message.type==='stage.world.action'?'jump':message.type==='stage.world.appearance'?'appearance':'move'),clientId:message.clientId,nickname:message.nickname||cached?.nickname,appearance:message.appearance||cached?.appearance,pose:message.pose||cached?.pose,seq:message.seq});
             if(message.type==='stage.world.presence') stageStatus('A participant '+(message.action==='join'?'entered':'left')+' Stage');
           }
           break;
@@ -44668,6 +44693,7 @@
       state.stageFeedTimer=setTimeout(sendStageFeed,450);
     }
     function stopChatStageWorldAnimation() {
+      clearTimeout(state.stageAppearanceRetryTimer);
       postToStage('pause');
       state.stageFeedObserver?.disconnect();state.stageFeedObserver=null;
       clearTimeout(state.stageFeedTimer);
@@ -44712,6 +44738,31 @@
         state.stageAwaitingAck=false;state.stagePendingSnapshot=snapshot;
       }
     }
+    function sendStageAppearance(){
+      if(!state.stageAppearanceDesired||!state.chatStageWorldOpen||!state.stageIsJoined||state.socket?.readyState!==WebSocket.OPEN)return;
+      clearTimeout(state.stageAppearanceRetryTimer);
+      // Coalesce rapid GUI updates and respect the separate server appearance budget.
+      const wait=Math.max(0,1150-(Date.now()-state.stageAppearanceSendAt));
+      if(wait){state.stageAppearanceRetryTimer=setTimeout(sendStageAppearance,wait);return;}
+      const seq=state.stageAppearanceSeq;
+      if(sendJson({type:'stage.world.appearance',appearance:state.stageAppearanceDesired,seq})){
+        state.stageAppearancePendingSeq=seq;
+        state.stageAppearanceSendAt=Date.now();
+        state.stageAppearanceRetryTimer=setTimeout(()=>{
+          if(state.stageAppearanceDesired&&state.stageAppearanceSeq===seq)sendStageAppearance();
+        },2800);
+      }
+    }
+    function queueStageAppearance(appearance){
+      if(!appearance||typeof appearance!=='object')return;
+      const signature=JSON.stringify(appearance);
+      if(signature===state.stageAppearanceSignature&&!state.stageAppearanceDesired)return;
+      state.stageAppearanceSignature=signature;
+      state.stageOwnAppearance=appearance;
+      state.stageAppearanceDesired=appearance;
+      state.stageAppearanceSeq++;
+      sendStageAppearance();
+    }
     function handleStageFrameMessage(event) {
       if(event.origin!==location.origin || !state.stageIframe || event.source!==state.stageIframe.contentWindow) return;
       const data=event.data;
@@ -44736,9 +44787,8 @@
         if(data.pose && typeof data.pose==='object'){state.stageLastLocalPose=data.pose;state.stageLastLocalPoseRoom=stageRoomKey();
           if(state.socket?.readyState===WebSocket.OPEN && state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.motion',pose:data.pose,seq:++state.stageMotionSeq});
           else stageNetMetrics.droppedMotion++;}
-      } else if(data.event==='appearance' && state.chatStageWorldOpen && state.stageIsJoined && state.socket?.readyState===WebSocket.OPEN) {
-        const signature=JSON.stringify(data.appearance||null);
-        if(signature!==state.stageAppearanceSignature){state.stageAppearanceSignature=signature;state.stageOwnAppearance=data.appearance;sendJson({type:'stage.world.appearance',appearance:data.appearance});}
+      } else if(data.event==='appearance' && state.chatStageWorldOpen && state.stageIsJoined) {
+        queueStageAppearance(data.appearance);
       } else if(data.event==='action' && data.action==='jump' && state.chatStageWorldOpen && state.stageIsJoined && state.socket?.readyState===WebSocket.OPEN) {
         if(state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.action',action:'jump',seq:++state.stageActionSeq,pose:data.pose});
       } else if(data.event==='snapshot' && state.chatStageWorldOpen && data.snapshot && stageRoomKey()===state.stageWorldRoom) {
@@ -44769,8 +44819,8 @@
           state.stageIsJoined=true;
           if(Array.isArray(message.players)) {
             state.stageOwnPose=message.ownPose||null;
-            state.stageOwnAppearance=message.ownAppearance||null;
-            state.stageAppearanceSignature=JSON.stringify(message.ownAppearance||null);
+            state.stageOwnAppearance=state.stageAppearanceDesired||message.ownAppearance||null;
+            if(!state.stageAppearanceDesired)state.stageAppearanceSignature=JSON.stringify(message.ownAppearance||null);
             // Only initialize from server profile when the active player is new;
             // running worlds retain their own location during websocket reconnects.
             postToStage('profile',{appearance:state.stageOwnAppearance,pose:state.stageOwnPose});
@@ -44782,6 +44832,9 @@
             postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
           }
           postToStage('joined');
+          // Resume an unacknowledged avatar change after a dropped socket; do
+          // not overwrite the latest user's choice with an older disk profile.
+          if(state.stageAppearanceDesired)sendStageAppearance();
           // A remote commit with an unacknowledged local edit is not silently merged.
           if(state.stageAwaitingAck || state.stagePendingSnapshot) {
             state.stagePendingSnapshot=null;
@@ -44794,6 +44847,18 @@
             setTimeout(()=>{if(state.chatStageWorldOpen && state.stageWorldRoom===message.room)elements.chatStageStatus.hidden=true;},2200);
           }
           flushStageSnapshot();
+          break;
+        case 'stage.world.appearance.ack':
+          if(message.seq===state.stageAppearancePendingSeq&&message.seq===state.stageAppearanceSeq){
+            clearTimeout(state.stageAppearanceRetryTimer);
+            state.stageAppearanceDesired=null;state.stageAppearancePendingSeq=0;
+          }
+          break;
+        case 'stage.world.appearance.throttled':
+          if(message.seq===state.stageAppearancePendingSeq&&state.stageAppearanceDesired){
+            clearTimeout(state.stageAppearanceRetryTimer);
+            state.stageAppearanceRetryTimer=setTimeout(sendStageAppearance,Math.max(1150,Math.min(4000,Number(message.retryAfterMs)||1800)));
+          }
           break;
         case 'stage.world.ack':
           state.stageRevision=Number(message.revision)||state.stageRevision;
