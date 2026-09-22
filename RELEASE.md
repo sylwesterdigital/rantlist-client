@@ -1,3 +1,7 @@
+## v0.1.156 — Full Stage 1266 + shared channel world and 3D chat feed
+
+Synchronizes Rantlist **9.6.319 / r347**. The Stage button now opens the supplied Stage 1266 editor (Three.js/Rapier/WebXR) inside the chat viewport rather than the rotating cube. Authorized channel participants share revision-checked scene snapshots and see recent messages as 3D cards in a vertical, horizontal or circular feed. The second Stage control cycles 2D message overlays through full, medium, small, nano and hidden. Stage initializes only on demand; matching Stage 1266 static assets must be installed separately for guaranteed fidelity. Full synchronized multiplayer physics and private model asset transfer are not part of this release.
+
 ## v0.1.155 — Rantlist Stage communication POC
 
 Synchronizes Rantlist **9.6.318 / r346**. A new 3D/Stage toggle beside the chat jump-to-bottom control switches the message viewport into a lazy WebGL world while the normal message timeline keeps scrolling above it. The first POC intentionally renders only a rotating lit cube with floor/grid; it does not yet embed the full Stage 1266 editor, Rapier physics or multiplayer world state. Three.js loads only on first explicit Stage activation and the render loop stops when Stage mode or the app/tab is inactive. No persisted channels, messages, profiles, media or Avatar Lab data is changed.
