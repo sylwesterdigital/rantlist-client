@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.322">
+  <meta name="chat-ui-version" content="9.6.323">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -643,7 +643,11 @@
       opacity: 0 !important;
     }
     /* r350: no Stage control on the editor canvas; desktop switch is in the chat header. */
-    .desktop-stage-button .icon { width:19px; height:19px; }
+    .desktop-stage-button {background:#177a42!important; color:#fff!important; border:2px solid #88e6aa!important;box-shadow:0 0 0 2px #164b2e55,0 3px 10px #0003!important;min-width:44px;min-height:42px;transition:filter .15s,transform .15s;}
+    .desktop-stage-button:hover,.desktop-stage-button:focus-visible {background:#e47a18!important;color:#111!important;border-color:#ffca78!important;filter:brightness(1.1);}
+    .desktop-stage-button .icon { width:24px; height:24px;filter:brightness(0) invert(1); }
+    .desktop-stage-button[aria-pressed="true"] {background:#e47a18!important;border-color:#ffca78!important;color:#101820!important;}
+    .desktop-stage-button[aria-pressed="true"] .icon {filter:brightness(0);}
     .desktop-stage-button[aria-pressed="true"] { border-color:var(--accent); color:var(--accent); }
     .stage-feed-button[hidden] { display:none!important; }
     .message-viewport .chat-stage-layer.stage-editor-layer { pointer-events:auto; z-index:1; }
@@ -17496,7 +17500,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.322</small>
+          <small id="serverBrandVersion">v9.6.323</small>
         </span>
       </button>
     </div>
@@ -20705,7 +20709,7 @@
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
       stageRevision: 0, stageWorldSnapshot: null, stageWorldRoom: '', stageFeedObserver: null,
       stageFeedTimer: 0, stageOverlayVisible: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
-      stageFrameLoadTimer: 0, stageFrameLoadNonce: 0,
+      stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageActionSeq:0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
       customTheme: readJsonStorage('chat.ui.customTheme') || null,
@@ -22883,7 +22887,7 @@
       });
 
       socket.addEventListener('close', (event) => {
-        if(state.chatStageWorldOpen){state.stageIsJoined=false;state.stageAwaitingAck=false;stageStatus('Stage disconnected; reconnect to resume.',true);}
+        if(state.chatStageWorldOpen){state.stageRetainedRoom=state.currentRoom||state.stageWorldRoom;state.stageIsJoined=false;state.stageAwaitingAck=false;stageStatus('Stage connection lost; preserving your avatar and position while reconnecting.',true);}
         state.registered = false;
         state.isAdmin = false;
         state.signingOff = false;
@@ -23662,12 +23666,12 @@
           break;
 
         case 'room.joined':
-          if(state.stageIframe && !sameRoom(message.room,state.currentRoom)) {
+          if(state.stageIframe && !sameRoom(message.room,state.currentRoom||state.stageRetainedRoom)) {
             // Keep the same WASM/WebGL iframe across channel switches; reset only
             // the static room world, feed, and volatile participant subscription.
             stopChatStageWorldAnimation();
             state.stageRevision=0;state.stageWorldSnapshot=null;
-            state.stageWorldRoom='';state.stagePendingSnapshot=null;state.stageAwaitingAck=false;
+            state.stageWorldRoom='';state.stagePendingSnapshot=null;state.stageAwaitingAck=false;state.stageOwnPose=null;state.stageLastLocalPose=null;state.stageLastLocalPoseRoom='';
             if(state.stageReady) {
               postToStage('room',{room:message.room});
               postToStage('feed',{room:message.room,items:[]});
@@ -23677,6 +23681,7 @@
               }
             }
           }
+          state.stageRetainedRoom='';
           if (!sameRoom(state.currentRoom, message.room)) {
             state.currentRoom = message.room;
             state.desiredRoom = message.room;
@@ -23736,15 +23741,17 @@
           handleStageServerMessage(message); break;
         case 'stage.world.presence':
         case 'stage.world.motion':
+        case 'stage.world.appearance':
+        case 'stage.world.action':
           if(state.chatStageWorldOpen && message.room===stageRoomKey()) {
             if(message.clientId) {
               const id=String(message.clientId);
               if(message.action==='leave') state.stagePeerPlayers.delete(id);
               else if(state.stagePeerPlayers.has(id) || state.stagePeerPlayers.size<36) {
-                state.stagePeerPlayers.set(id,{...state.stagePeerPlayers.get(id), clientId:id, nickname:message.nickname||state.stagePeerPlayers.get(id)?.nickname, pose:message.pose||state.stagePeerPlayers.get(id)?.pose, seq:message.seq});
+                state.stagePeerPlayers.set(id,{...state.stagePeerPlayers.get(id), clientId:id, nickname:message.nickname||state.stagePeerPlayers.get(id)?.nickname, pose:message.pose||state.stagePeerPlayers.get(id)?.pose, appearance:message.appearance||state.stagePeerPlayers.get(id)?.appearance, seq:message.type==='stage.world.motion'?message.seq:state.stagePeerPlayers.get(id)?.seq});
               }
             }
-            postToStage('peer',{action:message.action||'move',clientId:message.clientId,nickname:message.nickname,pose:message.pose,seq:message.seq});
+            postToStage('peer',{action:message.action||(message.type==='stage.world.action'?'jump':message.type==='stage.world.appearance'?'appearance':'move'),clientId:message.clientId,nickname:message.nickname,appearance:message.appearance,pose:message.pose,seq:message.seq});
             if(message.type==='stage.world.presence') stageStatus('A participant '+(message.action==='join'?'entered':'left')+' Stage');
           }
           break;
@@ -24343,6 +24350,7 @@
           break;
         }
         case 'pong':
+          if(stageProbeTimer&&Number.isFinite(message.clientTime))stageNetMetrics.pingMs=Math.max(0,Date.now()-message.clientTime);
           break;
         default:
           console.debug('Unhandled message', message);
@@ -43196,7 +43204,12 @@
         addSystemMessage('The WebSocket connection is not open.', true);
         return false;
       }
-      state.socket.send(JSON.stringify(value));
+      const data=JSON.stringify(value);
+      if(String(value?.type||'').startsWith('stage.world.')){
+        stageNetMetrics.outBytes+=data.length;stageNetMetrics.outPackets[value.type]=(stageNetMetrics.outPackets[value.type]||0)+1;
+      }
+      stageNetMetrics.socketHighWater=Math.max(stageNetMetrics.socketHighWater,state.socket.bufferedAmount);
+      state.socket.send(data);
       return true;
     }
 
@@ -44568,6 +44581,35 @@
     }
 
 
+    // Inspect transport and renderer separately instead of assuming every lag is network traffic.
+    const stageNetMetrics={startedAt:Date.now(),outBytes:0,inBytes:0,outPackets:{},inPackets:{},droppedMotion:0,pingMs:null,longTasks:[],socketHighWater:0};
+    let stageProbeTimer=0,stageProbeObserver=null;
+    window.getRantlistStageDiagnostics=()=>{
+      const frame=state.stageIframe?.contentWindow;
+      let renderer=null,audit=null;
+      try{renderer=frame?.rantlistStageNetworkDiagnostics?.()||null;audit=frame?.getStagePerformanceAuditReport?.()||null;}catch{}
+      return {...stageNetMetrics,outPackets:{...stageNetMetrics.outPackets},inPackets:{...stageNetMetrics.inPackets},longTasks:stageNetMetrics.longTasks.slice(-20),
+        socketBufferedBytes:state.socket?.bufferedAmount||0,socketState:state.socket?.readyState,stageReady:state.stageReady,room:stageRoomKey(),iframeLoaded:!!state.stageIframe?.src,
+        renderer,auditAvailable:!!audit};
+    };
+    window.startRantlistStageNetworkProbe=()=>{
+      if(stageProbeTimer)return window.getRantlistStageDiagnostics();
+      stageProbeTimer=setInterval(()=>{
+        if(state.chatStageWorldOpen&&state.socket?.readyState===WebSocket.OPEN)sendJson({type:'ping',clientTime:Date.now()});
+      },5000);
+      if(typeof PerformanceObserver==='function')try{
+        stageProbeObserver=new PerformanceObserver(list=>{for(const item of list.getEntries())if(item.duration>=50){
+          stageNetMetrics.longTasks.push({at:Date.now(),ms:Math.round(item.duration),name:item.name});
+          if(stageNetMetrics.longTasks.length>60)stageNetMetrics.longTasks.shift();
+        }});
+        stageProbeObserver.observe({entryTypes:['longtask']});
+      }catch{}
+      return window.getRantlistStageDiagnostics();
+    };
+    window.stopRantlistStageNetworkProbe=()=>{
+      clearInterval(stageProbeTimer);stageProbeTimer=0;stageProbeObserver?.disconnect();stageProbeObserver=null;
+      return window.getRantlistStageDiagnostics();
+    };
     // Stage full editor bridge: room state stays in Rantlist's authenticated websocket.
     function stageStatus(text, persist = false) {
       if (!elements.stageEditStatus) return;
@@ -44644,7 +44686,7 @@
         }
         scheduleStageFeed();
         if (!state.stageIsJoined && stageRoomKey() && state.socket?.readyState===WebSocket.OPEN) {
-          state.stageIsJoined=sendJson({type:'stage.world.join'});
+          state.stageIsJoined=sendJson({type:'stage.world.join',...(state.stageLastLocalPoseRoom===stageRoomKey()?{resumePose:state.stageLastLocalPose}:{})});
         }
       }
     }
@@ -44680,6 +44722,8 @@
         // Initialize once even if Stage finished loading while 2D chat was visible.
         // Subsequent toggles resume this exact iframe and never re-fetch Rapier.
         postToStage('init',{snapshot:state.stageWorldSnapshot});
+        if(state.stageOwnAppearance||state.stageOwnPose)postToStage('profile',{appearance:state.stageOwnAppearance,pose:state.stageOwnPose});
+        if(state.stageIsJoined)postToStage('joined');
         // Join and presence packets can arrive before the heavy iframe loads.
         postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
         postToStage('layout',{layout:state.stageFeedMode});
@@ -44689,10 +44733,19 @@
         }
         if(!state.chatStageWorldOpen || document.hidden) postToStage('pause');
       } else if(data.event==='motion' && state.chatStageWorldOpen && state.stageIsJoined && stageRoomKey()===state.stageWorldRoom && !document.hidden) {
-        if(data.pose && typeof data.pose==='object' && state.socket?.readyState===WebSocket.OPEN) sendJson({type:'stage.world.motion',pose:data.pose,seq:++state.stageMotionSeq});
+        if(data.pose && typeof data.pose==='object'){state.stageLastLocalPose=data.pose;state.stageLastLocalPoseRoom=stageRoomKey();
+          if(state.socket?.readyState===WebSocket.OPEN && state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.motion',pose:data.pose,seq:++state.stageMotionSeq});
+          else stageNetMetrics.droppedMotion++;}
+      } else if(data.event==='appearance' && state.chatStageWorldOpen && state.stageIsJoined && state.socket?.readyState===WebSocket.OPEN) {
+        const signature=JSON.stringify(data.appearance||null);
+        if(signature!==state.stageAppearanceSignature){state.stageAppearanceSignature=signature;state.stageOwnAppearance=data.appearance;sendJson({type:'stage.world.appearance',appearance:data.appearance});}
+      } else if(data.event==='action' && data.action==='jump' && state.chatStageWorldOpen && state.stageIsJoined && state.socket?.readyState===WebSocket.OPEN) {
+        if(state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.action',action:'jump',seq:++state.stageActionSeq,pose:data.pose});
       } else if(data.event==='snapshot' && state.chatStageWorldOpen && data.snapshot && stageRoomKey()===state.stageWorldRoom) {
         state.stagePendingSnapshot=data.snapshot;
         flushStageSnapshot();
+      } else if(data.event==='lag') {
+        stageStatus(String(data.detail||'Stage is busy').slice(0,180),true);
       } else if(data.event==='progress') {
         if(elements.chatStageStatus){elements.chatStageStatus.hidden=false;elements.chatStageStatus.textContent=String(data.detail||'Applying Stage scene…').slice(0,180);}
       } else if(data.event==='error') {
@@ -44705,12 +44758,23 @@
     }
     function handleStageServerMessage(message) {
       if(!state.chatStageWorldOpen || (message.room && message.room!==stageRoomKey())) return;
+      const type=message.type;
+      stageNetMetrics.inPackets[type]=(stageNetMetrics.inPackets[type]||0)+1;
+      stageNetMetrics.inBytes+=JSON.stringify(message).length;
       switch(message.type) {
         case 'stage.world.state':
           state.stageWorldRoom=message.room||stageRoomKey();
           state.stageRevision=Number(message.revision)||0;
           state.stageWorldSnapshot=message.snapshot||null;
           state.stageIsJoined=true;
+          if(Array.isArray(message.players)) {
+            state.stageOwnPose=message.ownPose||null;
+            state.stageOwnAppearance=message.ownAppearance||null;
+            state.stageAppearanceSignature=JSON.stringify(message.ownAppearance||null);
+            // Only initialize from server profile when the active player is new;
+            // running worlds retain their own location during websocket reconnects.
+            postToStage('profile',{appearance:state.stageOwnAppearance,pose:state.stageOwnPose});
+          }
           // Static scene commits omit 'players': never discard active remote players.
           if(Array.isArray(message.players)) {
             state.stagePeerPlayers.clear();
