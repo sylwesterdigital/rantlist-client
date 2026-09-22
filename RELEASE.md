@@ -1,3 +1,7 @@
+## v0.1.170 / Stage r361
+
+Syncs sanitized browser source 9.6.333 / r361: per-channel 3D terrain isolation, remote avatar animation velocity matching, durable geometry removal with peer collider cleanup. Server deploys first; no native-wrapper changes.
+
 ## v0.1.168 / Stage r359
 
 Compact revisioned geometry edits for ordinary clones and completed transformations, local peer collider updates, and fallback full snapshots for complex geometry.

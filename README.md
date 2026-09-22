@@ -1,3 +1,7 @@
+## v0.1.170 / Stage r361
+
+Syncs sanitized browser source 9.6.333 / r361: per-channel 3D terrain isolation, remote avatar animation velocity matching, durable geometry removal with peer collider cleanup. Server deploys first; no native-wrapper changes.
+
 ## rantlist-deploy-r360 — visible collaboration leases and confirmed geometry cuts
 
 Server 9.6.332 / r360, client 0.1.169. Channel-scoped temporary geometry selection and transform presence (bounded 10-second lease with heartbeat) displays the active editor above selected geometry and holds remote Rapier objects kinematically until focus release. Pointer movement is a dropped-under-backpressure pose preview, the final transform is a durable revisioned edit, and a supported single-mesh cut is a validated indexed-mesh patch. Multi-object/opening cuts and advanced edits retain the atomic full-scene commit fallback. Never broadcast unconfirmed preview geometry.

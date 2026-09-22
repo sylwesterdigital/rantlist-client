@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.332">
+  <meta name="chat-ui-version" content="9.6.333">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17519,7 +17519,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.332</small>
+          <small id="serverBrandVersion">v9.6.333</small>
         </span>
       </button>
     </div>
@@ -44787,6 +44787,9 @@
         const source=objects.find(item=>item.id===edit.sourceId);if(!source)return null;
         objects.push({...JSON.parse(JSON.stringify(source)),id:edit.id,name:edit.name,createdAt:Date.now(),
           position:edit.position,quaternion:edit.quaternion,scale:edit.scale,attachedParticleEmitterIds:[]});
+      }else if(edit.op==='remove'){
+        const index=objects.findIndex(item=>item.id===edit.id);if(index<0)return null;
+        objects.splice(index,1);
       }else if(edit.op==='geometry'){
         const index=objects.findIndex(item=>item.id===edit.id);if(index<0)return null;
         objects[index]={...objects[index],type:'customExtrude',customGeometry:edit.customGeometry,physicsMode:edit.physicsMode,geometryParams:undefined};
@@ -45045,7 +45048,7 @@
       elements.chatStageMount.appendChild(iframe);
       const frameLoadNonce=++state.stageFrameLoadNonce;
       requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        if(state.stageIframe===iframe && state.stageFrameLoadNonce===frameLoadNonce) iframe.src='/stage/';
+        if(state.stageIframe===iframe && state.stageFrameLoadNonce===frameLoadNonce) iframe.src='/stage/?rantlistEmbedded=1';
       }));
       state.stageFrameLoadTimer=setTimeout(()=>{if(state.chatStageWorldOpen && !state.stageReady && elements.chatStageStatus){elements.chatStageStatus.hidden=false;elements.chatStageStatus.textContent='Stage is still loading 3D assets and Rapier. Chat and calls remain available.';}},8000);
       return iframe;
