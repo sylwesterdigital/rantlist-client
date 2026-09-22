@@ -1,3 +1,7 @@
+## v0.1.153 — My Models compact/collapsed layout repair
+
+Synchronizes Rantlist **9.6.316 / r344**. My Models remains draggable, but no longer inherits the Source/Reference image-card geometry that could squeeze a collapsed gallery into a near-zero-width vertical strip. Compact mode keeps a bounded horizontal gallery and collapsed mode is a readable horizontal control bar. Tripo previews, stable ordering, hidden scrollbars, full-gallery mode and preserved 3D stage camera state are unchanged.
+
 ## v0.1.152 — Tripo-native My Models previews
 
 Synchronizes Rantlist **9.6.315 / r343**. My Models now uses Tripo's own rendered-image output instead of capturing screenshots from the live 3D stage. Compact/full model cards are larger image-first previews with overlaid metadata, hidden scrollbars and remembered desktop dragging. **Loading 3D stage…** reuses the channel typing rainbow animation while model replacement continues to preserve orbit, pan and zoom. Existing stored models and legacy previews remain compatible.

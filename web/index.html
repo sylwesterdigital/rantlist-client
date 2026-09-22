@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.315">
+  <meta name="chat-ui-version" content="9.6.316">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17262,7 +17262,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.315</small>
+          <small id="serverBrandVersion">v9.6.316</small>
         </span>
       </button>
     </div>
@@ -27991,6 +27991,23 @@
     @media (max-width:1099px){
       .avatar-lab-models-panel.is-compact .avatar-lab-models-grid{padding-bottom:7px!important;scrollbar-width:none!important;}
       .avatar-lab-models-panel.is-compact .avatar-lab-model-card{position:relative!important;overflow:hidden!important;}
+    }
+    /* r344: My Models uses the float-card drag controller, but not the Source/Reference
+       image-card sizing/header layout. In r343 those generic rules made a collapsed
+       model gallery shrink to an empty vertical strip because its only visible header
+       was absolutely positioned and therefore contributed no intrinsic width. */
+    .avatar-lab-models-panel.avatar-lab-float-card{height:auto!important;min-height:0!important;}
+    .avatar-lab-models-panel.avatar-lab-float-card>.avatar-lab-models-handle{position:relative!important;inset:auto!important;min-height:24px!important;padding:0!important;background:none!important;pointer-events:auto!important;}
+    .avatar-lab-models-panel.is-collapsed{width:clamp(210px,24vw,280px)!important;height:38px!important;min-width:210px!important;min-height:38px!important;max-height:38px!important;padding:6px 7px!important;}
+    .avatar-lab-models-panel.is-collapsed>.avatar-lab-models-handle{height:24px!important;white-space:nowrap!important;}
+    .avatar-lab-models-panel.is-collapsed .avatar-lab-models-header-actions{flex:0 0 auto!important;}
+    @media (min-width:1100px){
+      .avatar-lab-models-panel.is-compact{width:clamp(420px,66%,820px)!important;height:156px!important;min-width:420px!important;min-height:128px!important;max-width:calc(100% - 24px)!important;}
+      .avatar-lab-models-panel.is-full{height:auto!important;min-width:0!important;}
+    }
+    @media (max-width:1099px){
+      .avatar-lab-models-panel.avatar-lab-float-card{height:auto!important;}
+      .avatar-lab-models-panel.is-collapsed{width:min(280px,calc(100% - 16px))!important;min-width:0!important;}
     }
     :root[data-native-ios-app="true"] .avatar-lab-card{padding-bottom:env(safe-area-inset-bottom,0px);}
 </style></defs><rect`):svg;}catch{return svg;}
