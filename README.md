@@ -1,3 +1,7 @@
+## v0.1.158 — Stage 1266 persistence and anchored 3D messages
+
+Synchronizes Rantlist **9.6.321 / r349**: Stage is loaded only on the first activation and retained between 2D/3D toggles; the normal full-width 2D conversation remains visible on entry and individually shrinks its left/right bubbles through the overlay control. The previous additional scrolling chat in Stage is replaced by stationary world-space 3D message columns with projected CanvasTextures. The earlier scoped Rapier WASM CSP fix remains. Native macOS/iOS/Android wrappers and watcher release behavior are unchanged. Live GPU/WebXR deployment has not been exercised in this package environment.
+
 ## v0.1.157 — Stage Rapier WebAssembly CSP repair
 
 Synchronizes Rantlist **9.6.320 / r348**. The server permits Rapier WebAssembly compilation in the `/stage/` iframe through the narrowly scoped CSP source `'wasm-unsafe-eval'`; the main chat page continues to disallow JavaScript evaluation. This client includes the matching sanitized browser source and preserves existing macOS, iOS and Android native wrappers. The native release workflow still synchronizes from the verified server first. The missing matching Stage 1266 asset folders are not supplied by this client ZIP, and live GPU/XR behavior requires testing on the deployed site.
