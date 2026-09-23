@@ -1,3 +1,7 @@
+## 0.1.183 — matches stage/chat 9.6.346 (r374)
+
+Mobile low-memory Stage renderer: iOS / Android detection before WebGL initialization, lower drawing-buffer and texture budgets, disabled real-time shadows / HDR / heavy atmosphere and particle shaders, bounded FPS and context-loss quality fallback. The Stage iframe remains served by the matching server package; native wrappers and the collaboration protocol remain unchanged. The existing r372 Downloads watcher deploys server first, then this client package. Native iOS and macOS releases and actual iPhone 11/WebXR performance must be validated on target hardware.
+
 ## 0.1.182 — matches stage/chat 9.6.345 (r373)
 
 Matches the v9.6.345/r373 server Stage runtime. Remote Stage participants now appear on the server-served minimap with stable client-derived colours, compact labels and interpolated positions; native wrappers are unchanged. The existing r372 Downloads watcher remains compatible and deploys server first, then this client package.
