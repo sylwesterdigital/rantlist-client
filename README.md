@@ -1,3 +1,7 @@
+## 0.1.182 — matches stage/chat 9.6.345 (r373)
+
+Matches the v9.6.345/r373 server Stage runtime. Remote Stage participants now appear on the server-served minimap with stable client-derived colours, compact labels and interpolated positions; native wrappers are unchanged. The existing r372 Downloads watcher remains compatible and deploys server first, then this client package.
+
 ## 0.1.181 — matches stage/chat 9.6.344 (r372)
 
 Matches the v9.6.344/r372 server Stage runtime and its safe player-ball appearance transport. Native wrappers are unchanged. Install the r372 watcher separately before dropping the server-first and client ZIPs into Downloads. A local image/data texture is not network-distributed; peers receive the public procedural material fallback.
