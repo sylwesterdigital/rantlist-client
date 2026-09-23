@@ -1,3 +1,7 @@
+## 0.1.184 / server 9.6.347 / r375 — mobile Stage GUI scrolling
+
+Matches Stage's bounded one-finger scrollable mobile lil-gui drawer, nested-folder visibility and Safari safe-area/VisualViewport changes. Keeps all native wrappers, low-memory mobile WebGL optimizations, multiplayer and browser protocol 70 unchanged. The watcher deploys r375 server first and syncs this client to the verified server browser core. iPhone hardware testing is still required.
+
 ## 0.1.180
 
 Paired with server 9.6.343 / r371. The server hotfix isolates watcher regression tests while preserving prior Stage runtime changes. Use the supplied safe watcher to block accidental older ZIP redeployment.
