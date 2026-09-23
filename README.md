@@ -1,3 +1,7 @@
+## 0.1.181 — matches stage/chat 9.6.344 (r372)
+
+Matches the v9.6.344/r372 server Stage runtime and its safe player-ball appearance transport. Native wrappers are unchanged. Install the r372 watcher separately before dropping the server-first and client ZIPs into Downloads. A local image/data texture is not network-distributed; peers receive the public procedural material fallback.
+
 ## Client v0.1.180 / server r369 — geometry colour and smoother Stage peers
 
 Small, revision-checked geometry style events change colours and bounded material properties without reloading Stage; player motion uses low-bandwidth velocity/heading changes and a short bounded remote interpolation window. Native web browser core version matches server 9.6.343.
