@@ -211,4 +211,5 @@ if grep -RInE 'RANTLIST_REMOTE_PORT=.*[0-9]{2,5}' "$ROOT/scripts" >/dev/null 2>&
   echo "Public repository contains a hard-coded SSH deployment port." >&2
   exit 1
 fi
+node "$ROOT/scripts/verify_stage_transport.js"
 echo "Rantlist public client repository verification passed (source version $REPO_VERSION)."

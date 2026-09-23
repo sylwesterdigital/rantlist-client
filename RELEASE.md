@@ -1,3 +1,43 @@
+## 0.1.180
+
+Paired with server 9.6.343 / r371. The server hotfix isolates watcher regression tests while preserving prior Stage runtime changes. Use the supplied safe watcher to block accidental older ZIP redeployment.
+
+## 0.1.180
+
+Recovery release paired with server 9.6.343 / r370. Compact styling, coordinate-only Stage cuts and sparse remote movement retained; use the accompanying safe watcher to ignore older ZIPs.
+
+## Client v0.1.180 / server r369 — geometry colour and smoother Stage peers
+
+Small, revision-checked geometry style events change colours and bounded material properties without reloading Stage; player motion uses low-bandwidth velocity/heading changes and a short bounded remote interpolation window. Native web browser core version matches server 9.6.343.
+
+## rantlist-deploy-r368 — reproducible wall opening cut coordinates
+
+A confirmed primitive wall/cube cut carries compact object-local opening bounds and rectangle coordinates, not mesh vertices or a full scene. Peer clients build the identical cut directly from the accepted local-space recipe and rebuild its collider. The server bounds-checks recipes and keeps them in the room's durable operation journal. The native client mirrors the server's event-first queue behavior. Cut-coordinate replay is intentionally restricted to ordinary box/wall openings; arbitrary custom topology still needs an existing matching source and uses the older exact-mesh cutter.
+
+## v0.1.180 — Stage r367
+
+The server cut regression no longer depends on a not-yet-synchronized client folder. The native web core validates its own bounded cut rejection diagnostics in scripts/verify_stage_transport.js, run by the client watcher after server deployment. No changes to compact geometry cut packets.
+
+## v0.1.175 — Stage r366
+
+The server accepts standard unconfigured primitive collider modes for compact cut commands and shows specific, safe validation errors on rejection. Deploy server 9.6.338 / r366 first.
+
+## v0.1.174 — Stage r365
+
+The bundled Stage server implements compact, coordinates-only opening-cut events captured before geometry changes. Install server 9.6.337/r365 first.
+
+## v0.1.173 — Stage r364
+
+Embedded Stage supports compact event-only first cuts on unsaved parametric primitive geometry. Install server 9.6.336/r364 first.
+
+## v0.1.172 — Stage r363
+
+The integrated channel Stage sends reproducible O cut commands rather than complete geometry. Install server 9.6.335/r363 first. No native-wrapper changes.
+
+## v0.1.171 / Stage r362
+
+Synchronizes server browser core **9.6.334 / r362**: ordinary local/remote avatar Idle selection, durable confirmed multi-mesh opening cuts, and lightweight channel-scoped K-key emitter volleys. Shared WebSocket relays and Rapier peer replicas are installed in the server ZIP; install it before the client ZIP. No native-wrapper changes.
+
 ## v0.1.170 / Stage r361
 
 Syncs sanitized browser source 9.6.333 / r361: per-channel 3D terrain isolation, remote avatar animation velocity matching, durable geometry removal with peer collider cleanup. Server deploys first; no native-wrapper changes.
