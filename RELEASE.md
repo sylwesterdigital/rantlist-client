@@ -1,3 +1,11 @@
+## Client 0.1.185 / Server 9.6.348 — r376
+
+Stage browser core inherits corrected lil-gui 0.21 mobile scrolling: one bounded scrolling viewport, uncapped expanded nested folders, retained slider gestures and Safari visual viewport tracking. Mobile move/shoot/jump pointer capture now clears on all release/cancel/lost-capture, background and GUI-open paths; the move stick cannot keep applying drive when the touch was abandoned. Server ZIP must deploy before the client ZIP via the existing watcher. iPhone hardware validation remains pending.
+
+## 0.1.185 / server 9.6.348 / r376 — fix mobile Stage generated GUI scrolling
+
+Corrects the actual lil-gui 0.21 class selectors for the Stage mobile settings drawer, keeping the root title fixed and the real `.lil-children` panel touch-scrollable through the final folder. Retains iPhone low-memory WebGL rendering, visual viewport handling, native app projects and browser protocol 70. r372 watcher applies the server fix before syncing/releasing this client. iPhone device gesture validation remains outstanding.
+
 ## 0.1.184 / server 9.6.347 / r375 — mobile Stage GUI scrolling
 
 Matches Stage's bounded one-finger scrollable mobile lil-gui drawer, nested-folder visibility and Safari safe-area/VisualViewport changes. Keeps all native wrappers, low-memory mobile WebGL optimizations, multiplayer and browser protocol 70 unchanged. The watcher deploys r375 server first and syncs this client to the verified server browser core. iPhone hardware testing is still required.

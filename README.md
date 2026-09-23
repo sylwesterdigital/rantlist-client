@@ -1,3 +1,7 @@
+## 0.1.185 — matches stage/chat 9.6.348 (r376)
+
+Mobile Stage GUI scrolling now targets real lil-gui 0.21 selectors, with uncapped expanded nested folders inside a viewport-bounded inertial scroller. Captured mobile move/shoot/jump pointers are cleared on release/cancel/lost capture, backgrounding, or opening settings, preventing unintended continuous steering. Quick jump taps remain queued until physics handles them. Stage v5.766.1 is server-served; deploy the server ZIP first. Native wrappers and protocol 70 are unchanged. Test on real iPhone Safari/WKWebView after deployment.
+
 ## 0.1.183 — matches stage/chat 9.6.346 (r374)
 
 Mobile low-memory Stage renderer: iOS / Android detection before WebGL initialization, lower drawing-buffer and texture budgets, disabled real-time shadows / HDR / heavy atmosphere and particle shaders, bounded FPS and context-loss quality fallback. The Stage iframe remains served by the matching server package; native wrappers and the collaboration protocol remain unchanged. The existing r372 Downloads watcher deploys server first, then this client package. Native iOS and macOS releases and actual iPhone 11/WebXR performance must be validated on target hardware.
