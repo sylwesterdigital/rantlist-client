@@ -1,3 +1,19 @@
+## Client 0.1.189 / Server 9.6.352 — r380
+
+Object-scoped paint atlases and texture preset IDs travel as revisioned events; existing large painted objects no longer repeatedly inflate the channel baseline. Prior mobile and event-first geometry fixes retained. Paired release; server ZIP first.
+
+## Client 0.1.188 / Server 9.6.351 — r379
+
+Event-first primitive and extruded geometry creation; bounded completed paint-layer and colour/style events; mobile fixes retained. Complex assets still require snapshot fallback.
+
+## Client 0.1.187 / Server 9.6.350 — r378
+
+Repairs primitive/tree geometry publishing and preserves/retries Stage snapshots after server rate limiting. Uses matching server browser core, retains r377 touch controls and prior mobile optimizations.
+
+## Client 0.1.186 / Server 9.6.349 — r377
+
+Matches server-served Stage 5.766.2. Mobile joystick now synchronizes the selected/active ball with its physics body at gesture start, re-enables a parked ball in its selected cell, and supports native iOS TouchEvents when captured PointerEvents disappear. Automatic runner animation stops at zero physical velocity. Retains r376 lil-gui scrolling, r374 low-memory rendering and r373 remote minimap markers. Native wrappers/protocol unchanged; watcher r372 deploys server before syncing client. iPhone 11 field verification is pending.
+
 ## Client 0.1.185 / Server 9.6.348 — r376
 
 Stage browser core inherits corrected lil-gui 0.21 mobile scrolling: one bounded scrolling viewport, uncapped expanded nested folders, retained slider gestures and Safari visual viewport tracking. Mobile move/shoot/jump pointer capture now clears on all release/cancel/lost-capture, background and GUI-open paths; the move stick cannot keep applying drive when the touch was abandoned. Server ZIP must deploy before the client ZIP via the existing watcher. iPhone hardware validation remains pending.

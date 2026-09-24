@@ -1,3 +1,19 @@
+## r380 / 0.1.189 — Stage object material and paint synchronization
+
+Paired with server 9.6.352. Persistent per-object paint sidecars, compact colour/texture style updates and legacy cut-mesh recovery; no native wrapper changes.
+
+## r379 — Stage object events
+
+Client 0.1.188 carries sanitized Stage/chat 9.6.351 and its revised event-first Stage transport. Pair with server 9.6.351 for the live Stage iframe.
+
+## rantlist-deploy-r378 — restored collaborative Stage geometry
+
+Client 0.1.187 mirrors Stage/chat 9.6.350. The sanitized browser core now publishes primitive/tree additions even with fast editor undo snapshots disabled, and retries the latest scene after a rate-limited server commit. Requires the accompanying r378 server for the live Stage iframe; watcher r372 handles server-first rollout.
+
+## rantlist-deploy-r377 — mobile Stage joystick recovery
+
+Full client 0.1.186 matches stage/chat 9.6.349. iOS TouchEvent fallback and active ball physics synchronization fix the mobile Stage movement path; stationary automatic runners no longer jog in place. Stage is served/synced from the matching server source by the existing release script. r372 watcher: server first, then client; native release hardware validation is pending.
+
 ## 0.1.185 — matches stage/chat 9.6.348 (r376)
 
 Mobile Stage GUI scrolling now targets real lil-gui 0.21 selectors, with uncapped expanded nested folders inside a viewport-bounded inertial scroller. Captured mobile move/shoot/jump pointers are cleared on release/cancel/lost capture, backgrounding, or opening settings, preventing unintended continuous steering. Quick jump taps remain queued until physics handles them. Stage v5.766.1 is server-served; deploy the server ZIP first. Native wrappers and protocol 70 are unchanged. Test on real iPhone Safari/WKWebView after deployment.
