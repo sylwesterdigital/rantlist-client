@@ -1,3 +1,7 @@
+# Client 0.1.194 / Server 9.6.358 — r386
+
+The synchronized browser UI adds category tabs for authorized users' public-profile galleries: Media, Files, Links, Music and Voice. Existing native wrappers, credentials, Stage protocol and signing procedures are unchanged. Server ZIP should deploy first.
+
 # Client 0.1.193 / Server 9.6.357 — r385
 
 Full browser client synchronized with shared-media image Fit/100% viewing, direct media source URL from speech-bubble and Stories Copy link, and server-controlled image/file upload size 16–128 MiB. Native shells, credentials, platform signing and release scripts unchanged.

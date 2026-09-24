@@ -1,3 +1,5 @@
+# Rantlist client 0.1.194 — server 9.6.358 / r386
+
 # Rantlist client 0.1.193 — media r385
 
 Contains the sanitized server 9.6.357 browser UI: uncropped full-resolution shared image viewer, direct preview/HLS/HD image copy for Stage and editable administrator image/file upload limits, with r384 Surface Frame collaboration preserved. Stage 3D code is hosted by the paired server; the existing macOS/iOS/Android native projects and release scripts are preserved.

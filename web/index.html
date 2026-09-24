@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.357">
+  <meta name="chat-ui-version" content="9.6.358">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -10402,6 +10402,24 @@
     .public-profile-section > h3 { margin: 0; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
     .public-profile-media-scroll { min-height: 0; overflow: auto; overscroll-behavior: contain; padding: 2px 2px 10px; }
     .public-profile-media { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+    /* r386: profile-gallery category tabs (matching the existing Media/Files/Links/Music/Voice UI). */
+    .public-profile-media-scroll { grid-template-rows: auto auto minmax(0,1fr); overflow: hidden; }
+    .public-profile-gallery-tabs { display: flex; align-items: center; gap: 4px; width: max-content; max-width: 100%; min-height: 42px; padding: 4px; overflow-x: auto; scrollbar-width: thin; border-radius: 999px; border: 1px solid var(--line); background: var(--panel-2); }
+    .public-profile-gallery-tab { flex: 0 0 auto; min-height: 34px; padding: 7px 15px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-size: 13px; font-weight: 750; cursor: pointer; white-space: nowrap; }
+    .public-profile-gallery-tab[aria-selected="true"] { color: var(--text); background: color-mix(in srgb, var(--accent) 23%, var(--panel)); }
+    .public-profile-gallery-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+    .public-profile-gallery-results { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px 2px 10px; }
+    .public-profile-gallery-tile { position: absolute; inset: 0; width: 100%; min-width: 0; min-height: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 7px; padding: 12px; border-radius: 6px; border: 1px solid var(--line); background: var(--panel-2); color: var(--text); text-decoration: none; overflow: hidden; cursor: pointer; }
+    .public-profile-gallery-tile:hover { border-color: var(--accent); }
+    .public-profile-gallery-symbol { font-size: 30px; line-height: 1; color: var(--accent); }
+    .public-profile-gallery-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; max-width: 100%; font-size: 11px; text-align: center; }
+    .public-profile-gallery-meta { display: block; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-size: 10px; color: var(--muted); }
+    .public-profile-media .public-profile-gallery-tile img { max-width: 72px; max-height: 55px; width: auto; height: auto; object-fit: contain; }
+    .public-profile-gallery-empty { padding: 22px 12px; color: var(--muted); text-align: center; border: 1px dashed var(--line); border-radius: 9px; }
+    .public-profile-media-card.is-audio .public-profile-media-layout { grid-template-columns: minmax(0,1fr); }
+    .public-profile-media-card.is-audio .public-profile-comments { display: none; }
+    .public-profile-media-card.is-audio .public-profile-media-stage audio { width: min(650px, calc(100% - 28px)); }
+
     .public-profile-media-item { position: relative; min-width: 0; aspect-ratio: 1; }
     .public-profile-media-open { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; background: var(--panel-2); border: 0; border-radius: 5px; padding: 0; cursor: pointer; }
     .public-profile-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -17597,7 +17615,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.357</small>
+          <small id="serverBrandVersion">v9.6.358</small>
         </span>
       </button>
     </div>
@@ -20527,6 +20545,7 @@
       activeProfileViewIdentityId: null,
       activeProfileViewSnapshot: null,
       publicProfileEditMode: false,
+      publicProfileGalleryFilter: 'media',
       activeProfileMediaId: null,
       messageListPinnedToBottom: true,
       messageScrollAnchor: null,
@@ -42688,6 +42707,7 @@
       state.activeProfileViewIdentityId = target;
       state.activeProfileViewSnapshot = null;
       state.publicProfileEditMode = false;
+      state.publicProfileGalleryFilter = 'media';
       elements.publicProfileEditButton.hidden = true;
       elements.publicProfileEditButton.setAttribute('aria-pressed', 'false');
       elements.publicProfileEditButton.textContent = 'Edit';
@@ -42771,6 +42791,19 @@
       }
       item.append(small, content);
       container.append(item);
+    }
+
+    const PUBLIC_PROFILE_GALLERY_FILTERS = Object.freeze([
+      ['media', 'Media'], ['files', 'Files'], ['links', 'Links'], ['music', 'Music'], ['voice', 'Voice'],
+    ]);
+
+    function publicProfileGalleryCategory(item) {
+      if (item?.kind === 'link') return 'links';
+      const mime = String(item?.mime || '').toLowerCase();
+      if (item?.kind === 'voice') return 'voice';
+      if (mime.startsWith('image/') || mime.startsWith('video/')) return 'media';
+      if (mime.startsWith('audio/')) return 'music';
+      return 'files';
     }
 
     function renderPublicProfile(profileMessage) {
@@ -42936,32 +42969,100 @@
       const mediaHeading = document.createElement('h3');
       mediaHeading.textContent = 'Latest media';
       mediaScroll.append(mediaHeading);
-      const media = Array.isArray(profileMessage.media) ? profileMessage.media : [];
-      if (media.length) {
+      const gallery = Array.isArray(profileMessage.gallery) ? profileMessage.gallery : (Array.isArray(profileMessage.media) ? profileMessage.media : []);
+      const tabs = document.createElement('div');
+      tabs.className = 'public-profile-gallery-tabs';
+      tabs.setAttribute('role', 'tablist');
+      tabs.setAttribute('aria-label', 'Filter profile uploads and links');
+      const results = document.createElement('div');
+      results.className = 'public-profile-gallery-results';
+      results.id = 'publicProfileGalleryResults';
+      results.setAttribute('role', 'tabpanel');
+      const tabButtons = new Map();
+
+      function fillGallery() {
+        const active = PUBLIC_PROFILE_GALLERY_FILTERS.some(([key]) => key === state.publicProfileGalleryFilter)
+          ? state.publicProfileGalleryFilter : 'media';
+        const entries = gallery.filter((item) => publicProfileGalleryCategory(item) === active);
+        for (const [key, button] of tabButtons) {
+          const selected = active === key;
+          button.setAttribute('aria-selected', String(selected));
+          button.tabIndex = selected ? 0 : -1;
+        }
+        results.setAttribute('aria-labelledby', `public-profile-tab-${active}`);
+        results.replaceChildren();
+        results.scrollTop = 0;
+        if (!entries.length) {
+          const empty = document.createElement('p');
+          empty.className = 'public-profile-gallery-empty';
+          empty.textContent = `No visible ${active === 'media' ? 'media' : active === 'voice' ? 'voice messages' : active} yet.`;
+          results.append(empty);
+          return;
+        }
         const grid = document.createElement('div');
         grid.className = 'public-profile-media';
-        for (const item of media.slice(0, 30)) {
+        for (const item of entries) {
+          const type = publicProfileGalleryCategory(item);
           const itemShell = document.createElement('div');
           itemShell.className = 'public-profile-media-item';
-          const button = document.createElement('button');
-          button.type = 'button';
-          button.className = 'public-profile-media-open';
-          button.title = item.room ? `${item.name || 'Media'} · #${item.room}` : (item.name || 'Media');
-          const image = document.createElement('img');
-          image.loading = 'lazy';
-          image.decoding = 'async';
-          image.src = preferredTimelineImageSource(item);
-          image.alt = item.name || 'Media preview';
-          button.append(image);
-          if (String(item.mime || '').startsWith('video/')) {
-            const badge = document.createElement('span');
-            badge.className = 'video-badge';
-            badge.textContent = '▶';
-            button.append(badge);
+          let action;
+          if (type === 'media') {
+            action = document.createElement('button');
+            action.type = 'button';
+            action.className = 'public-profile-media-open';
+            const image = document.createElement('img');
+            image.loading = 'lazy';
+            image.decoding = 'async';
+            image.src = preferredTimelineImageSource(item);
+            image.alt = item.name || 'Media preview';
+            action.append(image);
+            if (String(item.mime || '').startsWith('video/')) {
+              const badge = document.createElement('span');
+              badge.className = 'video-badge';
+              badge.textContent = '▶';
+              action.append(badge);
+            }
+            action.addEventListener('click', () => openPublicProfileMedia(item));
+          } else if (type === 'music' || type === 'voice') {
+            action = document.createElement('button');
+            action.type = 'button';
+            action.className = 'public-profile-gallery-tile';
+            const icon = document.createElement('span');
+            icon.className = 'public-profile-gallery-symbol';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = type === 'voice' ? '◉' : '♫';
+            if (item.audioCoverUrl) {
+              const cover = document.createElement('img');
+              cover.loading = 'lazy';
+              cover.src = item.audioCoverUrl;
+              cover.alt = '';
+              action.append(cover);
+            } else action.append(icon);
+            action.addEventListener('click', () => openPublicProfileMedia(item));
+          } else {
+            action = document.createElement('a');
+            action.className = 'public-profile-gallery-tile';
+            action.href = type === 'links' ? item.url : (item.url || `/files/${encodeURIComponent(item.id)}`);
+            action.target = '_blank';
+            action.rel = 'noopener noreferrer';
+            const icon = document.createElement('span');
+            icon.className = 'public-profile-gallery-symbol';
+            icon.textContent = type === 'links' ? '↗' : '▤';
+            icon.setAttribute('aria-hidden', 'true');
+            action.append(icon);
           }
-          button.addEventListener('click', () => openPublicProfileMedia(item));
-          itemShell.append(button);
-          if (ownProfile && state.publicProfileEditMode) {
+          action.title = item.room ? `${item.name || 'File'} · #${item.room}` : (item.name || 'File');
+          if (type !== 'media') {
+            const title = document.createElement('strong');
+            title.className = 'public-profile-gallery-title';
+            title.textContent = type === 'voice' ? 'Voice message' : (item.name || item.hostname || 'File');
+            const meta = document.createElement('small');
+            meta.className = 'public-profile-gallery-meta';
+            meta.textContent = item.hostname || (item.room ? `#${item.room}` : (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : ''));
+            action.append(title, meta);
+          }
+          itemShell.append(action);
+          if (ownProfile && state.publicProfileEditMode && type !== 'links') {
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.className = 'public-profile-media-remove';
@@ -42976,14 +43077,38 @@
           }
           grid.append(itemShell);
         }
-        mediaScroll.append(grid);
-      } else {
-        const empty = document.createElement('div');
-        empty.className = 'hint';
-        empty.textContent = 'No visible media.';
-        mediaScroll.append(empty);
+        results.append(grid);
       }
+      for (const [key, label] of PUBLIC_PROFILE_GALLERY_FILTERS) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.id = `public-profile-tab-${key}`;
+        button.className = 'public-profile-gallery-tab';
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-controls', results.id);
+        button.textContent = label;
+        button.addEventListener('click', () => {
+          state.publicProfileGalleryFilter = key;
+          fillGallery();
+        });
+        button.addEventListener('keydown', (event) => {
+          const index = PUBLIC_PROFILE_GALLERY_FILTERS.findIndex(([candidate]) => candidate === key);
+          const target = event.key === 'Home' ? 0 : event.key === 'End' ? PUBLIC_PROFILE_GALLERY_FILTERS.length - 1
+            : event.key === 'ArrowRight' ? (index + 1) % PUBLIC_PROFILE_GALLERY_FILTERS.length
+            : event.key === 'ArrowLeft' ? (index + PUBLIC_PROFILE_GALLERY_FILTERS.length - 1) % PUBLIC_PROFILE_GALLERY_FILTERS.length : -1;
+          if (target < 0) return;
+          event.preventDefault();
+          const next = PUBLIC_PROFILE_GALLERY_FILTERS[target][0];
+          state.publicProfileGalleryFilter = next;
+          fillGallery();
+          tabButtons.get(next)?.focus();
+        });
+        tabs.append(button);
+        tabButtons.set(key, button);
+      }
+      mediaScroll.append(tabs, results);
       body.append(mediaScroll);
+      fillGallery();
     }
 
     function renderPublicProfileDenied(message) {
@@ -43001,7 +43126,15 @@
       elements.publicProfileMediaName.textContent = item.caption || item.name || 'Media';
       elements.publicProfileMediaMeta.textContent = [item.room ? `#${item.room}` : '', item.createdAt ? new Date(item.createdAt).toLocaleString() : ''].filter(Boolean).join(' · ');
       elements.publicProfileMediaStage.textContent = '';
-      if (String(item.mime || '').startsWith('video/')) {
+      const audioItem = publicProfileGalleryCategory(item) === 'music' || publicProfileGalleryCategory(item) === 'voice';
+      elements.publicProfileMediaModal.querySelector('.public-profile-media-card')?.classList.toggle('is-audio', audioItem);
+      if (audioItem) {
+        const audio = document.createElement('audio');
+        audio.controls = true;
+        audio.preload = 'metadata';
+        audio.src = item.audioCompatibleUrl || item.url || '';
+        elements.publicProfileMediaStage.append(audio);
+      } else if (String(item.mime || '').startsWith('video/')) {
         const video = document.createElement('video');
         video.controls = true;
         video.playsInline = true;
@@ -43019,19 +43152,19 @@
       elements.publicProfileCommentsList.innerHTML = '<div class="hint">Loading comments…</div>';
       elements.publicProfileCommentInput.value = '';
       elements.publicProfileMediaModal.hidden = false;
-      sendJson({ type: 'profile.media.comments.get', messageId: item.id });
+      if (!audioItem) sendJson({ type: 'profile.media.comments.get', messageId: item.id });
       return true;
     }
 
     function closePublicProfileMedia() {
       state.activeProfileMediaId = null;
       elements.publicProfileMediaModal.hidden = true;
-      const video = elements.publicProfileMediaStage?.querySelector('video');
-      if (video) {
-        try { video.pause(); } catch {}
-        video.removeAttribute('src');
-        try { video.load(); } catch {}
+      for (const media of elements.publicProfileMediaStage?.querySelectorAll('video,audio') || []) {
+        try { media.pause(); } catch {}
+        media.removeAttribute('src');
+        try { media.load(); } catch {}
       }
+      elements.publicProfileMediaModal.querySelector('.public-profile-media-card')?.classList.remove('is-audio');
       if (elements.publicProfileMediaStage) elements.publicProfileMediaStage.textContent = '';
       if (elements.publicProfileCommentsList) elements.publicProfileCommentsList.textContent = '';
     }
