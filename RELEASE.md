@@ -1,3 +1,7 @@
+## Client 0.1.191 / Server 9.6.355 — r383
+
+Synchronizes the server's sanitized HLS video-preview browser core. Bare `.m3u8` messages bypass automatic yt-dlp import and show a click-to-play preview sized like uploaded videos, including the existing same-origin poster where available. Native Apple HLS and lazily loaded hls.js on supported non-Apple browsers, with safe external-link fallback and player cleanup on timeline removal. Existing macOS/iOS/Android native wrappers and protocol 70 remain unchanged. Install the paired server ZIP first; the r372 watcher releases macOS and iOS by default. Android remains a supported manual release target.
+
 ## Client 0.1.190 / Server 9.6.353 — r381
 
 Stories media preview and the file-message menu now provide separate Copy page link and Copy HLS stream link, using supplied link/stream SVG icons. Mobile rail scrolls when short. Config → Media offers a per-device 64/128/256/512 MiB video upload size preference, bounded by the administrator-controlled server ceiling and existing per-user quotas. Stage and mobile physics code unchanged. No automatic deletion or paid-account rollout.

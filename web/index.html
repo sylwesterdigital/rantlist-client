@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.353">
+  <meta name="chat-ui-version" content="9.6.355">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1057,6 +1057,55 @@
       line-height: 1.3;
     }
     .link-preview-security.warning { font-weight: 800; }
+    /* HLS messages use the existing Media preview width, not webpage card sizing. */
+    .hls-video-preview {
+      width: min(var(--media-preview-video-width, 720px), 100%);
+      display: block;
+      overflow: hidden;
+    }
+    .hls-video-preview video {
+      width: 100%;
+      max-height: min(var(--media-preview-video-max-height, 520px), var(--media-preview-video-max-vh, 62vh));
+      aspect-ratio: 16 / 9;
+      object-fit: contain;
+      background: #080d19;
+      display: block;
+    }
+    .hls-video-preview video[hidden] { display: none !important; }
+    .hls-video-placeholder {
+      min-height: 175px;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      isolation: isolate;
+      background: #080d19;
+      color: #fff;
+      display: grid;
+      place-content: center;
+      justify-items: center;
+      gap: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .hls-video-poster { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: contain; background: #080d19; opacity: .74; }
+    .hls-video-start, .hls-video-state { position: relative; z-index: 1; text-shadow: 0 1px 3px #000; }
+    .hls-video-warning { padding: 0 12px 9px; font-size: 12px; font-weight: 700; color: var(--warning); }
+    .hls-video-start {
+      border: 1px solid rgba(255,255,255,.48);
+      border-radius: 12px;
+      padding: 12px 18px;
+      background: rgba(255,255,255,.15);
+      color: #fff;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .hls-video-placeholder[hidden] { display: none !important; }
+    .hls-video-start[hidden] { display: none !important; }
+    .hls-video-start:disabled { cursor: wait; opacity: .55; }
+    .hls-video-state { font-size: 12px; line-height: 1.4; }
+    .hls-video-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 12px; }
+    .hls-video-footer span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 700; }
+    .hls-video-footer a { flex-shrink: 0; color: var(--message-ink); text-underline-offset: 3px; font-size: 12px; }
     @media (max-width: 480px) {
       .link-preview-card:not(.no-image) { grid-template-columns: 1fr; }
       .link-preview-thumbnail {
@@ -17531,7 +17580,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.353</small>
+          <small id="serverBrandVersion">v9.6.355</small>
         </span>
       </button>
     </div>
@@ -24922,6 +24971,13 @@
       return parsed.href;
     }
 
+    // An HLS playlist is already a playable video stream, not a file to import.
+    function hlsPlaylistUrl(value) {
+      const url = mediaUrlOnly(value);
+      if (!url) return '';
+      try { return /\.m3u8$/i.test(new URL(url).pathname) ? url : ''; } catch { return ''; }
+    }
+
     function closeYoutubeImportModal(notifyServer = true) {
       const offer = state.youtubeImportOffer;
       const offerId = String(offer?.offerId || '');
@@ -25076,7 +25132,10 @@
         return;
       }
 
+      // Do not send a bare .m3u8 link through the automatic yt-dlp inspector.
+      // It remains a regular text message so recipients receive an inline player.
       const mediaUrl = !state.messageReplyDraft && state.capabilities.youtubeAudioImport === true
+        && !hlsPlaylistUrl(text)
         ? mediaUrlOnly(text)
         : '';
       if (mediaUrl) {
@@ -38365,7 +38424,7 @@
       renderAiBuilderCard(article, message.aiBuilder, message.id);
       renderAiYoutubeTranscriptCard(article, message.aiYoutubeTranscript, message.id);
       renderAiResponseTiming(article, message.aiElapsedMs, Boolean(message.aiBuilder), message.aiProvider, message.aiModel);
-      renderMessageLinkPreview(article, message.linkPreview);
+      renderMessageLinkPreview(article, message.linkPreview, message.text);
       elements.messageList.append(article);
       finalizeMessagePresentation(article, { ...message, direct, messageType: 'text' });
       reflowMessageGroups();
@@ -38401,12 +38460,222 @@
       };
     }
 
-    function renderMessageLinkPreview(article, rawPreview) {
-      article?.querySelector?.('[data-link-preview]')?.remove();
-      const preview = normalizeMessageLinkPreview(rawPreview);
-      if (!article || !preview) return;
-      const status = preview.security.status;
+    // Load hls.js only when a non-native HLS player is explicitly started.
+    // The main app CSP already permits the pinned jsDelivr script; manifests
+    // and segments stay under the existing same-origin media/connect policy.
+    let hlsLibraryPromise = null;
+    function loadHlsPreviewLibrary() {
+      if (window.Hls?.isSupported) return Promise.resolve(window.Hls);
+      if (hlsLibraryPromise) return hlsLibraryPromise;
+      hlsLibraryPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.6.13/dist/hls.min.js';
+        script.async = true;
+        script.crossOrigin = 'anonymous';
+        script.onload = () => resolve(window.Hls || null);
+        script.onerror = () => { script.remove(); reject(new Error('HLS player library unavailable')); };
+        document.head.append(script);
+      }).catch((error) => { hlsLibraryPromise = null; throw error; });
+      return hlsLibraryPromise;
+    }
+
+    function disposeHlsPreviewVideo(video) {
+      if (!video) return;
+      try { video._rantlistHlsInstance?.destroy(); } catch {}
+      video._rantlistHlsInstance = null;
+      try { video.pause(); video.removeAttribute('src'); video.load(); } catch {}
+    }
+
+    // Pruned messages and room changes must not leave media segments downloading.
+    let hlsPreviewCleanupObserver = null;
+    function ensureHlsPreviewCleanup() {
+      if (hlsPreviewCleanupObserver || typeof MutationObserver !== 'function' || !elements.messageList) return;
+      hlsPreviewCleanupObserver = new MutationObserver((records) => {
+        for (const record of records) for (const removed of record.removedNodes) {
+          if (removed.nodeType !== 1) continue;
+          if (removed.matches?.('video[data-hls-preview]') && !removed.isConnected) disposeHlsPreviewVideo(removed);
+          removed.querySelectorAll?.('video[data-hls-preview]').forEach((video) => {
+            if (!video.isConnected) disposeHlsPreviewVideo(video);
+          });
+        }
+      });
+      hlsPreviewCleanupObserver.observe(elements.messageList, { childList: true, subtree: true });
+    }
+
+    function hlsPosterUrl(streamUrl) {
+      try {
+        const url = new URL(streamUrl);
+        if (url.origin !== location.origin) return '';
+        const match = url.pathname.match(/^\/media\/([a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12})\/index\.m3u8$/i);
+        return match ? `${location.origin}/media/${match[1]}/poster.jpg` : '';
+      } catch { return ''; }
+    }
+
+    function renderHlsVideoPreview(article, preview, streamUrl) {
+      ensureHlsPreviewCleanup();
+      const sameOrigin = new URL(streamUrl).origin === location.origin;
+      const card = document.createElement('div');
+      card.className = 'link-preview-card hls-video-preview';
+      card.dataset.linkPreview = '';
+      card.dataset.hlsStream = streamUrl;
+      const video = document.createElement('video');
+      video.dataset.hlsPreview = '1';
+      video.controls = true;
+      video.playsInline = true;
+      video.setAttribute('webkit-playsinline', '');
+      video.preload = 'none';
+      video.hidden = true;
+      video.setAttribute('aria-label', 'HLS video stream');
+      const overlay = document.createElement('div');
+      overlay.className = 'hls-video-placeholder';
+      const posterUrl = hlsPosterUrl(streamUrl);
+      if (posterUrl) {
+        video.poster = posterUrl;
+        const poster = document.createElement('img');
+        poster.className = 'hls-video-poster';
+        poster.src = posterUrl;
+        poster.alt = '';
+        poster.loading = 'lazy';
+        poster.addEventListener('error', () => poster.remove(), { once: true });
+        overlay.append(poster);
+      }
+      const play = document.createElement('button');
+      play.type = 'button';
+      play.className = 'hls-video-start';
+      play.textContent = '▶ Play stream';
+      play.hidden = !sameOrigin;
+      const detail = document.createElement('span');
+      detail.className = 'hls-video-state';
+      detail.dataset.hlsStatus = '';
+      detail.textContent = preview.security.status === 'suspicious'
+        ? 'Caution: this stream was flagged as potentially unsafe.'
+        : sameOrigin ? 'HLS video stream · no download or import'
+          : 'External stream: open the original link to play it.';
+      overlay.append(play, detail);
+      const footer = document.createElement('div');
+      footer.className = 'hls-video-footer';
+      const title = document.createElement('span');
+      title.dataset.hlsTitle = '';
+      title.textContent = preview.title || 'HLS video stream';
+      const open = document.createElement('a');
+      open.href = streamUrl;
+      open.target = '_blank';
+      open.rel = 'noopener noreferrer nofollow ugc';
+      open.textContent = 'Open stream';
+      footer.append(title, open);
+      card.append(video, overlay, footer);
+      if (preview.security.status === 'suspicious') {
+        const warning = document.createElement('div');
+        warning.className = 'hls-video-warning';
+        warning.dataset.hlsWarning = '';
+        warning.textContent = preview.security.reason || 'Potentially unsafe stream';
+        card.append(warning);
+      }
+      article.querySelector('.message-text')?.insertAdjacentElement('afterend', card);
+
+      function showError(reason) {
+        if (!video.isConnected) return;
+        disposeHlsPreviewVideo(video);
+        video.hidden = true;
+        overlay.hidden = false;
+        play.hidden = !sameOrigin;
+        play.disabled = false;
+        detail.textContent = `${reason} Open the original link or retry.`;
+      }
+      video.addEventListener('error', () => showError('Stream playback failed.'));
+      async function startPlayback() {
+        if (!video.isConnected) return;
+        try { await video.play(); }
+        catch {
+          // Loading the optional hls.js bundle may expire the click gesture.
+          // In that case native video controls remain available for a second tap.
+          video.controls = true;
+        }
+      }
+      play.addEventListener('click', async () => {
+        if (play.disabled || !sameOrigin) return;
+        play.disabled = true;
+        detail.textContent = 'Loading stream…';
+        const nativeSupport = Boolean(video.canPlayType('application/vnd.apple.mpegurl'));
+        const appleNative = /(?:iPad|iPhone|iPod)/.test(navigator.userAgent)
+          || (/Safari/.test(navigator.userAgent) && !/(?:Chrome|Chromium|CriOS|Edg|OPR)/.test(navigator.userAgent));
+        try {
+          if (appleNative && nativeSupport) {
+            video.src = streamUrl;
+            video.hidden = false;
+            overlay.hidden = true;
+            void startPlayback();
+            return;
+          }
+          let HlsClass = null;
+          try { HlsClass = await loadHlsPreviewLibrary(); }
+          catch (error) { if (!nativeSupport) throw error; }
+          if (!video.isConnected) return;
+          if (HlsClass?.isSupported?.()) {
+            // The app's strict CSP deliberately does not authorize blob workers.
+            const hls = new HlsClass({ enableWorker: false });
+            video._rantlistHlsInstance = hls;
+            hls.on(HlsClass.Events.ERROR, (_event, data) => {
+              if (data?.fatal) showError('Stream playback failed.');
+            });
+            hls.on(HlsClass.Events.MANIFEST_PARSED, () => { void startPlayback(); });
+            hls.attachMedia(video);
+            hls.loadSource(streamUrl);
+          } else if (nativeSupport) {
+            video.src = streamUrl;
+            void startPlayback();
+          } else {
+            throw new Error('This browser cannot play HLS streams.');
+          }
+          video.hidden = false;
+          overlay.hidden = true;
+        } catch (error) {
+          showError(error?.message || 'Unable to play stream.');
+        }
+      });
+    }
+
+    function renderMessageLinkPreview(article, rawPreview, messageText = '') {
+      if (!article) return;
+      // Older messages may have no stored preview: render an exact HLS link
+      // immediately while the server is generating its safe metadata.
+      const fallbackUrl = hlsPlaylistUrl(messageText);
+      const preview = normalizeMessageLinkPreview(rawPreview) || (fallbackUrl ? {
+        sourceUrl: fallbackUrl, resolvedUrl: fallbackUrl,
+        hostname: new URL(fallbackUrl).hostname, title: 'HLS video stream',
+        contentType: 'application/vnd.apple.mpegurl',
+        security: { status: 'unverified', reason: '' },
+      } : null);
+      const status = preview?.security.status || 'unverified';
       const blocked = status === 'blocked' || status === 'malicious';
+      const streamUrl = preview && (hlsPlaylistUrl(preview.sourceUrl) || hlsPlaylistUrl(preview.resolvedUrl));
+      const previous = article.querySelector('[data-link-preview]');
+      // The server's asynchronous safety metadata should not stop an active player.
+      if (streamUrl && !blocked && previous?.classList.contains('hls-video-preview')
+          && previous.dataset.hlsStream === streamUrl) {
+        const title = previous.querySelector('[data-hls-title]');
+        if (title) title.textContent = preview.title || 'HLS video stream';
+        const detail = previous.querySelector('[data-hls-status]');
+        if (detail && status === 'suspicious') detail.textContent = 'Caution: this stream was flagged as potentially unsafe.';
+        let warning = previous.querySelector('[data-hls-warning]');
+        if (status === 'suspicious') {
+          if (!warning) {
+            warning = document.createElement('div');
+            warning.className = 'hls-video-warning';
+            warning.dataset.hlsWarning = '';
+            previous.append(warning);
+          }
+          warning.textContent = preview.security.reason || 'Potentially unsafe stream';
+        } else if (warning) warning.remove();
+        return;
+      }
+      if (previous) previous.querySelectorAll('video[data-hls-preview]').forEach(disposeHlsPreviewVideo);
+      previous?.remove();
+      if (!preview) return;
+      if (streamUrl && !blocked) {
+        renderHlsVideoPreview(article, preview, streamUrl);
+        return;
+      }
       const card = document.createElement(blocked ? 'div' : 'a');
       card.className = `link-preview-card${preview.screenshotUrl ? '' : ' no-image'}${blocked ? ' blocked' : ''}`;
       card.dataset.linkPreview = '';
@@ -38457,7 +38726,7 @@
       if (!article || !data || data.messageType !== 'text') return;
       const followIntent = captureTimelineMediaFollowIntent();
       data.linkPreview = message.linkPreview || null;
-      renderMessageLinkPreview(article, data.linkPreview);
+      renderMessageLinkPreview(article, data.linkPreview, data.text);
       reflowMessageGroups();
       scheduleMessageGroupPostLayoutReflow();
       settleTimelineMediaAtBottom(followIntent);
