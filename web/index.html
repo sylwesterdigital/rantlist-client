@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.352">
+  <meta name="chat-ui-version" content="9.6.353">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1647,6 +1647,8 @@
     .icon-mic { --icon: url('/assets/icons/mic.svg'); }
     .icon-send { --icon: url('/assets/icons/send.svg'); }
     .icon-share { --icon: url('/assets/icons/share.svg'); }
+    .icon-copy-link { --icon: url('/assets/icons/link.svg'); }
+    .icon-copy-stream { --icon: url('/assets/icons/stream.svg'); }
     .icon-close { --icon: url('/assets/icons/close.svg'); }
     .icon-add { --icon: url('/assets/icons/add.svg'); }
     .icon-remove { --icon: url('/assets/icons/remove.svg'); }
@@ -7144,7 +7146,17 @@
       transform: translateY(-50%);
       display: grid;
       justify-items: center;
-      gap: 10px;
+      gap: 8px;
+      max-height: calc(100dvh - 100px);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .media-story-right-rail::-webkit-scrollbar { display: none; }
+    @media (max-height: 700px) {
+      .media-story-right-rail { gap: 5px; }
+      .media-story-right-rail .media-story-action { width: 38px; height: 38px; min-width: 38px; min-height: 38px; }
     }
     .media-story-action {
       width: 48px;
@@ -17519,7 +17531,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.352</small>
+          <small id="serverBrandVersion">v9.6.353</small>
         </span>
       </button>
     </div>
@@ -17928,6 +17940,16 @@
             <span>Ask video quality before upload</span>
             <input id="videoTranscodePromptInput" type="checkbox" role="switch">
           </label>
+          <div class="config-row">
+            <label for="videoUploadSizeSelect">Maximum video file per upload</label>
+            <select id="videoUploadSizeSelect">
+              <option value="64">64 MiB · default</option>
+              <option value="128">128 MiB</option>
+              <option value="256">256 MiB</option>
+              <option value="512">512 MiB · 0.5 GiB</option>
+            </select>
+          </div>
+          <p id="videoUploadSizeHint" class="hint">The administrator must enable larger uploads. Your storage quota and available server capacity are checked separately.</p>
           <p id="videoTranscodePromptHint" class="hint">Off by default. When enabled, sending an ordinary video from Video, File, Camera, recording, drag/drop or recovered native sharing asks for an HLS transcoding preset before upload bytes are sent. The original master is always retained.</p>
           <label class="config-toggle-row" for="ytdlpVideoImportInput">
             <span>Enable /yt video downloads</span>
@@ -18852,6 +18874,7 @@
             <div class="field"><label for="serverGithubUrlInput">Open-source GitHub repository</label><input id="serverGithubUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://github.com/…"></div>
             <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link. Native iOS uses it as the primary support action; browsers keep it as the direct fallback beneath the embedded Buy Button.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
+            <div class="field"><label for="serverMaxVideoBytesSelect">Maximum original video upload</label><select id="serverMaxVideoBytesSelect"><option value="64">64 MiB · current default</option><option value="128">128 MiB</option><option value="256">256 MiB</option><option value="512">512 MiB · 0.5 GiB</option></select><small class="hint">Administrator-controlled. Applies to new uploads only; existing files are untouched. Every upload still requires available per-user quota and room disk budget. Large uploads require sufficient temporary storage for HLS conversion.</small></div>
             <div class="field"><label for="serverUserUploadQuotaInput">Per-user upload quota, GiB</label><input id="serverUserUploadQuotaInput" type="number" min="0" max="10240" step="1" inputmode="numeric"><small class="hint">Applies to original message uploads across channels and direct chats. Default is 15 GiB. Enter 0 for unlimited; lowering the quota never deletes existing files.</small></div>
             <div class="server-settings-version">
               <span>UI <code id="serverUiVersionValue">9.6.73</code></span>
@@ -20329,7 +20352,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'ytdlpVideoImportInput', 'ytdlpVideoImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualityLabel', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoUploadSizeSelect', 'videoUploadSizeHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'ytdlpVideoImportInput', 'ytdlpVideoImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualityLabel', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -20342,7 +20365,7 @@
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabStageTools', 'avatarLabStageBg', 'avatarLabStageFloor', 'avatarLabStageLight', 'avatarLabStageAmbient', 'avatarLabStageKey', 'avatarLabStageRim', 'avatarLabStageFrontButton', 'avatarLabStageFullButton', 'avatarLabStageDownload', 'avatarLabImageViewer', 'avatarLabImageViewerBackdrop', 'avatarLabImageViewerImage', 'avatarLabImageViewerModeButton', 'avatarLabImageViewerCloseButton', 'avatarLabSourceFullscreenButton', 'avatarLabReferenceFullscreenButton', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityHandle', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabImagesButton', 'avatarLabImagesCount', 'avatarLabImagesPanel', 'avatarLabImagesHandle', 'avatarLabImagesGrid', 'avatarLabImagesCloseButton', 'avatarLabLogsButton', 'avatarLabLogsCount', 'avatarLabLogsPanel', 'avatarLabLogsHandle', 'avatarLabLogsList', 'avatarLabLogsClearButton', 'avatarLabLogsCloseButton', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLab3dSettingsSummary', 'avatarLabReferenceHotspots', 'avatarLabAdvanced', 'avatarLabPartPrevButton', 'avatarLabPartNextButton', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarPromptSaveButton', 'profileAvatarPromptDeleteButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureVersionSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dAutoRigInput', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'avatarLabModelsPanel', 'avatarLabModelsMeta', 'avatarLabModelsGrid', 'avatarLabModelsCollapseButton', 'avatarLabModelsFullButton', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
-        'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
+        'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverMaxVideoBytesSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
         'messageViewport', 'messageList', 'chatStageLayer', 'chatStageMount', 'chatStageStatus', 'messageToBottomButton', 'desktopStageButton', 'mobileStageButton', 'stageEyeButton', 'stageFeedButton', 'stageEditStatus', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
@@ -20713,6 +20736,7 @@
       mediaDisplayMode: readStorage('chat.media.display') === 'reveal' ? 'reveal' : 'immediate',
       mediaStoryMode: readStorage('chat.media.viewerMode') === 'classic' ? 'classic' : 'stories',
       videoTranscodePromptEnabled: readStorage('chat.media.videoTranscodePrompt') === 'on',
+      videoUploadSizeMiB: [64, 128, 256, 512].includes(Number(readStorage('chat.media.videoUploadSizeMiB'))) ? Number(readStorage('chat.media.videoUploadSizeMiB')) : 64,
       videoTranscodeProfile: ['maximum', 'high', 'balanced', 'data'].includes(readStorage('chat.media.videoTranscodeProfile')) ? readStorage('chat.media.videoTranscodeProfile') : 'high',
       videoTranscodePromptResolve: null,
       mediaViewer: null,
@@ -21290,6 +21314,7 @@
       });
       elements.serverNameInput.addEventListener('input', () => setServerSettingsStatus('Unsaved server identity changes.'));
       elements.serverUserUploadQuotaInput.addEventListener('input', () => setServerSettingsStatus('Unsaved per-user storage quota.'));
+      elements.serverMaxVideoBytesSelect.addEventListener('change', () => setServerSettingsStatus('Unsaved maximum video upload size.'));
       elements.serverDescriptionInput.addEventListener('input', () => setServerSettingsStatus('Unsaved server identity changes.'));
       elements.serverProjectUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
       elements.serverGithubUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
@@ -21590,6 +21615,12 @@
         state.mediaStoryMode = elements.mediaViewerModeSelect.value === 'stories' ? 'stories' : 'classic';
         writeStorage('chat.media.viewerMode', state.mediaStoryMode);
         applyMediaStoryModePreference();
+      });
+      elements.videoUploadSizeSelect?.addEventListener('change', () => {
+        state.videoUploadSizeMiB = [64, 128, 256, 512].includes(Number(elements.videoUploadSizeSelect.value))
+          ? Number(elements.videoUploadSizeSelect.value) : 64;
+        writeStorage('chat.media.videoUploadSizeMiB', String(state.videoUploadSizeMiB));
+        renderVideoUploadSizeSettings();
       });
       elements.videoTranscodePromptInput?.addEventListener('change', () => {
         state.videoTranscodePromptEnabled = elements.videoTranscodePromptInput.checked === true;
@@ -22972,6 +23003,7 @@
         case 'welcome':
           state.selfId = message.id;
           state.serverMetadata = normalizeServerMetadata(message.server);
+          renderVideoUploadSizeSettings();
           state.serverVersions = message.versions || state.serverVersions;
           const hasEvacuationNotice = Boolean(message.evacuation?.deadline);
           const hasMaintenanceNotice = Number(message.maintenanceUntil) > Date.now();
@@ -23193,6 +23225,7 @@
 
         case 'server.meta.updated':
           state.serverMetadata = normalizeServerMetadata(message.server);
+          renderVideoUploadSizeSettings();
           if (message.versions) state.serverVersions = message.versions;
           renderServerBrand();
           if (!elements.serverSettingsModal.hidden) {
@@ -29132,7 +29165,24 @@
         : '<strong>Server default</strong><span>The administrator media profile will be used.</span>';
     }
 
+    function effectiveVideoUploadMaxBytes() {
+      return Math.min(Number(state.serverMetadata?.maxVideoBytes) || Number(state.capabilities.maxVideoBytes) || 64 * 1024 * 1024,
+        Math.max(64, Math.min(512, Number(state.videoUploadSizeMiB) || 64)) * 1024 * 1024);
+    }
+
+    function renderVideoUploadSizeSettings() {
+      const serverMiB = (Number(state.serverMetadata?.maxVideoBytes) || Number(state.capabilities.maxVideoBytes) || 64 * 1024 * 1024) / (1024 * 1024);
+      const chosenMiB = [64, 128, 256, 512].includes(Number(state.videoUploadSizeMiB)) ? Number(state.videoUploadSizeMiB) : 64;
+      if (elements.videoUploadSizeSelect) {
+        for (const option of elements.videoUploadSizeSelect.options) option.disabled = Number(option.value) > serverMiB;
+        elements.videoUploadSizeSelect.value = String(Math.min(chosenMiB, serverMiB));
+      }
+      if (elements.videoUploadSizeHint) elements.videoUploadSizeHint.textContent =
+        `Server maximum: ${formatBytes(serverMiB * 1024 * 1024)}. Effective upload limit: ${formatBytes(effectiveVideoUploadMaxBytes())}. Your per-user storage quota is checked by the server before receiving a file; no existing uploads are deleted.`;
+    }
+
     function renderVideoTranscodeSettings() {
+      renderVideoUploadSizeSettings();
       const available = Array.isArray(state.capabilities.videoUploadTranscodeProfiles) && state.capabilities.videoUploadTranscodeProfiles.length > 0;
       if (elements.videoTranscodePromptInput) {
         elements.videoTranscodePromptInput.checked = state.videoTranscodePromptEnabled === true;
@@ -29366,7 +29416,7 @@
           }
           const isVideoUpload = state.capabilities.safeVideoMimes.includes(composerFileMime(file));
           const sizeLimit = isVideoUpload
-            ? Number(state.capabilities.maxVideoBytes || 64 * 1024 * 1024)
+            ? effectiveVideoUploadMaxBytes()
             : defaultSizeLimit;
           if (fileSize > sizeLimit) {
             addSystemMessage(`${fileName} exceeds the ${formatBytes(sizeLimit)} limit.`, true);
@@ -29595,6 +29645,28 @@
       const url = new URL('/', location.origin);
       url.searchParams.set('media', messageId);
       return url.href;
+    }
+
+    function mediaStreamManifestUrl(file) {
+      const mediaId = mediaMessageIdFromFile(file);
+      const stream = String(file?.streamUrl || '').trim();
+      if (!mediaId || !stream) return '';
+      try {
+        const url = new URL(stream, location.origin);
+        const expected = `/media/${encodeURIComponent(mediaId)}/index.m3u8`;
+        if (url.origin !== location.origin || url.pathname !== expected || url.username || url.password || url.search || url.hash) return '';
+        return url.href;
+      } catch { return ''; }
+    }
+
+    async function copyMediaAttachmentLink(file, stream = false) {
+      const url = stream ? mediaStreamManifestUrl(file) : sharedMediaPageUrl(file);
+      if (!url) throw new Error(stream
+        ? 'The HLS stream is not ready. Wait for processing to finish, then try again.'
+        : 'This media attachment has no shareable page link.');
+      await copyText(url);
+      addSystemMessage(stream ? 'HLS stream link copied.' : 'Media page link copied.');
+      return true;
     }
 
     async function shareMediaAttachment(file) {
@@ -31385,6 +31457,20 @@
       share.setAttribute('aria-label', 'Share media');
       share.innerHTML = '<span class="icon icon-share"></span>';
 
+      const copyLink = document.createElement('button');
+      copyLink.type = 'button';
+      copyLink.className = 'media-story-action';
+      copyLink.title = 'Copy media page link';
+      copyLink.setAttribute('aria-label', 'Copy media page link');
+      copyLink.innerHTML = '<span class="icon icon-copy-link"></span>';
+
+      const copyStream = document.createElement('button');
+      copyStream.type = 'button';
+      copyStream.className = 'media-story-action';
+      copyStream.title = 'Copy HLS stream link';
+      copyStream.setAttribute('aria-label', 'Copy HLS stream link');
+      copyStream.innerHTML = '<span class="icon icon-copy-stream"></span>';
+
       const mute = document.createElement('button');
       mute.type = 'button';
       mute.className = 'media-story-action';
@@ -31404,7 +31490,7 @@
       next.textContent = '↓';
       next.title = 'Next media';
       next.setAttribute('aria-label', 'Next media');
-      rail.append(previous, likeWrap, edit, share, mute, download, next);
+      rail.append(previous, likeWrap, edit, share, copyLink, copyStream, mute, download, next);
 
       const aiTrigger = document.createElement('button');
       aiTrigger.type = 'button';
@@ -31458,7 +31544,7 @@
       document.body.append(root);
 
       const viewer = {
-        root, stage, topbar, rail, bottom, back, position, previous, next, like, likeCount, edit, share, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
+        root, stage, topbar, rail, bottom, back, position, previous, next, like, likeCount, edit, share, copyLink, copyStream, mute, download, aiTrigger, aiCount, aiPanel, aiPanelBody,
         transformControls, zoomOut, zoomIn, rotateLeft, rotateRight, resetTransform, transformReadout,
         avatar, author, caption, meta, playState,
         items: [], index: 0, currentMedia: null, currentBackdropMedia: null, muted: readStorage('chat.media.story.muted') !== 'false',
@@ -31507,6 +31593,14 @@
         try { await shareMediaAttachment({ ...item.file, messageId: item.messageId || item.file?.messageId }); }
         catch (error) { addSystemMessage(error?.message || 'Media could not be shared.', true); }
       });
+      for (const [button, stream] of [[copyLink, false], [copyStream, true]]) {
+        button.addEventListener('click', async () => {
+          const item = viewer.items[viewer.index];
+          if (!item) return;
+          try { await copyMediaAttachmentLink({ ...item.file, messageId: item.messageId || item.file?.messageId }, stream); }
+          catch (error) { addSystemMessage(error?.message || 'Link could not be copied.', true); }
+        });
+      }
       mute.addEventListener('click', () => {
         const video = viewer.currentMedia instanceof HTMLVideoElement ? viewer.currentMedia : null;
         if (!video) return;
@@ -31765,6 +31859,20 @@
       appendMediaAiHistory(viewer.aiPanelBody, ai);
     }
 
+    function syncMediaStoryShareLinks() {
+      const viewer = state.mediaStoryViewer;
+      if (!viewer) return;
+      const item = viewer.items?.[viewer.index];
+      const file = item ? { ...item.file, messageId: item.messageId || item.file?.messageId } : null;
+      viewer.copyLink.disabled = !file || !sharedMediaPageUrl(file);
+      const streamUrl = file ? mediaStreamManifestUrl(file) : '';
+      viewer.copyStream.hidden = !item?.isVideo;
+      viewer.copyStream.disabled = !streamUrl;
+      viewer.copyStream.title = streamUrl ? 'Copy HLS stream link (index.m3u8)' : 'HLS stream not ready';
+      viewer.copyStream.setAttribute('aria-label', viewer.copyStream.title);
+      if (!viewer.root.hidden) requestAnimationFrame(() => fitChannelMediaStoryRightRail(viewer));
+    }
+
     function syncMediaStorySoundButton() {
       const viewer = state.mediaStoryViewer;
       if (!viewer) return;
@@ -31901,6 +32009,7 @@
       viewer.aiTrigger.setAttribute('aria-expanded', 'false');
       syncMediaStoryAiPanel();
       syncMediaStorySoundButton();
+      syncMediaStoryShareLinks();
       viewer.like.disabled = !item.messageId;
       syncMediaStoryViewerReactions(item.messageId);
       if (item.messageId) acknowledgeRead(item.messageId);
@@ -34634,6 +34743,12 @@
     function applyMediaVariantReady(message) {
       const messageId = String(message?.messageId || '');
       if (!messageId) return;
+      // Keep message-menu action state current, not just the DOM preview. HLS
+      // conversion normally completes after the original file message arrives.
+      const stored = state.messageData.get(messageId);
+      if (stored?.file && message.file && typeof message.file === 'object') {
+        Object.assign(stored.file, message.file);
+      }
       const article = elements.messageList.querySelector(`[data-message-id="${CSS.escape(messageId)}"]`);
       const placeholder = article?.querySelector('.media-placeholder');
       const binding = placeholder?.mediaPreviewBinding;
@@ -34641,6 +34756,14 @@
         Object.assign(binding.file, message.file || {});
         if (!binding.preview.hidden) appendFileContent(article, binding.file, { autoplay: false });
         renderVoiceTranscriptForMessage(messageId);
+      }
+      const story = state.mediaStoryViewer;
+      if (story && !story.root.hidden) {
+        for (const item of story.items || []) {
+          if (String(item?.messageId || '') !== messageId) continue;
+          if (item.file) Object.assign(item.file, message.file || {});
+        }
+        syncMediaStoryShareLinks();
       }
       if (state.mediaPlayerItem?.messageId === messageId) {
         const compatibleUrl = String(message.file?.audioCompatibleUrl || '');
@@ -35799,7 +35922,7 @@
           showDesktopCameraTestRecording(blob);
           return;
         }
-        const maxBytes = Number(state.capabilities.maxVideoBytes) || 64 * 1024 * 1024;
+        const maxBytes = effectiveVideoUploadMaxBytes();
         if (blob.size > maxBytes) {
           ui.status.textContent = `Recording is too large (${formatBytes(blob.size)}). Maximum is ${formatBytes(maxBytes)}.`;
           return;
@@ -38801,6 +38924,22 @@
             catch (error) { addSystemMessage(error?.message || 'File could not be shared.', true); }
           },
         });
+        actions.push({
+          label: 'Copy link',
+          title: 'Copy media page link',
+          icon: 'icon-copy-link',
+          disabled: !sharedMediaPageUrl(file),
+          run: () => copyMediaAttachmentLink(file).catch((error) => addSystemMessage(error?.message || 'Link could not be copied.', true)),
+        });
+        if (isChannelMediaStoryFile(file)) {
+          actions.push({
+            label: 'Copy stream link',
+            title: mediaStreamManifestUrl(file) ? 'Copy HLS index.m3u8 link for Stage Surface Frame' : 'HLS stream is still processing or unavailable',
+            icon: 'icon-copy-stream',
+            disabled: !mediaStreamManifestUrl(file),
+            run: () => copyMediaAttachmentLink(file, true).catch((error) => addSystemMessage(error?.message || 'Stream link could not be copied.', true)),
+          });
+        }
         actions.push({
           label: 'Download',
           title: 'Download media',
@@ -43447,6 +43586,7 @@
         favicon: typeof source.favicon === 'string' ? source.favicon : null,
         mediaOptimizationLevel: ['low', 'medium', 'high'].includes(source.mediaOptimizationLevel) ? source.mediaOptimizationLevel : 'medium',
         userUploadQuotaBytes: Number.isSafeInteger(Number(source.userUploadQuotaBytes)) && Number(source.userUploadQuotaBytes) >= 0 ? Number(source.userUploadQuotaBytes) : 15 * 1024 * 1024 * 1024,
+        maxVideoBytes: [64, 128, 256, 512].map((size) => size * 1024 * 1024).includes(Number(source.maxVideoBytes)) ? Number(source.maxVideoBytes) : 64 * 1024 * 1024,
         projectUrl: safePublicLink(source.projectUrl) || 'https://workwork.fun/',
         githubUrl: safePublicLink(source.githubUrl) || 'https://github.com/sylwesterdigital',
         donationUrl: safePublicLink(source.donationUrl) || '__RANTLIST_SUPPORT_URL__',
@@ -44135,6 +44275,7 @@
       elements.serverGithubUrlInput.value = meta.githubUrl || '';
       elements.serverDonationUrlInput.value = meta.donationUrl || '';
       elements.serverMediaOptimizationSelect.value = meta.mediaOptimizationLevel || 'medium';
+      elements.serverMaxVideoBytesSelect.value = String(meta.maxVideoBytes / (1024 * 1024));
       elements.serverUserUploadQuotaInput.value = meta.userUploadQuotaBytes > 0 ? String(Math.max(1, Math.round(meta.userUploadQuotaBytes / (1024 ** 3)))) : '0';
       elements.serverUiVersionValue.textContent = CLIENT_VERSION.uiVersion;
       elements.serverRuntimeVersionValue.textContent = state.serverVersions?.serverVersion || meta.version || 'unknown';
@@ -44190,6 +44331,7 @@
         moderationTerms: elements.serverModerationTermsInput.value,
         mediaOptimizationLevel: elements.serverMediaOptimizationSelect.value,
         userUploadQuotaBytes: Math.max(0, Math.round((Number(elements.serverUserUploadQuotaInput.value) || 0) * (1024 ** 3))),
+        maxVideoBytes: Number(elements.serverMaxVideoBytesSelect.value) * 1024 * 1024,
       });
     }
 

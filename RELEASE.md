@@ -1,3 +1,7 @@
+## Client 0.1.190 / Server 9.6.353 — r381
+
+Stories media preview and the file-message menu now provide separate Copy page link and Copy HLS stream link, using supplied link/stream SVG icons. Mobile rail scrolls when short. Config → Media offers a per-device 64/128/256/512 MiB video upload size preference, bounded by the administrator-controlled server ceiling and existing per-user quotas. Stage and mobile physics code unchanged. No automatic deletion or paid-account rollout.
+
 ## Client 0.1.189 / Server 9.6.352 — r380
 
 Object-scoped paint atlases and texture preset IDs travel as revisioned events; existing large painted objects no longer repeatedly inflate the channel baseline. Prior mobile and event-first geometry fixes retained. Paired release; server ZIP first.
