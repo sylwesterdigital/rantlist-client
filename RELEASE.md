@@ -1,3 +1,11 @@
+# Client 0.1.197 / Server 9.6.362 — r390
+
+The synchronized browser core makes the Stage eye a reversible 2D-chat toggle: in the original floating position over Stage when messages are hidden, in the composer directly after Voice when messages are visible. The matching server-hosted Stage editor adds a four-corner focus-view button after the player camera focus control. It hides Rantlist chrome without browser fullscreen while retaining the text composer, then restores the former layout and chat overlay. Existing macOS/iOS/Android native projects, signing workflow and protocol 70 remain unchanged. Install the server r390 ZIP first using the existing watcher.
+
+# Client 0.1.196 / Server 9.6.360 — r388
+
+Helena Paint `.hpaint` files in public profiles load a bounded embedded artwork preview and always show a filename, even for legacy projects without a preview. Successful open closes the public profile overlay and opens WebGL Draw. Self-only quota usage moves into a responsive modal header with amber/red usage thresholds and an intentionally disabled Buy more storage button; header actions align to the right. No billing integration, native-wrapper modification or Stage protocol change. Deploy the accompanying server ZIP first.
+
 # Client 0.1.194 / Server 9.6.358 — r386
 
 The synchronized browser UI adds category tabs for authorized users' public-profile galleries: Media, Files, Links, Music and Voice. Existing native wrappers, credentials, Stage protocol and signing procedures are unchanged. Server ZIP should deploy first.

@@ -1,3 +1,11 @@
+# Rantlist client 0.1.197 — server 9.6.362 / r390
+
+This full client package mirrors the sanitized r390 Rantlist browser UI, including the reversible Stage eye and focus-view parent handling. The paired server hosts the full Stage editor, its new focus button and sanitized uploaded SVG. Version-floor checks for previous client regression tests allow later synchronized packages without weakening the original required version. Native projects and platform signing remain unchanged; the r372 watcher deploys the server ZIP before automatically releasing macOS/iOS clients.
+
+# Rantlist client 0.1.196 — server 9.6.360 / r388
+
+The sanitized browser snapshot adds full-size embedded artwork thumbnails and visible names for Helena Paint `.hpaint` project cards. WebGL Draw opens after the public profile overlay closes on a successful import. Self-only storage moves into the modal header, turns amber when nearly full and red at capacity, and displays a disabled Buy more storage control. Edit/close actions are right-aligned. Native shells and Stage protocol 70 are unchanged; install the paired server first using the r372 watcher.
+
 # Rantlist client 0.1.194 — server 9.6.358 / r386
 
 # Rantlist client 0.1.193 — media r385

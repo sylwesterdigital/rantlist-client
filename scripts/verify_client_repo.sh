@@ -213,4 +213,6 @@ if grep -RInE 'RANTLIST_REMOTE_PORT=.*[0-9]{2,5}' "$ROOT/scripts" >/dev/null 2>&
 fi
 node "$ROOT/scripts/verify_stage_transport.js"
 node "$ROOT/scripts/verify_hls_preview.js"
+node "$ROOT/scripts/verify_profile_gallery_r388.js"
+node "$ROOT/scripts/verify_stage_focus_r390.js"
 echo "Rantlist public client repository verification passed (source version $REPO_VERSION)."

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.358">
+  <meta name="chat-ui-version" content="9.6.362">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -677,6 +677,13 @@
     .stage-eye-button { position:absolute; z-index:16; right:12px; bottom:12px; width:44px; height:44px; padding:0; display:grid; place-items:center; border:1px solid var(--line); border-radius:12px; cursor:pointer; background:color-mix(in srgb,var(--panel) 88%,transparent); color:var(--text); box-shadow:0 7px 22px #0005; }
     .stage-eye-button[hidden] {display:none!important;}
     .stage-eye-button img {width:23px;height:23px;filter:grayscale(1) brightness(2.4);}
+    /* r390: when chat covers Stage, the same eye travels into the composer after Voice.
+       In the unobstructed world it returns to its original floating position. */
+    .composer-shell > #stageEyeButton { position:static;z-index:auto;flex:0 0 38px;width:38px;min-width:38px;height:38px;min-height:38px;border:0;border-radius:50%;padding:0;background:transparent;box-shadow:none;place-items:center; }
+    .composer-shell > #stageEyeButton img {width:21px;height:21px;}
+    .composer-shell > #stageEyeButton:hover,.composer-shell > #stageEyeButton:focus-visible {background:color-mix(in srgb,var(--accent) 22%,transparent);outline:2px solid var(--accent);outline-offset:-2px;}
+    .composer-shell > #stageEyeButton[aria-pressed="true"] {color:var(--accent);}
+
     .stage-edit-status {position:absolute;z-index:16;right:8px;top:8px;max-width:min(380px,90%);background:rgba(6,11,25,.87);color:#edf6ff;padding:7px 10px;font-size:12px;line-height:1.45;border-radius:9px;pointer-events:none;}
     .stage-edit-status[hidden] {display:none!important;}
     .message-viewport.stage-world-open .chat-stage-status {z-index:16;top:14px;max-width:90%;white-space:normal;text-align:center;}
@@ -10355,7 +10362,12 @@
       display: grid;
       grid-template-rows: auto minmax(0, 1fr);
     }
-    .public-profile-header { min-height: 42px; justify-content: flex-end; }
+    /* r388: storage occupies the left of the real modal header; actions hug the right edge. */
+    .public-profile-header { min-height: 46px; padding: 8px 10px 8px 12px; justify-content: flex-end; gap: 12px; }
+    .public-profile-header-storage { flex: 1 1 auto; width: min(500px, 68%); min-width: 0; margin-right: auto; }
+    .public-profile-header-storage[hidden] { display: none !important; }
+    .public-profile-header .public-profile-header-actions { flex: 0 0 auto; margin-left: auto; justify-content: flex-end; align-self: center; padding: 0; }
+    .public-profile-header .public-profile-header-actions .icon-button { flex: 0 0 auto; margin-right: 0; }
     .public-profile-body {
       min-height: 0;
       display: grid;
@@ -10393,6 +10405,11 @@
     .public-profile-storage-head span { color: var(--muted); font-size: 10px; white-space: nowrap; }
     .public-profile-storage-track { height: 7px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--line) 72%, transparent); }
     .public-profile-storage-track span { display: block; height: 100%; min-width: 0; border-radius: inherit; background: var(--accent); transition: width .18s ease; }
+    .public-profile-storage[data-level="near"] .public-profile-storage-track span { background: #f59e0b; }
+    .public-profile-storage[data-level="full"] .public-profile-storage-track span { background: #ef4444; }
+    .public-profile-storage-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 10px; }
+    .public-profile-storage-buy { flex: 0 0 auto; min-height: 24px; border-radius: 6px; padding: 3px 8px; font-size: 10px; font-weight: 750; }
+    .public-profile-storage-buy:disabled { opacity: .55; cursor: not-allowed; }
     .public-profile-storage small { color: var(--muted); font-size: 10px; line-height: 1.3; }
     .public-profile-friends { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 4px; scrollbar-width: thin; }
     .public-profile-friend { flex: 0 0 auto; width: 52px; display: grid; justify-items: center; gap: 3px; border: 0; background: transparent; padding: 0; color: var(--text); }
@@ -10415,6 +10432,27 @@
     .public-profile-gallery-title { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; max-width: 100%; font-size: 11px; text-align: center; }
     .public-profile-gallery-meta { display: block; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-size: 10px; color: var(--muted); }
     .public-profile-media .public-profile-gallery-tile img { max-width: 72px; max-height: 55px; width: auto; height: auto; object-fit: contain; }
+    /* r387: full-bleed covers and readable link cards in the profile gallery. */
+    .public-profile-gallery-tile.has-cover { padding: 0; justify-content: flex-end; align-items: stretch; background: #121a25; }
+    .public-profile-media .public-profile-gallery-tile img.public-profile-gallery-cover { position: absolute; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+    .public-profile-gallery-tile .public-profile-gallery-cover-meta { position: relative; z-index: 1; padding: 8px; width: 100%; min-width: 0; background: linear-gradient(transparent, rgba(0,0,0,.89)); color: white; text-align: left; }
+    .public-profile-gallery-tile .public-profile-gallery-cover-meta strong { text-align: left; font-weight: 750; }
+    .public-profile-gallery-tile.has-cover .public-profile-gallery-meta { color: #d5dce8; }
+    .public-profile-gallery-link-url { max-width: 100%; overflow-wrap: anywhere; word-break: break-word; line-height: 1.25; font-size: 10px; text-align: left; }
+    .public-profile-gallery-tile.link-without-cover { align-items: flex-start; text-align: left; }
+    .public-profile-gallery-tile.link-without-cover strong { text-align: left; }
+    .public-profile-gallery-voice { position: absolute; inset: 0; display: grid; grid-template-rows: auto auto minmax(32px,1fr) auto; align-content: center; gap: 6px; padding: 12px 8px; overflow: hidden; background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px; }
+    .public-profile-gallery-voice .voice-note-waveform { width: 100%; height: 40px; min-height: 34px; }
+    .public-profile-gallery-voice .public-profile-gallery-voice-controls { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
+    .public-profile-gallery-voice-controls button { min-width: 40px; min-height: 38px; border-radius: 50%; }
+    .public-profile-gallery-voice .voice-note-time { font-size: 10px; }
+    .public-profile-media .public-profile-gallery-tile img.public-profile-gallery-cover { max-width: none; max-height: none; width: 100%; height: 100%; object-fit: cover; }
+    /* Helena files always show their name; modern archives display their embedded flattened artwork. */
+    .public-profile-gallery-helena { padding: 0; align-items: stretch; justify-content: flex-end; background: radial-gradient(ellipse at 50% 35%, color-mix(in srgb, var(--accent) 19%, var(--panel-2)), var(--panel-2) 74%); }
+    .public-profile-gallery-helena .public-profile-gallery-symbol { position: absolute; inset: 0 0 28px; display: grid; place-items: center; font-size: clamp(38px, 5vw, 70px); }
+    .public-profile-gallery-helena .public-profile-gallery-cover-meta { margin-top: auto; min-height: 44px; background: linear-gradient(transparent, rgba(0,0,0,.92) 34%); }
+    .public-profile-gallery-helena.has-cover .public-profile-gallery-symbol { display: none; }
+    .public-profile-gallery-link-url, .public-profile-gallery-title { overflow-wrap: anywhere; }
     .public-profile-gallery-empty { padding: 22px 12px; color: var(--muted); text-align: center; border: 1px dashed var(--line); border-radius: 9px; }
     .public-profile-media-card.is-audio .public-profile-media-layout { grid-template-columns: minmax(0,1fr); }
     .public-profile-media-card.is-audio .public-profile-comments { display: none; }
@@ -10469,6 +10507,12 @@
 
     @media (max-width: 760px) {
       .public-profile-card { width: calc(100vw - 6px); height: calc(var(--app-height, 100dvh) - 6px); }
+      .public-profile-header { flex-wrap: wrap; column-gap: 8px; row-gap: 6px; padding: 7px 8px; }
+      .public-profile-header-storage:not([hidden]) { flex: 1 1 100%; width: 100%; max-width: none; order: 2; }
+      .public-profile-header .public-profile-header-actions { margin-left: auto; order: 1; }
+      .public-profile-storage { padding: 6px 8px; }
+      .public-profile-storage-footer { gap: 2px 8px; }
+      .public-profile-storage small { font-size: 9px; }
       .public-profile-body { gap: 7px; }
       .public-profile-static { grid-template-columns: 1fr; gap: 8px; padding-bottom: 7px; }
       .public-profile-hero { grid-template-columns: 78px minmax(0,1fr); }
@@ -17600,6 +17644,25 @@
       #mobileNav:has(.mobile-nav-room-toggle) { grid-template-columns:repeat(6,minmax(0,1fr)); }
       #mobileNav button { min-width:0; }
     }
+
+    /* r390 Stage focus view: in-page chrome suppression, NOT browser fullscreen.
+       The same Stage iframe and authenticated chat/composer remain mounted. */
+    body.stage-focus-mode > .topbar,body.stage-focus-mode > #mobileNav {display:none!important;}
+    body.stage-focus-mode #workspace {position:fixed!important;inset:0!important;z-index:100!important;display:block!important;width:100%!important;height:var(--app-height,100dvh)!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;}
+    body.stage-focus-mode #workspace > :not(#chatPanel) {display:none!important;}
+    body.stage-focus-mode #workspace > #chatPanel {position:absolute!important;inset:0!important;z-index:1!important;display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;resize:none!important;transform:none!important;box-shadow:none!important;overflow:hidden!important;}
+    body.stage-focus-mode #chatPanel > :not(.chat-workspace) {display:none!important;}
+    body.stage-focus-mode #chatPanel > .chat-workspace {flex:1 1 auto!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;min-width:0!important;min-height:0!important;width:100%!important;height:100%!important;overflow:hidden!important;}
+    body.stage-focus-mode #chatPanel .chat-workspace > :not(.panel-body) {display:none!important;}
+    body.stage-focus-mode #chatPanel .chat-workspace > .panel-body {grid-column:1!important;grid-row:1!important;display:flex!important;flex-direction:column!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;padding:0!important;margin:0!important;overflow:hidden!important;background:transparent!important;}
+    body.stage-focus-mode #chatPanel .panel-body > :not(#messageViewport):not(#messageForm) {display:none!important;}
+    body.stage-focus-mode #chatPanel #messageViewport {flex:1 1 auto!important;min-height:0!important;width:100%!important;overflow:hidden!important;}
+    body.stage-focus-mode #chatPanel #messageViewport > :not(#chatStageLayer) {display:none!important;}
+    body.stage-focus-mode #chatPanel #chatStageLayer {position:absolute!important;inset:0!important;width:100%!important;height:100%!important;}
+    body.stage-focus-mode #chatPanel #messageForm {position:relative!important;z-index:32!important;flex:0 0 auto!important;align-self:center!important;width:min(800px,calc(100% - 16px))!important;max-width:100%!important;margin:0 auto!important;padding:4px 0 max(8px,env(safe-area-inset-bottom))!important;background:transparent!important;border:0!important;}
+    body.stage-focus-mode #chatPanel #messageForm > :not(#composerShell) {display:none!important;}
+    body.stage-focus-mode #chatPanel #composerShell {background:color-mix(in srgb,var(--panel) 92%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 7px 32px #0009;}
+    body.stage-focus-mode #chatPanel #composerShell #messageInput {min-height:36px;}
 </style>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
@@ -17615,7 +17678,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.358</small>
+          <small id="serverBrandVersion">v9.6.362</small>
         </span>
       </button>
     </div>
@@ -19174,7 +19237,7 @@
           </div>
           <div id="messageList" aria-live="polite"></div>
           <button id="messageToBottomButton" class="message-to-bottom-button" data-button-presentation-ignore type="button" title="Jump to latest message" aria-label="Jump to latest message" hidden><span class="icon icon-bottom" aria-hidden="true"></span><span class="message-to-bottom-count" aria-hidden="true"></span></button>
-          <button id="stageEyeButton" class="stage-eye-button" data-button-presentation-ignore type="button" title="Show 2D chat over Stage" aria-label="Show 2D chat over Stage" hidden><img src="/assets/icons/eye.svg" width="22" height="22" alt="" aria-hidden="true"></button>
+          <button id="stageEyeButton" class="stage-eye-button" data-button-presentation-ignore type="button" title="Show 2D chat over Stage" aria-label="Show 2D chat over Stage" aria-pressed="false" hidden><img src="/assets/icons/eye.svg" width="22" height="22" alt="" aria-hidden="true"></button>
           <div id="stageEditStatus" class="stage-edit-status" aria-live="polite" hidden></div>
           <div id="messageTargetOverlay" class="message-target-overlay" hidden aria-live="polite">
             <span id="targetPill" class="target-pill" hidden>
@@ -19659,7 +19722,7 @@
   <div id="publicProfileModal" class="modal-layer" hidden>
     <div class="modal-backdrop" data-close-public-profile="1"></div>
     <section class="modal-card public-profile-card" role="dialog" aria-modal="true" aria-labelledby="publicProfileName">
-      <header class="modal-header public-profile-header"><span></span><div class="public-profile-header-actions"><button id="publicProfileEditButton" class="public-profile-edit-toggle" type="button" hidden aria-pressed="false">Edit</button><button id="publicProfileCloseButton" class="icon-button" type="button" aria-label="Close profile"><span class="icon icon-close"></span></button></div></header>
+      <header class="modal-header public-profile-header"><div id="publicProfileHeaderStorage" class="public-profile-header-storage" hidden></div><div class="public-profile-header-actions"><button id="publicProfileEditButton" class="public-profile-edit-toggle" type="button" hidden aria-pressed="false">Edit</button><button id="publicProfileCloseButton" class="icon-button" type="button" aria-label="Close profile"><span class="icon icon-close"></span></button></div></header>
       <div id="publicProfileBody" class="modal-body public-profile-body">
         <div class="public-profile-loading">Loading profile…</div>
       </div>
@@ -20446,7 +20509,7 @@
         'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu', 'mediaAiModal', 'mediaAiForm', 'mediaAiCloseButton', 'mediaAiCancelButton', 'mediaAiSourcePreview', 'mediaAiSourceImage', 'mediaAiTaskSelect', 'mediaAiAnalyzeFields', 'mediaAiConvertFields', 'mediaAiConvertModelField', 'mediaAiConvertModelSelect', 'mediaAiConvertPresetSelect', 'mediaAiPromptLabel', 'mediaAiPresetSelect', 'mediaAiPromptInput', 'mediaAiCurrent', 'mediaAiStatus', 'mediaAiRunButton', 'transcriptAiModal', 'transcriptAiForm', 'transcriptAiCloseButton', 'transcriptAiCancelButton', 'transcriptAiPresetSelect', 'transcriptAiPromptInput', 'transcriptAiCurrent', 'transcriptAiStatus', 'transcriptAiRunButton',
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
-        'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
+        'gameSetupModal', 'gameSetupForm', 'gameSetupTitle', 'gameOpponentLabel', 'gameBoardModeLabel', 'gameSetupCloseButton', 'gameSetupCancelButton', 'gameOpponentSelect', 'gameBoardModeSelect', 'hangmanSetupFields', 'hangmanModeSelect', 'scribbleSetupFields', 'scribbleRoundsSelect', 'scribbleDurationSelect', 'brainSetupFields', 'brainDifficultySelect', 'brainQuestionCountSelect', 'quizSetupFields', 'quizNameInput', 'quizSavedSelect', 'quizLoadButton', 'quizSaveButton', 'quizDeleteButton', 'quizLibraryStatus', 'quizTitleInput', 'quizTemplateSelect', 'quizDurationSelect', 'quizBackgroundInput', 'quizBackgroundChooseButton', 'quizBackgroundClearButton', 'quizBackgroundPreview', 'quizBackgroundStatus', 'quizAddQuestionButton', 'quizQuestionsEditor', 'checkersSetupFields', 'checkersOpponentModeSelect', 'checkersAiDifficultySelect', 'checkersThemeSelect', 'chessSetupFields', 'chessThemeSelect', 'hangmanPartyOption', 'hangmanPartyToggle', 'hangmanRaceSetupFields', 'hangmanRaceDurationSelect', 'hangmanRaceMissesSelect', 'hangmanTargetScoreSelect', 'hangmanModeHelp', 'gameMediaOption', 'gameVideoToggle', 'drawingSetupFields', 'drawingCanvasPresetSelect', 'drawingCanvasCustomFields', 'drawingCanvasWidthInput', 'drawingCanvasHeightInput', 'drawingChallengeToggle', 'drawingChallengeFields', 'drawingChallengeTitleInput', 'drawingChallengeDurationSelect', 'gameSetupStatus', 'incomingGameModal', 'incomingGameTitle', 'incomingGameAvatar', 'incomingGameName', 'incomingGameDetails', 'incomingGameRoom', 'incomingGameMediaOption', 'incomingGameVideoToggle', 'incomingGameMediaStatus', 'rejectGameButton', 'acceptGameButton', 'gameProfileModal', 'gameProfileTitle', 'gameProfileCloseButton', 'gameProfileBody', 'incomingCallModal', 'incomingCallText', 'rejectCallButton', 'acceptCallButton', 'publicProfileModal', 'publicProfileHeaderStorage', 'publicProfileEditButton', 'publicProfileCloseButton', 'publicProfileBody', 'publicProfileMediaModal', 'publicProfileMediaCloseButton', 'publicProfileMediaTitle', 'publicProfileMediaStage', 'publicProfileMediaName', 'publicProfileMediaMeta', 'publicProfileCommentsList', 'publicProfileCommentForm', 'publicProfileCommentInput', 'friendRequestModal', 'friendRequestCloseButton', 'friendRequestAvatar', 'friendRequestName', 'friendRequestStatus', 'friendRequestBio', 'friendRequestRejectButton', 'friendRequestAcceptButton', 'roomInviteModal', 'roomInviteTitle', 'roomInviteCloseButton', 'roomInviteAvatar', 'roomInviteName', 'roomInviteRoom', 'roomInviteStatus', 'roomInviteBio', 'roomInviteRejectButton', 'roomInviteAcceptButton',
         'helenaDrawingStage', 'helenaDrawingFrame', 'helenaDrawingStatus', 'helenaDrawingReloadButton', 'helenaDrawingCloseButton', 'drawingStage', 'drawingPlayerLeft', 'drawingPlayerLeftMedia', 'drawingPlayerLeftAvatar', 'drawingPlayerLeftName', 'drawingPlayerRight', 'drawingPlayerRightMedia', 'drawingPlayerRightAvatar', 'drawingPlayerRightName', 'drawingConnectionStatus', 'drawingCanvases', 'drawingCanvasDivider', 'drawingCanvasResetButton', 'drawingChallengeDeliveryButton', 'drawingOpponentPane', 'drawingOwnPaneLabel', 'drawingOwnPaneAvatar', 'drawingOwnPaneName', 'drawingOpponentPaneLabel', 'drawingOpponentPaneAvatar', 'drawingOpponentPaneName', 'drawingOverlayPaneLabel', 'drawingOverlayPaneAvatar', 'drawingOverlayPaneName', 'drawingOwnSvg', 'drawingOpponentSvg', 'drawingOverlaySvg', 'drawingStrokeColor', 'drawingFillColor', 'drawingFillToggleButton', 'drawingLineStyleButton', 'drawingLineStylePreview', 'drawingStrokeWidth', 'drawingStrokeWidthValue', 'drawingUndoButton', 'drawingRedoButton', 'drawingSaveStickerButton', 'drawingSaveLocalButton', 'drawingOpenLocalButton', 'drawingExportButton', 'drawingSendArtworkButton', 'drawingDeleteSelectedButton', 'drawingExportModal', 'drawingExportCloseButton', 'drawingLayerTopButton', 'drawingLayerUpButton', 'drawingLayerDownButton', 'drawingLayerBottomButton', 'drawingDuplicateButton', 'drawingReferenceButton', 'drawingReferenceInput', 'drawingReferenceOpacityControl', 'drawingReferenceOpacity', 'drawingReferenceOpacityValue', 'drawingReferenceRemoveButton', 'drawingPolylineToolButton', 'drawingSmoothButton', 'drawingClearButton', 'drawingTextEditor', 'drawingTextControls', 'drawingFontSelect', 'drawingFontGalleryButton', 'drawingFontGalleryModal', 'drawingFontGalleryList', 'drawingFontGalleryCloseButton', 'drawingFontGalleryDoneButton', 'drawingFontPreviousButton', 'drawingFontNextButton', 'drawingTextColor', 'drawingLoadFontsButton', 'drawingFontSize', 'drawingFontSizeValue', 'drawingTextAlignLeft', 'drawingTextAlignCenter', 'drawingTextAlignRight', 'drawingZoomOutButton', 'drawingZoomResetButton', 'drawingZoomInButton', 'drawingViewModeButton', 'drawingViewMode', 'drawingBackgroundKind', 'drawingBackgroundColor', 'drawingDashLength', 'drawingDashLengthValue', 'drawingDashGap', 'drawingDashGapValue', 'drawingOpponentToggleButton', 'drawingChatButton', 'drawingLeaveButton', 'drawingImportInput', 'drawingLocalModal', 'drawingLocalModalTitle', 'drawingLocalSavePanel', 'drawingLocalSaveFooter', 'drawingLocalGallery', 'drawingLocalTitleInput', 'drawingLocalSaveConfirmButton', 'drawingLocalSaveCancelButton', 'drawingLocalModalClose', 'drawingSendModal', 'drawingSendCloseButton', 'drawingSendCancelButton', 'drawingSendConfirmButton', 'drawingSendCaptionInput', 'drawingDeliveryModal', 'drawingDeliveryCloseButton', 'drawingDeliveryCancelButton', 'drawingDeliveryConfirmButton', 'drawingDeliveryMessageInput', 'drawingClearModal', 'drawingClearCancelButton', 'drawingClearConfirmButton', 'fleetBattleGameButton', 'brainGameButton', 'checkersGameButton', 'chessGameButton', 'checkersStage', 'checkersRoundLabel', 'checkersTurnPrompt', 'checkersThemeButton', 'checkersOpponentCard', 'checkersOpponentMedia', 'checkersOpponentAvatar', 'checkersOpponentName', 'checkersOpponentMeta', 'checkersBoard', 'checkersOwnCard', 'checkersOwnMedia', 'checkersOwnAvatar', 'checkersOwnName', 'checkersOwnMeta', 'checkersStageStatus', 'checkersRematchButton', 'checkersChatButton', 'checkersLeaveButton', 'chessStage', 'chessRoundLabel', 'chessTurnPrompt', 'chessThemeButton', 'chessOpponentCard', 'chessOpponentMedia', 'chessOpponentAvatar', 'chessOpponentName', 'chessOpponentMeta', 'chessBoard', 'chessHistoryList', 'chessOwnCard', 'chessOwnMedia', 'chessOwnAvatar', 'chessOwnName', 'chessOwnMeta', 'chessStageStatus', 'chessRematchButton', 'chessChatButton', 'chessLeaveButton', 'chessPromotion', 'quizStage', 'quizStageTitle', 'quizRoundLabel', 'quizScoreLevel', 'quizTimerText', 'quizTimerCaption', 'quizTimerFill', 'quizMain', 'quizPlayerCount', 'quizPlayerList', 'quizQuestionCard', 'quizQuestionText', 'quizConfidence', 'quizSafeButton', 'quizConfidentButton', 'quizAnswerGrid', 'quizAnswerStatus', 'quizResultPanel', 'quizFinalPanel', 'quizStageStatus', 'quizNextButton', 'quizRematchButton', 'quizChatButton', 'quizLeaveButton', 'brainStage', 'brainRoundLabel', 'brainTimer', 'brainPosition', 'brainPlayerCount', 'brainPlayerList', 'brainCalculationList', 'brainCurrentCalculation', 'brainCanvas', 'brainRecognized', 'brainClearButton', 'brainSubmitButton', 'brainSkipButton', 'brainRecognitionStatus', 'brainStageStatus', 'brainRematchButton', 'brainChatButton', 'brainLeaveButton', 'brainResultOverlay', 'scribbleStage', 'scribbleRoundLabel', 'scribbleWordPrompt', 'scribbleLikeButton', 'scribbleLikeCount', 'scribbleDislikeButton', 'scribbleDislikeCount', 'scribbleTimer', 'scribbleGalleryButton', 'scribbleGalleryPanel', 'scribbleGalleryCloseButton', 'scribbleGalleryCount', 'scribbleGalleryGridScroll', 'scribbleGalleryList', 'scribbleGalleryLoadMoreButton', 'scribbleGalleryViewer', 'scribbleGalleryViewerCloseButton', 'scribbleGalleryViewerTitle', 'scribbleGalleryViewerPosition', 'scribbleGalleryCanvas', 'scribbleGalleryMeta', 'scribbleGalleryViewerPreviousButton', 'scribbleGalleryViewerNextButton', 'scribblePlayers', 'scribblePlayerCount', 'scribblePlayerList', 'scribbleCanvasWrap', 'scribbleCanvas', 'scribbleBubbles', 'scribbleMobileEvent', 'scribbleHistoryPanel', 'scribbleHistoryCloseButton', 'scribbleHistoryList', 'scribbleChoiceOverlay', 'scribbleResultOverlay', 'scribbleTools', 'scribbleColor', 'scribbleFillColor', 'scribbleUndoButton', 'scribbleRedoButton', 'scribbleKeyboardToggle', 'scribbleVirtualKeyboard', 'scribbleFeed', 'scribbleFeedList', 'scribbleGuessForm', 'scribbleGuessInput', 'scribbleChatButton', 'scribbleLeaveButton', 'duelStage', 'duelPlayerLeft', 'duelPlayerLeftMedia', 'duelPlayerLeftAvatar', 'duelPlayerLeftName', 'duelPlayerLeftMeta', 'duelPlayerRight', 'duelPlayerRightMedia', 'duelPlayerRightAvatar', 'duelPlayerRightName', 'duelPlayerRightMeta', 'duelStageIcon', 'duelStageTitle', 'duelRoundLabel', 'duelPrompt', 'duelBoard', 'duelInputForm', 'duelTextInput', 'duelSubmitButton', 'duelPassButton', 'duelStageStatus', 'duelRematchButton', 'duelChatButton', 'duelLeaveButton', 'tetrisStage', 'tetrisRoundLabel', 'tetrisPauseBadge', 'tetrisPlayerLeftPane', 'tetrisPlayerLeftMedia', 'tetrisPlayerLeftAvatar', 'tetrisPlayerLeftName', 'tetrisPlayerLeftMeta', 'tetrisBoardLeft', 'tetrisNextLeft', 'tetrisLinesLeft', 'tetrisJunkLeft', 'tetrisPlayerRightPane', 'tetrisPlayerRightMedia', 'tetrisPlayerRightAvatar', 'tetrisPlayerRightName', 'tetrisPlayerRightMeta', 'tetrisBoardRight', 'tetrisNextRight', 'tetrisLinesRight', 'tetrisJunkRight', 'tetrisStageStatus', 'tetrisRematchButton', 'tetrisChatButton', 'tetrisLeaveButton', 'gameStage', 'gamePlayerLeft', 'gamePlayerLeftSymbol', 'gamePlayerLeftSymbolText', 'gamePlayerLeftColor', 'gamePlayerLeftMedia', 'gamePlayerLeftAvatar', 'gamePlayerLeftName', 'gamePlayerLeftMeta', 'gamePlayerRight', 'gamePlayerRightSymbol', 'gamePlayerRightSymbolText', 'gamePlayerRightColor', 'gamePlayerRightMedia', 'gamePlayerRightAvatar', 'gamePlayerRightName', 'gamePlayerRightMeta', 'gameRoundLabel', 'ticTacToeBoard', 'gameStageStatus', 'gameRematchButton', 'gameChatButton', 'gameLeaveButton', 'gameMediaControls', 'gameMediaStatus', 'gameMediaMuteButton', 'gameMediaCameraButton', 'gameMediaEndButton', 'callStage', 'callStageTitle', 'callStageStatus', 'callGrid', 'callMinimizeButton', 'callLayoutButton', 'callChatToggleButton', 'callSideChat', 'callSideChatMessages', 'callSideChatForm', 'callSideChatInput', 'toggleMuteButton', 'toggleCameraButton', 'callCaptionsButton', 'callCaptionSettingsButton', 'togglePresentationButton', 'endCallButton', 'channelCallAvailableBar', 'channelCallAvailableStatus', 'channelCallJoinButton', 'channelCallBar', 'channelCallStatus', 'channelCallCaptionsButton', 'channelCallCaptionSettingsButton', 'channelCallPresentationButton', 'channelCallExpandButton', 'channelCallEndButton', 'channelPresentationOverlay', 'channelPresentationCard', 'channelPresentationTitle', 'channelPresentationVideo', 'channelPresentationMinimizeButton', 'callCaptionSettingsPopover', 'callCaptionSettingsHideButton', 'callCaptionSourceLanguage', 'callCaptionTargetLanguage', 'callCaptionTranslateInput', 'callCaptionStatusText',
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabStageTools', 'avatarLabStageBg', 'avatarLabStageFloor', 'avatarLabStageLight', 'avatarLabStageAmbient', 'avatarLabStageKey', 'avatarLabStageRim', 'avatarLabStageFrontButton', 'avatarLabStageFullButton', 'avatarLabStageDownload', 'avatarLabImageViewer', 'avatarLabImageViewerBackdrop', 'avatarLabImageViewerImage', 'avatarLabImageViewerModeButton', 'avatarLabImageViewerCloseButton', 'avatarLabSourceFullscreenButton', 'avatarLabReferenceFullscreenButton', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityHandle', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabImagesButton', 'avatarLabImagesCount', 'avatarLabImagesPanel', 'avatarLabImagesHandle', 'avatarLabImagesGrid', 'avatarLabImagesCloseButton', 'avatarLabLogsButton', 'avatarLabLogsCount', 'avatarLabLogsPanel', 'avatarLabLogsHandle', 'avatarLabLogsList', 'avatarLabLogsClearButton', 'avatarLabLogsCloseButton', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLab3dSettingsSummary', 'avatarLabReferenceHotspots', 'avatarLabAdvanced', 'avatarLabPartPrevButton', 'avatarLabPartNextButton', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarPromptSaveButton', 'profileAvatarPromptDeleteButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureVersionSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dAutoRigInput', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'avatarLabModelsPanel', 'avatarLabModelsMeta', 'avatarLabModelsGrid', 'avatarLabModelsCollapseButton', 'avatarLabModelsFullButton', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
@@ -20839,7 +20902,7 @@
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
       stageEditQueue: [],stagePendingPaintAfterSnapshot:[],stageEditAwaitingAck: false,stageEditRetryTimer: 0,stageSnapshotInFlight:null,stageSnapshotRetryTimer:0,stageSnapshotRetryAfter:0,stageSnapshotRetryAttempts:0,stageEditing:[],stageActivities:[],
       stageRevision: 0, stageWorldSnapshot: null, stagePaintLayers:new Map(), stageWorldRoom: '', stageFeedObserver: null,
-      stageFeedTimer: 0, stageOverlayVisible: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
+      stageFeedTimer: 0, stageOverlayVisible: false, stageFocusMode: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
       stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageAppearanceDesired:null,stageAppearanceSeq:0,stageAppearancePendingSeq:0,stageAppearanceSendAt:0,stageAppearanceRetryTimer:0,stageActionSeq:0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
@@ -22914,7 +22977,7 @@
       }, { passive: true });
       elements.messageToBottomButton.addEventListener('click', jumpMessageListToBottom);
       elements.desktopStageButton?.addEventListener('click', () => { void setChatStageWorldOpen(); });
-      elements.stageEyeButton?.addEventListener('click', showStageChatOverlay);
+      elements.stageEyeButton?.addEventListener('click', toggleStageChatOverlay);
       elements.stageFeedButton?.addEventListener('click', cycleStageFeed);
       window.addEventListener('message', handleStageFrameMessage);
 
@@ -24635,20 +24698,22 @@
 
         const title = document.createElement('strong');
         title.className = 'development-release-title';
-        title.textContent = release.title || 'Update';
+        title.textContent = release.title || release.summary || 'Release update';
 
         const date = document.createElement('time');
         date.className = 'development-release-date';
         const timestamp = Date.parse(release.releasedAt || '');
         date.textContent = Number.isFinite(timestamp)
-          ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp)
+          ? (release.dateOnly
+              ? new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeZone: 'UTC' }).format(timestamp)
+              : new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'short' }).format(timestamp))
           : '';
         if (Number.isFinite(timestamp)) date.dateTime = new Date(timestamp).toISOString();
 
         head.append(version, title, date);
         article.append(head);
 
-        const releaseDetail = release.summary || release.text;
+        const releaseDetail = release.title === release.summary ? release.text : (release.summary || release.text);
         if (releaseDetail) {
           const detail = document.createElement('p');
           detail.className = 'development-release-text';
@@ -27345,6 +27410,38 @@
       return wanted;
     }
 
+    // Modern project ZIPs store manifest.json and preview.webp first. Reading
+    // a tiny prefix with HTTP Range avoids downloading every full-res layer just
+    // to show the public-profile gallery. Never execute ZIP contents or HTML.
+    function readLeadingHelenaProjectCardEntries(buffer) {
+      const bytes = new Uint8Array(buffer);
+      const view = new DataView(buffer);
+      const decoder = new TextDecoder('utf-8', { fatal: false });
+      const wanted = new Map();
+      let cursor = 0;
+      for (let index = 0; index < 8 && cursor + 30 <= bytes.byteLength; index += 1) {
+        if (view.getUint32(cursor, true) !== 0x04034b50) break;
+        const flags = view.getUint16(cursor + 6, true);
+        const method = view.getUint16(cursor + 8, true);
+        const compressedSize = view.getUint32(cursor + 18, true);
+        const uncompressedSize = view.getUint32(cursor + 22, true);
+        const nameLength = view.getUint16(cursor + 26, true);
+        const extraLength = view.getUint16(cursor + 28, true);
+        const dataStart = cursor + 30 + nameLength + extraLength;
+        const dataEnd = dataStart + compressedSize;
+        if (flags & 0x08 || !nameLength || nameLength > 512 || dataEnd > bytes.byteLength) break;
+        const name = decoder.decode(bytes.subarray(cursor + 30, cursor + 30 + nameLength));
+        if (name === 'manifest.json' || name === 'preview.webp') {
+          const maxSize = name === 'manifest.json' ? 512 * 1024 : 2 * 1024 * 1024;
+          if (method !== 0 || compressedSize !== uncompressedSize || uncompressedSize > maxSize) break;
+          wanted.set(name, bytes.slice(dataStart, dataEnd));
+          if (name === 'preview.webp') break;
+        }
+        cursor = dataEnd;
+      }
+      return wanted;
+    }
+
     async function readHelenaProjectCardMetadata(file) {
       const key = String(file?.messageId || file?.url || file?.name || 'helena-project');
       if (helenaProjectCardCache.has(key)) return helenaProjectCardCache.get(key);
@@ -27352,12 +27449,26 @@
         const fallbackName = helenaProjectFallbackName(file);
         const sourceUrl = String(file?.url || (file?.messageId ? `/files/${encodeURIComponent(file.messageId)}` : '')).trim();
         if (!sourceUrl) return { name: fallbackName, previewUrl: '' };
-        const response = await fetch(absoluteMediaUrl(sourceUrl), { method: 'GET', cache: 'no-store', credentials: 'same-origin' });
+        const maxPrefixBytes = 3 * 1024 * 1024;
+        const response = await fetch(absoluteMediaUrl(sourceUrl), {
+          method: 'GET', cache: 'no-store', credentials: 'same-origin',
+          headers: { Range: `bytes=0-${maxPrefixBytes - 1}` },
+        });
         if (!response.ok) return { name: fallbackName, previewUrl: '' };
+        // If a proxy removes Range, refuse an unbounded full-file response.
+        if (response.status !== 206 && (Number(response.headers.get('content-length')) || 0) > maxPrefixBytes) {
+          await response.body?.cancel();
+          return { name: fallbackName, previewUrl: '' };
+        }
         const blob = await response.blob();
-        const maxBytes = Number(state.capabilities.maxFileBytes || 16 * 1024 * 1024);
-        if (!blob.size || blob.size > maxBytes) return { name: fallbackName, previewUrl: '' };
-        const entries = readStoredHelenaZipEntries(await blob.arrayBuffer());
+        if (!blob.size || blob.size > maxPrefixBytes) return { name: fallbackName, previewUrl: '' };
+        const bytes = await blob.arrayBuffer();
+        const entries = readLeadingHelenaProjectCardEntries(bytes);
+        // Backward compatibility for a fully received (small) ZIP whose central
+        // directory was written with different entry ordering.
+        if (!entries.has('manifest.json') && response.status === 200) {
+          try { for (const [name, value] of readStoredHelenaZipEntries(bytes)) entries.set(name, value); } catch {}
+        }
         const manifestBytes = entries.get('manifest.json');
         if (!manifestBytes) return { name: fallbackName, previewUrl: '' };
         let manifest = {};
@@ -30813,6 +30924,7 @@
     function pauseOtherAudioPlayers(activeAudio) {
       const players = new Set(elements.messageList?.querySelectorAll?.('audio[data-voice-note-audio="1"]') || []);
       if (elements.mediaLibraryAudio) players.add(elements.mediaLibraryAudio);
+      for (const audio of elements.publicProfileBody?.querySelectorAll('audio') || []) players.add(audio);
       for (const audio of players) {
         if (audio !== activeAudio && !audio.paused) audio.pause();
       }
@@ -42712,6 +42824,10 @@
       elements.publicProfileEditButton.setAttribute('aria-pressed', 'false');
       elements.publicProfileEditButton.textContent = 'Edit';
       elements.publicProfileBody.classList.remove('is-editing');
+      elements.publicProfileHeaderStorage.replaceChildren();
+      elements.publicProfileHeaderStorage.hidden = true;
+      state.publicProfileGalleryObserver?.disconnect();
+      state.publicProfileGalleryObserver = null;
       elements.publicProfileBody.innerHTML = '<div class="public-profile-loading">Loading profile…</div>';
       elements.publicProfileModal.hidden = false;
       sendJson({ type: 'profile.view', identityId: target });
@@ -42727,7 +42843,12 @@
       elements.publicProfileEditButton.setAttribute('aria-pressed', 'false');
       elements.publicProfileEditButton.textContent = 'Edit';
       elements.publicProfileModal.hidden = true;
+      elements.publicProfileHeaderStorage.replaceChildren();
+      elements.publicProfileHeaderStorage.hidden = true;
+      state.publicProfileGalleryObserver?.disconnect();
+      state.publicProfileGalleryObserver = null;
       elements.publicProfileBody.classList.remove('is-editing');
+      for (const audio of elements.publicProfileBody.querySelectorAll('audio')) { try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch {} }
       elements.publicProfileBody.textContent = '';
     }
 
@@ -42795,12 +42916,16 @@
 
     const PUBLIC_PROFILE_GALLERY_FILTERS = Object.freeze([
       ['media', 'Media'], ['files', 'Files'], ['links', 'Links'], ['music', 'Music'], ['voice', 'Voice'],
+      ['stickers', 'Stickers'], ['gifs', 'GIFs'], ['ai-slop', 'AI Slop Gallery'],
     ]);
 
     function publicProfileGalleryCategory(item) {
       if (item?.kind === 'link') return 'links';
+      if (item?.kind === 'ai-slop') return 'ai-slop';
+      if (item?.sticker === true) return 'stickers';
       const mime = String(item?.mime || '').toLowerCase();
       if (item?.kind === 'voice') return 'voice';
+      if (mime === 'image/gif') return 'gifs';
       if (mime.startsWith('image/') || mime.startsWith('video/')) return 'media';
       if (mime.startsWith('audio/')) return 'music';
       return 'files';
@@ -42818,6 +42943,11 @@
       elements.publicProfileEditButton.setAttribute('aria-pressed', String(ownProfile && state.publicProfileEditMode));
       elements.publicProfileEditButton.title = ownProfile ? (state.publicProfileEditMode ? 'Finish editing your public profile' : 'Edit your profile') : '';
       const body = elements.publicProfileBody;
+      state.publicProfileGalleryObserver?.disconnect();
+      state.publicProfileGalleryObserver = null;
+      elements.publicProfileHeaderStorage.replaceChildren();
+      elements.publicProfileHeaderStorage.hidden = true;
+      for (const audio of body.querySelectorAll('audio')) { try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch {} }
       body.classList.toggle('is-editing', ownProfile && state.publicProfileEditMode);
       body.textContent = '';
 
@@ -42866,19 +42996,34 @@
         track.setAttribute('role', 'progressbar');
         track.setAttribute('aria-label', 'Upload storage used');
         const fill = document.createElement('span');
-        const percent = quotaBytes > 0 ? Math.min(100, (usedBytes / quotaBytes) * 100) : 0;
+        const committedAndReserved = usedBytes + reservedBytes;
+        const percent = quotaBytes > 0 ? Math.min(100, (committedAndReserved / quotaBytes) * 100) : 0;
+        storageCard.dataset.level = quotaBytes > 0 && committedAndReserved >= quotaBytes ? 'full'
+          : quotaBytes > 0 && percent >= 80 ? 'near' : 'normal';
         fill.style.width = `${percent.toFixed(2)}%`;
         track.setAttribute('aria-valuemin', '0');
-        track.setAttribute('aria-valuemax', quotaBytes > 0 ? String(quotaBytes) : String(Math.max(usedBytes, 1)));
-        track.setAttribute('aria-valuenow', String(usedBytes));
+        track.setAttribute('aria-valuemax', quotaBytes > 0 ? String(quotaBytes) : String(Math.max(committedAndReserved, 1)));
+        track.setAttribute('aria-valuenow', String(Math.min(committedAndReserved, quotaBytes > 0 ? quotaBytes : committedAndReserved)));
+        track.setAttribute('aria-valuetext', `${formatBytes(usedBytes)} stored${reservedBytes ? `, ${formatBytes(reservedBytes)} reserved for uploads` : ''}`);
         track.append(fill);
         const storageHint = document.createElement('small');
         const fileCount = Math.max(0, Number(storage.fileCount) || 0);
         storageHint.textContent = quotaBytes > 0
           ? `${fileCount} stored upload${fileCount === 1 ? '' : 's'} · ${formatBytes(Math.max(0, quotaBytes - usedBytes - reservedBytes))} available${reservedBytes ? ` · ${formatBytes(reservedBytes)} currently uploading` : ''}`
           : `${fileCount} stored upload${fileCount === 1 ? '' : 's'}${reservedBytes ? ` · ${formatBytes(reservedBytes)} currently uploading` : ''}`;
-        storageCard.append(storageHead, track, storageHint);
-        summary.append(storageCard);
+        const footer = document.createElement('div');
+        footer.className = 'public-profile-storage-footer';
+        const buyMore = document.createElement('button');
+        buyMore.type = 'button';
+        buyMore.className = 'public-profile-storage-buy';
+        buyMore.textContent = 'Buy more storage';
+        buyMore.disabled = true;
+        buyMore.title = 'Storage upgrades and payments are coming soon.';
+        buyMore.setAttribute('aria-label', 'Buy more storage (coming soon)');
+        footer.append(storageHint, buyMore);
+        storageCard.append(storageHead, track, footer);
+        elements.publicProfileHeaderStorage.append(storageCard);
+        elements.publicProfileHeaderStorage.hidden = false;
       }
 
       const friends = Array.isArray(profileMessage.friends) ? profileMessage.friends : [];
@@ -42981,6 +43126,8 @@
       const tabButtons = new Map();
 
       function fillGallery() {
+        state.publicProfileGalleryObserver?.disconnect();
+        state.publicProfileGalleryObserver = null;
         const active = PUBLIC_PROFILE_GALLERY_FILTERS.some(([key]) => key === state.publicProfileGalleryFilter)
           ? state.publicProfileGalleryFilter : 'media';
         const entries = gallery.filter((item) => publicProfileGalleryCategory(item) === active);
@@ -42990,6 +43137,9 @@
           button.tabIndex = selected ? 0 : -1;
         }
         results.setAttribute('aria-labelledby', `public-profile-tab-${active}`);
+        for (const audio of results.querySelectorAll('audio')) {
+          try { audio.pause(); audio.removeAttribute('src'); audio.load(); } catch {}
+        }
         results.replaceChildren();
         results.scrollTop = 0;
         if (!entries.length) {
@@ -43006,7 +43156,7 @@
           const itemShell = document.createElement('div');
           itemShell.className = 'public-profile-media-item';
           let action;
-          if (type === 'media') {
+          if (type === 'media' || type === 'gifs' || type === 'stickers') {
             action = document.createElement('button');
             action.type = 'button';
             action.className = 'public-profile-media-open';
@@ -43023,36 +43173,182 @@
               action.append(badge);
             }
             action.addEventListener('click', () => openPublicProfileMedia(item));
-          } else if (type === 'music' || type === 'voice') {
+          } else if (type === 'music') {
             action = document.createElement('button');
             action.type = 'button';
-            action.className = 'public-profile-gallery-tile';
-            const icon = document.createElement('span');
-            icon.className = 'public-profile-gallery-symbol';
-            icon.setAttribute('aria-hidden', 'true');
-            icon.textContent = type === 'voice' ? '◉' : '♫';
+            action.className = 'public-profile-gallery-tile' + (item.audioCoverUrl ? ' has-cover' : '');
             if (item.audioCoverUrl) {
               const cover = document.createElement('img');
-              cover.loading = 'lazy';
-              cover.src = item.audioCoverUrl;
-              cover.alt = '';
+              cover.className = 'public-profile-gallery-cover';
+              cover.loading = 'lazy'; cover.decoding = 'async';
+              cover.src = item.audioCoverUrl; cover.alt = '';
               action.append(cover);
-            } else action.append(icon);
+              const overlay = document.createElement('span');
+              overlay.className = 'public-profile-gallery-cover-meta';
+              const title = document.createElement('strong');
+              title.className = 'public-profile-gallery-title';
+              title.textContent = item.audioTags?.title || item.name || 'Music';
+              const detail = document.createElement('small');
+              detail.className = 'public-profile-gallery-meta';
+              detail.textContent = item.audioTags?.artist || (item.room ? `#${item.room}` : 'Music');
+              overlay.append(title, detail); action.append(overlay);
+            } else {
+              const icon = document.createElement('span');
+              icon.className = 'public-profile-gallery-symbol';
+              icon.textContent = '♫'; icon.setAttribute('aria-hidden', 'true');
+              action.append(icon);
+            }
             action.addEventListener('click', () => openPublicProfileMedia(item));
-          } else {
-            action = document.createElement('a');
-            action.className = 'public-profile-gallery-tile';
-            action.href = type === 'links' ? item.url : (item.url || `/files/${encodeURIComponent(item.id)}`);
-            action.target = '_blank';
-            action.rel = 'noopener noreferrer';
+          } else if (type === 'voice') {
+            // Reuse exactly the timeline's SVG waveform and progress renderer.
+            // The audio element remains inside the tile so filtering stops playback.
+            action = document.createElement('div');
+            action.className = 'public-profile-gallery-voice';
+            const name = document.createElement('strong');
+            name.className = 'public-profile-gallery-title'; name.textContent = 'Voice message';
+            const controls = document.createElement('div');
+            controls.className = 'public-profile-gallery-voice-controls';
+            const play = document.createElement('button');
+            play.type = 'button'; play.textContent = '▶';
+            play.title = 'Play voice message'; play.setAttribute('aria-label', play.title);
+            const time = document.createElement('span'); time.className = 'voice-note-time';
+            controls.append(play, time);
+            const track = document.createElement('div');
+            track.className = 'voice-note-waveform'; track.tabIndex = 0;
+            track.setAttribute('role', 'slider'); track.setAttribute('aria-label', 'Voice playback position');
+            track.setAttribute('aria-valuemin', '0'); track.setAttribute('aria-valuemax', '100');
+            const audio = document.createElement('audio');
+            audio.preload = 'metadata'; audio.src = item.audioCompatibleUrl || item.url || '';
+            const peaks = normalizeAudioWaveformPeaks(item.waveformPeaks);
+            setAudioWaveformBars(track, peaks, peaks.length < 8);
+            const sync = () => {
+              const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : Math.max(0, Number(item.durationMs) || 0) / 1000;
+              const current = Math.max(0, Number(audio.currentTime) || 0);
+              updateAudioWaveformVisualProgress(track, duration > 0 ? current / duration : 0);
+              track.setAttribute('aria-valuenow', String(duration ? Math.round(100 * current / duration) : 0));
+              time.textContent = `${formatDuration(current * 1000)} / ${formatDuration(duration * 1000)}`;
+              play.textContent = audio.paused || audio.ended ? '▶' : 'Ⅱ';
+              play.setAttribute('aria-label', audio.paused || audio.ended ? 'Play voice message' : 'Pause voice message');
+            };
+            const seek = (ratio) => {
+              const duration = Number.isFinite(audio.duration) && audio.duration > 0 ? audio.duration : Math.max(0, Number(item.durationMs) || 0) / 1000;
+              if (duration) audio.currentTime = Math.max(0, Math.min(duration, ratio * duration));
+              sync();
+            };
+            play.addEventListener('click', () => {
+              if (audio.paused) {
+                if (track.dataset.waveformReady !== '1') deriveAudioWaveformInBrowser(item, audio, track);
+                pauseOtherAudioPlayers(audio);
+                audio.play().catch(() => {});
+              } else audio.pause();
+            });
+            track.addEventListener('click', (event) => { const box = track.getBoundingClientRect(); if (box.width) seek((event.clientX - box.left) / box.width); });
+            track.addEventListener('keydown', (event) => {
+              if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return;
+              event.preventDefault();
+              if (event.key === 'Home') seek(0);
+              else if (event.key === 'End') seek(1);
+              else { const duration = Number.isFinite(audio.duration) ? audio.duration : Math.max(0, Number(item.durationMs) || 0) / 1000; if (duration) seek(((Number(audio.currentTime) || 0) + (event.key === 'ArrowLeft' ? -5 : 5)) / duration); }
+            });
+            for (const kind of ['timeupdate','loadedmetadata','play','pause','ended']) audio.addEventListener(kind, sync);
+            action.append(name, controls, track, audio); sync();
+          } else if (type === 'files' && isHelenaPaintProjectFile(item)) {
+            action = document.createElement('button');
+            action.type = 'button';
+            action.className = 'public-profile-gallery-tile public-profile-gallery-helena';
             const icon = document.createElement('span');
             icon.className = 'public-profile-gallery-symbol';
-            icon.textContent = type === 'links' ? '↗' : '▤';
-            icon.setAttribute('aria-hidden', 'true');
+            icon.textContent = '▧'; icon.setAttribute('aria-hidden', 'true');
             action.append(icon);
+            // The filename is never conditional on a thumbnail fetch. Old .hpaint
+            // exports do not contain a flattened image but remain named/clickable.
+            const overlay = document.createElement('span');
+            overlay.className = 'public-profile-gallery-cover-meta';
+            const title = document.createElement('strong');
+            title.className = 'public-profile-gallery-title';
+            title.textContent = helenaProjectFallbackName(item);
+            overlay.append(title);
+            action.append(overlay);
+            action.title = `Open ${item.name || 'Helena Paint project'} in WebGL Draw`;
+            action.setAttribute('aria-label', action.title);
+            action.addEventListener('click', async () => {
+              const viewedIdentityId = state.activeProfileViewIdentityId;
+              action.disabled = true;
+              try {
+                const opened = await openHelenaPaintProjectFile(item);
+                // Uncover the WebGL Draw stage only after the project is fetched.
+                if (opened && viewedIdentityId && state.activeProfileViewIdentityId === viewedIdentityId) closePublicProfile();
+              } catch (error) {
+                addSystemMessage(error?.message || 'Could not open Helena Paint project.', true);
+              } finally { action.disabled = false; }
+            });
+            const loadArtworkPreview = () => readHelenaProjectCardMetadata(item).then((metadata) => {
+              if (!action.isConnected || state.activeProfileViewIdentityId !== String(profile.identityId || profileMessage.identityId || '')) return;
+              title.textContent = metadata?.name || helenaProjectFallbackName(item);
+              if (metadata?.previewUrl) {
+                const cover = document.createElement('img');
+                cover.className = 'public-profile-gallery-cover';
+                cover.alt = `${title.textContent} artwork preview`;
+                cover.decoding = 'async';
+                cover.src = metadata.previewUrl;
+                cover.addEventListener('error', () => { cover.remove(); action.classList.remove('has-cover'); }, { once: true });
+                action.prepend(cover);
+                action.classList.add('has-cover');
+              }
+            }).catch(() => { /* Older or unavailable projects still show their filename. */ });
+            if ('IntersectionObserver' in window) {
+              if (!state.publicProfileGalleryObserver) {
+                state.publicProfileGalleryObserver = new IntersectionObserver((observed, observer) => {
+                  for (const entry of observed) {
+                    if (!entry.isIntersecting) continue;
+                    observer.unobserve(entry.target);
+                    entry.target.loadProfileArtworkPreview?.();
+                  }
+                }, { root: results, rootMargin: '120px' });
+              }
+              itemShell.loadProfileArtworkPreview = loadArtworkPreview;
+              state.publicProfileGalleryObserver.observe(itemShell);
+            } else loadArtworkPreview();
+          } else if (type === 'ai-slop') {
+            action = item.published ? document.createElement('a') : document.createElement('button');
+            action.className = 'public-profile-gallery-tile' + (item.thumbnailUrl ? ' has-cover' : '');
+            if (item.published) { action.href = item.url; action.target = '_blank'; action.rel = 'noopener noreferrer'; }
+            else { action.type = 'button'; action.title = 'Open private project in AI Slop Gallery'; action.addEventListener('click', () => { closePublicProfile(); openAiBuilderGallery(); sendJson({ type: 'ai.builder.gallery.get', artifactId: item.id }); }); }
+            if (item.thumbnailUrl) {
+              const cover = document.createElement('img'); cover.className = 'public-profile-gallery-cover';
+              cover.loading = 'lazy'; cover.src = item.thumbnailUrl; cover.alt = '';
+              action.append(cover);
+              const overlay = document.createElement('span'); overlay.className = 'public-profile-gallery-cover-meta';
+              const title = document.createElement('strong'); title.className = 'public-profile-gallery-title'; title.textContent = item.name;
+              overlay.append(title); action.append(overlay);
+            } else {
+              const icon = document.createElement('span'); icon.className = 'public-profile-gallery-symbol'; icon.textContent = '◈'; icon.setAttribute('aria-hidden', 'true'); action.append(icon);
+            }
+          } else {
+            action = document.createElement('a');
+            action.className = 'public-profile-gallery-tile' + (type === 'links' && item.screenshotUrl ? ' has-cover' : type === 'links' ? ' link-without-cover' : '');
+            action.href = type === 'links' ? item.url : (item.url || `/files/${encodeURIComponent(item.id)}`);
+            action.target = '_blank'; action.rel = 'noopener noreferrer';
+            if (type === 'links' && item.screenshotUrl) {
+              const cover = document.createElement('img'); cover.className = 'public-profile-gallery-cover';
+              cover.src = item.screenshotUrl; cover.loading = 'lazy'; cover.alt = '';
+              action.append(cover);
+            } else {
+              const icon = document.createElement('span'); icon.className = 'public-profile-gallery-symbol';
+              icon.textContent = type === 'links' ? '↗' : '▤'; icon.setAttribute('aria-hidden', 'true'); action.append(icon);
+            }
+            if (type === 'links') {
+              const overlay = document.createElement('span');
+              if (item.screenshotUrl) overlay.className = 'public-profile-gallery-cover-meta';
+              const full = document.createElement('span'); full.className = 'public-profile-gallery-link-url';
+              full.textContent = item.url || ''; full.title = full.textContent;
+              overlay.append(full); action.append(overlay);
+              action.title = item.url || '';
+              action.setAttribute('aria-label', item.url || 'Open link');
+            }
           }
-          action.title = item.room ? `${item.name || 'File'} · #${item.room}` : (item.name || 'File');
-          if (type !== 'media') {
+          if (!action.title) action.title = item.room ? `${item.name || 'File'} · #${item.room}` : (item.name || 'File');
+          if (!['media', 'gifs', 'stickers', 'voice'].includes(type) && !(type === 'music' && item.audioCoverUrl) && !(type === 'links') && !(type === 'files' && isHelenaPaintProjectFile(item)) && !(type === 'ai-slop' && item.thumbnailUrl)) {
             const title = document.createElement('strong');
             title.className = 'public-profile-gallery-title';
             title.textContent = type === 'voice' ? 'Voice message' : (item.name || item.hostname || 'File');
@@ -43062,7 +43358,7 @@
             action.append(title, meta);
           }
           itemShell.append(action);
-          if (ownProfile && state.publicProfileEditMode && type !== 'links') {
+          if (ownProfile && state.publicProfileEditMode && !['links','ai-slop'].includes(type)) {
             const remove = document.createElement('button');
             remove.type = 'button';
             remove.className = 'public-profile-media-remove';
@@ -43112,6 +43408,10 @@
     }
 
     function renderPublicProfileDenied(message) {
+      elements.publicProfileHeaderStorage.replaceChildren();
+      elements.publicProfileHeaderStorage.hidden = true;
+      state.publicProfileGalleryObserver?.disconnect();
+      state.publicProfileGalleryObserver = null;
       elements.publicProfileBody.innerHTML = '';
       const denied = document.createElement('div');
       denied.className = 'public-profile-denied';
@@ -45393,14 +45693,38 @@
     }
     function stageRoomKey() {return state.currentRoom ? normalizeRoomKey(state.currentRoom) : '';}
     function syncStageChatOverlay() {
-      elements.messageViewport.classList.toggle('stage-chat-visible', state.chatStageWorldOpen && state.stageOverlayVisible);
-      if(elements.stageEyeButton) elements.stageEyeButton.hidden = !state.chatStageWorldOpen || state.stageOverlayVisible || mobileRoomRailNavIsAvailable();
+      const shown=state.chatStageWorldOpen && state.stageOverlayVisible && !state.stageFocusMode;
+      elements.messageViewport.classList.toggle('stage-chat-visible',shown);
+      const eye=elements.stageEyeButton;
+      if(!eye)return;
+      // Reparent, do not clone: event listeners and accessible button identity survive both directions.
+      if(shown){
+        if(eye.parentElement!==elements.composerShell || eye.nextElementSibling!==elements.sendButton)
+          elements.composerShell.insertBefore(eye,elements.sendButton);
+      }else if(eye.parentElement!==elements.messageViewport || eye.nextElementSibling!==elements.stageEditStatus){
+        elements.messageViewport.insertBefore(eye,elements.stageEditStatus);
+      }
+      eye.hidden=!state.chatStageWorldOpen || state.stageFocusMode || mobileRoomRailNavIsAvailable();
+      eye.setAttribute('aria-pressed',String(shown));
+      const label=shown?'Hide 2D chat over Stage':'Show 2D chat over Stage';
+      eye.title=label;eye.setAttribute('aria-label',label);
     }
-    function showStageChatOverlay() {
-      if(!state.chatStageWorldOpen || mobileRoomRailNavIsAvailable()) return;
-      state.stageOverlayVisible = true;
+    function toggleStageChatOverlay() {
+      if(!state.chatStageWorldOpen || state.stageFocusMode || mobileRoomRailNavIsAvailable()) return;
+      state.stageOverlayVisible=!state.stageOverlayVisible;
       syncStageChatOverlay();
-      requestAnimationFrame(refreshTimelineMediaHydration);
+      if(state.stageOverlayVisible)requestAnimationFrame(refreshTimelineMediaHydration);
+      else suspendTimelineMediaHydration();
+    }
+    function setStageFocusMode(active) {
+      const next=Boolean(active && state.chatStageWorldOpen);
+      if(state.stageFocusMode===next){postToStage('focus-mode-state',{active:next});return;}
+      state.stageFocusMode=next;
+      document.body.classList.toggle('stage-focus-mode',next);
+      syncStageChatOverlay();
+      postToStage('focus-mode-state',{active:next});
+      // The ResizeObserver adapts Stage's existing renderer; no iframe teardown or rejoin.
+      requestAnimationFrame(()=>{window.dispatchEvent(new Event('resize'));if(!next && state.stageOverlayVisible)refreshTimelineMediaHydration();});
     }
     function cycleStageFeed() {
       if (!state.chatStageWorldOpen) return;
@@ -45632,6 +45956,10 @@
       if(event.origin!==location.origin || !state.stageIframe || event.source!==state.stageIframe.contentWindow) return;
       const data=event.data;
       if(!data || data.source!=='rantlist.stage.1266') return;
+      if(data.event==='focus-mode-toggle') {
+        if(state.chatStageWorldOpen)setStageFocusMode(!state.stageFocusMode);
+        return;
+      }
       if(data.event==='ready') {
         state.stageReady=true;
         clearTimeout(state.stageFrameLoadTimer);
@@ -45648,6 +45976,7 @@
         postToStage('activity-snapshot',{activities:state.stageActivities});
         postToStage('physics-snapshot',{objects:[...stagePhysicsObjects.values()]});
         postToStage('layout',{layout:state.stageFeedMode});
+        postToStage('focus-mode-state',{active:state.stageFocusMode});
         if(state.chatStageWorldOpen) {
           startChatStageWorldAnimation();
           if(elements.chatStageStatus) {elements.chatStageStatus.textContent='Loading channel scene… '+(data.xr?'WebXR available':'desktop 3D');/* 'applied' dismisses load status; slow-load timer warns at 8 seconds. */}
@@ -45918,6 +46247,7 @@
       if(open && !stageRoomKey()) {stageStatus('Join a channel before entering Stage',true);return;}
       clearTimeout(state.chatStageWorldHideTimer);
       if(open===state.chatStageWorldOpen && (!open || state.stageIframe?.isConnected)) return;
+      if(!open && state.stageFocusMode)setStageFocusMode(false);
       state.chatStageWorldOpen=open;
       state.stageOverlayVisible=false; // On every entry the Stage is unobstructed.
       elements.desktopStageButton?.setAttribute('aria-pressed',String(open));
