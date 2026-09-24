@@ -6,9 +6,9 @@ const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const source = JSON.parse(fs.readFileSync(path.join(root, 'web/client-source.json'), 'utf8'));
 const web = fs.readFileSync(path.join(root, 'web/index.html'), 'utf8');
-assert.equal(fs.readFileSync(path.join(root,'PACKAGE_VERSION.txt'),'utf8').trim(),'0.1.191');
-assert.equal(source.sourceRevision, 'rantlist-deploy-r383');
-assert.equal(source.sourceVersion, '9.6.355');
+assert.equal(fs.readFileSync(path.join(root,'PACKAGE_VERSION.txt'),'utf8').trim(),'0.1.193');
+assert.equal(source.sourceRevision, 'rantlist-deploy-r385');
+assert.equal(source.sourceVersion, '9.6.357');
 assert(web.includes('rantlist-public-client-snapshot'), 'the shared browser core must be sanitized');
 for (const marker of [
   'function hlsPlaylistUrl(value)',

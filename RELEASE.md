@@ -1,3 +1,11 @@
+# Client 0.1.193 / Server 9.6.357 — r385
+
+Full browser client synchronized with shared-media image Fit/100% viewing, direct media source URL from speech-bubble and Stories Copy link, and server-controlled image/file upload size 16–128 MiB. Native shells, credentials, platform signing and release scripts unchanged.
+
+# Client 0.1.192 / Server 9.6.356 — r384
+
+Updated browser transport for Surface Frame `add` / `frame.update` collaboration and room-scoped `stage.activity.presence` messages. Native shell and signing workflow unchanged.
+
 ## Client 0.1.191 / Server 9.6.355 — r383
 
 Synchronizes the server's sanitized HLS video-preview browser core. Bare `.m3u8` messages bypass automatic yt-dlp import and show a click-to-play preview sized like uploaded videos, including the existing same-origin poster where available. Native Apple HLS and lazily loaded hls.js on supported non-Apple browsers, with safe external-link fallback and player cleanup on timeline removal. Existing macOS/iOS/Android native wrappers and protocol 70 remain unchanged. Install the paired server ZIP first; the r372 watcher releases macOS and iOS by default. Android remains a supported manual release target.
