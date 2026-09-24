@@ -1,3 +1,7 @@
+## Client 0.1.198 / Server 9.6.363 — r391 Stage focus keyboard compatibility
+
+The sanitized web client uses `var(--safe-bottom,0px)` for Stage focus composer padding. Browser Safari and native iOS retain separate keyboard handling; existing eye toggle, Stage focus and native shell behavior remain intact. Full ZIP is compatible with the unchanged r372 Downloads watcher; deploy server r391 first.
+
 # Rantlist client 0.1.197 — server 9.6.362 / r390
 
 This full client package mirrors the sanitized r390 Rantlist browser UI, including the reversible Stage eye and focus-view parent handling. The paired server hosts the full Stage editor, its new focus button and sanitized uploaded SVG. Version-floor checks for previous client regression tests allow later synchronized packages without weakening the original required version. Native projects and platform signing remain unchanged; the r372 watcher deploys the server ZIP before automatically releasing macOS/iOS clients.

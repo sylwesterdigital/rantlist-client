@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.362">
+  <meta name="chat-ui-version" content="9.6.363">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17659,7 +17659,7 @@
     body.stage-focus-mode #chatPanel #messageViewport {flex:1 1 auto!important;min-height:0!important;width:100%!important;overflow:hidden!important;}
     body.stage-focus-mode #chatPanel #messageViewport > :not(#chatStageLayer) {display:none!important;}
     body.stage-focus-mode #chatPanel #chatStageLayer {position:absolute!important;inset:0!important;width:100%!important;height:100%!important;}
-    body.stage-focus-mode #chatPanel #messageForm {position:relative!important;z-index:32!important;flex:0 0 auto!important;align-self:center!important;width:min(800px,calc(100% - 16px))!important;max-width:100%!important;margin:0 auto!important;padding:4px 0 max(8px,env(safe-area-inset-bottom))!important;background:transparent!important;border:0!important;}
+    body.stage-focus-mode #chatPanel #messageForm {position:relative!important;z-index:32!important;flex:0 0 auto!important;align-self:center!important;width:min(800px,calc(100% - 16px))!important;max-width:100%!important;margin:0 auto!important;padding:4px 0 max(8px,var(--safe-bottom,0px))!important;background:transparent!important;border:0!important;}
     body.stage-focus-mode #chatPanel #messageForm > :not(#composerShell) {display:none!important;}
     body.stage-focus-mode #chatPanel #composerShell {background:color-mix(in srgb,var(--panel) 92%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 7px 32px #0009;}
     body.stage-focus-mode #chatPanel #composerShell #messageInput {min-height:36px;}
@@ -17678,7 +17678,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.362</small>
+          <small id="serverBrandVersion">v9.6.363</small>
         </span>
       </button>
     </div>

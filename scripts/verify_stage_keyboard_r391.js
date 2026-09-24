@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const {versionAtLeast, revisionAtLeast}=require('./assert_compatible_release');
+const root=path.resolve(__dirname,'..');
+const web=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
+const meta=JSON.parse(fs.readFileSync(path.join(root,'web/client-source.json'),'utf8'));
+assert(versionAtLeast(fs.readFileSync(path.join(root,'PACKAGE_VERSION.txt'),'utf8').trim(),'0.1.198'));
+assert(versionAtLeast(meta.sourceVersion,'9.6.363')&&revisionAtLeast(meta.sourceRevision,391));
+assert.equal(meta.sourceVersion,fs.readFileSync(path.join(root,'VERSION.txt'),'utf8').trim());
+assert(web.includes('<meta name="rantlist-public-client-snapshot" content="sanitized">'));
+const focusRule=web.match(/body\.stage-focus-mode #chatPanel #messageForm \{([^}]*)\}/)?.[1];
+assert(focusRule&&focusRule.includes('padding:4px 0 max(8px,var(--safe-bottom,0px))!important'));
+assert(!focusRule.includes('env(safe-area-inset-bottom)'));
+assert(web.includes('--safe-bottom: env(safe-area-inset-bottom);'));
+assert(web.includes(':root:not([data-native-ios-app="true"])[data-keyboard-open="true"] {\n        --safe-bottom: 0px;'));
+assert(web.includes('function toggleStageChatOverlay()')&&web.includes('function setStageFocusMode(active)'));
+console.log('Client r391 Stage focus/iOS keyboard safe-area regression passed.');

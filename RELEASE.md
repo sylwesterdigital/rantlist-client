@@ -1,3 +1,7 @@
+# Client 0.1.198 / Server 9.6.363 — r391
+
+The synchronized browser core fixes Stage focus-mode composer bottom padding so iOS keyboard verification passes without weakening safe-area or UIKit keyboard safeguards. The same r390 Stage eye and focus interactions, native macOS/iOS/Android wrappers and protocol 70 remain unchanged. The full client includes `verify_stage_keyboard_r391.js` and should follow the server r391 deployment.
+
 # Client 0.1.197 / Server 9.6.362 — r390
 
 The synchronized browser core makes the Stage eye a reversible 2D-chat toggle: in the original floating position over Stage when messages are hidden, in the composer directly after Voice when messages are visible. The matching server-hosted Stage editor adds a four-corner focus-view button after the player camera focus control. It hides Rantlist chrome without browser fullscreen while retaining the text composer, then restores the former layout and chat overlay. Existing macOS/iOS/Android native projects, signing workflow and protocol 70 remain unchanged. Install the server r390 ZIP first using the existing watcher.
