@@ -1,3 +1,11 @@
+## Client 0.1.200 / Server 9.6.366 — Compact Blender-style support panel
+
+The full browser snapshot matches server r394: visible suggested one-time amounts and custom field on first open, Monthly/One-time tabs, one Donate action and no giant embedded Stripe widget or General support selector. The browser and native clients open the same verified checkout link for configured choices. With only the original Stripe link configured, preset amounts are **suggestions**; Stripe collects the actual chosen amount after confirmation on its own page. Monthly must be configured using a real recurring payment link. Desktop uses a side-by-side layout, and small mobile screens may scroll as necessary. Server r394 should be installed first; protocol 70 and watcher r372 are unchanged. Live Stripe checkout is not verified by offline package tests.
+
+## Client 0.1.199 / Server 9.6.365 — r393 support choices
+
+The sanitized browser snapshot includes administrator-configured One-time / Monthly contribution links, amount choice cards, an unambiguous general Stripe fallback and share/GitHub actions. Native iOS keeps its direct payment-link path (no unsupported embedded Buy Button). Configuration is server-side; see the accompanying server `UPDATE-r393.md`. Install the server ZIP first, then this full client ZIP through watcher r372. No native-wrapper or protocol changes; live hosted-checkout tests are still required.
+
 ## Client 0.1.198 / Server 9.6.363 — r391 Stage focus keyboard compatibility
 
 The sanitized web client uses `var(--safe-bottom,0px)` for Stage focus composer padding. Browser Safari and native iOS retain separate keyboard handling; existing eye toggle, Stage focus and native shell behavior remain intact. Full ZIP is compatible with the unchanged r372 Downloads watcher; deploy server r391 first.

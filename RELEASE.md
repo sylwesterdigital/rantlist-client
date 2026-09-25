@@ -1,3 +1,11 @@
+## 0.1.200 / 9.6.366 (r394)
+
+Compact Blender-inspired About support chooser; one Donate CTA, visible one-time amount suggestions and other amount, configured exact/recurring links, no embedded Stripe widget and no misleading General support button. Monthly is unavailable until configured. See the server `UPDATE-r394.md`. No native-wrapper or protocol changes; verify provider-hosted checkout separately.
+
+# Client 0.1.199 / Server 9.6.365 — r393
+
+Adds the support-frequency and amount chooser to the native/browser synchronized About view. All prices and subscription schedules must have a real administrator-configured HTTPS payment link; general support and the original Stripe checkout remain the default. Adds copy-link and GitHub contribution paths. Server-first install; unchanged protocol 70 and watcher r372; production checkout testing remains an operator task.
+
 # Client 0.1.198 / Server 9.6.363 — r391
 
 The synchronized browser core fixes Stage focus-mode composer bottom padding so iOS keyboard verification passes without weakening safe-area or UIKit keyboard safeguards. The same r390 Stage eye and focus interactions, native macOS/iOS/Android wrappers and protocol 70 remain unchanged. The full client includes `verify_stage_keyboard_r391.js` and should follow the server r391 deployment.

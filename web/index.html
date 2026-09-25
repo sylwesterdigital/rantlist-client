@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.363">
+  <meta name="chat-ui-version" content="9.6.366">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -14780,57 +14780,82 @@
     .calendar-public-body h2 { margin: 0; }
     .calendar-public-meta { padding: 10px; border-radius: 11px; background: var(--panel-2); display: grid; gap: 3px; }
 
-    .server-info-card { width:min(640px, 100%); max-height:min(760px, calc(var(--app-height, 100dvh) - 24px)); overflow:hidden; background:linear-gradient(180deg, color-mix(in srgb, var(--panel) 92%, #081328 8%), color-mix(in srgb, var(--panel-2) 85%, #0a1630 15%)); }
-    .server-info-card > .modal-header { background:linear-gradient(180deg, color-mix(in srgb, var(--panel) 95%, #081328 5%), color-mix(in srgb, var(--panel) 82%, transparent)); border-bottom:1px solid color-mix(in srgb, var(--accent) 16%, var(--line)); }
-    .server-info-card > .modal-header h2 { font-size:16px; letter-spacing:.01em; }
-    .server-info-body { position:relative; min-height:0; overflow-y:auto; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; display:grid; align-content:start; gap:14px; padding:18px; }
-    .server-info-body::before { content:""; position:absolute; inset:0; background:radial-gradient(circle at 16% 10%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 33%), radial-gradient(circle at 88% 24%, color-mix(in srgb, #635bff 12%, transparent), transparent 30%), linear-gradient(180deg, transparent, color-mix(in srgb, #09142b 12%, transparent)); opacity:.95; pointer-events:none; }
-    .server-info-body > * { position:relative; z-index:1; }
-    .server-info-hero { display:grid; grid-template-columns:auto minmax(0,1fr); align-items:center; gap:16px; padding:2px 4px 2px; }
-    .server-info-logo { width:90px; height:90px; border-radius:24px; display:grid; place-items:center; overflow:hidden; border:1px solid color-mix(in srgb, var(--accent) 62%, var(--line)); background:linear-gradient(145deg, color-mix(in srgb, var(--accent) 20%, #fff), color-mix(in srgb, var(--panel) 90%, #fff 10%)); box-shadow:0 18px 42px color-mix(in srgb, #000 22%, transparent); font-size:30px; font-weight:900; }
+    /* r394: one compact Blender-inspired donation form; no embedded checkout or duplicate CTA. */
+    .server-info-card { width:min(860px, calc(100vw - 26px)); max-height:min(720px, calc(var(--app-height,100dvh) - 24px)); overflow:hidden; background:linear-gradient(140deg, #15172a 0%, #21164a 100%); }
+    .server-info-card > .modal-header { min-height:42px; padding-block:5px; background:#13131d; border-bottom:1px solid #32374e; }
+    .server-info-card > .modal-header h2 { font-size:15px; letter-spacing:.01em; }
+    .server-info-body { position:relative; min-height:0; overflow-y:auto; overscroll-behavior:contain; display:grid; grid-template-columns:minmax(0, .78fr) minmax(0, 1.38fr); gap:22px; padding:22px; align-items:start; }
+    .server-info-hero { min-width:0; display:flex; flex-direction:column; align-items:flex-start; gap:13px; padding-top:7px; color:#f5f6ff; }
+    .server-info-identity { width:100%; display:grid; grid-template-columns:68px minmax(0,1fr); gap:12px; align-items:center; }
+    .server-info-logo { width:68px; height:68px; border-radius:18px; display:grid; place-items:center; overflow:hidden; border:1px solid #6c86bd; background:#fff; color:#162442; font-size:23px; font-weight:900; }
     .server-info-logo img { width:100%; height:100%; object-fit:cover; }
-    .server-info-copy { min-width:0; display:grid; align-content:center; gap:7px; text-align:left; }
-    .server-info-title { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
-    .server-info-title h3 { margin:0; font-size:28px; line-height:1.02; }
-    .server-info-version { color:var(--muted); font-size:12px; font-weight:800; }
-    .server-info-description { margin:0; max-width:40ch; color:var(--muted); font-size:13px; line-height:1.45; white-space:pre-wrap; }
-    .server-info-credit { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; }
-    .server-info-credit a { font-weight:900; text-decoration:none; color:var(--accent); }
+    .server-info-copy { min-width:0; display:grid; gap:5px; text-align:left; }
+    .server-info-title { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; }
+    .server-info-title h3 { margin:0; font-size:25px; line-height:1.07; overflow-wrap:anywhere; color:#fff; }
+    .server-info-version { color:#b8c4dc; font-size:10px; font-weight:750; white-space:nowrap; }
+    .server-info-description { margin:0; max-width:42ch; color:#bfc9de; font-size:12px; line-height:1.4; white-space:pre-wrap; }
+    .server-info-credit { display:flex; align-items:center; gap:7px; flex-wrap:wrap; font-size:11px; line-height:1.4; color:#bdc8de; }
+    .server-info-credit a { font-weight:850; color:#7ac0ff; text-decoration:none; }
     .server-info-credit a:hover { text-decoration:underline; }
-    .server-info-github { width:36px; height:36px; min-width:36px; min-height:36px; display:inline-grid; place-items:center; margin-left:2px; border:0; border-radius:999px; background:color-mix(in srgb, var(--accent) 10%, transparent); color:var(--text); text-decoration:none; box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, var(--line)); }
-    .server-info-github:hover { background:color-mix(in srgb, var(--accent) 18%, transparent); box-shadow:inset 0 0 0 1px color-mix(in srgb, var(--accent) 60%, var(--line)); }
+    .server-info-github { width:30px; height:30px; min-width:30px; min-height:30px; display:inline-grid; place-items:center; border:1px solid #516d94; border-radius:50%; background:#223151; color:#fff; text-decoration:none; }
     .server-info-github[hidden] { display:none !important; }
-    .server-info-github .icon { width:18px; height:18px; }
-    .server-info-support-panel { min-width:0; width:100%; max-width:430px; justify-self:center; align-self:start; display:grid; align-content:start; gap:10px; justify-items:center; padding:0; border:0; border-radius:0; background:transparent; text-align:center; overflow:visible; box-shadow:none; }
-    .server-info-support-panel h4 { margin:0; font-size:19px; line-height:1.08; }
-    .server-info-stripe-host { width:100%; min-height:0; height:auto; display:block; line-height:0; text-align:center; overflow:visible; background:transparent; }
-    .server-info-stripe-host stripe-buy-button { display:block; width:min(100%, 430px); max-width:100%; margin:0 auto; overflow:visible; filter:drop-shadow(0 18px 36px color-mix(in srgb, #000 18%, transparent)); }
-    .server-info-stripe-fallback { color:var(--accent); font-size:11px; font-weight:850; line-height:1.3; text-decoration:none; }
-    .server-info-stripe-fallback:hover { text-decoration:underline; }
-    .server-info-donation-primary { display:inline; }
-    .server-info-donation-secondary { display:none; }
-    :root[data-native-ios-app="true"] .server-info-stripe-host { display:none; }
-    :root[data-native-ios-app="true"] .server-info-stripe-fallback { width:100%; min-height:58px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; padding:10px 16px; border:1px solid color-mix(in srgb, var(--accent) 66%, var(--line)); border-radius:14px; background:color-mix(in srgb, var(--accent) 16%, var(--panel)); color:var(--text); font-size:15px; font-weight:900; line-height:1.18; text-align:center; text-decoration:none; box-shadow:0 12px 28px color-mix(in srgb, #000 18%, transparent); }
-    :root[data-native-ios-app="true"] .server-info-stripe-fallback:hover { text-decoration:none; background:color-mix(in srgb, var(--accent) 22%, var(--panel)); }
-    :root[data-native-ios-app="true"] .server-info-donation-primary { display:block; }
-    :root[data-native-ios-app="true"] .server-info-donation-secondary { display:block; color:var(--muted); font-size:10px; font-weight:750; line-height:1.2; }
-    @media (max-width: 560px) {
-      .server-info-card { max-height:min(90dvh, calc(var(--app-height, 100dvh) - 24px)); }
-      .server-info-body { gap:11px; padding:12px; }
-      .server-info-hero { grid-template-columns:74px minmax(0,1fr); gap:12px; align-items:center; }
-      .server-info-logo { width:74px; height:74px; border-radius:20px; }
-      .server-info-copy { gap:5px; }
+    .server-info-github .icon { width:17px; height:17px; }
+    .server-info-side-note { margin:0; color:#d5deef; font-size:12px; line-height:1.55; }
+    .server-info-other-ways { display:flex; align-items:center; flex-wrap:wrap; gap:7px; width:100%; margin-top:4px; }
+    .server-info-other-ways a,.server-info-other-ways button { display:inline-flex; justify-content:center; align-items:center; min-height:32px; padding:6px 10px; border:1px solid #546185; border-radius:8px; color:#e9f2ff; background:transparent; text-decoration:none; font-size:10px; font-weight:750; cursor:pointer; }
+    .server-info-other-ways a:hover,.server-info-other-ways button:hover { background:#29375b; border-color:#83bfff; }
+    .server-info-other-ways [hidden] { display:none!important; }
+    .server-info-share-status { width:100%; margin:0; color:#bcdefc; font-size:11px; overflow-wrap:anywhere; }
+    .server-info-share-status:empty { display:none; }
+    .server-info-support-panel { min-width:0; display:grid; align-content:start; gap:10px; padding:18px; border:1px solid #e1e5eb; border-radius:15px; background:#fafcff; color:#17202c; box-shadow:0 18px 40px #080b1d40; text-align:left; }
+    .server-info-support-panel h4 { margin:0; font-size:20px; line-height:1.12; color:#14202c; text-align:left; }
+    .server-info-support-intro { margin:-4px 0 0; color:#647183; font-size:11px; line-height:1.4; }
+    .server-info-support-switch { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); padding:4px; gap:4px; width:100%; background:#e9eff6; border-radius:10px; }
+    .server-info-support-switch button { min-height:36px; padding:5px; border:0; border-radius:8px; background:transparent; color:#52657a; font-size:12px; font-weight:800; cursor:pointer; }
+    .server-info-support-switch button[aria-selected="true"] { background:#1388e9; color:#fff; box-shadow:0 2px 7px #0e85de3d; }
+    .server-info-amounts { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; width:100%; }
+    .server-info-amounts button { min-height:43px; padding:7px 4px; border:1px solid #a8b4c0; border-radius:8px; background:#fff; color:#303d4c; font-size:17px; font-weight:750; cursor:pointer; overflow-wrap:anywhere; }
+    .server-info-amounts button:hover { border-color:#128be8; }
+    .server-info-amounts button[aria-pressed="true"] { border:2px solid #1388e9; background:#1388e9; color:#fff; }
+    .server-info-amounts:has(> :nth-child(7)) { grid-template-columns:repeat(4,minmax(0,1fr)); }
+    .server-info-no-options { grid-column:1/-1; padding:16px; border:1px dashed #adbbc9; border-radius:8px; color:#536476; font-size:12px; line-height:1.45; text-align:center; }
+    .server-info-amount-line { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:4px; margin-top:1px; }
+    .server-info-amount-line strong { color:#293849; font-size:15px; font-weight:800; }
+    .server-info-amount-line small { color:#647183; font-size:10px; }
+    .server-info-donate-row { display:grid; grid-template-columns:minmax(0, .72fr) minmax(0, 1.28fr); gap:9px; width:100%; }
+    .server-info-amount-field { display:flex; align-items:center; gap:7px; min-width:0; min-height:45px; padding:0 11px; border:1px solid #b4bfc9; border-radius:8px; background:#fff; color:#657385; font-size:16px; }
+    .server-info-amount-field:focus-within { border-color:#1388e9; outline:2px solid #1388e93a; }
+    .server-info-amount-field[hidden],.server-info-donate-row[hidden] { display:none!important; }
+    .server-info-amount-field input { width:100%; min-width:0; height:40px; padding:0; border:0; outline:none; background:transparent; color:#182c43; font:700 17px system-ui,sans-serif; font-variant-numeric:tabular-nums; }
+    .server-info-amount-field input:read-only { color:#586779; cursor:default; }
+    .server-info-checkout { display:flex; justify-content:center; align-items:center; min-height:45px; padding:9px 12px; border:0; border-radius:8px; background:#ef4a4d; color:white; font-size:15px; font-weight:850; text-decoration:none; text-align:center; cursor:pointer; }
+    .server-info-checkout:hover { background:#d9363e; }
+    .server-info-checkout[hidden] { display:none!important; }
+    .server-info-checkout[aria-disabled="true"] { opacity:.52; cursor:not-allowed; }
+    .server-info-support-switch button:focus-visible,.server-info-amounts button:focus-visible,.server-info-checkout:focus-visible,.server-info-amount-field:focus-within,.server-info-other-ways :is(a,button):focus-visible { outline:2px solid #1388e9; outline-offset:2px; }
+    .server-info-choice-hint { min-height:28px; margin:0; color:#536477; font-size:11px; line-height:1.42; }
+    .server-info-choice-hint[hidden] { display:none!important; }
+    @media (max-width:680px) {
+      .server-info-card { max-height:min(90dvh, calc(var(--app-height,100dvh) - 20px)); }
+      .server-info-body { grid-template-columns:minmax(0,1fr); gap:12px; padding:11px; }
+      .server-info-hero { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:4px 8px; padding:0 2px; }
+      .server-info-identity { grid-column:1/-1; grid-template-columns:49px minmax(0,1fr); gap:10px; }
+      .server-info-logo { width:49px; height:49px; border-radius:13px; }
       .server-info-title h3 { font-size:19px; }
-      .server-info-version { font-size:11px; }
-      .server-info-description { font-size:11px; max-width:none; }
-      .server-info-credit { font-size:11px; gap:6px; }
-      .server-info-github { width:32px; height:32px; min-width:32px; min-height:32px; }
-      .server-info-support-panel { width:100%; max-width:100%; gap:8px; }
-      .server-info-support-panel h4 { font-size:16px; }
-      .server-info-stripe-host stripe-buy-button { width:min(100%, 390px); }
-      .server-info-stripe-fallback { font-size:10px; }
-      :root[data-native-ios-app="true"] .server-info-stripe-fallback { min-height:56px; font-size:14px; }
+      .server-info-description { font-size:11px; }
+      .server-info-credit { font-size:10px; }
+      .server-info-side-note { display:none; }
+      .server-info-other-ways { grid-column:1/-1; gap:6px; margin-top:2px; }
+      .server-info-other-ways :is(a,button) { min-height:29px; padding:4px 8px; font-size:10px; }
+      .server-info-share-status { grid-column:1/-1; }
+      .server-info-support-panel { padding:13px; gap:9px; border-radius:12px; }
+      .server-info-support-panel h4 { font-size:18px; }
+      .server-info-support-intro { font-size:11px; }
+      .server-info-amounts button { min-height:43px; font-size:15px; }
+      .server-info-amounts:has(> :nth-child(7)) { grid-template-columns:repeat(3,minmax(0,1fr)); }
     }
+    @media (max-width:330px) { .server-info-donate-row { grid-template-columns:1fr; } }
+    @media (max-height:540px) and (min-width:681px) { .server-info-body { padding-block:10px; } .server-info-hero { gap:7px; } .server-info-support-panel { padding:12px; gap:6px; } }
 
     @media (max-width: 760px) {
       .calendar-card { width: 100vw; height: var(--app-height, 100dvh); border-radius: 0; }
@@ -17678,7 +17703,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.363</small>
+          <small id="serverBrandVersion">v9.6.366</small>
         </span>
       </button>
     </div>
@@ -17725,41 +17750,55 @@
     </div>
   </section>
 
-  <section id="serverInfoModal" class="modal-layer" hidden aria-hidden="true">
+  <section id="serverInfoModal" class="modal-layer" hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="serverInfoModalTitle">
     <button id="serverInfoBackdrop" class="modal-backdrop" type="button" tabindex="-1" aria-label="Close server information"></button>
     <article class="modal-card server-info-card" role="document">
       <header class="modal-header">
-        <h2>About this server</h2>
+        <h2 id="serverInfoModalTitle">About this server</h2>
         <button id="serverInfoCloseButton" class="icon-button" type="button" aria-label="Close"><span class="icon icon-close"></span></button>
       </header>
       <div class="server-info-body">
         <div class="server-info-hero">
-          <span id="serverInfoLogo" class="server-info-logo">RC</span>
-          <div class="server-info-copy">
-            <div class="server-info-title"><h3 id="serverInfoName">Room Chat</h3><span id="serverInfoVersion" class="server-info-version">v9.6.73</span></div>
-            <p id="serverInfoDescription" class="server-info-description"></p>
-            <div class="server-info-credit">
-              <span>Created by</span>
-              <a id="serverInfoStudioLink" href="https://workwork.fun" target="_blank" rel="noopener noreferrer">WORKWORK.FUN</a>
-              <a id="serverInfoGithubLink" class="server-info-github" href="https://github.com/sylwesterdigital" target="_blank" rel="noopener noreferrer" title="Open source on GitHub" aria-label="Open source on GitHub"><span class="icon icon-github" aria-hidden="true"></span></a>
+          <div class="server-info-identity">
+            <span id="serverInfoLogo" class="server-info-logo">RC</span>
+            <div class="server-info-copy">
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.366</span></div>
+              <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
+          <div class="server-info-credit">
+            <span>Created by</span>
+            <a id="serverInfoStudioLink" href="https://workwork.fun" target="_blank" rel="noopener noreferrer">WORKWORK.FUN</a>
+            <a id="serverInfoGithubLink" class="server-info-github" href="https://github.com/sylwesterdigital" target="_blank" rel="noopener noreferrer" title="Open source on GitHub" aria-label="Open source on GitHub"><span class="icon icon-github" aria-hidden="true"></span></a>
+          </div>
+          <p class="server-info-side-note">Independent communication, developed with support from the community. Every contribution helps.</p>
+          <div class="server-info-other-ways">
+            <a id="serverInfoContributeLink" href="https://github.com/sylwesterdigital" target="_blank" rel="noopener noreferrer">Contribute on GitHub</a>
+            <button id="serverInfoShareButton" type="button">Copy project link</button>
+          </div>
+          <p id="serverInfoShareStatus" class="server-info-share-status" role="status" aria-live="polite"></p>
         </div>
         <section class="server-info-support-panel" aria-labelledby="serverInfoSupportTitle">
           <h4 id="serverInfoSupportTitle">Support development</h4>
-          <div class="server-info-stripe-host">
-            <stripe-buy-button
-              id="serverInfoStripeBuyButton"
-              buy-button-id="__RANTLIST_STRIPE_BUY_BUTTON_ID__"
-              publishable-key="__RANTLIST_STRIPE_PUBLISHABLE_KEY__">
-            </stripe-buy-button>
+          <p class="server-info-support-intro">Choose an amount that works for you.</p>
+          <div class="server-info-support-switch" role="tablist" aria-label="Donation frequency">
+            <button id="serverInfoMonthlyTab" type="button" role="tab" aria-selected="false" aria-controls="serverInfoSupportChoices">Monthly</button>
+            <button id="serverInfoOnceTab" type="button" role="tab" aria-selected="true" aria-controls="serverInfoSupportChoices">One-time</button>
           </div>
-          <a id="serverInfoDonationLink" class="server-info-stripe-fallback" href="__RANTLIST_SUPPORT_URL__" target="_blank" rel="noopener noreferrer"><span class="server-info-donation-primary">Open the Stripe payment page instead</span><small class="server-info-donation-secondary">Opens secure Stripe checkout</small></a>
+          <div id="serverInfoSupportChoices" class="server-info-amounts" role="tabpanel" aria-labelledby="serverInfoOnceTab" tabindex="0"></div>
+          <div class="server-info-amount-line"><strong id="serverInfoAmountHeading">Donate, just once</strong><small id="serverInfoPaymentFrequency"></small></div>
+          <div id="serverInfoDonateRow" class="server-info-donate-row">
+            <label id="serverInfoAmountField" class="server-info-amount-field" for="serverInfoAmountInput">
+              <span id="serverInfoCurrencySymbol" aria-hidden="true">£</span>
+              <input id="serverInfoAmountInput" type="text" maxlength="7" pattern="[0-9]+(\.[0-9]{1,2})?" inputmode="decimal" value="10" aria-label="Suggested donation amount" aria-describedby="serverInfoSupportChoiceHint">
+            </label>
+            <a id="serverInfoSupportCheckoutLink" class="server-info-checkout" href="__RANTLIST_SUPPORT_URL__" target="_blank" rel="noopener noreferrer"><span id="serverInfoCheckoutLabel">Donate</span></a>
+          </div>
+          <p id="serverInfoSupportChoiceHint" class="server-info-choice-hint" aria-live="polite">You confirm the amount on Stripe before paying.</p>
         </section>
       </div>
     </article>
   </section>
-
 
   <section id="serverNotice" class="server-notice" hidden aria-live="assertive">
     <div class="server-notice-copy">
@@ -19020,14 +19059,15 @@
             <div class="field"><label for="serverDescriptionInput">Description</label><textarea id="serverDescriptionInput" maxlength="600" rows="3" placeholder="What this server is for"></textarea></div>
             <div class="field"><label for="serverProjectUrlInput">Project / studio website</label><input id="serverProjectUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://workwork.fun"></div>
             <div class="field"><label for="serverGithubUrlInput">Open-source GitHub repository</label><input id="serverGithubUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://github.com/…"></div>
-            <div class="field"><label for="serverDonationUrlInput">Stripe donation / support link</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Defaults to the Rantlist Stripe Payment Link. Native iOS uses it as the primary support action; browsers keep it as the direct fallback beneath the embedded Buy Button.</small></div>
+            <div class="field"><label for="serverDonationUrlInput">Default one-time Stripe checkout</label><input id="serverDonationUrlInput" type="url" maxlength="500" inputmode="url" placeholder="https://buy.stripe.com/…"><small class="hint">Used for suggestions and custom one-time amounts when no dedicated price link is configured. Donors must select or confirm their amount on the Stripe page; this URL does not prefill a new price.</small></div>
+            <div class="field"><label for="serverSupportOptionsInput">Exact-price and monthly Stripe links</label><textarea id="serverSupportOptionsInput" rows="6" maxlength="7500" spellcheck="false" placeholder="one-time | €5 | __RANTLIST_SUPPORT_URL__-five-euro-link&#10;one-time | €25 | __RANTLIST_SUPPORT_URL__-twenty-five-euro-link&#10;one-time | Choose amount | __RANTLIST_SUPPORT_URL__-custom-amount-link&#10;monthly | €5/month | __RANTLIST_SUPPORT_URL__-monthly-link"></textarea><small class="hint">Add real hosted Stripe links to make preset prices open at the exact amount. One per line: <code>one-time | £5 | https://…</code> or <code>monthly | £5/month | https://…</code>. A monthly tab is available to donors only after a recurring link is added. For custom recurring amounts use a provider-hosted variable-price link labeled <code>Choose amount</code>. Without exact links, the six default one-time presets are suggestions and the donor confirms the amount on Stripe. Up to 12 secure HTTPS choices. Rantlist never takes card details.</small></div>
             <div class="field"><label for="serverMediaOptimizationSelect">Media optimization</label><select id="serverMediaOptimizationSelect"><option value="low">Low · larger files / higher quality</option><option value="medium" selected>Medium · balanced</option><option value="high">High · smallest files</option></select><small class="hint">Controls still-image timeline previews and HLS video transcoding for new uploads. Animated GIFs stay animated from their original GIF source. Original attachments remain available for download.</small></div>
             <div class="field"><label for="serverMaxFileBytesSelect">Maximum image / file upload</label><select id="serverMaxFileBytesSelect"><option value="16">16 MiB · current default</option><option value="32">32 MiB</option><option value="64">64 MiB</option><option value="128">128 MiB</option></select><small class="hint">Administrator-controlled limit for new images and ordinary attachments (including channel history). Does not resize or delete existing media. Video and voice ceilings are separate; uploads still require quota and free disk space.</small></div>
             <div class="field"><label for="serverMaxVideoBytesSelect">Maximum original video upload</label><select id="serverMaxVideoBytesSelect"><option value="64">64 MiB · current default</option><option value="128">128 MiB</option><option value="256">256 MiB</option><option value="512">512 MiB · 0.5 GiB</option></select><small class="hint">Administrator-controlled. Applies to new uploads only; existing files are untouched. Every upload still requires available per-user quota and room disk budget. Large uploads require sufficient temporary storage for HLS conversion.</small></div>
             <div class="field"><label for="serverUserUploadQuotaInput">Per-user upload quota, GiB</label><input id="serverUserUploadQuotaInput" type="number" min="0" max="10240" step="1" inputmode="numeric"><small class="hint">Applies to original message uploads across channels and direct chats. Default is 15 GiB. Enter 0 for unlimited; lowering the quota never deletes existing files.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.73</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.73</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.366</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.366</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -20498,7 +20538,7 @@
 
     const elements = Object.fromEntries(
       [
-        'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoDonationLink', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
+        'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoAmountField', 'serverInfoAmountInput', 'serverInfoAmountHeading', 'serverInfoPaymentFrequency', 'serverInfoCurrencySymbol', 'serverInfoDonateRow', 'serverInfoOnceTab', 'serverInfoMonthlyTab', 'serverInfoSupportChoices', 'serverInfoSupportCheckoutLink', 'serverInfoCheckoutLabel', 'serverInfoSupportChoiceHint', 'serverInfoContributeLink', 'serverInfoShareButton', 'serverInfoShareStatus', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
         'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoUploadSizeSelect', 'videoUploadSizeHint', 'fileUploadSizeHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'ytdlpVideoImportInput', 'ytdlpVideoImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualityLabel', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
@@ -20514,7 +20554,7 @@
         'profilePanel', 'profileBackdrop', 'profileCloseButton', 'profileState', 'profileDialogBody', 'profileAdminEntry', 'profileSharedMediaNotice', 'adminLoginOpenButton', 'profilePickerField', 'profileForm',
         'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabStageTools', 'avatarLabStageBg', 'avatarLabStageFloor', 'avatarLabStageLight', 'avatarLabStageAmbient', 'avatarLabStageKey', 'avatarLabStageRim', 'avatarLabStageFrontButton', 'avatarLabStageFullButton', 'avatarLabStageDownload', 'avatarLabImageViewer', 'avatarLabImageViewerBackdrop', 'avatarLabImageViewerImage', 'avatarLabImageViewerModeButton', 'avatarLabImageViewerCloseButton', 'avatarLabSourceFullscreenButton', 'avatarLabReferenceFullscreenButton', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityHandle', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabImagesButton', 'avatarLabImagesCount', 'avatarLabImagesPanel', 'avatarLabImagesHandle', 'avatarLabImagesGrid', 'avatarLabImagesCloseButton', 'avatarLabLogsButton', 'avatarLabLogsCount', 'avatarLabLogsPanel', 'avatarLabLogsHandle', 'avatarLabLogsList', 'avatarLabLogsClearButton', 'avatarLabLogsCloseButton', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLab3dSettingsSummary', 'avatarLabReferenceHotspots', 'avatarLabAdvanced', 'avatarLabPartPrevButton', 'avatarLabPartNextButton', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarPromptSaveButton', 'profileAvatarPromptDeleteButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureVersionSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dAutoRigInput', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'avatarLabModelsPanel', 'avatarLabModelsMeta', 'avatarLabModelsGrid', 'avatarLabModelsCollapseButton', 'avatarLabModelsFullButton', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
-        'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverMediaOptimizationSelect', 'serverMaxFileBytesSelect', 'serverMaxVideoBytesSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
+        'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverSupportOptionsInput', 'serverMediaOptimizationSelect', 'serverMaxFileBytesSelect', 'serverMaxVideoBytesSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
         'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
         'messageViewport', 'messageList', 'chatStageLayer', 'chatStageMount', 'chatStageStatus', 'messageToBottomButton', 'desktopStageButton', 'mobileStageButton', 'stageEyeButton', 'stageFeedButton', 'stageEditStatus', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
@@ -21470,6 +21510,39 @@
       elements.serverProjectUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
       elements.serverGithubUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
       elements.serverDonationUrlInput.addEventListener('input', () => setServerSettingsStatus('Unsaved public server-link changes.'));
+      elements.serverSupportOptionsInput.addEventListener('input', () => setServerSettingsStatus('Unsaved contribution-choice changes.'));
+      for (const [button, period] of [[elements.serverInfoOnceTab, 'one-time'], [elements.serverInfoMonthlyTab, 'monthly']]) {
+        button.addEventListener('click', () => {
+          supportPeriod = period;
+          supportChoiceKey = '';
+          renderServerSupportChoices(normalizeServerMetadata(state.serverMetadata));
+        });
+        button.addEventListener('keydown', (event) => {
+          if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+          event.preventDefault();
+          const next = event.key === 'ArrowLeft' || event.key === 'Home' ? elements.serverInfoMonthlyTab : elements.serverInfoOnceTab;
+          next.click(); next.focus();
+        });
+      }
+      elements.serverInfoAmountInput.addEventListener('input', () => {
+        if (elements.serverInfoAmountInput.readOnly) return;
+        supportChoiceKey = 'custom';
+        supportCustomAmount = elements.serverInfoAmountInput.value;
+        renderServerSupportChoices(normalizeServerMetadata(state.serverMetadata));
+        elements.serverInfoAmountInput.focus({ preventScroll: true });
+      });
+      elements.serverInfoSupportCheckoutLink.addEventListener('click', (event) => {
+        if (elements.serverInfoSupportCheckoutLink.getAttribute('aria-disabled') === 'true') event.preventDefault();
+      });
+      elements.serverInfoShareButton.addEventListener('click', async () => {
+        const projectUrl = safePublicLink(state.serverMetadata?.projectUrl) || 'https://workwork.fun/';
+        try {
+          await navigator.clipboard.writeText(projectUrl);
+          elements.serverInfoShareStatus.textContent = 'Project link copied.';
+        } catch {
+          elements.serverInfoShareStatus.textContent = 'Copy this project URL: ' + projectUrl;
+        }
+      });
       elements.serverAdminAvatarChooseButton.addEventListener('click', () => elements.serverAdminAvatarInput.click());
       elements.serverAdminAvatarInput.addEventListener('change', async () => {
         const file = elements.serverAdminAvatarInput.files?.[0];
@@ -44374,6 +44447,22 @@
       }
     }
 
+    function normalizePublicSupportOptions(value) {
+      if (!Array.isArray(value)) return [];
+      const seen = new Set();
+      return value.slice(0, 12).flatMap((entry) => {
+        if (!entry || !['one-time', 'monthly'].includes(entry.period)) return [];
+        const label = String(entry.label || '').trim();
+        const url = safePublicLink(entry.url);
+        if (!label || label.length > 40 || /[\u0000-\u001f\u007f<>]/.test(label) ||
+            !url.startsWith('https://') || String(entry.url || '').length > 500) return [];
+        const key = `${entry.period}:${label.toLocaleLowerCase('en')}`;
+        if (seen.has(key)) return [];
+        seen.add(key);
+        return [{ period: entry.period, label, url }];
+      });
+    }
+
     function normalizeServerMetadata(value) {
       const source = value && typeof value === 'object' ? value : {};
       return {
@@ -44388,6 +44477,7 @@
         projectUrl: safePublicLink(source.projectUrl) || 'https://workwork.fun/',
         githubUrl: safePublicLink(source.githubUrl) || 'https://github.com/sylwesterdigital',
         donationUrl: safePublicLink(source.donationUrl) || '__RANTLIST_SUPPORT_URL__',
+        supportOptions: normalizePublicSupportOptions(source.supportOptions),
         updatedAt: Number(source.updatedAt) || 0,
       };
     }
@@ -44424,6 +44514,131 @@
         : `About ${meta.name} · ${connection}`;
     }
 
+    let supportPeriod = 'one-time';
+    let supportChoiceKey = '';
+    let supportCustomAmount = '';
+
+    function readSupportOptionsEditor() {
+      const lines = elements.serverSupportOptionsInput.value.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+      if (lines.length > 12) throw new Error('Add at most 12 support choices.');
+      const seen = new Set();
+      return lines.map((line, index) => {
+        const parts = line.split('|').map((part) => part.trim());
+        const [period, label, rawUrl] = parts;
+        if (parts.length !== 3 || !['one-time', 'monthly'].includes(period) ||
+            !label || label.length > 40 || /[\u0000-\u001f\u007f<>]/.test(label)) {
+          throw new Error(`Choice ${index + 1}: use one-time or monthly | label | HTTPS payment link.`);
+        }
+        let url;
+        try { url = new URL(rawUrl); } catch { throw new Error(`Choice ${index + 1}: enter a valid HTTPS payment link.`); }
+        if (rawUrl.length > 500 || url.protocol !== 'https:' || url.username || url.password) {
+          throw new Error(`Choice ${index + 1}: use an HTTPS payment link without credentials (500 characters maximum).`);
+        }
+        const key = `${period}:${label.toLocaleLowerCase('en')}`;
+        if (seen.has(key)) throw new Error(`Duplicate choice: ${label} (${period}).`);
+        seen.add(key);
+        return { period, label, url: url.href };
+      });
+    }
+
+    // Only configured amount links can guarantee the preselected price/frequency.
+    // The original Stripe page may let the donor change the price; its URL cannot
+    // prefill a different amount. Never describe a suggested amount as charged.
+    const SUGGESTED_ONCE_AMOUNTS = [5, 10, 25, 50, 100, 250];
+    const DEFAULT_SUPPORT_CURRENCY = '£';
+    function supportCurrencyFromOptions(options) {
+      return options.map((entry) => String(entry.label).trim().match(/^[£€$]/)?.[0]).find(Boolean) || DEFAULT_SUPPORT_CURRENCY;
+    }
+    function supportCustomLink(options) {
+      return options.find((entry) => /^(?:choose|custom|other|your own)(?:\s|$)/i.test(entry.label.trim()));
+    }
+    function amountFromLabel(label) {
+      const match = String(label || '').trim().match(/^[£€$]\s*(\d+(?:[.,]\d{1,2})?)(?:\s*\/\s*month)?$/i);
+      return match ? Number(match[1].replace(',', '.')) : null;
+    }
+    function supportAmountValid(value) {
+      const raw = String(value ?? '').trim();
+      if (!/^\d{1,4}(?:\.\d{1,2})?$/.test(raw)) return false;
+      const number = Number(raw);
+      return Number.isFinite(number) && number >= 1 && number <= 5000;
+    }
+    function renderServerSupportChoices(meta) {
+      const once = supportPeriod === 'one-time';
+      const options = meta.supportOptions.filter((choice) => choice.period === supportPeriod);
+      const fallback = once && !options.length;
+      const currency = supportCurrencyFromOptions(options);
+      const customLink = supportCustomLink(options);
+      const choices = fallback
+        ? SUGGESTED_ONCE_AMOUNTS.map((amount) => ({ period: 'one-time', label: `${currency}${amount}`, url: meta.donationUrl, suggested: true }))
+        : options;
+      elements.serverInfoOnceTab.setAttribute('aria-selected', String(once));
+      elements.serverInfoMonthlyTab.setAttribute('aria-selected', String(!once));
+      elements.serverInfoOnceTab.tabIndex = once ? 0 : -1;
+      elements.serverInfoMonthlyTab.tabIndex = once ? -1 : 0;
+      elements.serverInfoSupportChoices.setAttribute('aria-labelledby', once ? 'serverInfoOnceTab' : 'serverInfoMonthlyTab');
+      elements.serverInfoAmountHeading.textContent = once ? 'Donate, just once' : 'Support every month';
+      elements.serverInfoPaymentFrequency.textContent = once ? '' : 'Recurring monthly';
+      elements.serverInfoCurrencySymbol.textContent = currency;
+      elements.serverInfoSupportChoices.replaceChildren();
+      if (!choices.length) {
+        const message = document.createElement('div');
+        message.className = 'server-info-no-options';
+        message.textContent = 'Monthly donations are not set up yet. You can still make a one-time contribution.';
+        elements.serverInfoSupportChoices.append(message);
+        elements.serverInfoDonateRow.hidden = true;
+        elements.serverInfoSupportChoiceHint.textContent = 'Monthly donations require a recurring Stripe link configured by the server administrator.';
+        return;
+      }
+      if (supportChoiceKey !== 'custom' && !choices.some((choice) => `${choice.period}:${choice.label}` === supportChoiceKey)) {
+        const preferred = fallback ? choices[1] : choices[0];
+        supportChoiceKey = `${preferred.period}:${preferred.label}`;
+      }
+      choices.forEach((choice) => {
+        const key = `${choice.period}:${choice.label}`;
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = choice.label;
+        button.setAttribute('aria-pressed', String(key === supportChoiceKey));
+        if (choice.suggested) button.title = 'Suggested amount. Confirm the amount on Stripe.';
+        button.addEventListener('click', () => {
+          supportChoiceKey = key;
+          supportCustomAmount = '';
+          renderServerSupportChoices(normalizeServerMetadata(state.serverMetadata));
+        });
+        elements.serverInfoSupportChoices.append(button);
+      });
+      const custom = supportChoiceKey === 'custom';
+      let selected = choices.find((choice) => `${choice.period}:${choice.label}` === supportChoiceKey) || choices[0];
+      if (custom) selected = { period: supportPeriod, label: 'Other amount', url: customLink?.url || meta.donationUrl, suggested: !customLink };
+      const numeric = amountFromLabel(selected.label);
+      const field = elements.serverInfoAmountField;
+      const input = elements.serverInfoAmountInput;
+      const canEdit = fallback || Boolean(customLink);
+      field.hidden = false;
+      input.readOnly = !canEdit;
+      input.setAttribute('aria-label', canEdit ? 'Donation amount' : 'Selected amount; use the amount buttons to change it');
+      input.placeholder = canEdit ? 'Other' : '—';
+      input.value = custom ? supportCustomAmount : (numeric === null ? '' : String(numeric));
+      const valid = !custom || supportAmountValid(supportCustomAmount);
+      const checkout = elements.serverInfoSupportCheckoutLink;
+      checkout.href = selected.url;
+      checkout.hidden = false;
+      checkout.setAttribute('aria-disabled', String(!valid));
+      checkout.tabIndex = valid ? 0 : -1;
+      elements.serverInfoCheckoutLabel.textContent = once ? 'Donate' : 'Donate monthly';
+      elements.serverInfoDonateRow.hidden = false;
+      if (!valid) {
+        elements.serverInfoSupportChoiceHint.textContent = 'Enter an amount from 1 to 5,000 to continue.';
+      } else if (selected.suggested) {
+        const amount = custom ? `${currency}${supportCustomAmount}` : selected.label;
+        elements.serverInfoSupportChoiceHint.textContent = `Suggested ${amount}. Select and confirm your amount on Stripe; it cannot be prefilled by this link.`;
+      } else if (custom) {
+        elements.serverInfoSupportChoiceHint.textContent = 'Enter the final amount and confirm billing terms on the payment provider’s page.';
+      } else {
+        elements.serverInfoSupportChoiceHint.textContent = 'This choice has its own checkout link. Confirm the exact amount and billing terms on Stripe before paying.';
+      }
+    }
+
     function renderServerInfo() {
       const meta = normalizeServerMetadata(state.serverMetadata);
       setServerLogoNode(elements.serverInfoLogo, meta.logo, meta.name);
@@ -44435,40 +44650,17 @@
       const githubUrl = safePublicLink(meta.githubUrl);
       elements.serverInfoGithubLink.hidden = !githubUrl;
       if (githubUrl) elements.serverInfoGithubLink.href = githubUrl;
-      const donationUrl = safePublicLink(meta.donationUrl) || '__RANTLIST_SUPPORT_URL__';
-      elements.serverInfoDonationLink.hidden = false;
-      elements.serverInfoDonationLink.href = donationUrl;
-      const donationPrimary = elements.serverInfoDonationLink.querySelector('.server-info-donation-primary');
-      if (donationPrimary) donationPrimary.textContent = isRantlistIOSApp() ? 'Support Rantlist with Stripe' : 'Open the Stripe payment page instead';
-      elements.serverInfoDonationLink.setAttribute('aria-label', isRantlistIOSApp() ? 'Support Rantlist with Stripe. Opens secure Stripe checkout.' : 'Open the Stripe payment page instead');
-    }
-
-    let stripeBuyButtonScriptPromise = null;
-
-    function ensureStripeBuyButtonScript() {
-      if (customElements.get('stripe-buy-button')) return Promise.resolve(true);
-      if (stripeBuyButtonScriptPromise) return stripeBuyButtonScriptPromise;
-      stripeBuyButtonScriptPromise = new Promise((resolve) => {
-        const existing = document.querySelector('script[data-rantlist-stripe-buy-button]');
-        if (existing) {
-          existing.addEventListener('load', () => resolve(true), { once: true });
-          existing.addEventListener('error', () => resolve(false), { once: true });
-          return;
-        }
-        const script = document.createElement('script');
-        script.async = true;
-        script.src = 'https://js.stripe.com/v3/buy-button.js';
-        script.dataset.rantlistStripeBuyButton = '1';
-        script.addEventListener('load', () => resolve(true), { once: true });
-        script.addEventListener('error', () => resolve(false), { once: true });
-        document.head.append(script);
-      });
-      return stripeBuyButtonScriptPromise;
+      elements.serverInfoContributeLink.hidden = !githubUrl;
+      if (githubUrl) elements.serverInfoContributeLink.href = githubUrl;
+      renderServerSupportChoices(meta);
     }
 
     function openServerInfo() {
+      supportPeriod = 'one-time';
+      supportChoiceKey = '';
+      supportCustomAmount = '';
+      elements.serverInfoShareStatus.textContent = '';
       renderServerInfo();
-      if (!isRantlistIOSApp()) ensureStripeBuyButtonScript();
       elements.serverInfoModal.hidden = false;
       elements.serverInfoModal.setAttribute('aria-hidden', 'false');
       requestAnimationFrame(() => elements.serverInfoCloseButton.focus({ preventScroll: true }));
@@ -45072,6 +45264,7 @@
       elements.serverProjectUrlInput.value = meta.projectUrl || 'https://workwork.fun/';
       elements.serverGithubUrlInput.value = meta.githubUrl || '';
       elements.serverDonationUrlInput.value = meta.donationUrl || '';
+      elements.serverSupportOptionsInput.value = meta.supportOptions.map(({ period, label, url }) => `${period} | ${label} | ${url}`).join('\n');
       elements.serverMediaOptimizationSelect.value = meta.mediaOptimizationLevel || 'medium';
       elements.serverMaxVideoBytesSelect.value = String(meta.maxVideoBytes / (1024 * 1024));
       // A legacy MAX_FILE_BYTES .env setting may differ from the standard options.
@@ -45122,6 +45315,9 @@
         setServerSettingsStatus('Enter a server name.', true);
         return;
       }
+      let supportOptions;
+      try { supportOptions = readSupportOptionsEditor(); }
+      catch (error) { setServerSettingsStatus(error.message, true); elements.serverSupportOptionsInput.focus(); return; }
       elements.serverSettingsSaveButton.disabled = true;
       setServerSettingsStatus('Saving administration settings…');
       sendJson({
@@ -45131,6 +45327,7 @@
         projectUrl: elements.serverProjectUrlInput.value,
         githubUrl: elements.serverGithubUrlInput.value,
         donationUrl: elements.serverDonationUrlInput.value,
+        supportOptions,
         logo: state.pendingServerLogo,
         adminAvatar: state.pendingAdminAvatar,
         telemetryMode: elements.serverTelemetryModeSelect.value === 'geo' && state.adminDashboard?.access?.geoProviderConfigured !== true
