@@ -13,6 +13,12 @@ for path in \
   [[ -e "$ROOT/$path" ]] || { echo "Missing $path" >&2; exit 1; }
 done
 [[ -d "$ROOT/web/assets" ]] || { echo "Missing web/assets" >&2; exit 1; }
+for icon in rail-channels.svg rail-direct.svg; do
+  [[ -s "$ROOT/web/assets/icons/$icon" ]] || { echo "Missing $icon" >&2; exit 1; }
+done
+grep -q 'id="roomRailChannelsButton"' "$ROOT/web/index.html" || { echo "Channel rail toggle missing" >&2; exit 1; }
+grep -q 'id="roomRailDirectButton"' "$ROOT/web/index.html" || { echo "Direct conversation rail toggle missing" >&2; exit 1; }
+
 [[ -f "$ROOT/VERSION.txt" ]] || { echo "Missing VERSION.txt" >&2; exit 1; }
 for script in "$ROOT"/scripts/*.sh "$ROOT"/scripts/*.js; do
   [[ -x "$script" ]] || { echo "Not executable: $script" >&2; exit 1; }
@@ -23,6 +29,7 @@ done
 "$ROOT/scripts/verify_github_release_transaction.sh"
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 node "$ROOT/scripts/verify_support_choices.js"
+node "$ROOT/scripts/verify_stage_speech_r395.js"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
 grep -q 'id="profileAvatarLab"' "$ROOT/web/index.html" || { echo "Avatar Lab workbench missing from client snapshot" >&2; exit 1; }
 grep -q 'id="avatarLabGameButton"' "$ROOT/web/index.html" || { echo "Games-tray Avatar Lab launcher missing" >&2; exit 1; }
@@ -217,4 +224,5 @@ node "$ROOT/scripts/verify_hls_preview.js"
 node "$ROOT/scripts/verify_profile_gallery_r388.js"
 node "$ROOT/scripts/verify_stage_focus_r390.js"
 node "$ROOT/scripts/verify_stage_keyboard_r391.js"
+node "$ROOT/scripts/verify_stage_media_r402.js"
 echo "Rantlist public client repository verification passed (source version $REPO_VERSION)."

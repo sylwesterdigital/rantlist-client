@@ -1,3 +1,59 @@
+## Client 0.1.214 / server 9.6.382 — Channels and direct conversations separated
+
+Companion to server rantlist-deploy-r410. Two new icon tabs directly beneath the room search separate channels from private 1:1 conversations. Supplied icons are sanitized and bundled. Each view remembers its own search filters, and unread activity is signalled across tabs. Native wrapper, Stage protocol and persisted data unchanged. Server-first deployment required.
+
+## Client 0.1.213 / server 9.6.381 — Portable optional Stage optimization
+
+Companion to server r409. Fixes release verification on installations without compatible FFmpeg WebP encoding and enables FFmpeg-only dimensions if ffprobe is unavailable. Native wrappers and 2D browser features remain unchanged. Deploy server first; existing private assets and shared worlds remain untouched.
+
+## Client 0.1.212 / server 9.6.380 — Personal PBR ZIP optimization
+
+Companion to r408. Stage Floor Gallery offers optional conversion of extracted raster maps from material ZIPs. The original ZIP stays private and unmodified; the server reports achieved map savings. Place server ZIP in Downloads before client ZIP. No watcher replacement or database migration.
+
+## Client 0.1.211 / server 9.6.379 — Stage gallery upload repair
+
+Companion to server r407. The updated personal Stage galleries are served by the server and accept bounded larger 2K PBR packs, keep the upload form inside the window and show explicit HTTP upload errors. Client browser UI metadata matches r407. Install the server ZIP first; no watcher update is required.
+
+## Client 0.1.210 / server 9.6.378 — Stage gallery compression and peer effects
+
+Companion to server r406. The server-owned Stage UI provides separate optional WebP compression, a drag/drop upload panel, geometry-aware private textures and persistent, validated multiplayer player surface effects. Keep the existing watcher; install the server first.
+
+## Client 0.1.209 / server 9.6.377 — Stage upload format recovery
+
+Companion to r405: the Stage uploader retains original HDR/EXR data even if the browser reports an image MIME type. Misnamed but genuinely supported panorama images are normalized on the server. Private gallery data and saved worlds remain untouched.
+
+## Client 0.1.208 / server 9.6.376 — Stage galleries
+
+Companion to r404 Stage server: near-full-height gallery, subtle private horizontal scrollbar, resilient public-manifest loading, and automatic HDR/EXR panorama previews. The 3D Stage source and private thumbnail processing stay on the server; the client retains the matching sanitized browser interface. No watcher change.
+
+## Client 0.1.207 / server 9.6.375 — Stage gallery upload and reconnection repair
+
+Matches r403 server: the Stage parent renews upload access on WebSocket reconnect and replays the credential after the iframe is ready. A temporary loss of authorization no longer means private avatars were deleted. The companion server retries owner-only HTTP uploads and supports explicit verified file sizes; upload data and the Stage 3D renderer remain on the server. Deploy server ZIP first, then full client via r398 watcher.
+
+## Client 0.1.206 / server 9.6.374 — Stage gallery cards and chat media picker
+
+This full client includes the same authenticated Stage parent-picker bridge as the r402 server: users selecting a new Surface Frame can browse the current channel’s uploaded images, videos/HLS and audio. User-private files/direct messages remain excluded. Stage personal gallery previews use the existing shared size control and compact icon actions. Deploy server first, then client via r398 watcher. Stage model previews/3D rendering remain server-served, and existing delayed world commits are unchanged.
+
+## Client 0.1.205 / server 9.6.373 — r401 Stage private material gallery
+
+Matching r401 server for personal Poly Haven PBR material ZIPs, EXR/HDR 360 backgrounds, GLB avatar preview thumbnails and compact action icons. Put the server ZIP in Downloads first, wait for successful deployment, then client ZIP. The r398 watcher and native release workflow remain unchanged. User-uploaded assets are stored on the server and not bundled in the client ZIP.
+
+## Client 0.1.204 / server 9.6.372 — r400 Stage verification compatibility
+
+Identical r399 private Stage gallery UI and native shells, with aligned r400 server version metadata. Install the r400 server ZIP first; the fixed historical regressions are in the server package only. Keep watcher r398; no private files, world changes or protocol updates.
+
+## Client 0.1.203 / server 9.6.371 — r399 private Stage galleries
+
+Synchronized sanitized r399 browser core with authenticated private Stage gallery entry points: My avatars, My floor textures and My 360 backgrounds support [+ Add], rename, replace and delete. Avatar Lab My Models gains Add to Stage, using server-side owner-only imports. Private assets use the server's existing profile storage quota; selected private avatars render on channel peers via revocable view capabilities. This client package does not embed Stage's 3D renderer or private files; the paired server r399 hosts Stage. Install server first through the existing r398 watcher. No native shell or protocol changes.
+
+## Client 0.1.202 / server 9.6.368 — r396 Stage deployment-verification recovery
+
+Repackages the synchronized sanitized Stage browser core at server 9.6.368. The r395 typing and floating-message behavior is unchanged; the server fixes three archived Stage regression test fixtures so watcher deployment can proceed. Native shells, world data, contribution choices, stored Stripe links, and protocol 70 are unchanged. Deploy server r396 first, then this client only after the server succeeds.
+
+## Client 0.1.201 / Server 9.6.367 — Stage typing and world-space chat labels
+
+The synchronized browser core now forwards the existing authenticated room typing and channel messages to ephemeral high-resolution speech labels inside the server-hosted Stage renderer. No independent Stage websocket, database migration, lost scene data or native wrapper changes. Install server r395 first and verify two live users. Browser source copy is sanitized; user-configured payment links remain server-managed. Protocol 70 and watcher r372 are unchanged.
+
 ## Client 0.1.200 / Server 9.6.366 — Compact Blender-style support panel
 
 The full browser snapshot matches server r394: visible suggested one-time amounts and custom field on first open, Monthly/One-time tabs, one Donate action and no giant embedded Stripe widget or General support selector. The browser and native clients open the same verified checkout link for configured choices. With only the original Stripe link configured, preset amounts are **suggestions**; Stripe collects the actual chosen amount after confirmation on its own page. Monthly must be configured using a real recurring payment link. Desktop uses a side-by-side layout, and small mobile screens may scroll as necessary. Server r394 should be installed first; protocol 70 and watcher r372 are unchanged. Live Stripe checkout is not verified by offline package tests.

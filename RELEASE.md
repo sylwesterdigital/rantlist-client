@@ -1,3 +1,19 @@
+## 0.1.214 / 9.6.382 (r410)
+
+Matching full-client snapshot for the Channels / Direct conversations rail split with user-supplied icons and per-view search settings. Install server r410 first.
+
+## 0.1.213 / 9.6.381 (r409)
+
+Matching full-client snapshot for server r409 optional PBR material optimization compatibility. Native clients, signing logic and protocol 70 remain unchanged. Requires server-first deployment.
+
+## 0.1.202 / 9.6.368 (r396)
+
+Matches server r396 after recovery from r395's legacy Stage VM regression failure. No native UI changes; sanitized browser source metadata and badge now match server 9.6.368 and Stage r395's typing/speech UI remains intact. Install server first and wait for a successful verification and deployment before the macOS/iOS release.
+
+## 0.1.201 / 9.6.367 (r395)
+
+Adds ephemeral Stage typing and sharp in-world channel-message labels: authenticated room typing shows a pulsing three-dot speech bubble over the matching connected Stage avatar; sent room text temporarily replaces its name label. The local sender also sees their text. Labels revert automatically; previous worlds, gallery, payment links, media and native wrappers remain unchanged. No new Stage socket message type or persistent world format. Matching server r395 must deploy first; real two-device GPU validation is still required.
+
 ## 0.1.200 / 9.6.366 (r394)
 
 Compact Blender-inspired About support chooser; one Donate CTA, visible one-time amount suggestions and other amount, configured exact/recurring links, no embedded Stripe widget and no misleading General support button. Monthly is unavailable until configured. See the server `UPDATE-r394.md`. No native-wrapper or protocol changes; verify provider-hosted checkout separately.

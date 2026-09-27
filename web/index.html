@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.366">
+  <meta name="chat-ui-version" content="9.6.382">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -1712,6 +1712,8 @@
     .icon-stop { --icon: url('/assets/icons/stop.svg'); }
     .icon-chat { --icon: url('/assets/icons/chat.svg'); }
     .icon-rooms { --icon: url('/assets/icons/rooms.svg'); }
+    .icon-rail-channels { --icon: url('/assets/icons/rail-channels.svg'); }
+    .icon-rail-direct { --icon: url('/assets/icons/rail-direct.svg'); }
     .icon-users { --icon: url('/assets/icons/users.svg'); }
     .icon-profile { --icon: url('/assets/icons/profile.svg'); }
     .icon-calendar { --icon: url('/assets/icons/calendar.svg'); }
@@ -8488,11 +8490,23 @@
       color: var(--accent);
       background: color-mix(in srgb, var(--accent) 16%, transparent);
     }
+    /* r410: separate channel and 1:1 rails without widening the 52px sidebar. */
+    .room-rail-view-switch { display:grid; gap:3px; justify-items:center; padding:4px 0 1px; border-top:1px solid var(--line); }
+    .room-rail-view-button { position:relative; display:grid; place-items:center; width:34px; min-width:34px; height:34px; min-height:34px; padding:6px; color:var(--muted); border-radius:11px; }
+    .room-rail-view-button .icon { width:21px; height:21px; }
+    .room-rail-view-button[aria-pressed="true"] { border-color:var(--accent); color:var(--text); background:color-mix(in srgb,var(--accent) 25%,var(--panel-2)); }
+    .room-rail-view-button:hover, .room-rail-view-button:focus-visible { color:var(--text); border-color:var(--accent); }
+    .room-rail-view-button .room-rail-view-unread:not([hidden]) { position:absolute; top:2px; right:2px; width:7px; height:7px; border-radius:50%; background:var(--warning); border:1px solid var(--rooms-panel-bg,var(--panel)); pointer-events:none; }
+    .room-new-direct-button { color:var(--accent); border-style:dashed; }
+    .room-new-direct-button .icon { width:21px; height:21px; }
+    .room-rail .room-new-direct-button[hidden], .room-rail .room-create-button[hidden], .room-rail-view-unread[hidden] { display:none!important; }
+    .room-rail-empty { display:grid; justify-items:center; gap:5px; width:100%; padding:13px 0; color:var(--muted); font-size:12px; }
+    .room-rail-empty .icon { width:23px; height:23px; opacity:.55; }
 
     .room-count {
       position: absolute;
       right: -1px;
-      bottom: 1px;
+      top: 82px;
       min-width: 16px;
       height: 16px;
       display: grid;
@@ -17688,6 +17702,27 @@
     body.stage-focus-mode #chatPanel #messageForm > :not(#composerShell) {display:none!important;}
     body.stage-focus-mode #chatPanel #composerShell {background:color-mix(in srgb,var(--panel) 92%,transparent);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:0 7px 32px #0009;}
     body.stage-focus-mode #chatPanel #composerShell #messageInput {min-height:36px;}
+
+/* r402: channel-only Surface Frame media chooser, shown over the embedded Stage. */
+.stage-frame-media-picker{position:fixed;inset:0;z-index:30000;background:rgba(4,9,20,.76);display:grid;place-items:center;padding:16px;box-sizing:border-box;color:var(--text);}
+.stage-frame-media-picker[hidden]{display:none!important;}
+.stage-frame-media-card{box-sizing:border-box;width:min(820px,100%);max-height:min(680px,calc(100dvh - 32px));display:flex;flex-direction:column;overflow:hidden;border:1px solid var(--line);border-radius:16px;background:var(--panel);box-shadow:0 22px 70px #000a;}
+.stage-frame-media-head{padding:14px 16px;display:flex;gap:14px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);}
+.stage-frame-media-head strong{font-size:17px;}
+.stage-frame-media-head small{display:block;color:var(--muted);font-size:12px;margin-top:3px;}
+.stage-frame-media-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 15px;border-bottom:1px solid var(--line);}
+.stage-frame-media-controls input{flex:1 1 180px;min-width:0;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:9px;}
+.stage-frame-media-controls button,.stage-frame-media-head button{background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:9px;cursor:pointer;padding:7px 10px;}
+.stage-frame-media-controls button[aria-pressed="true"]{background:var(--accent);color:var(--panel);}
+.stage-frame-media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px;overflow-y:auto;min-height:80px;flex:1;padding:13px;align-content:start;}
+.stage-frame-media-item{min-width:0;display:grid;gap:6px;grid-template-rows:90px auto auto;background:var(--panel-2);color:var(--text);border:1px solid var(--line);border-radius:10px;overflow:hidden;padding:5px;cursor:pointer;text-align:left;}
+.stage-frame-media-item:hover,.stage-frame-media-item:focus-visible{outline:2px solid var(--accent);border-color:var(--accent);}
+.stage-frame-media-item img{width:100%;height:90px;object-fit:contain;border-radius:6px;background:#111a2b;}
+.stage-frame-media-kind{display:grid;place-items:center;height:90px;border-radius:6px;background:#172b45;font-size:34px;color:#98cff8;}
+.stage-frame-media-item strong{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stage-frame-media-item small{font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.stage-frame-media-empty{padding:25px;color:var(--muted);grid-column:1/-1;text-align:center;}
+.stage-frame-media-footer{padding:10px 15px;font-size:11px;line-height:1.4;color:var(--muted);border-top:1px solid var(--line);}
 </style>
   <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.182.0/build/three.module.js"}}</script>
   <meta name="rantlist-public-client-snapshot" content="sanitized">
@@ -17703,7 +17738,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.366</small>
+          <small id="serverBrandVersion">v9.6.382</small>
         </span>
       </button>
     </div>
@@ -17762,7 +17797,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.366</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.382</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -19066,8 +19101,8 @@
             <div class="field"><label for="serverMaxVideoBytesSelect">Maximum original video upload</label><select id="serverMaxVideoBytesSelect"><option value="64">64 MiB · current default</option><option value="128">128 MiB</option><option value="256">256 MiB</option><option value="512">512 MiB · 0.5 GiB</option></select><small class="hint">Administrator-controlled. Applies to new uploads only; existing files are untouched. Every upload still requires available per-user quota and room disk budget. Large uploads require sufficient temporary storage for HLS conversion.</small></div>
             <div class="field"><label for="serverUserUploadQuotaInput">Per-user upload quota, GiB</label><input id="serverUserUploadQuotaInput" type="number" min="0" max="10240" step="1" inputmode="numeric"><small class="hint">Applies to original message uploads across channels and direct chats. Default is 15 GiB. Enter 0 for unlimited; lowering the quota never deletes existing files.</small></div>
             <div class="server-settings-version">
-              <span>UI <code id="serverUiVersionValue">9.6.366</code></span>
-              <span>Server <code id="serverRuntimeVersionValue">9.6.366</code></span>
+              <span>UI <code id="serverUiVersionValue">9.6.382</code></span>
+              <span>Server <code id="serverRuntimeVersionValue">9.6.382</code></span>
               <span>Protocol <code id="serverProtocolVersionValue">58</code></span>
             </div>
             <section class="server-admin-section">
@@ -19198,9 +19233,20 @@
         <button id="roomCreateButton" class="room-badge-button room-create-button" type="button" aria-label="Create room" title="Create room">
           <span class="icon icon-add"></span>
         </button>
+        <button id="roomNewDirectButton" class="room-badge-button room-new-direct-button" type="button" aria-label="Start a direct conversation" title="Start a direct conversation" hidden>
+          <span class="icon icon-users" aria-hidden="true"></span>
+        </button>
         <button id="roomSearchButton" class="icon-button room-search-button" type="button" aria-label="Search channels" title="Search channels">
           <span class="icon icon-search"></span>
         </button>
+        <div id="roomRailViewSwitch" class="room-rail-view-switch" role="group" aria-label="Show channels or direct conversations">
+          <button id="roomRailChannelsButton" class="icon-button room-rail-view-button" type="button" title="Show channels" aria-label="Show channels" aria-pressed="true">
+            <span class="icon icon-rail-channels" aria-hidden="true"></span><span class="room-rail-view-unread" aria-hidden="true" hidden></span>
+          </button>
+          <button id="roomRailDirectButton" class="icon-button room-rail-view-button" type="button" title="Show direct conversations" aria-label="Show direct conversations" aria-pressed="false">
+            <span class="icon icon-rail-direct" aria-hidden="true"></span><span class="room-rail-view-unread" aria-hidden="true" hidden></span>
+          </button>
+        </div>
         <span id="roomCount" class="room-count" aria-hidden="true"></span>
       </div>
       <div id="roomList" class="room-badge-list"></div>
@@ -20555,7 +20601,7 @@
         'profileWelcomePanel', 'profileWelcomeTitle', 'profileWelcomeText', 'profileWelcomeActionButton', 'profileWelcomeStartSlot', 'profileWelcomeReturnSlot', 'profileWelcomeAdminSlot', 'profileStartCardAnchor', 'profileStartCard', 'avatarLabModal', 'avatarLabBackdrop', 'avatarLabCloseButton', 'avatarLabStageCanvas', 'avatarLabStageEmpty', 'avatarLabStageStatus', 'avatarLabStageTools', 'avatarLabStageBg', 'avatarLabStageFloor', 'avatarLabStageLight', 'avatarLabStageAmbient', 'avatarLabStageKey', 'avatarLabStageRim', 'avatarLabStageFrontButton', 'avatarLabStageFullButton', 'avatarLabStageDownload', 'avatarLabImageViewer', 'avatarLabImageViewerBackdrop', 'avatarLabImageViewerImage', 'avatarLabImageViewerModeButton', 'avatarLabImageViewerCloseButton', 'avatarLabSourceFullscreenButton', 'avatarLabReferenceFullscreenButton', 'avatarLabSourceUploadButton', 'avatarLabSourceCameraButton', 'avatarLabSourceResetButton', 'avatarLabSourceInput', 'profileAvatarLab', 'avatarLabActivity', 'avatarLabActivityHandle', 'avatarLabActivityTitle', 'avatarLabActivityMessage', 'avatarLabActivityProgress', 'avatarLabActivitySteps', 'avatarLabActivityMeta', 'avatarLabImagesButton', 'avatarLabImagesCount', 'avatarLabImagesPanel', 'avatarLabImagesHandle', 'avatarLabImagesGrid', 'avatarLabImagesCloseButton', 'avatarLabLogsButton', 'avatarLabLogsCount', 'avatarLabLogsPanel', 'avatarLabLogsHandle', 'avatarLabLogsList', 'avatarLabLogsClearButton', 'avatarLabLogsCloseButton', 'avatarLabCostStatus', 'avatarLabTripoWallet', 'avatarLabReferenceSettingsSummary', 'avatarLab3dSettingsSummary', 'avatarLabReferenceHotspots', 'avatarLabAdvanced', 'avatarLabPartPrevButton', 'avatarLabPartNextButton', 'profileAvatarSuiteSourcePreview', 'profileAvatarSuitePreviewMeta', 'profileAvatarBodyEditorImage', 'avatarLabBodyEditorPlaceholder', 'avatarLabPartEditorTitle', 'avatarLabPartColorEnabled', 'avatarLabPartColor', 'avatarLabPartStyle', 'avatarLabPartDetails', 'profileAvatarWizardIntent', 'profileAvatarWizardPresentation', 'profileAvatarWizardTop', 'profileAvatarWizardLegs', 'profileAvatarWizardFeet', 'profileAvatarWizardPose', 'profileAvatarWizardFraming', 'profileAvatarWizardTexture', 'profileAvatarPromptPreset', 'profileAvatarPromptHistory', 'profileAvatarPromptReuseButton', 'profileAvatarPromptSaveButton', 'profileAvatarPromptDeleteButton', 'profileAvatarWizardComposeButton', 'profileAvatarGrokPrompt', 'profileAvatarGrokOutput', 'profileAvatarGrokModel', 'profileAvatarGrokAspect', 'profileAvatarGrokResolution', 'profileAvatarGrokDuration', 'profileAvatarGrokRunButton', 'profileAvatarGrokStatus', 'profileAvatarGrokResult', 'profileAvatarGrokResultMeta', 'profileAvatarGrokEmpty', 'profileAvatarGrokImage', 'profileAvatarGrokVideo', 'profileAvatarGrokUseProfileButton', 'profileAvatarGrokUse3dButton', 'profileAvatar3dActionStatus', 'profileAvatar3dStatus', 'profileAvatar3dModelSelect', 'profileAvatar3dTextureVersionSelect', 'profileAvatar3dTextureSelect', 'profileAvatar3dAutoRigInput', 'profileAvatar3dGenerateButton', 'profileAvatar3dDirectButton', 'profileAvatar3dKeysButton', 'profileAvatar3dProgress', 'avatarLabModelsPanel', 'avatarLabModelsMeta', 'avatarLabModelsGrid', 'avatarLabModelsCollapseButton', 'avatarLabModelsFullButton', 'profilePickerAnchor', 'profileAdminAnchor', 'profileUiScaleField', 'profileUiScaleInput', 'profileUiScaleValue', 'profileCalendarButton', 'profileSelect', 'newProfileButton', 'removeProfileButton', 'profileExportButton', 'profileImportButton', 'profileImportInput', 'profileTransferStatus', 'profileAvatarShell', 'profileAvatarPreview', 'profileAvatarInput', 'profileAvatarUploadButton', 'profileAvatarCameraButton', 'profileAvatarLabButton', 'profileGameSummary', 'profileGameSummaryBody',
         'removeAvatarButton', 'nicknameInput', 'statusPresetSelect', 'statusInput', 'profileBioInput', 'profilePublicInput', 'profileEmailInput', 'profilePhoneInput', 'profileWebsiteInput', 'profileLinkedinInput', 'profileGithubInput', 'profileInstagramInput', 'profileXInput', 'colorInput',
         'profileButton', 'signOffButton', 'deleteProfileButton', 'profileInvitePinField', 'profileInvitePinInput', 'profileInvitePinButton', 'profileCameraModal', 'profileCameraBackdrop', 'profileCameraCloseButton', 'profileCameraTitle', 'profileCameraPreview', 'profileCameraStatus', 'profileCameraCancelButton', 'profileCameraCaptureButton', 'adminLoginModal', 'adminLoginBackdrop', 'adminLoginForm', 'adminLoginCloseButton', 'adminLoginCancelButton', 'adminUsernameInput', 'adminPasswordInput', 'adminLoginStatus', 'adminLoginButton', 'serverSettingsModal', 'serverSettingsBackdrop', 'serverSettingsForm', 'serverSettingsCloseButton', 'serverSettingsCancelButton', 'serverSettingsSaveButton', 'serverDashboardTab', 'serverUsersTab', 'serverAccessTab', 'serverSettingsTab', 'serverDashboardPanel', 'serverUsersPanel', 'serverAccessPanel', 'serverSettingsPanel', 'serverDashboardRefreshButton', 'serverDashboardStatus', 'serverDashboardHealth', 'serverDashboardMetrics', 'serverActivityChart', 'serverServiceChart', 'serverSystemHealthTime', 'serverSystemHealthList', 'serverStorageList', 'serverChannelCount', 'serverChannelList', 'serverRecentEvents', 'serverUserSearchInput', 'serverUserSortSelect', 'serverUserCount', 'serverUserList', 'serverTelemetryModeSelect', 'serverTelemetryRetentionInput', 'serverGeoProviderStatus', 'serverModerationEnabledInput', 'serverModerationTermsInput', 'serverModerationStatus', 'serverBanKindSelect', 'serverBanValueInput', 'serverBanReasonInput', 'serverBanDurationInput', 'serverBanAddButton', 'serverBanList', 'serverClientSessionCount', 'serverClientSessionList', 'serverAdminAvatarPreview', 'serverAdminAvatarInput', 'serverAdminAvatarChooseButton', 'serverAdminAvatarClearButton', 'serverAdminAvatarName', 'serverLogoPreview', 'serverLogoInput', 'serverLogoChooseButton', 'serverLogoClearButton', 'serverLogoName', 'serverNameInput', 'serverDescriptionInput', 'serverProjectUrlInput', 'serverGithubUrlInput', 'serverDonationUrlInput', 'serverSupportOptionsInput', 'serverMediaOptimizationSelect', 'serverMaxFileBytesSelect', 'serverMaxVideoBytesSelect', 'serverUserUploadQuotaInput', 'serverUiVersionValue', 'serverRuntimeVersionValue', 'serverProtocolVersionValue', 'serverBroadcastInput', 'serverBroadcastLevelSelect', 'serverBroadcastButton', 'serverEvacuationMessageInput', 'serverEvacuationDelayInput', 'serverEvacuationScheduleButton', 'serverEvacuationCancelButton', 'serverSettingsStatus',
-        'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
+        'roomCreateModal', 'roomCreateBackdrop', 'roomCreateCloseButton', 'roomCreateCancelButton', 'roomCreateButton', 'roomForm', 'roomInput', 'roomNameStatus', 'roomTopicInput', 'roomTopicHint', 'roomTopicCount', 'roomPrivateInput', 'roomButton', 'roomBadgePreview', 'roomBadgeInput', 'roomBadgeName', 'roomBadgeClearButton', 'roomImportInput', 'roomImportChooseButton', 'roomImportName', 'roomImportClearButton', 'roomSearchButton', 'roomNewDirectButton', 'roomRailChannelsButton', 'roomRailDirectButton', 'roomSearchTitle', 'roomSearchModal', 'roomSearchBackdrop', 'roomSearchCloseButton', 'roomSearchDoneButton', 'roomSearchClearButton', 'roomSearchInput', 'roomSearchSortSelect', 'roomSearchScopeSelect', 'roomSearchArchivedInput', 'roomSearchCount', 'roomSearchResults', 'roomsPanel', 'roomList', 'roomCount', 'roomRailToggleHome', 'roomRailToggleButton', 'roomRailToggleGlyph', 'roomOwnerTooltip',
         'messageViewport', 'messageList', 'chatStageLayer', 'chatStageMount', 'chatStageStatus', 'messageToBottomButton', 'desktopStageButton', 'mobileStageButton', 'stageEyeButton', 'stageFeedButton', 'stageEditStatus', 'messageTargetOverlay', 'typingIndicator', 'typingText', 'readOnlyChannelNotice', 'nativeSharePendingBar', 'nativeSharePendingTitle', 'nativeSharePendingHint', 'nativeShareSendButton', 'nativeShareDiscardButton', 'messageForm', 'mentionAutocomplete', 'replyComposerPreview', 'replyComposerMedia', 'replyComposerAuthor', 'replyComposerText', 'replyComposerCancel', 'composerShell', 'messageInput', 'attachMenuButton', 'gamesMenuButton', 'attachmentTray', 'photoInput', 'videoInput', 'fileInput', 'gifUploadInput', 'cameraComposerButton', 'cameraInput', 'stickerActionButton', 'photoActionButton', 'videoActionButton', 'gifActionButton', 'fileActionButton', 'pollActionButton', 'calendarActionButton', 'timerActionButton', 'drawingActionButton', 'helenaDrawingActionButton', 'translatorActionButton', 'stickerTray', 'stickerList', 'stickerStatus', 'gifTray', 'gifList', 'gifQuotaStatus', 'gamesTray', 'aiSlopGalleryGameButton', 'avatarLabGameButton', 'ticTacToeGameButton', 'rockPaperScissorsGameButton', 'guessNumberGameButton', 'higherLowerGameButton', 'wordChainGameButton', 'scribbleGameButton', 'brainGameButton', 'hangmanGameButton', 'triviaDuelGameButton', 'quizGameButton', 'drawingTableGameButton', 'tetrisGameButton', 'gameRankingsButton',
         'expiryButton', 'expiryLabel',
         'voiceRecordButton', 'voiceRecordButtonLabel', 'voiceFileInput', 'voiceRecordingBar',
@@ -20618,10 +20664,11 @@
       roomNameCheckRequestId: null,
       roomNameAvailable: null,
       roomCreateAfterNameCheck: false,
-      roomSearch: readStorage('chat.rooms.search') || '',
-      roomSearchSort: readStorage('chat.rooms.sort') || 'az',
-      roomSearchScope: readStorage('chat.rooms.scope') || 'all',
-      roomSearchIncludeArchived: readStorage('chat.rooms.includeArchived') === 'on',
+      roomRailMode: readStorage('chat.rooms.railMode') === 'direct' ? 'direct' : 'channels',
+      roomSearch: readStorage(readStorage('chat.rooms.railMode') === 'direct' ? 'chat.rooms.direct.search' : 'chat.rooms.search') || '',
+      roomSearchSort: readStorage(readStorage('chat.rooms.railMode') === 'direct' ? 'chat.rooms.direct.sort' : 'chat.rooms.sort') || 'az',
+      roomSearchScope: readStorage(readStorage('chat.rooms.railMode') === 'direct' ? 'chat.rooms.direct.scope' : 'chat.rooms.scope') || 'all',
+      roomSearchIncludeArchived: readStorage(readStorage('chat.rooms.railMode') === 'direct' ? 'chat.rooms.direct.includeArchived' : 'chat.rooms.includeArchived') === 'on',
       incomingRoomInvites: new Map(),
       activeRoomInviteId: null,
       panelZ: 20,
@@ -21694,6 +21741,17 @@
       elements.channelSettingsCloseButton.addEventListener('click', closeChannelSettings);
       elements.channelSettingsBackdrop.addEventListener('click', closeChannelSettings);
       elements.roomSearchButton.addEventListener('click', openRoomSearch);
+      elements.roomRailChannelsButton.addEventListener('click', () => setRoomRailMode('channels'));
+      elements.roomRailDirectButton.addEventListener('click', () => setRoomRailMode('direct'));
+      elements.roomNewDirectButton.addEventListener('click', () => {
+        if (!state.registered) { openProfileOverlay(); return; }
+        state.userSearch = '';
+        state.userFilter = 'all';
+        writeStorage('chat.users.filter', 'all');
+        renderUsers();
+        setMobilePanel('users');
+        elements.userSearchInput.focus({ preventScroll:true });
+      });
       elements.roomRailToggleButton.addEventListener('click', toggleRoomRail);
       elements.roomSearchBackdrop.addEventListener('click', closeRoomSearch);
       elements.roomSearchModal.querySelector('.room-search-card')?.addEventListener('pointerdown', (event) => event.stopPropagation());
@@ -21703,25 +21761,25 @@
       elements.roomSearchClearButton.addEventListener('click', clearRoomSearchFilters);
       elements.roomSearchInput.addEventListener('input', () => {
         state.roomSearch = elements.roomSearchInput.value;
-        writeStorage('chat.rooms.search', state.roomSearch);
+        writeRoomRailFilter('search', state.roomSearch);
         renderRoomSearchResults();
         renderRooms();
       });
       elements.roomSearchSortSelect.addEventListener('change', () => {
         state.roomSearchSort = elements.roomSearchSortSelect.value;
-        writeStorage('chat.rooms.sort', state.roomSearchSort);
+        writeRoomRailFilter('sort', state.roomSearchSort);
         renderRoomSearchResults();
         renderRooms();
       });
       elements.roomSearchScopeSelect.addEventListener('change', () => {
         state.roomSearchScope = elements.roomSearchScopeSelect.value;
-        writeStorage('chat.rooms.scope', state.roomSearchScope);
+        writeRoomRailFilter('scope', state.roomSearchScope);
         renderRoomSearchResults();
         renderRooms();
       });
       elements.roomSearchArchivedInput.addEventListener('change', () => {
         state.roomSearchIncludeArchived = elements.roomSearchArchivedInput.checked;
-        writeStorage('chat.rooms.includeArchived', state.roomSearchIncludeArchived ? 'on' : 'off');
+        writeRoomRailFilter('includeArchived', state.roomSearchIncludeArchived ? 'on' : 'off');
         renderRoomSearchResults();
         renderRooms();
       });
@@ -22490,7 +22548,14 @@
       [elements.avatarLabStageBg,elements.avatarLabStageFloor,elements.avatarLabStageLight,elements.avatarLabStageAmbient,elements.avatarLabStageKey,elements.avatarLabStageRim].forEach((control)=>control?.addEventListener('input',()=>{syncAvatarLabStageAppearance();saveAvatarLabStageSettings();}));
       elements.avatarLabStageFrontButton?.addEventListener('click',()=>setAvatarLabStageView('front'));
       elements.avatarLabStageFullButton?.addEventListener('click',()=>setAvatarLabStageView('full'));
-      elements.avatarLabModelsGrid?.addEventListener('click',(event)=>{const explicit=event.target.closest?.('button[data-avatar-model-action],a[data-avatar-model-action]');const interactive=event.target.closest?.('a,button,input,select,textarea');if(interactive&&!explicit)return;const action=explicit||event.target.closest?.('.avatar-lab-model-card[data-avatar-model-action="select"]');if(!action)return;const taskId=String(action.dataset.taskId||'');if(action.dataset.avatarModelAction==='select')selectAvatar3dModel(taskId);else if(action.dataset.avatarModelAction==='rig')void startAvatar3dRig(taskId);});
+      elements.avatarLabModelsGrid?.addEventListener('click',(event)=>{const explicit=event.target.closest?.('button[data-avatar-model-action],a[data-avatar-model-action]');const interactive=event.target.closest?.('a,button,input,select,textarea');if(interactive&&!explicit)return;const action=explicit||event.target.closest?.('.avatar-lab-model-card[data-avatar-model-action="select"]');if(!action)return;const taskId=String(action.dataset.taskId||'');if(action.dataset.avatarModelAction==='select')selectAvatar3dModel(taskId);else if(action.dataset.avatarModelAction==='rig')void startAvatar3dRig(taskId);else if(action.dataset.avatarModelAction==='stage-gallery'){
+        const item=state.avatar3dItems?.find(x=>String(x?.taskId||'')===taskId);
+        if(!item || !state.registered || state.socket?.readyState!==WebSocket.OPEN)return;
+        const size=Number(item.riggedFileSize||item.fileSize||0);
+        if(size>20*1048576){addSystemMessage('This model exceeds Stage’s 20 MiB limit. Optimize the GLB before importing.',true);return;}
+        sendJson({type:'stage.asset.import',taskId,name:String(item.prompt||'My Avatar Lab model').slice(0,80)});
+        addSystemMessage('Copying your model into My Stage avatars…');
+      }});
       elements.avatarLabModelsGrid?.addEventListener('keydown',(event)=>{if(!['Enter',' '].includes(event.key))return;const card=event.target.closest?.('.avatar-lab-model-card[data-avatar-model-action="select"]');if(!card||event.target.closest?.('button,a'))return;event.preventDefault();selectAvatar3dModel(String(card.dataset.taskId||''));});
       elements.avatarLabModelsCollapseButton?.addEventListener('click',()=>setAvatarLabModelsView(avatarLabModelsView()==='collapsed'?'compact':'collapsed'));
       elements.avatarLabModelsFullButton?.addEventListener('click',()=>setAvatarLabModelsView(avatarLabModelsView()==='full'?'compact':'full',{persist:false}));
@@ -23163,6 +23228,8 @@
 
       socket.addEventListener('close', (event) => {
         if(state.chatStageWorldOpen){state.stageRetainedRoom=state.currentRoom||state.stageWorldRoom;state.stageIsJoined=false;state.stageAwaitingAck=false;stageStatus('Stage connection lost; preserving your avatar and position while reconnecting.',true);}
+        state.stageAssetAccess=null;
+        postToStage('personal-assets-disconnected');
         state.registered = false;
         state.isAdmin = false;
         state.signingOff = false;
@@ -23317,6 +23384,7 @@
           sendJson({ type: 'gif.gallery.list' });
           sendJson({ type: 'calendar.list' });
           sendJson({ type: 'avatar3d.list' });
+          if(state.stageIframe?.contentWindow && state.stageReady)sendJson({type:'stage.asset.authorize'});
           sendJson({ type: 'avatar.grok.list' });
           sendJson({ type: 'avatar.source.list' });
           redeemPendingExternalInvite();
@@ -23360,6 +23428,7 @@
           sendJson({ type: 'gif.gallery.list' });
           sendJson({ type: 'calendar.list' });
           sendJson({ type: 'avatar3d.list' });
+          if(state.stageIframe?.contentWindow && state.stageReady)sendJson({type:'stage.asset.authorize'});
           sendJson({ type: 'avatar.grok.list' });
           sendJson({ type: 'avatar.source.list' });
           redeemPendingExternalInvite();
@@ -23712,8 +23781,18 @@
           state.quizSavedItems=(Array.isArray(message.items)?message.items:[]).map(normalizeSavedQuiz);state.quizSavedId=null;elements.quizNameInput.value='';renderQuizLibrary();elements.quizLibraryStatus.textContent='Saved quiz deleted.';
           break;
 
+        case 'stage.asset.access':
+          state.stageAssetAccess={token:message.token,expiresAt:message.expiresAt,identityId:message.identityId};
+          postToStage('personal-assets-access',state.stageAssetAccess);break;
+        case 'stage.asset.imported':
+          postToStage('personal-assets-imported',{item:message.item});
+          addSystemMessage('Added to My Stage avatars. Open Stage → Galleries → Avatars to use it.');break;
         case 'avatar3d.list':
           reconcileAvatar3dSnapshot(message.items); renderAvatarLab();
+          postToStage('personal-assets-lab-models',{items:state.avatar3dItems.map(item=>({
+            taskId:item.taskId,prompt:item.prompt,status:item.status,displayUrl:item.displayUrl,
+            fileSize:item.fileSize,riggedFileSize:item.riggedFileSize
+          }))});
           { const pending=state.avatar3dItems.find((item)=>item && !['ready','failed','error','banned','expired','cancelled'].includes(String(item.status||'').toLowerCase())); if(pending?.taskId){state.avatar3dActiveTaskId=pending.taskId; scheduleAvatar3dPoll(pending.taskId,700);} }
           break;
         case 'avatar3d.status':
@@ -23960,6 +24039,7 @@
           }
           state.stageRetainedRoom='';
           if (!sameRoom(state.currentRoom, message.room)) {
+            closeStageFrameMediaPicker(null);
             state.currentRoom = message.room;
             state.desiredRoom = message.room;
             writeStorage('chat.room', message.room);
@@ -23985,6 +24065,8 @@
           state.currentRoomSystemRole = message.systemRole || null;
           state.currentRoomReadOnly = message.readOnly === true;
           state.currentRoomDirect = message.direct === true;
+          if (state.roomRailMode !== (state.currentRoomDirect ? 'direct' : 'channels'))
+            setRoomRailMode(state.currentRoomDirect ? 'direct' : 'channels');
           state.currentRoomDirectLabel = message.directLabel || null;
           state.currentRoomDirectParticipants = Array.isArray(message.directParticipants) ? message.directParticipants : [];
           state.currentRoomChannelCall = message.channelCall || null;
@@ -24237,6 +24319,8 @@
 
         case 'message.room':
           if (!isBlockedUser(message.from)) {
+            if (state.chatStageWorldOpen && sameRoom(message.room,state.currentRoom) && message.from?.id && typeof message.text==='string')
+              postToStage('speech',{clientId:message.from.id,nickname:message.from.nickname,own:isOwnUser(message.from),text:message.text.slice(0,240)});
             renderTextMessage(message, false);
             if (!isOwnUser(message.from)) {
               playSound('incoming');
@@ -24294,7 +24378,11 @@
           updateReactionUi(message.messageId, message.reactions);
           break;
         case 'typing.update':
-          if (!isBlockedUser(message.from)) handleRemoteTyping(message);
+          if (!isBlockedUser(message.from)) {
+            handleRemoteTyping(message);
+            if (state.chatStageWorldOpen && message.target==='room' && sameRoom(message.room,state.currentRoom) && message.from?.id && !isOwnUser(message.from))
+              postToStage('typing',{clientId:message.from.id,active:message.active===true,expiresAt:message.expiresAt});
+          }
           break;
         case 'voice.transcript':
           updateVoiceTranscript(message);
@@ -24557,6 +24645,8 @@
         case 'error': {
           debugLog('error', 'server', message.code || 'error', message);
           const errorCode = String(message.code || '');
+          if(errorCode.startsWith('stage_asset_') || errorCode==='registration_required')
+            postToStage('personal-assets-error',{message:String(message.message||errorCode).slice(0,220)});
           if(state.chatStageWorldOpen && (errorCode.startsWith('stage_') || ['snapshot_too_large','invalid_stage_schema','invalid_snapshot'].includes(errorCode))) {
             if(errorCode==='stage_rate_limited' && state.stageSnapshotInFlight) {
               // r378: a busy server has NOT saved the geometry. Retain the
@@ -40143,6 +40233,7 @@
       renderUsers();
       renderDirectTarget();
       if (!user?.id || isOwnUser(user)) return;
+      setRoomRailMode('direct');
       sendJson({ type: 'direct.channel.open', to: user.id, historyLimit: state.historyLimit });
       setMobilePanel('chat');
     }
@@ -42731,9 +42822,50 @@
       return badge;
     }
 
+    function roomRailStorageKey(field, mode = state.roomRailMode) {
+      return mode === 'direct' ? `chat.rooms.direct.${field}` : `chat.rooms.${field}`;
+    }
+
+    function writeRoomRailFilter(field, value) {
+      writeStorage(roomRailStorageKey(field), value);
+    }
+
+    function setRoomRailMode(mode) {
+      const next = mode === 'direct' ? 'direct' : 'channels';
+      if (state.roomRailMode === next) return;
+      state.roomRailMode = next;
+      writeStorage('chat.rooms.railMode', next);
+      state.roomSearch = readStorage(roomRailStorageKey('search')) || '';
+      state.roomSearchSort = readStorage(roomRailStorageKey('sort')) || 'az';
+      state.roomSearchScope = readStorage(roomRailStorageKey('scope')) || 'all';
+      state.roomSearchIncludeArchived = readStorage(roomRailStorageKey('includeArchived')) === 'on';
+      renderRooms();
+      if (!elements.roomSearchModal.hidden) {
+        elements.roomSearchInput.value = state.roomSearch;
+        elements.roomSearchSortSelect.value = state.roomSearchSort;
+        elements.roomSearchScopeSelect.value = state.roomSearchScope;
+        elements.roomSearchArchivedInput.checked = state.roomSearchIncludeArchived;
+      }
+      renderRoomSearchResults();
+    }
+
+    function syncRoomRailModeControls() {
+      const direct = state.roomRailMode === 'direct';
+      elements.roomRailChannelsButton.setAttribute('aria-pressed', String(!direct));
+      elements.roomRailDirectButton.setAttribute('aria-pressed', String(direct));
+      elements.roomCreateButton.hidden = direct;
+      elements.roomNewDirectButton.hidden = !direct;
+      elements.roomsPanel.setAttribute('aria-label', direct ? 'Direct conversations' : 'Channels');
+      elements.roomList.setAttribute('aria-label', direct ? 'Direct conversations' : 'Channels');
+      const other = state.rooms.filter((room) => room.direct !== direct && room.hidden !== true);
+      const unseen = other.some((room) => Math.max(0, Number(room.unread ?? state.roomUnread.get(room.roomKey || normalizeRoomKey(room.name))) || 0) > 0);
+      elements.roomRailChannelsButton.querySelector('.room-rail-view-unread').hidden = !direct || !unseen;
+      elements.roomRailDirectButton.querySelector('.room-rail-view-unread').hidden = direct || !unseen;
+    }
+
     function orderedRoomsForRail() {
       return state.rooms
-        .filter((room) => room.hidden !== true)
+        .filter((room) => room.hidden !== true && (room.direct === true) === (state.roomRailMode === 'direct'))
         .map((room, index) => ({ room, index }))
         .sort((a, b) => Number(Boolean(b.room.pinned)) - Number(Boolean(a.room.pinned)) || a.index - b.index)
         .map(({ room }) => room);
@@ -42773,7 +42905,21 @@
       elements.roomList.textContent = '';
       const visibleRooms = filteredRoomsForRail();
       elements.roomCount.textContent = `${visibleRooms.length}`;
+      syncRoomRailModeControls();
       hideRoomOwnerTooltip();
+      if (!visibleRooms.length) {
+        const empty = document.createElement('span');
+        empty.className = 'room-rail-empty';
+        empty.title = state.roomRailMode === 'direct'
+          ? 'No direct conversations. Select the + button to find a person.'
+          : 'No channels match. Use search to change the filters.';
+        empty.setAttribute('aria-label', empty.title);
+        const icon = document.createElement('span');
+        icon.className = state.roomRailMode === 'direct' ? 'icon icon-rail-direct' : 'icon icon-rail-channels';
+        icon.setAttribute('aria-hidden','true');
+        empty.append(icon);
+        elements.roomList.append(empty);
+      }
 
       for (const room of visibleRooms) {
         const button = document.createElement('button');
@@ -42798,7 +42944,7 @@
         if (isCurrentRoom) {
           button.classList.add('active');
           button.setAttribute('aria-current', 'page');
-          button.title = `${roomLabel} · current channel`;
+          button.title = `${roomLabel} · current ${room.direct ? 'conversation' : 'channel'}`;
         }
         button.disabled = !state.registered || isCurrentRoom;
 
@@ -44318,6 +44464,8 @@
         openProfileOverlay();
         return;
       }
+      const railRecord = state.rooms.find((item) => sameRoom(item.name, room));
+      if (railRecord) setRoomRailMode(railRecord.direct ? 'direct' : 'channels');
       state.desiredRoom = room;
       writeStorage('chat.room', room);
       sendJson({ type: 'room.join', room, historyLimit: state.historyLimit, badge: isSafeAvatarUrl(badge) ? badge : null });
@@ -46149,10 +46297,112 @@
       state.stageAppearanceSeq++;
       sendStageAppearance();
     }
+    // r402: a current-channel picker shared by image, video, HLS/DASH and audio frames.
+    // Never send unrelated channels, direct messages or owner-private files to Stage.
+    let stageFrameMediaPicker=null;
+    function closeStageFrameMediaPicker(selected=null){
+      const active=stageFrameMediaPicker;if(!active)return;
+      stageFrameMediaPicker=null;document.removeEventListener('keydown',active.onKey,true);
+      active.root.remove();
+      if(state.stageIframe?.contentWindow===active.target&&state.stageReady)
+        postToStage('frame-media-choice',{requestId:active.requestId,item:selected});
+    }
+    function stageRoomMediaChoices(){
+      const now=Date.now(),output=[],seen=new Set();
+      for(const message of state.messageData.values()){
+        if(!message||message.target==='user'||message.direct===true||!sameRoom(message.room,state.currentRoom)||isBlockedUser(message.from)||shouldHideMessage(message))continue;
+        if(Number(message.expiresAt)>0&&Number(message.expiresAt)<now)continue;
+        const file=message.file;
+        if(file&&typeof file==='object'){
+          const mime=String(file.mime||'').toLowerCase();
+          const frameType=mime.startsWith('image/')&&mime!=='image/svg+xml'?'Image':
+            (mime.startsWith('video/')||file.streamUrl?'HLS/DASH video':mime.startsWith('audio/')||file.kind==='voice'?'Audio':'');
+          if(!frameType)continue;
+          const id=mediaMessageIdFromFile({...file,messageId:message.id});
+          if(!id||seen.has(id))continue;
+          // Use the existing safe, same-origin HLS preview helper. For ordinary
+          // files, /files/<message-id> is a durable URL with server-supplied MIME.
+          const source=frameType==='HLS/DASH video'?(mediaStreamManifestUrl({...file,messageId:id})||`/files/${id}`):`/files/${id}`;
+          const preview=frameType==='Image'?(file.previewUrl||source):String(file.previewUrl||file.posterUrl||file.audioCoverUrl||'');
+          seen.add(id);output.push({id,frameType,url:source,preview,title:String(file.name||file.fileName||file.title||'Shared '+frameType).slice(0,80),
+            from:String(message.from?.nickname||'Channel member').slice(0,64),time:Number(message.serverTime)||0});
+          continue;
+        }
+        if((message.type==='message.room'||message.messageType==='text')&&typeof message.text==='string'){
+          const streams=message.text.match(/https:\/\/[^\s<>"']+?\.(?:m3u8|mpd)(?:\?[^\s<>"']*)?/gi)||[];
+          for(const raw of streams.slice(0,3)){
+            let source;try{source=new URL(raw);if(source.protocol!=='https:')continue;}catch{continue;}
+            if(seen.has(source.href))continue;seen.add(source.href);
+            output.push({id:source.href,frameType:'HLS/DASH video',url:source.href,preview:'',title:'Shared stream',from:String(message.from?.nickname||'Channel member'),time:Number(message.serverTime)||0});
+          }
+        }
+      }
+      return output.sort((a,b)=>b.time-a.time).slice(0,120);
+    }
+    function openStageFrameMediaPicker(requestId){
+      if(!/^[a-f0-9-]{36}$/i.test(requestId)||!state.currentRoom||!state.registered||!state.stageIsJoined||!state.chatStageWorldOpen){
+        postToStage('frame-media-choice',{requestId,item:null});return;
+      }
+      if(stageFrameMediaPicker)closeStageFrameMediaPicker(null);
+      const root=document.createElement('section');root.className='stage-frame-media-picker';root.setAttribute('role','presentation');
+      const card=document.createElement('div');card.className='stage-frame-media-card';card.setAttribute('role','dialog');card.setAttribute('aria-modal','true');card.setAttribute('aria-label','Choose channel media for Stage');
+      const head=document.createElement('header');head.className='stage-frame-media-head';
+      const title=document.createElement('div');title.innerHTML='<strong>Channel media → Surface Frame</strong><small>Images, videos, streams and audio in this channel</small>';
+      const close=document.createElement('button');close.type='button';close.textContent='✕';close.setAttribute('aria-label','Close picker');head.append(title,close);
+      const controls=document.createElement('div');controls.className='stage-frame-media-controls';
+      const search=document.createElement('input');search.type='search';search.placeholder='Search channel media…';search.setAttribute('aria-label','Search channel media');
+      const filters=[['all','All'],['Image','Images'],['HLS/DASH video','Video / streams'],['Audio','Audio']];
+      let active='all';const tabs=filters.map(([key,text])=>{const btn=document.createElement('button');btn.type='button';btn.textContent=text;btn.setAttribute('aria-pressed',String(key===active));btn.addEventListener('click',()=>{active=key;for(const [k,b] of tabs)b.setAttribute('aria-pressed',String(k===active));render();});controls.append(btn);return [key,btn];});
+      controls.prepend(search);const grid=document.createElement('div');grid.className='stage-frame-media-grid';
+      const footer=document.createElement('footer');footer.className='stage-frame-media-footer';
+      footer.textContent='Only current-channel media is listed. Selecting a file adds its link to the shared Stage scene; other participants can view/play it. Expiring or deleted media may stop working.';
+      card.append(head,controls,grid,footer);root.append(card);document.body.append(root);
+      const target=state.stageIframe?.contentWindow;
+      const onKey=event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeStageFrameMediaPicker(null);}};
+      stageFrameMediaPicker={root,requestId,target,onKey};
+      const rows=stageRoomMediaChoices();
+      function render(){
+        grid.replaceChildren();const needle=search.value.trim().toLowerCase();let count=0;
+        for(const row of rows){
+          if(active!=='all'&&row.frameType!==active)continue;
+          if(needle&&![row.title,row.from,row.frameType].join(' ').toLowerCase().includes(needle))continue;
+          const btn=document.createElement('button');btn.type='button';btn.className='stage-frame-media-item';
+          if(row.preview){const img=document.createElement('img');img.src=row.preview;img.alt='';img.loading='lazy';img.referrerPolicy='same-origin';btn.append(img);}
+          else {const symbol=document.createElement('div');symbol.className='stage-frame-media-kind';symbol.textContent=row.frameType==='Audio'?'♫':row.frameType==='Image'?'▧':'▶';btn.append(symbol);}
+          const label=document.createElement('strong');label.textContent=row.title;
+          const meta=document.createElement('small');meta.textContent=row.from+' · '+(row.frameType==='HLS/DASH video'?'Video / stream':row.frameType);
+          btn.append(label,meta);btn.title='Use '+row.title+' in this Stage world';btn.addEventListener('click',()=>closeStageFrameMediaPicker({frameType:row.frameType,url:row.url,title:row.title}));grid.append(btn);count++;
+        }
+        if(!count){const empty=document.createElement('div');empty.className='stage-frame-media-empty';empty.textContent=rows.length?'No matching channel media.':'No image, video or audio uploads in this channel yet.';grid.append(empty);}
+      }
+      search.addEventListener('input',render);close.addEventListener('click',()=>closeStageFrameMediaPicker(null));root.addEventListener('click',event=>{if(event.target===root)closeStageFrameMediaPicker(null);});
+      document.addEventListener('keydown',onKey,true);render();requestAnimationFrame(()=>search.focus());
+    }
     function handleStageFrameMessage(event) {
       if(event.origin!==location.origin || !state.stageIframe || event.source!==state.stageIframe.contentWindow) return;
       const data=event.data;
       if(!data || data.source!=='rantlist.stage.1266') return;
+      if(data.event==='media-picker-open') {
+        openStageFrameMediaPicker(String(data.requestId||''));
+        return;
+      }
+      if(data.event==='personal-assets-authorize') {
+        if(state.registered && state.socket?.readyState===WebSocket.OPEN){
+          sendJson({type:'stage.asset.authorize'});
+          sendJson({type:'avatar3d.list'});
+        }else if(state.socket?.readyState!==WebSocket.OPEN){
+          postToStage('personal-assets-error',{message:'Rantlist is reconnecting. Your saved avatars remain on the server.'});
+        }else{
+          postToStage('personal-assets-error',{message:'Sign in to Rantlist to edit your private Stage gallery.'});
+        }
+        return;
+      }
+      if(data.event==='personal-assets-import') {
+        if(state.registered && state.socket?.readyState===WebSocket.OPEN)
+          sendJson({type:'stage.asset.import',taskId:String(data.taskId||'').slice(0,180),
+            name:String(data.name||'').slice(0,80),replaceId:String(data.replaceId||'').slice(0,32)});
+        return;
+      }
       if(data.event==='focus-mode-toggle') {
         if(state.chatStageWorldOpen)setStageFocusMode(!state.stageFocusMode);
         return;
@@ -46169,11 +46419,17 @@
         if(state.stageIsJoined){postToStage('joined');if(state.stageCutBootstrap)postToStage('cut-bootstrap',state.stageCutBootstrap);}
         // Join and presence packets can arrive before the heavy iframe loads.
         postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
+        for(const entry of state.typingUsers.values())if(!entry.direct && entry.user?.id && entry.expiresAt>Date.now())postToStage('typing',{clientId:entry.user.id,active:true,expiresAt:entry.expiresAt});
         postToStage('presence-snapshot',{editing:state.stageEditing});
         postToStage('activity-snapshot',{activities:state.stageActivities});
         postToStage('physics-snapshot',{objects:[...stagePhysicsObjects.values()]});
         postToStage('layout',{layout:state.stageFeedMode});
         postToStage('focus-mode-state',{active:state.stageFocusMode});
+        if(state.registered && state.socket?.readyState===WebSocket.OPEN){
+          if(state.stageAssetAccess?.expiresAt>Date.now()+30_000)postToStage('personal-assets-access',state.stageAssetAccess);
+          else sendJson({type:'stage.asset.authorize'});
+          sendJson({type:'avatar3d.list'});
+        }
         if(state.chatStageWorldOpen) {
           startChatStageWorldAnimation();
           if(elements.chatStageStatus) {elements.chatStageStatus.textContent='Loading channel scene… '+(data.xr?'WebXR available':'desktop 3D');/* 'applied' dismisses load status; slow-load timer warns at 8 seconds. */}
@@ -46286,6 +46542,7 @@
             state.stagePeerPlayers.clear();
             for(const peer of message.players.slice(0,36)) if(peer?.clientId) state.stagePeerPlayers.set(String(peer.clientId),peer);
             postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
+            for(const entry of state.typingUsers.values())if(!entry.direct && entry.user?.id && entry.expiresAt>Date.now())postToStage('typing',{clientId:entry.user.id,active:true,expiresAt:entry.expiresAt});
           }
           postToStage('joined');
           // Resume an unacknowledged avatar change after a dropped socket; do
@@ -48536,7 +48793,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const strong=card.querySelector('.avatar-lab-model-info strong'),small=card.querySelector('.avatar-lab-model-info small'),img=card.querySelector('.avatar-lab-model-thumb img'),placeholder=card.querySelector('.avatar-lab-model-thumb-placeholder'),thumb=card.querySelector('.avatar-lab-model-thumb'),actions=card.querySelector('.avatar-lab-model-actions');
       if(strong)strong.textContent=model;if(small)small.textContent=[textureModel?`Tex ${textureModel}`:'',created,status].filter(Boolean).join(' · ');if(img)img.alt=`${model} 3D preview`;
       let badge=thumb?.querySelector('.avatar-lab-rig-badge');if(item?.riggedUrl&&!badge&&thumb){badge=document.createElement('span');badge.className='avatar-lab-rig-badge';badge.textContent='Mixamo';thumb.append(badge);}else if(!item?.riggedUrl&&badge)badge.remove();
-      if(actions){actions.replaceChildren();if(item?.url&&!item?.riggedUrl&&!['checking','rigging'].includes(rig)){const btn=document.createElement('button');btn.type='button';btn.dataset.avatarModelAction='rig';btn.dataset.taskId=taskId;btn.textContent='Rig';btn.title=item?.rigError?`Retry Mixamo rig: ${item.rigError}`:'Check humanoid riggability, then create a Mixamo-compatible biped skeleton';btn.disabled=avatarLabRequestBusy()||!state.tripoApiKeyConfigured;actions.append(btn);}const downloadUrl=item?.riggedUrl||item?.url;if(downloadUrl){const link=document.createElement('a');link.className='button-like';link.href=downloadUrl;link.download='';link.textContent=item?.riggedUrl?'Rigged GLB':'GLB';actions.append(link);}}
+      if(actions){actions.replaceChildren();if(item?.url&&!item?.riggedUrl&&!['checking','rigging'].includes(rig)){const btn=document.createElement('button');btn.type='button';btn.dataset.avatarModelAction='rig';btn.dataset.taskId=taskId;btn.textContent='Rig';btn.title=item?.rigError?`Retry Mixamo rig: ${item.rigError}`:'Check humanoid riggability, then create a Mixamo-compatible biped skeleton';btn.disabled=avatarLabRequestBusy()||!state.tripoApiKeyConfigured;actions.append(btn);}const downloadUrl=item?.riggedUrl||item?.url;if(downloadUrl){const link=document.createElement('a');link.className='button-like';link.href=downloadUrl;link.download='';link.textContent=item?.riggedUrl?'Rigged GLB':'GLB';actions.append(link);const add=document.createElement('button');add.type='button';add.dataset.avatarModelAction='stage-gallery';add.dataset.taskId=taskId;add.textContent='Add to Stage';add.title='Copy your ready model into your private Stage avatar gallery';add.disabled=!state.registered || Number(item.riggedFileSize||item.fileSize||0)>20*1048576;actions.append(add);}}
       hydrateAvatarLabModelThumbnail(item,img,placeholder);
     }
     function avatar3dGalleryItems(){
@@ -52733,17 +52990,17 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       elements.roomSearchSortSelect.value = 'az';
       elements.roomSearchScopeSelect.value = 'all';
       elements.roomSearchArchivedInput.checked = false;
-      writeStorage('chat.rooms.search', '');
-      writeStorage('chat.rooms.sort', 'az');
-      writeStorage('chat.rooms.scope', 'all');
-      writeStorage('chat.rooms.includeArchived', 'off');
+      writeRoomRailFilter('search', '');
+      writeRoomRailFilter('sort', 'az');
+      writeRoomRailFilter('scope', 'all');
+      writeRoomRailFilter('includeArchived', 'off');
       renderRoomSearchResults();
       renderRooms();
     }
 
     function filteredRoomsForSearch() {
       const query = state.roomSearch.trim().toLocaleLowerCase('en-US');
-      let rooms = state.rooms.filter((room) => state.roomSearchIncludeArchived || !room.archived);
+      let rooms = state.rooms.filter((room) => (room.direct === true) === (state.roomRailMode === 'direct') && (state.roomSearchIncludeArchived || !room.archived));
       const owns = (room) => Boolean(state.identityId && room.creatorIdentityId === state.identityId);
       if (state.roomSearchScope === 'pinned') rooms = rooms.filter((room) => room.pinned === true);
       else if (state.roomSearchScope === 'hidden') rooms = rooms.filter((room) => room.hidden === true);
@@ -52753,7 +53010,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if (query) {
         rooms = rooms.filter((room) => {
           const owner = room.creatorNickname ? `@${room.creatorNickname}` : (room.permanent ? '@server' : '@unknown');
-          return `${room.name} ${owner}`.toLocaleLowerCase('en-US').includes(query);
+          return `${room.name} ${room.direct ? directRoomDisplayName(room) : ''} ${owner}`.toLocaleLowerCase('en-US').includes(query);
         });
       }
       rooms.sort((a, b) => {
@@ -52799,19 +53056,29 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
 
     function renderRoomSearchResults() {
       if (!elements.roomSearchResults) return;
+      const direct = state.roomRailMode === 'direct';
+      elements.roomSearchTitle.textContent = direct ? 'Find direct conversations' : 'Find channels';
+      elements.roomSearchInput.placeholder = direct ? 'Search by conversation or participant' : 'Search by channel or owner';
+      elements.roomSearchInput.setAttribute('aria-label', direct ? 'Search direct conversations' : 'Search channels');
+      for (const option of elements.roomSearchScopeSelect.options) {
+        if (option.value === 'all') option.textContent = direct ? 'All conversations' : 'All channels';
+        if (option.value === 'private') option.hidden = direct;
+        if (option.value === 'mine' || option.value === 'mine-private') option.hidden = direct;
+      }
       const rooms = filteredRoomsForSearch();
-      const hiddenCount = state.rooms.filter((room) => room.hidden === true).length;
+      const total = state.rooms.filter((room) => (room.direct === true) === direct).length;
+      const hiddenCount = state.rooms.filter((room) => (room.direct === true) === direct && room.hidden === true).length;
       elements.roomSearchResults.textContent = '';
-      elements.roomSearchCount.textContent = `${rooms.length} of ${state.rooms.length} channels${hiddenCount ? ` · ${hiddenCount} hidden` : ''}`;
+      elements.roomSearchCount.textContent = `${rooms.length} of ${total} ${direct ? 'direct conversations' : 'channels'}${hiddenCount ? ` · ${hiddenCount} hidden` : ''}`;
       const railFiltered = roomRailFilterActive();
       elements.roomSearchButton.classList.toggle('active', railFiltered);
-      elements.roomSearchButton.title = railFiltered ? 'Find channels · channel rail filtered' : 'Find channels';
+      elements.roomSearchButton.title = railFiltered ? `Find ${direct ? 'direct conversations' : 'channels'} · list filtered` : `Find ${direct ? 'direct conversations' : 'channels'}`;
       elements.roomSearchButton.setAttribute('aria-label', elements.roomSearchButton.title);
 
       if (!rooms.length) {
         const empty = document.createElement('div');
         empty.className = 'room-search-empty';
-        empty.textContent = 'No channels match these filters.';
+        empty.textContent = direct ? 'No direct conversations match these filters. Start one from the Users panel.' : 'No channels match these filters.';
         elements.roomSearchResults.append(empty);
         return;
       }
