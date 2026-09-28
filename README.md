@@ -1,3 +1,15 @@
+## Client 0.1.217 / server 9.6.385 — r413 shared Stage assets & vehicles
+
+Companion client for r413 server. Ships the same browser core; native app and personal data remain unchanged. Install server first.
+
+## Client 0.1.216 / server 9.6.384 — r412 verification fix
+
+Companion to server rantlist-deploy-r412. Preserves r411 room and cell improvements, without runtime changes. Install the server first.
+
+## Client 0.1.215 / server 9.6.383 — Recent rooms and anchored multiplayer cells
+
+Companion to server rantlist-deploy-r411. Highlights the current room, prioritizes recent and frequently visited conversations, fixes room participant badge position, and transmits explicit Stage grid-cell addresses for connected player poses. The infinite geometry replication policy is unchanged. Server first; protocol 70 and saved worlds preserved.
+
 ## Client 0.1.214 / server 9.6.382 — Channels and direct conversations separated
 
 Companion to server rantlist-deploy-r410. Two new icon tabs directly beneath the room search separate channels from private 1:1 conversations. Supplied icons are sanitized and bundled. Each view remembers its own search filters, and unread activity is signalled across tabs. Native wrapper, Stage protocol and persisted data unchanged. Server-first deployment required.

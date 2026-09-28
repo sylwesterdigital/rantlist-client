@@ -1,3 +1,15 @@
+## Client 0.1.217 / server 9.6.385 — r413 shared Stage assets & vehicles
+
+Companion client for r413 server. Ships the same browser core; native app and personal data remain unchanged. Install server first.
+
+## 0.1.216 / 9.6.384 (r412)
+
+Matching web snapshot for the r412 server verification fix. No changes to the native application code or stage/world data.
+
+## 0.1.215 / 9.6.383 (r411)
+
+Matching browser client snapshot for current/recent room rail, count badge positioning and cell-addressed Stage multiplayer presence. Deploy server r411 before releasing native clients.
+
 ## 0.1.214 / 9.6.382 (r410)
 
 Matching full-client snapshot for the Channels / Direct conversations rail split with user-supplied icons and per-view search settings. Install server r410 first.

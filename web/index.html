@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.382">
+  <meta name="chat-ui-version" content="9.6.385">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -8555,6 +8555,11 @@
       background: color-mix(in srgb, var(--accent) 22%, var(--panel-2));
     }
 
+    .room-badge-button.active {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+      box-shadow: 0 0 0 1px var(--panel), 0 0 13px color-mix(in srgb, var(--accent) 55%, transparent);
+    }
     .room-badge-button.active::before {
       content: "";
       position: absolute;
@@ -8628,6 +8633,8 @@
       line-height: 1;
       transform-origin: center;
     }
+    /* Put unread beneath the badge so it never obscures the online count. */
+    .room-badge-button .room-unread-count { top: auto; bottom: -6px; }
     .room-badge-button:not(.active) .room-unread-count { animation: room-unread-pulse 2.4s ease-in-out infinite; }
     @keyframes room-unread-pulse {
       0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 color-mix(in srgb, var(--warning) 0%, transparent); }
@@ -8663,10 +8670,12 @@
       overflow: visible;
     }
 
+    /* r411: participant count sits above each rail badge, away from the DM avatar. */
     .room-badge-button .room-user-count {
       position: absolute;
+      z-index: 7;
       right: -4px;
-      bottom: -3px;
+      top: -5px;
       min-width: 17px;
       height: 17px;
       display: grid;
@@ -17738,7 +17747,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.382</small>
+          <small id="serverBrandVersion">v9.6.385</small>
         </span>
       </button>
     </div>
@@ -17797,7 +17806,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.382</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.385</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -20989,7 +20998,7 @@
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
       stageEditQueue: [],stagePendingPaintAfterSnapshot:[],stageEditAwaitingAck: false,stageEditRetryTimer: 0,stageSnapshotInFlight:null,stageSnapshotRetryTimer:0,stageSnapshotRetryAfter:0,stageSnapshotRetryAttempts:0,stageEditing:[],stageActivities:[],
       stageRevision: 0, stageWorldSnapshot: null, stagePaintLayers:new Map(), stageWorldRoom: '', stageFeedObserver: null,
-      stageFeedTimer: 0, stageOverlayVisible: false, stageFocusMode: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(),
+      stageFeedTimer: 0, stageOverlayVisible: false, stageFocusMode: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(), stageLiveVehicles: [],
       stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageAppearanceDesired:null,stageAppearanceSeq:0,stageAppearancePendingSeq:0,stageAppearanceSendAt:0,stageAppearanceRetryTimer:0,stageActionSeq:0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
@@ -24065,6 +24074,7 @@
           state.currentRoomSystemRole = message.systemRole || null;
           state.currentRoomReadOnly = message.readOnly === true;
           state.currentRoomDirect = message.direct === true;
+          noteRoomRailVisit(message.room,state.currentRoomDirect ? 'direct' : 'channels');
           if (state.roomRailMode !== (state.currentRoomDirect ? 'direct' : 'channels'))
             setRoomRailMode(state.currentRoomDirect ? 'direct' : 'channels');
           state.currentRoomDirectLabel = message.directLabel || null;
@@ -24193,14 +24203,14 @@
               const id=String(message.clientId);
               if(message.action==='leave') state.stagePeerPlayers.delete(id);
               else if(state.stagePeerPlayers.has(id) || state.stagePeerPlayers.size<36) {
-                state.stagePeerPlayers.set(id,{...state.stagePeerPlayers.get(id), clientId:id, nickname:message.nickname||state.stagePeerPlayers.get(id)?.nickname, pose:message.pose||state.stagePeerPlayers.get(id)?.pose, appearance:message.appearance||state.stagePeerPlayers.get(id)?.appearance, seq:message.type==='stage.world.motion'?message.seq:state.stagePeerPlayers.get(id)?.seq});
+                state.stagePeerPlayers.set(id,{...state.stagePeerPlayers.get(id), clientId:id, nickname:message.nickname||state.stagePeerPlayers.get(id)?.nickname, pose:message.pose||state.stagePeerPlayers.get(id)?.pose, vehicle:Object.hasOwn(message,'vehicle')?message.vehicle:state.stagePeerPlayers.get(id)?.vehicle, appearance:message.appearance||state.stagePeerPlayers.get(id)?.appearance, seq:message.type==='stage.world.motion'?message.seq:state.stagePeerPlayers.get(id)?.seq});
               }
             }
             // An appearance packet may precede presence after reconnect. Carry the
             // cached profile into the first real pose rather than spawning a ghost
             // with no GLB until a second appearance update happens to arrive.
             const cached=state.stagePeerPlayers.get(String(message.clientId||''));
-            postToStage('peer',{action:message.action||(message.type==='stage.world.action'?'jump':message.type==='stage.world.appearance'?'appearance':'move'),clientId:message.clientId,nickname:message.nickname||cached?.nickname,appearance:message.appearance||cached?.appearance,pose:message.pose||cached?.pose,seq:message.seq});
+            postToStage('peer',{action:message.action||(message.type==='stage.world.action'?'jump':message.type==='stage.world.appearance'?'appearance':'move'),clientId:message.clientId,nickname:message.nickname||cached?.nickname,appearance:message.appearance||cached?.appearance,pose:message.pose||cached?.pose,vehicle:message.vehicle,seq:message.seq});
             if(message.type==='stage.world.presence') stageStatus('A participant '+(message.action==='join'?'entered':'left')+' Stage');
           }
           break;
@@ -42863,12 +42873,49 @@
       elements.roomRailDirectButton.querySelector('.room-rail-view-unread').hidden = direct || !unseen;
     }
 
+    // r411: only an acknowledged room join changes this user's private rail history.
+    // Store bounded room keys, never room contents, channel membership or messages.
+    function roomRailHistoryKey(mode = state.roomRailMode) {
+      return `chat.rooms.recent.${String(state.identityId || 'guest').slice(0,100)}.${mode === 'direct' ? 'direct' : 'channels'}`;
+    }
+    function roomRailHistory(mode = state.roomRailMode) {
+      try {
+        const items = JSON.parse(readStorage(roomRailHistoryKey(mode)) || '[]');
+        if (!Array.isArray(items)) return [];
+        return items.slice(0,24).filter(item => item && typeof item.key === 'string' && /^[^<>\x00-\x1f]{1,160}$/.test(item.key))
+          .map(item => ({ key: item.key, visits: Math.max(1,Math.min(50,Number(item.visits)||1)), at: Math.max(0,Number(item.at)||0) }));
+      } catch (_) { return []; }
+    }
+    function noteRoomRailVisit(roomName, mode) {
+      const key = normalizeRoomKey(roomName);
+      if (!key) return;
+      const previous = roomRailHistory(mode), old = previous.find(item => item.key === key);
+      const next = [{key, visits: Math.min(50,(old?.visits||0)+1), at: Date.now()}, ...previous.filter(item => item.key !== key)].slice(0,24);
+      writeStorage(roomRailHistoryKey(mode),JSON.stringify(next));
+    }
     function orderedRoomsForRail() {
+      const history = roomRailHistory();
+      const visits = new Map(history.map((item,i) => [item.key,{...item,index:i}]));
+      const current = normalizeRoomKey(state.currentRoom);
       return state.rooms
-        .filter((room) => room.hidden !== true && (room.direct === true) === (state.roomRailMode === 'direct'))
-        .map((room, index) => ({ room, index }))
-        .sort((a, b) => Number(Boolean(b.room.pinned)) - Number(Boolean(a.room.pinned)) || a.index - b.index)
-        .map(({ room }) => room);
+        .filter(room => room.hidden !== true && (room.direct === true) === (state.roomRailMode === 'direct'))
+        .map((room,index) => ({room,index,history:visits.get(room.roomKey || normalizeRoomKey(room.name))}))
+        .sort((a,b) => {
+          const active = Number(sameRoom(b.room.name,current)) - Number(sameRoom(a.room.name,current));
+          if (active) return active;
+          const pinned = Number(Boolean(b.room.pinned))-Number(Boolean(a.room.pinned));
+          if (pinned) return pinned;
+          if (a.history && !b.history) return -1;
+          if (b.history && !a.history) return 1;
+          if (a.history && b.history) {
+            // The last eight visits stay at the top; repeated visits also lift
+            // frequently used rooms without permanently burying new rooms.
+            const score = item => Math.min(12,item.history.visits)*2 - Math.min(12,item.history.index);
+            return score(b)-score(a) || b.history.at-a.history.at;
+          }
+          return a.index-b.index;
+        })
+        .map(({room}) => room);
     }
 
     function roomRailFilterActive() {
@@ -42878,7 +42925,8 @@
     function filteredRoomsForRail() {
       if (!roomRailFilterActive()) return orderedRoomsForRail();
       const explicitHiddenScope = state.roomSearchScope === 'hidden';
-      return filteredRoomsForSearch().filter((room) => explicitHiddenScope || room.hidden !== true);
+      const filtered = filteredRoomsForSearch().filter((room) => explicitHiddenScope || room.hidden !== true);
+      return filtered.sort((a,b) => Number(sameRoom(b.name,state.currentRoom)) - Number(sameRoom(a.name,state.currentRoom)));
     }
 
     function syncChannelHeaderActions() {
@@ -46112,6 +46160,7 @@
       clearTimeout(state.stageFeedTimer);
       state.stageIsJoined=false;
       state.stagePeerPlayers.clear();
+      state.stageLiveVehicles=[];postToStage('vehicle-snapshot',{vehicles:[]});
       state.stageEditing=[];state.stageActivities=[];
       state.stageEditQueue.length=0;state.stageEditAwaitingAck=false;
       clearTimeout(state.stageEditRetryTimer);
@@ -46419,6 +46468,7 @@
         if(state.stageIsJoined){postToStage('joined');if(state.stageCutBootstrap)postToStage('cut-bootstrap',state.stageCutBootstrap);}
         // Join and presence packets can arrive before the heavy iframe loads.
         postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
+        postToStage('vehicle-snapshot',{vehicles:state.stageLiveVehicles||[]});
         for(const entry of state.typingUsers.values())if(!entry.direct && entry.user?.id && entry.expiresAt>Date.now())postToStage('typing',{clientId:entry.user.id,active:true,expiresAt:entry.expiresAt});
         postToStage('presence-snapshot',{editing:state.stageEditing});
         postToStage('activity-snapshot',{activities:state.stageActivities});
@@ -46437,7 +46487,7 @@
         if(!state.chatStageWorldOpen || document.hidden) postToStage('pause');
       } else if(data.event==='motion' && state.chatStageWorldOpen && state.stageIsJoined && stageRoomKey()===state.stageWorldRoom && !document.hidden) {
         if(data.pose && typeof data.pose==='object'){state.stageLastLocalPose=data.pose;state.stageLastLocalPoseRoom=stageRoomKey();
-          if(state.socket?.readyState===WebSocket.OPEN && state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.motion',pose:data.pose,seq:++state.stageMotionSeq});
+          if(state.socket?.readyState===WebSocket.OPEN && state.socket.bufferedAmount<32*1024)sendJson({type:'stage.world.motion',pose:data.pose,vehicle:data.vehicle??null,seq:++state.stageMotionSeq});
           else stageNetMetrics.droppedMotion++;}
       } else if((data.event==='physics-impact'||data.event==='physics-motion'||data.event==='physics-contact')
         &&state.chatStageWorldOpen&&state.stageIsJoined&&stageRoomKey()===state.stageWorldRoom
@@ -46527,6 +46577,7 @@
                 {op:'style',id:target.id,...target.style});
           }
           state.stageIsJoined=true;
+          if(Array.isArray(message.vehicles)){state.stageLiveVehicles=message.vehicles.slice(0,24);postToStage('vehicle-snapshot',{vehicles:state.stageLiveVehicles});}
           if(Array.isArray(message.editing)){state.stageEditing=message.editing.slice(0,48);postToStage('presence-snapshot',{editing:state.stageEditing});}
           if(Array.isArray(message.activities)){state.stageActivities=message.activities.slice(0,48);postToStage('activity-snapshot',{activities:state.stageActivities});}
           if(Array.isArray(message.players)) {
