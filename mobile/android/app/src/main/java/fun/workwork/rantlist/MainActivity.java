@@ -3,14 +3,18 @@ package fun.workwork.rantlist;
 import android.Manifest;
 import android.app.Activity;
 import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 import android.os.Bundle;
 import android.os.Environment;
 import android.security.keystore.KeyGenParameterSpec;
@@ -36,17 +40,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 public final class MainActivity extends Activity {
@@ -67,7 +81,13 @@ public final class MainActivity extends Activity {
     private boolean uiLoaded = false;
     private boolean mainFrameLoadFailed = false;
     private WebMessagePort secretPort;
+    private WebMessagePort sharePort;
     private SecureOpenAiStore secureOpenAiStore;
+    private DownloadManager downloadManager;
+    private final Set<Long> pendingPdfDownloads = new HashSet<>();
+    private BroadcastReceiver downloadReceiver;
+    private final ExecutorService nativeShareExecutor = Executors.newSingleThreadExecutor();
+    private final Map<String, NativeShareGroup> nativeShareGroups = new LinkedHashMap<>();
 
     private boolean isTrusted(Uri uri) {
         if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) return false;
@@ -94,6 +114,7 @@ public final class MainActivity extends Activity {
         super.onCreate(state);
         connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         secureOpenAiStore = new SecureOpenAiStore(this);
+        downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
         uiLoaded = state != null && state.getBoolean("rantlistUiLoaded", false);
 
         root = new FrameLayout(this);
@@ -111,6 +132,9 @@ public final class MainActivity extends Activity {
         settings.setAllowFileAccess(true);
         settings.setAllowContentAccess(true);
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
+        String nativeUserAgent = settings.getUserAgentString();
+        if (nativeUserAgent == null) nativeUserAgent = "";
+        if (!nativeUserAgent.contains("Rantlist-Android")) settings.setUserAgentString((nativeUserAgent + " Rantlist-Android").trim());
 
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
@@ -119,6 +143,10 @@ public final class MainActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
                 Uri uri = request.getUrl();
+                if (isPdfPreviewUri(uri)) {
+                    openPdf(uri, view.getSettings().getUserAgentString());
+                    return true;
+                }
                 if (isTrusted(uri) || "about".equals(uri.getScheme()) || "blob".equals(uri.getScheme()) || "data".equals(uri.getScheme())) {
                     return false;
                 }
@@ -139,6 +167,7 @@ public final class MainActivity extends Activity {
                 if (!isTrusted(Uri.parse(url)) || mainFrameLoadFailed) return;
                 uiLoaded = true;
                 installSecretChannel(view);
+                installShareChannel(view);
                 showReady();
             }
 
@@ -192,17 +221,17 @@ public final class MainActivity extends Activity {
 
         webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
             try {
-                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                request.setMimeType(mimetype);
-                request.addRequestHeader("User-Agent", userAgent);
-                String cookies = CookieManager.getInstance().getCookie(url);
-                if (cookies != null) request.addRequestHeader("Cookie", cookies);
+                DownloadManager.Request request = authenticatedDownloadRequest(Uri.parse(url), userAgent, mimetype);
                 request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                 request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, android.webkit.URLUtil.guessFileName(url, contentDisposition, mimetype));
-                ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(request);
-            } catch (Exception ignored) {}
+                downloadManager.enqueue(request);
+            } catch (Exception error) {
+                Toast.makeText(this, "Download could not be started.", Toast.LENGTH_SHORT).show();
+            }
         });
 
+        registerDownloadReceiver();
+        captureIncomingShareIntent(getIntent());
         registerConnectivityWatcher();
 
         if (state != null && uiLoaded && webView.restoreState(state) != null) {
@@ -213,6 +242,305 @@ public final class MainActivity extends Activity {
             loadFresh();
         } else {
             showOffline();
+        }
+    }
+
+
+    private boolean isPdfPreviewUri(Uri uri) {
+        if (!isTrusted(uri)) return false;
+        String preview = uri.getQueryParameter("preview");
+        if (preview != null && "pdf".equalsIgnoreCase(preview)) return true;
+        String path = uri.getPath();
+        return path != null && path.toLowerCase(java.util.Locale.ROOT).endsWith(".pdf");
+    }
+
+    private DownloadManager.Request authenticatedDownloadRequest(Uri uri, String userAgent, String mime) {
+        DownloadManager.Request request = new DownloadManager.Request(uri);
+        if (mime != null && !mime.isEmpty()) request.setMimeType(mime);
+        if (userAgent != null && !userAgent.isEmpty()) request.addRequestHeader("User-Agent", userAgent);
+        String cookies = CookieManager.getInstance().getCookie(uri.toString());
+        if (cookies != null && !cookies.isEmpty()) request.addRequestHeader("Cookie", cookies);
+        request.addRequestHeader("Accept", mime != null && !mime.isEmpty() ? mime : "*/*");
+        return request;
+    }
+
+    private void openPdf(Uri uri, String userAgent) {
+        try {
+            DownloadManager.Request request = authenticatedDownloadRequest(uri, userAgent, "application/pdf");
+            request.setTitle("Rantlist PDF");
+            request.setDescription("Opening PDF…");
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            long id = downloadManager.enqueue(request);
+            pendingPdfDownloads.add(id);
+        } catch (Exception error) {
+            Toast.makeText(this, "PDF could not be opened.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void registerDownloadReceiver() {
+        downloadReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (!DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) return;
+                long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1L);
+                if (!pendingPdfDownloads.remove(id)) return;
+                Uri local = downloadManager.getUriForDownloadedFile(id);
+                if (local == null) {
+                    Toast.makeText(MainActivity.this, "PDF download failed.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent open = new Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(local, "application/pdf")
+                    .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                try {
+                    startActivity(Intent.createChooser(open, "Open PDF"));
+                } catch (Exception error) {
+                    Toast.makeText(MainActivity.this, "No PDF viewer is available on this device.", Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+        IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+        if (android.os.Build.VERSION.SDK_INT >= 33) registerReceiver(downloadReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        else registerReceiver(downloadReceiver, filter);
+    }
+
+    private static final class NativeShareItem {
+        final String id = UUID.randomUUID().toString();
+        String kind;
+        String name;
+        String mime;
+        Uri uri;
+        String text;
+        String url;
+    }
+
+    private static final class NativeShareGroup {
+        final String id = UUID.randomUUID().toString();
+        final double createdAt = System.currentTimeMillis() / 1000.0;
+        final List<NativeShareItem> items = new ArrayList<>();
+    }
+
+    private NativeShareItem nativeFileItem(Uri uri, String fallbackMime) {
+        if (uri == null) return null;
+        NativeShareItem item = new NativeShareItem();
+        item.kind = "file";
+        item.uri = uri;
+        item.mime = getContentResolver().getType(uri);
+        if (item.mime == null || item.mime.isEmpty()) item.mime = fallbackMime == null || fallbackMime.isEmpty() ? "application/octet-stream" : fallbackMime;
+        item.name = "Shared file";
+        try (android.database.Cursor cursor = getContentResolver().query(uri, new String[]{OpenableColumns.DISPLAY_NAME}, null, null, null)) {
+            if (cursor != null && cursor.moveToFirst()) {
+                int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                if (index >= 0) {
+                    String value = cursor.getString(index);
+                    if (value != null && !value.trim().isEmpty()) item.name = value.trim();
+                }
+            }
+        } catch (Exception ignored) {}
+        return item;
+    }
+
+    private void captureIncomingShareIntent(Intent intent) {
+        if (intent == null) return;
+        String action = intent.getAction();
+        if (!(Intent.ACTION_SEND.equals(action) || Intent.ACTION_SEND_MULTIPLE.equals(action))) return;
+        NativeShareGroup group = new NativeShareGroup();
+        String type = intent.getType();
+        CharSequence textValue = intent.getCharSequenceExtra(Intent.EXTRA_TEXT);
+        if (textValue != null) {
+            String text = textValue.toString().trim();
+            if (!text.isEmpty()) {
+                NativeShareItem item = new NativeShareItem();
+                Uri parsed = null;
+                try { parsed = Uri.parse(text); } catch (Exception ignored) {}
+                boolean url = parsed != null && ("http".equalsIgnoreCase(parsed.getScheme()) || "https".equalsIgnoreCase(parsed.getScheme())) && !text.matches(".*\\s+.*");
+                item.kind = url ? "url" : "text";
+                item.name = url ? "Shared link" : "Shared text";
+                item.mime = "text/plain";
+                if (url) item.url = text; else item.text = text;
+                group.items.add(item);
+            }
+        }
+        Set<String> seen = new HashSet<>();
+        ArrayList<Uri> streams = new ArrayList<>();
+        if (Intent.ACTION_SEND_MULTIPLE.equals(action)) {
+            ArrayList<Uri> values = intent.getParcelableArrayListExtra(Intent.EXTRA_STREAM);
+            if (values != null) streams.addAll(values);
+        } else {
+            Uri stream = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+            if (stream != null) streams.add(stream);
+        }
+        ClipData clip = intent.getClipData();
+        if (clip != null) {
+            for (int i = 0; i < clip.getItemCount(); i++) {
+                Uri stream = clip.getItemAt(i).getUri();
+                if (stream != null) streams.add(stream);
+            }
+        }
+        for (Uri stream : streams) {
+            if (stream == null || !seen.add(stream.toString())) continue;
+            NativeShareItem item = nativeFileItem(stream, type);
+            if (item != null) group.items.add(item);
+        }
+        if (!group.items.isEmpty()) {
+            nativeShareGroups.put(group.id, group);
+            deliverPendingShares();
+        }
+        intent.setAction(null);
+    }
+
+    private JSONObject shareItemPayload(String shareId, NativeShareItem item) throws Exception {
+        JSONObject payload = new JSONObject();
+        payload.put("id", item.id);
+        payload.put("kind", item.kind);
+        payload.put("name", item.name == null ? "Shared item" : item.name);
+        payload.put("mime", item.mime == null ? "application/octet-stream" : item.mime);
+        if ("file".equals(item.kind)) payload.put("nativeRead", true);
+        if (item.text != null) payload.put("text", item.text);
+        if (item.url != null) payload.put("url", item.url);
+        return payload;
+    }
+
+    private void deliverPendingShares() {
+        WebMessagePort port = sharePort;
+        if (port == null || nativeShareGroups.isEmpty()) return;
+        try {
+            JSONArray groups = new JSONArray();
+            for (NativeShareGroup group : nativeShareGroups.values()) {
+                JSONObject body = new JSONObject();
+                body.put("id", group.id);
+                body.put("createdAt", group.createdAt);
+                JSONArray items = new JSONArray();
+                for (NativeShareItem item : group.items) items.put(shareItemPayload(group.id, item));
+                body.put("items", items);
+                groups.put(body);
+            }
+            JSONObject payload = new JSONObject();
+            payload.put("type", "groups");
+            payload.put("groups", groups);
+            port.postMessage(new WebMessage(payload.toString()));
+        } catch (Exception ignored) {}
+    }
+
+    private NativeShareItem findNativeShareItem(String shareId, String itemId) {
+        NativeShareGroup group = nativeShareGroups.get(shareId);
+        if (group == null) return null;
+        for (NativeShareItem item : group.items) if (item.id.equals(itemId)) return item;
+        return null;
+    }
+
+    private void postShareMessage(JSONObject payload) {
+        final String raw = payload.toString();
+        webView.post(() -> {
+            try { if (sharePort != null) sharePort.postMessage(new WebMessage(raw)); } catch (Exception ignored) {}
+        });
+    }
+
+    private void postShareFileError(String requestId, String message) {
+        try {
+            JSONObject payload = new JSONObject();
+            payload.put("type", "fileError");
+            payload.put("requestId", requestId);
+            payload.put("message", message);
+            postShareMessage(payload);
+        } catch (Exception ignored) {}
+    }
+
+    private void deliverNativeShareFile(String requestId, String shareId, String itemId) {
+        if (requestId == null || !requestId.matches("^[A-Za-z0-9._-]{8,128}$")) return;
+        NativeShareItem item = findNativeShareItem(shareId, itemId);
+        if (item == null || item.uri == null) {
+            postShareFileError(requestId, "The shared file is no longer available on this Android device.");
+            return;
+        }
+        nativeShareExecutor.execute(() -> {
+            final int chunkSize = 192 * 1024;
+            try {
+                long length = -1L;
+                try (android.content.res.AssetFileDescriptor afd = getContentResolver().openAssetFileDescriptor(item.uri, "r")) {
+                    if (afd != null) length = afd.getLength();
+                } catch (Exception ignored) {}
+                java.io.File temp = null;
+                if (length < 0) {
+                    temp = java.io.File.createTempFile("rantlist-share-", ".bin", getCacheDir());
+                    try (InputStream input = getContentResolver().openInputStream(item.uri); java.io.FileOutputStream output = new java.io.FileOutputStream(temp)) {
+                        if (input == null) throw new IllegalStateException("Shared file could not be opened.");
+                        byte[] buffer = new byte[64 * 1024];
+                        long copied = 0;
+                        int read;
+                        while ((read = input.read(buffer)) >= 0) {
+                            if (read == 0) continue;
+                            copied += read;
+                            if (copied > 512L * 1024L * 1024L) throw new IllegalStateException("Shared file is too large for the native handoff.");
+                            output.write(buffer, 0, read);
+                        }
+                    }
+                    length = temp.length();
+                }
+                if (length < 0 || length > 512L * 1024L * 1024L) throw new IllegalStateException("Shared file is too large for the native handoff.");
+                int total = Math.max(1, (int) ((length + chunkSize - 1) / chunkSize));
+                InputStream input = temp != null ? new java.io.FileInputStream(temp) : getContentResolver().openInputStream(item.uri);
+                if (input == null) throw new IllegalStateException("Shared file could not be opened.");
+                try (InputStream stream = input) {
+                    byte[] buffer = new byte[chunkSize];
+                    for (int index = 0; index < total; index++) {
+                        int offset = 0;
+                        while (offset < buffer.length) {
+                            int read = stream.read(buffer, offset, buffer.length - offset);
+                            if (read < 0) break;
+                            if (read == 0) continue;
+                            offset += read;
+                        }
+                        byte[] chunk = offset == buffer.length ? buffer : java.util.Arrays.copyOf(buffer, offset);
+                        JSONObject payload = new JSONObject();
+                        payload.put("type", "fileChunk");
+                        payload.put("requestId", requestId);
+                        payload.put("index", index);
+                        payload.put("total", total);
+                        payload.put("base64", Base64.encodeToString(chunk, Base64.NO_WRAP));
+                        payload.put("mime", item.mime == null ? "application/octet-stream" : item.mime);
+                        payload.put("name", item.name == null ? "Shared file" : item.name);
+                        postShareMessage(payload);
+                    }
+                } finally {
+                    if (temp != null) temp.delete();
+                }
+            } catch (Exception error) {
+                postShareFileError(requestId, "The shared file could not be read by Rantlist.");
+            }
+        });
+    }
+
+    private void installShareChannel(WebView view) {
+        if (view == null) return;
+        try { if (sharePort != null) sharePort.close(); } catch (Exception ignored) {}
+        try {
+            WebMessagePort[] ports = view.createWebMessageChannel();
+            sharePort = ports[0];
+            sharePort.setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
+                @Override
+                public void onMessage(WebMessagePort port, WebMessage message) {
+                    String raw = message == null ? null : message.getData();
+                    try {
+                        JSONObject body = new JSONObject(raw == null ? "{}" : raw);
+                        String action = body.optString("action", "");
+                        if ("ready".equals(action)) {
+                            deliverPendingShares();
+                        } else if ("consume".equals(action)) {
+                            JSONArray ids = body.optJSONArray("ids");
+                            if (ids != null) for (int i = 0; i < ids.length(); i++) nativeShareGroups.remove(ids.optString(i, ""));
+                        } else if ("read".equals(action)) {
+                            deliverNativeShareFile(body.optString("requestId", ""), body.optString("shareId", ""), body.optString("itemId", ""));
+                        }
+                    } catch (Exception ignored) {}
+                }
+            });
+            Uri current = Uri.parse(view.getUrl() == null ? APP_URL : view.getUrl());
+            if (!isTrusted(current)) throw new IllegalStateException("Untrusted WebView origin.");
+            Uri origin = Uri.parse(current.getScheme() + "://" + current.getHost());
+            view.postWebMessage(new WebMessage("rantlist-native-share-channel-v1", new WebMessagePort[]{ports[1]}), origin);
+        } catch (Exception ignored) {
+            sharePort = null;
         }
     }
 
@@ -485,6 +813,14 @@ public final class MainActivity extends Activity {
     protected void onResume() {
         super.onResume();
         if (!uiLoaded) retryInitialLoad();
+        else deliverPendingShares();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        captureIncomingShareIntent(intent);
     }
 
     @Override
@@ -493,6 +829,9 @@ public final class MainActivity extends Activity {
             try { connectivityManager.unregisterNetworkCallback(networkCallback); } catch (Exception ignored) {}
         }
         try { if (secretPort != null) secretPort.close(); } catch (Exception ignored) {}
+        try { if (sharePort != null) sharePort.close(); } catch (Exception ignored) {}
+        if (downloadReceiver != null) { try { unregisterReceiver(downloadReceiver); } catch (Exception ignored) {} }
+        nativeShareExecutor.shutdownNow();
         super.onDestroy();
     }
 

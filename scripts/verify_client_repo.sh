@@ -219,6 +219,7 @@ if grep -RInE 'RANTLIST_REMOTE_PORT=.*[0-9]{2,5}' "$ROOT/scripts" >/dev/null 2>&
   echo "Public repository contains a hard-coded SSH deployment port." >&2
   exit 1
 fi
+node "$ROOT/scripts/verify_mobile_native_r449.js"
 node "$ROOT/scripts/verify_stage_transport.js"
 node "$ROOT/scripts/verify_hls_preview.js"
 node "$ROOT/scripts/verify_profile_gallery_r388.js"

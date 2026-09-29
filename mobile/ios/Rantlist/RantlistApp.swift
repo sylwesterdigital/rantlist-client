@@ -440,6 +440,43 @@ private struct NativeShellOverlay: View {
     }
 }
 
+private final class RantlistPDFViewController: UIViewController {
+    private let url: URL
+    private let dataStore: WKWebsiteDataStore
+    private var documentWebView: WKWebView!
+
+    init(url: URL, dataStore: WKWebsiteDataStore) {
+        self.url = url
+        self.dataStore = dataStore
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        navigationItem.title = "PDF"
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(closeDocument))
+        let config = WKWebViewConfiguration()
+        config.websiteDataStore = dataStore
+        config.applicationNameForUserAgent = "Rantlist-iOS"
+        documentWebView = WKWebView(frame: .zero, configuration: config)
+        documentWebView.translatesAutoresizingMaskIntoConstraints = false
+        documentWebView.allowsBackForwardNavigationGestures = true
+        view.addSubview(documentWebView)
+        NSLayoutConstraint.activate([
+            documentWebView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            documentWebView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            documentWebView.topAnchor.constraint(equalTo: view.topAnchor),
+            documentWebView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
+        documentWebView.load(URLRequest(url: url, cachePolicy: .reloadRevalidatingCacheData, timeoutInterval: 30))
+    }
+
+    @objc private func closeDocument() { navigationController?.dismiss(animated: true) }
+}
+
 private struct RantlistWebView: UIViewRepresentable {
     @ObservedObject var shellState: NativeShellState
 
@@ -918,6 +955,21 @@ private struct RantlistWebView: UIViewRepresentable {
         @objc private func keyboardWillHide(_ notification: Notification) { sendKeyboardPhase("willHide") }
         @objc private func keyboardDidHide(_ notification: Notification) { sendKeyboardPhase("didHide") }
 
+        private func isPDFPreviewURL(_ url: URL) -> Bool {
+            guard trusted(url), let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return false }
+            if components.queryItems?.contains(where: { $0.name.lowercased() == "preview" && ($0.value ?? "").lowercased() == "pdf" }) == true { return true }
+            return url.path.lowercased().hasSuffix(".pdf")
+        }
+
+        private func presentPDF(_ url: URL) {
+            guard let webView, let presenter = topViewController(from: webView.window?.rootViewController) else { return }
+            if presenter is RantlistPDFViewController || presenter.navigationController?.topViewController is RantlistPDFViewController { return }
+            let document = RantlistPDFViewController(url: url, dataStore: webView.configuration.websiteDataStore)
+            let navigation = UINavigationController(rootViewController: document)
+            navigation.modalPresentationStyle = .fullScreen
+            presenter.present(navigation, animated: true)
+        }
+
         private func isDownloadURL(_ url: URL) -> Bool {
             guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return false }
             return components.queryItems?.contains { item in
@@ -929,6 +981,11 @@ private struct RantlistWebView: UIViewRepresentable {
                      decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard let url = navigationAction.request.url else {
+                decisionHandler(.cancel)
+                return
+            }
+            if isPDFPreviewURL(url), navigationAction.targetFrame?.isMainFrame == true {
+                presentPDF(url)
                 decisionHandler(.cancel)
                 return
             }
@@ -1060,7 +1117,9 @@ private struct RantlistWebView: UIViewRepresentable {
                      windowFeatures: WKWindowFeatures) -> WKWebView? {
             guard navigationAction.targetFrame == nil,
                   let url = navigationAction.request.url else { return nil }
-            if trusted(url) {
+            if isPDFPreviewURL(url) {
+                presentPDF(url)
+            } else if trusted(url) {
                 webView.load(URLRequest(url: url))
             } else if ["https", "mailto", "tel"].contains(url.scheme?.lowercased() ?? ""),
                       navigationAction.navigationType == .linkActivated {

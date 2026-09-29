@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.408">
+  <meta name="chat-ui-version" content="9.6.421">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -684,7 +684,7 @@
     .composer-shell > #stageEyeButton:hover,.composer-shell > #stageEyeButton:focus-visible {background:color-mix(in srgb,var(--accent) 22%,transparent);outline:2px solid var(--accent);outline-offset:-2px;}
     .composer-shell > #stageEyeButton[aria-pressed="true"] {color:var(--accent);}
 
-    .stage-edit-status {position:absolute;z-index:16;right:8px;top:8px;max-width:min(380px,90%);background:rgba(6,11,25,.87);color:#edf6ff;padding:7px 10px;font-size:12px;line-height:1.45;border-radius:9px;pointer-events:none;}
+    .stage-edit-status {position:absolute;z-index:16;left:50%;right:auto;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);width:max-content;max-width:min(620px,calc(100% - 28px));background:rgba(6,11,25,.87);color:#edf6ff;padding:7px 12px;font-size:12px;line-height:1.45;border-radius:9px;text-align:center;white-space:normal;overflow-wrap:anywhere;box-shadow:0 7px 22px #0005;pointer-events:none;}
     .stage-edit-status[hidden] {display:none!important;}
     .message-viewport.stage-world-open .chat-stage-status {z-index:16;top:14px;max-width:90%;white-space:normal;text-align:center;}
     @media(max-width:850px) {
@@ -6670,6 +6670,49 @@
     .media-preview[hidden] { display: none; }
     .media-preview img { display: block; width: auto; max-width: 100%; max-height: min(var(--media-preview-image-max-vh, 58vh), var(--media-preview-image-max-height, 540px)); height: auto; object-fit: contain; border-radius: var(--radius-sm); cursor: zoom-in; }
     .media-preview audio { width: min(340px, 100%); }
+    .document-preview-card {
+      display: grid;
+      gap: 8px;
+      width: min(680px, 100%);
+      padding: 10px;
+      border: 1px solid color-mix(in srgb, var(--line) 78%, transparent);
+      border-radius: var(--radius-md);
+      background: color-mix(in srgb, var(--panel-3) 86%, transparent);
+      overflow: hidden;
+    }
+    .document-text-preview {
+      margin: 0;
+      max-height: min(38vh, 360px);
+      overflow: auto;
+      padding: 9px 10px;
+      border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--panel-2) 90%, var(--bg));
+      color: var(--text);
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      tab-size: 2;
+      font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      user-select: text;
+    }
+    .document-preview-note { color: var(--muted); font-size: 11px; line-height: 1.35; }
+    .document-preview-actions { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+    .document-preview-action {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-height: 30px; padding: 5px 10px; border: 1px solid var(--line);
+      border-radius: 999px; background: var(--panel-2); color: var(--text);
+      font-size: 11px; font-weight: 700; text-decoration: none;
+    }
+    .document-preview-action:hover, .document-preview-action:focus-visible { border-color: var(--accent); color: var(--accent); }
+    .document-pdf-preview {
+      display: block; width: fit-content; max-width: 100%;
+      border: 1px solid color-mix(in srgb, var(--line) 74%, transparent);
+      border-radius: 9px; overflow: hidden; background: #fff;
+    }
+    .media-preview img.document-pdf-image {
+      width: auto; max-width: 100%; max-height: min(52vh, 620px);
+      margin: 0; border-radius: 0; object-fit: contain; cursor: pointer;
+    }
     .media-gallery-placeholder {
       position: relative;
       width: min(var(--media-preview-gallery-width, 720px), var(--media-preview-gallery-vw, 92vw));
@@ -17762,7 +17805,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.408</small>
+          <small id="serverBrandVersion">v9.6.421</small>
         </span>
       </button>
     </div>
@@ -17821,7 +17864,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.408</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.421</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -18181,6 +18224,11 @@
         </section>
         <section class="config-section">
           <h3>Media</h3>
+          <label class="config-toggle-row" for="textAttachmentPreviewInput">
+            <span>Read .txt attachments in chat</span>
+            <input id="textAttachmentPreviewInput" type="checkbox" role="switch" aria-describedby="textAttachmentPreviewHint">
+          </label>
+          <p id="textAttachmentPreviewHint" class="hint">Off by default. When enabled on this device, Rantlist fetches only a bounded plain-text excerpt for .txt attachments. The text is never interpreted as HTML, Markdown or JavaScript; full text opens separately as sandboxed text/plain.</p>
           <label class="config-toggle-row" for="videoTranscodePromptInput">
             <span>Ask video quality before upload</span>
             <input id="videoTranscodePromptInput" type="checkbox" role="switch">
@@ -20611,7 +20659,7 @@
         'workspace', 'chatPanel', 'channelTopicRow', 'channelContextBar', 'channelTopicBar', 'channelTopicText', 'serverBrandButton', 'serverBrandLogo', 'serverBrandName', 'serverBrandVersion', 'serverInfoModal', 'serverInfoBackdrop', 'serverInfoCloseButton', 'serverInfoLogo', 'serverInfoName', 'serverInfoVersion', 'serverInfoDescription', 'serverInfoStudioLink', 'serverInfoGithubLink', 'serverInfoAmountField', 'serverInfoAmountInput', 'serverInfoAmountHeading', 'serverInfoPaymentFrequency', 'serverInfoCurrencySymbol', 'serverInfoDonateRow', 'serverInfoOnceTab', 'serverInfoMonthlyTab', 'serverInfoSupportChoices', 'serverInfoSupportCheckoutLink', 'serverInfoCheckoutLabel', 'serverInfoSupportChoiceHint', 'serverInfoContributeLink', 'serverInfoShareButton', 'serverInfoShareStatus', 'serverNotice', 'serverNoticeTitle', 'serverNoticeMessage', 'serverNoticeCountdown', 'serverNoticeCloseButton', 'soundButton', 'mediaMiniPlayer', 'mediaMiniPlayPauseButton', 'mediaMiniTitleButton', 'mediaMiniWaveform', 'mediaMiniTime', 'mediaMiniCloseButton', 'topMediaButton', 'topTranslatorButton', 'mediaLibraryModal', 'mediaLibraryCloseButton', 'mediaPlaylistSelect', 'mediaPlaylistNewButton', 'mediaPlaylistDeleteButton', 'mediaLibrarySearchInput', 'mediaLibraryGridButton', 'mediaLibraryListButton', 'mediaLibraryCardSizeSelect', 'mediaLibraryCount', 'mediaLibraryBody', 'mediaLibraryItems', 'mediaLibraryStatus', 'mediaPlayerOverlay', 'mediaPlayerHeaderTitle', 'mediaPlayerHideButton', 'mediaPlayerArt', 'mediaPlayerArtPlaceholder', 'mediaPlayerCover', 'mediaPlayerCaption', 'mediaPlayerTitle', 'mediaPlayerMeta', 'mediaPlayerSourceLink', 'mediaPlayerPlayPauseButton', 'mediaPlayerWaveform', 'mediaPlayerSeek', 'mediaPlayerTime', 'mediaPlayerCaptionsButton', 'mediaLibraryAudio', 'mediaPlayerDownloadSrtButton', 'mediaPlayerTranscriptList', 'appearanceCycleButton', 'topbarCollapseButton', 'quickUiScaleButton', 'quickUiScaleOverlay', 'quickUiScaleBackdrop', 'quickUiScaleCard', 'quickUiScaleInput', 'quickUiScaleValue', 'quickMediaScaleInput', 'quickMediaScaleValue', 'configButton', 'profileMenuButton', 'topProfileAvatar', 'channelLeaveButton', 'channelSettingsButton',
         'versionNotice', 'versionTitle', 'versionMessage', 'versionDetails', 'versionActionButton',
         'dockedButton', 'floatingButton', 'resetLayoutButton', 'mobileNav', 'mobileConfigButton',
-        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoUploadSizeSelect', 'videoUploadSizeHint', 'fileUploadSizeHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'ytdlpVideoImportInput', 'ytdlpVideoImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualityLabel', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
+        'configDrawer', 'configBackdrop', 'configCloseButton', 'channelMemberPositionSelect', 'callRailVideoSizeInput', 'callRailVideoSizeValue', 'callCaptionFontSizeInput', 'callCaptionFontSizeValue', 'callCaptionFontSelect', 'callCaptionTextColorInput', 'callCaptionBackgroundSelect', 'channelSettingsDrawer', 'channelSettingsBackdrop', 'channelSettingsCloseButton', 'channelSettingsBody', 'channelShareButton', 'externalInviteModal', 'externalInviteBackdrop', 'externalInviteCloseButton', 'externalInviteTargetSelect', 'externalInviteExpirySelect', 'externalInviteCreateButton', 'externalInviteResult', 'externalInviteLinkInput', 'externalInvitePinInput', 'externalInviteCopyButton', 'externalInviteNativeShareButton', 'externalInviteStatus', 'channelSettingsRoomLabel', 'channelSettingsOwnerLabel', 'channelBadgeUpload', 'channelBadgePreview', 'channelBadgeInput', 'channelBadgeName', 'channelBadgeRemoveButton', 'channelBadgeStatus', 'channelTopicInput', 'channelTopicCount', 'channelTopicStatus', 'channelPrivateInput', 'channelPrivateHint', 'channelLockedInput', 'channelMaxMembersInput', 'channelAccessStatus', 'channelMemberList', 'channelKickSelectedButton', 'channelKickAllButton', 'channelMemberStatus', 'channelExportButton', 'channelArchiveButton', 'channelDeleteRevealButton', 'channelDeleteConfirmPanel', 'channelDeleteConfirmPhrase', 'channelDeleteConfirmInput', 'channelDeleteConfirmCheck', 'channelDeleteCancelButton', 'channelDeleteButton', 'channelDataStatus', 'themeSelect', 'bubbleMoodSelect', 'bubbleOutlineOpacityInput', 'bubbleOutlineOpacityValue', 'composerBorderStyleSelect', 'themeEditor', 'themeNameInput', 'luckyThemeButton', 'saveThemeButton', 'exportThemeButton', 'importThemeButton', 'deleteThemeButton', 'resetThemeButton', 'themeImportInput', 'themeStatus', 'uiFontSelect', 'loadLocalFontsButton', 'uiFontStatus', 'buttonModeSelect', 'densitySelect', 'toolbarBordersInput', 'interfaceBordersInput', 'mobileTypingFocusInput', 'appIconBadgeSelect', 'appIconBadgeHint', 'mobileRoomRailToggleInput', 'messagePaddingInput', 'messagePaddingValue', 'mediaPreviewScaleInput', 'mediaPreviewScaleValue', 'linkPreviewScaleInput', 'linkPreviewScaleValue', 'mediaControlSizeInput', 'mediaControlSizeValue', 'mediaControlOpacityInput', 'mediaControlOpacityValue', 'mediaDisplaySelect', 'mediaViewerModeSelect', 'textAttachmentPreviewInput', 'textAttachmentPreviewHint', 'videoTranscodePromptInput', 'videoTranscodePromptHint', 'videoUploadSizeSelect', 'videoUploadSizeHint', 'fileUploadSizeHint', 'videoTranscodeModal', 'videoTranscodeBackdrop', 'videoTranscodeCloseButton', 'videoTranscodeFileName', 'videoTranscodeFileMeta', 'videoTranscodeProfileSelect', 'videoTranscodeSummary', 'videoTranscodeCancelButton', 'videoTranscodeConfirmButton', 'mediaAiModeSelect', 'mediaAiConfigHint', 'mediaAiTimeoutInput', 'mediaAiTimeoutHint', 'hetznerAiModelSelect', 'hetznerAiModelHint', 'openAiApiKeyInput', 'openAiApiKeySaveButton', 'openAiApiKeyClearButton', 'openAiWalletResetButton', 'openAiApiKeyHint', 'tripoApiKeyInput', 'tripoApiKeySaveButton', 'tripoApiKeyClearButton', 'tripoApiKeyHint', 'xaiApiKeyInput', 'xaiApiKeySaveButton', 'xaiApiKeyClearButton', 'xaiApiKeyHint', 'openAiDurableBackgroundInput', 'openAiDurableBackgroundHint', 'openAiMaxOutputTokensSelect', 'openAiConfirmAstraInput', 'openAiCostGuardHint', 'openAiWalletHint', 'chatAiContextInput', 'chatAiContextHint', 'chatAiYoutubeSummaryHint', 'youtubeAudioImportInput', 'youtubeAudioImportQualitySelect', 'youtubeAudioImportMaxMiBSelect', 'youtubeAudioImportHint', 'ytdlpVideoImportInput', 'ytdlpVideoImportHint', 'chatAiPromptHistoryInput', 'chatAiPromptHistoryHint', 'chatAiBuilderInput', 'chatAiBuilderHint', 'chatAiBuilderThreadInput', 'chatAiBuilderThreadHint', 'chatAiBuilderGalleryButton', 'youtubeImportModal', 'youtubeImportBackdrop', 'youtubeImportCloseButton', 'youtubeImportMediaTitle', 'youtubeImportMeta', 'youtubeImportQuotaText', 'youtubeImportQuotaBar', 'youtubeImportQuotaHint', 'youtubeImportQualityLabel', 'youtubeImportQualitySelect', 'youtubeImportEstimate', 'youtubeImportLongConfirmRow', 'youtubeImportLongConfirm', 'youtubeImportLongConfirmText', 'youtubeImportVeryLongConfirmRow', 'youtubeImportVeryLongConfirm', 'youtubeImportVeryLongConfirmText', 'youtubeImportQueueHint', 'youtubeImportPostLinkButton', 'youtubeImportCancelButton', 'youtubeImportConfirmButton', 'gameVoiceAnnouncementsInput',
         'voiceTranscriptionSelect', 'voiceTranscriptLanguageInput', 'voiceRecordingLimitSelect', 'voiceRecordingLimitHint', 'autoSpeakIncomingInput', 'speechRateSelect', 'speechVoiceSelect',
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
@@ -20742,6 +20790,9 @@
       capabilities: {
         maxTextBytes: 8192,
         maxFileBytes: 16 * 1024 * 1024,
+        textAttachmentPreview: true,
+        textAttachmentPreviewDefault: false,
+        textAttachmentPreviewMaxChars: 2400,
         maxVideoBytes: 64 * 1024 * 1024,
         maxUserGifBytes: 2 * 1024 * 1024,
         maxUserGifSourceBytes: 8 * 1024 * 1024,
@@ -20995,6 +21046,7 @@
       mediaPreviewScale: Math.max(60, Math.min(140, Number(readStorage('chat.media.previewScale') || 100))),
       linkPreviewScale: Math.max(100, Math.min(300, Number(readStorage('chat.link.previewScale') || 200))),
       mediaDisplayMode: readStorage('chat.media.display') === 'reveal' ? 'reveal' : 'immediate',
+      textAttachmentPreviewEnabled: readStorage('chat.media.textAttachmentPreview') === 'on',
       mediaStoryMode: readStorage('chat.media.viewerMode') === 'classic' ? 'classic' : 'stories',
       videoTranscodePromptEnabled: readStorage('chat.media.videoTranscodePrompt') === 'on',
       videoUploadSizeMiB: [64, 128, 256, 512].includes(Number(readStorage('chat.media.videoUploadSizeMiB'))) ? Number(readStorage('chat.media.videoUploadSizeMiB')) : 64,
@@ -21128,6 +21180,7 @@
       channelTopicLastSent: '',
       activeReactionMessageId: null,
       reactionAnchor: null,
+      reactionOpenScrollRevision: 0,
       polls: new Map(),
       attachmentTrayOpen: false,
       stickerTrayOpen: false,
@@ -21916,6 +21969,12 @@
         state.mediaDisplayMode = elements.mediaDisplaySelect.value === 'immediate' ? 'immediate' : 'reveal';
         writeStorage('chat.media.display', state.mediaDisplayMode);
         applyMediaDisplayPreference();
+      });
+      elements.textAttachmentPreviewInput?.addEventListener('change', () => {
+        state.textAttachmentPreviewEnabled = elements.textAttachmentPreviewInput.checked === true;
+        writeStorage('chat.media.textAttachmentPreview', state.textAttachmentPreviewEnabled ? 'on' : 'off');
+        renderTextAttachmentPreviewSetting();
+        refreshTextAttachmentPreviewPreference();
       });
       elements.mediaViewerModeSelect.addEventListener('change', () => {
         state.mediaStoryMode = elements.mediaViewerModeSelect.value === 'stories' ? 'stories' : 'classic';
@@ -23136,7 +23195,10 @@
       elements.messageList.addEventListener('wheel', noteMessageListUserScrollIntent, { passive: true });
       elements.messageList.addEventListener('pointerdown', noteMessageListUserScrollIntent, { passive: true });
       elements.messageList.addEventListener('scroll', () => {
-        closeReactionPickers();
+        if (elements.reactionPopover.hidden
+            || Number(state.messageListUserScrollRevision || 0) !== Number(state.reactionOpenScrollRevision || 0)) {
+          closeReactionPickers();
+        }
         state.messageListPinnedToBottom = isMessageListNearBottom();
         state.messageScrollAnchor = captureMessageScrollAnchor();
         updateMessageToBottomButton();
@@ -23337,6 +23399,8 @@
           if (!hasEvacuationNotice && !hasMaintenanceNotice) clearServerNotice();
           renderServerBrand();
           state.capabilities = { ...state.capabilities, ...(message.capabilities || {}) };
+          renderTextAttachmentPreviewSetting();
+          refreshTextAttachmentPreviewPreference();
           renderMediaAiSettings();
           renderChatAiSettings();
           syncMediaLibraryTopbarVisibility();
@@ -30103,15 +30167,68 @@
       return article;
     }
 
+    function isPlainTextAttachmentFile(file) {
+      return Boolean(file && /\.txt$/i.test(String(file.name || '').trim()));
+    }
+
+    function textAttachmentPreviewAvailable() {
+      return state.capabilities?.textAttachmentPreview !== false;
+    }
+
+    function isTextAttachmentPreviewFile(file) {
+      return Boolean(isPlainTextAttachmentFile(file) && state.textAttachmentPreviewEnabled === true && textAttachmentPreviewAvailable());
+    }
+
+    function isPdfAttachmentFile(file) {
+      const mime = String(file?.mime || '').trim().toLowerCase();
+      return Boolean(file && (mime === 'application/pdf' || /\.pdf$/i.test(String(file.name || '').trim())));
+    }
+
+    function isDocumentPreviewFile(file) {
+      return isPlainTextAttachmentFile(file) || isPdfAttachmentFile(file);
+    }
+
     function canInlinePreviewFile(file) {
       return Boolean(
-        file && file.url && (
-          file.kind === 'voice' ||
-          String(file.mime || '').startsWith('audio/') ||
-          isPreviewImageMime(file.mime) ||
-          state.capabilities.safeVideoMimes.includes(file.mime)
+        file && (
+          isDocumentPreviewFile(file) ||
+          (file.url && (
+            file.kind === 'voice' ||
+            String(file.mime || '').startsWith('audio/') ||
+            isPreviewImageMime(file.mime) ||
+            state.capabilities.safeVideoMimes.includes(file.mime)
+          ))
         )
       );
+    }
+
+    function appendDocumentPreviewActions(container, file, kind) {
+      const actions = document.createElement('div');
+      actions.className = 'document-preview-actions';
+      const messageId = String(file.messageId || '').trim();
+      const derivedPreviewUrl = messageId ? `/files/${encodeURIComponent(messageId)}?preview=${kind === 'pdf' ? 'pdf' : 'text'}` : '';
+      const browserUrl = String(file.browserPreviewUrl || derivedPreviewUrl || '').trim();
+      if (browserUrl) {
+        const open = document.createElement('a');
+        open.className = 'document-preview-action';
+        open.href = absoluteMediaUrl(browserUrl);
+        open.target = isRantlistAndroidApp() && kind === 'pdf' ? '_self' : '_blank';
+        open.rel = 'noopener noreferrer';
+        open.dataset.documentKind = kind;
+        open.textContent = kind === 'pdf' ? 'Open PDF' : 'Open full text';
+        actions.append(open);
+      }
+      const downloadUrl = String(file.downloadUrl || file.url || '').trim();
+      if (downloadUrl) {
+        const download = document.createElement('a');
+        download.className = 'document-preview-action';
+        download.href = absoluteMediaUrl(downloadUrl);
+        download.setAttribute('download', String(file.name || 'attachment'));
+        download.textContent = 'Download';
+        actions.append(download);
+      }
+      if (actions.childElementCount) container.append(actions);
+      return actions;
     }
 
     function isAnimatedGifFile(file) {
@@ -30431,6 +30548,7 @@
       const isImage = isPreviewImageMime(file.mime);
       const isVideo = state.capabilities.safeVideoMimes.includes(file.mime);
       const isHelenaProject = isHelenaPaintProjectFile(file);
+      const isDocumentPreview = isDocumentPreviewFile(file);
       const needsMainAction = !isAudio && (!isImage && !isVideo);
       const placeholder = document.createElement('div');
       placeholder.className = 'media-placeholder';
@@ -30445,6 +30563,7 @@
         mainAction.title = isHelenaProject ? 'Open layered project in WebGL Draw' : 'Open file preview';
         mainAction.setAttribute('aria-label', mainAction.title);
         mainAction.innerHTML = isHelenaProject ? '<span class="icon icon-drawing"></span>' : '<span class="icon icon-file"></span>';
+        mainAction.hidden = isDocumentPreview;
       }
 
       const info = document.createElement('div');
@@ -30463,7 +30582,7 @@
 
       const preview = document.createElement('div');
       preview.className = 'media-preview';
-      preview.hidden = !isAudio;
+      preview.hidden = !(isAudio || isDocumentPreview);
 
       const transcript = document.createElement('div');
       transcript.className = 'media-transcript';
@@ -30511,7 +30630,7 @@
       else if (mainAction) placeholder.append(mainAction, info, preview, caption, transcript, aiAnalysis);
       else placeholder.append(info, preview, caption, transcript, aiAnalysis);
       article.append(placeholder);
-      if (isAudio) {
+      if (isAudio || isDocumentPreview) {
         appendFileContent(article, file, { autoplay: false });
       } else if (state.mediaDisplayMode === 'immediate' && canInlinePreviewFile(file)) {
         showMediaPreview(preview, file, mainAction, { autoplay: false });
@@ -31459,6 +31578,56 @@
       return audio;
     }
 
+    async function hydrateTextAttachmentPreview(file) {
+      if (!isPlainTextAttachmentFile(file) || state.textAttachmentPreviewEnabled !== true || !textAttachmentPreviewAvailable()) {
+        throw new Error('TXT preview is disabled in Config → Media.');
+      }
+      if (typeof file.textPreview === 'string') return file;
+      if (file.textPreviewPromise) return file.textPreviewPromise;
+      const messageId = String(file.messageId || '').trim();
+      if (!messageId) throw new Error('Text preview is unavailable for this attachment.');
+      const request = (async () => {
+        const response = await fetch(`/files/${encodeURIComponent(messageId)}?preview=text-excerpt`, {
+          method: 'GET', cache: 'no-store', credentials: 'same-origin', headers: { accept: 'application/json' },
+        });
+        if (!response.ok) throw new Error(response.status === 404 ? 'Text preview is unavailable for this attachment.' : `Text preview request failed (${response.status}).`);
+        const payload = await response.json();
+        if (!payload || typeof payload.text !== 'string') throw new Error('Text preview response was invalid.');
+        file.textPreview = payload.text;
+        file.textPreviewTruncated = payload.truncated === true;
+        file.browserPreviewUrl = `/files/${encodeURIComponent(messageId)}?preview=text`;
+        return file;
+      })();
+      file.textPreviewPromise = request;
+      try { return await request; } finally { delete file.textPreviewPromise; }
+    }
+
+    function refreshTextAttachmentPreviewPreference() {
+      for (const placeholder of elements.messageList?.querySelectorAll?.('.media-placeholder') || []) {
+        const binding = placeholder.mediaPreviewBinding;
+        const file = binding?.file;
+        if (!binding || !isPlainTextAttachmentFile(file)) continue;
+        binding.preview.hidden = false;
+        const article = placeholder.closest('.message');
+        if (article) appendFileContent(article, file, { autoplay: false });
+      }
+    }
+
+    function renderTextAttachmentPreviewSetting() {
+      const available = textAttachmentPreviewAvailable();
+      if (elements.textAttachmentPreviewInput) {
+        elements.textAttachmentPreviewInput.checked = state.textAttachmentPreviewEnabled === true;
+        elements.textAttachmentPreviewInput.disabled = !available;
+      }
+      if (elements.textAttachmentPreviewHint) {
+        elements.textAttachmentPreviewHint.textContent = !available
+          ? 'TXT preview is unavailable on this server.'
+          : (state.textAttachmentPreviewEnabled
+            ? 'On for this device. Only explicit .txt attachments are fetched as bounded inert text; code/HTML/Markdown files are never auto-read.'
+            : 'Off by default. Enable to show bounded .txt excerpts in message bubbles. Attachments remain downloadable while off.');
+      }
+    }
+
     function appendFileContent(messageNode, file, options = {}) {
       const content = messageNode.querySelector('[data-file-content], .media-preview');
       if (!content) return null;
@@ -31468,6 +31637,84 @@
       const mime = String(file.mime || '').trim().toLowerCase();
       const isAudio = isVoice || mime.startsWith('audio/') || state.capabilities.safeAudioMimes.includes(mime);
       if (isAudio && file.url) return appendAudioWaveformPlayer(content, file, options);
+
+      if (isPlainTextAttachmentFile(file)) {
+        const card = document.createElement('div');
+        card.className = 'document-preview-card';
+        const note = document.createElement('div');
+        note.className = 'document-preview-note';
+        const enabled = state.textAttachmentPreviewEnabled === true && textAttachmentPreviewAvailable();
+        let text = null;
+        const renderExcerpt = () => {
+          if (!text) return;
+          // Untrusted attachment data is always inserted as text; never HTML/Markdown/code.
+          const excerpt = String(file.textPreview || '');
+          text.textContent = file.textPreviewTruncated ? `${excerpt}\n…` : excerpt;
+          note.textContent = file.textPreviewTruncated
+            ? 'Preview trimmed. Open the full text in the browser or download the file.'
+            : 'Plain-text preview. Attachment content is displayed as text and is not executed.';
+        };
+        if (enabled) {
+          text = document.createElement('pre');
+          text.className = 'document-text-preview';
+          if (typeof file.textPreview === 'string') renderExcerpt();
+          else {
+            text.textContent = 'Loading text preview…';
+            note.textContent = 'Reading a bounded plain-text excerpt because TXT preview is enabled in Config → Media.';
+          }
+          card.append(text, note);
+        } else {
+          note.textContent = textAttachmentPreviewAvailable()
+            ? 'TXT inline preview is off on this device. Open the full text or download the attachment.'
+            : 'TXT inline preview is unavailable on this server. The full text can still be opened or downloaded.';
+          card.append(note);
+        }
+        appendDocumentPreviewActions(card, file, 'text');
+        content.append(card);
+        if (enabled && typeof file.textPreview !== 'string') {
+          hydrateTextAttachmentPreview(file).then(() => {
+            if (!card.isConnected || state.textAttachmentPreviewEnabled !== true) return;
+            renderExcerpt();
+          }).catch((error) => {
+            if (!card.isConnected) return;
+            if (text) text.textContent = '';
+            note.textContent = error?.message || 'Text preview is unavailable. The attachment can still be opened or downloaded.';
+          });
+        }
+        return card;
+      }
+
+      if (isPdfAttachmentFile(file)) {
+        const card = document.createElement('div');
+        card.className = 'document-preview-card';
+        if (file.documentPreviewUrl) {
+          const open = document.createElement('a');
+          open.className = 'document-pdf-preview';
+          open.href = absoluteMediaUrl(file.browserPreviewUrl || file.url || '');
+          open.target = isRantlistAndroidApp() ? '_self' : '_blank';
+          open.rel = 'noopener noreferrer';
+          open.dataset.documentKind = 'pdf';
+          open.setAttribute('aria-label', `Open ${file.name || 'PDF'} in browser PDF viewer`);
+          const image = document.createElement('img');
+          image.className = 'document-pdf-image';
+          image.src = absoluteMediaUrl(file.documentPreviewUrl);
+          image.alt = `First page of ${file.name || 'PDF document'}`;
+          image.loading = 'lazy';
+          image.decoding = 'async';
+          open.append(image);
+          card.append(open);
+        } else {
+          const note = document.createElement('div');
+          note.className = 'media-processing-note';
+          note.textContent = file.documentPreviewStatus === 'unavailable'
+            ? 'First-page image preview is unavailable. The original PDF can still be opened or downloaded.'
+            : 'Preparing first-page PDF preview…';
+          card.append(note);
+        }
+        appendDocumentPreviewActions(card, file, 'pdf');
+        content.append(card);
+        return card;
+      }
 
       if (state.capabilities.safeVideoMimes.includes(file.mime) && file.url) {
         const video = document.createElement('video');
@@ -35364,6 +35611,11 @@
         const binding = placeholder.mediaPreviewBinding;
         if (!binding) continue;
         if (binding.isAudio) {
+          binding.preview.hidden = false;
+          if (!binding.preview.childNodes.length) appendFileContent(placeholder.closest('.message'), binding.file, { autoplay: false });
+          continue;
+        }
+        if (isDocumentPreviewFile(binding.file)) {
           binding.preview.hidden = false;
           if (!binding.preview.childNodes.length) appendFileContent(placeholder.closest('.message'), binding.file, { autoplay: false });
           continue;
@@ -42235,6 +42487,7 @@
     function openReactionPicker(messageId, anchor) {
       state.activeReactionMessageId = messageId;
       state.reactionAnchor = anchor;
+      state.reactionOpenScrollRevision = Number(state.messageListUserScrollRevision || 0);
       elements.reactionPopover.hidden = false;
       elements.reactionPopover.setAttribute('aria-hidden', 'false');
       requestAnimationFrame(positionReactionPopover);
@@ -42267,14 +42520,27 @@
 
     function sendReaction(messageId, emoji) {
       if (!canSend() || !emoji) return;
+      const keepOpen = window.matchMedia('(max-width: 850px)').matches
+        && !elements.reactionPopover.hidden
+        && state.activeReactionMessageId === messageId;
       if (sendJson({ type: 'reaction.toggle', messageId, emoji })) playSound('reaction');
-      closeReactionPickers();
+      if (!keepOpen) closeReactionPickers();
     }
 
     function updateReactionUi(messageId, reactions) {
+      const keepOpen = window.matchMedia('(max-width: 850px)').matches
+        && !elements.reactionPopover.hidden
+        && state.activeReactionMessageId === messageId;
+      const anchor = keepOpen ? captureMessageScrollAnchor() : null;
       state.reactions.set(messageId, Array.isArray(reactions) ? reactions : []);
       renderReactionList(messageId);
       syncMediaStoryViewerReactions(messageId);
+      if (keepOpen && anchor) {
+        requestAnimationFrame(() => {
+          restoreMessageScrollAnchor(anchor);
+          if (!elements.reactionPopover.hidden && state.activeReactionMessageId === messageId) positionReactionPopover();
+        });
+      }
     }
 
     function renderReactionList(messageId) {
@@ -42416,6 +42682,7 @@
       elements.reactionPopover.style.top = '';
       state.activeReactionMessageId = null;
       state.reactionAnchor = null;
+      state.reactionOpenScrollRevision = Number(state.messageListUserScrollRevision || 0);
     }
 
     function firstGrapheme(value) {
@@ -50515,6 +50782,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         const maxDurationSeconds = Math.max(0, Number(state.capabilities.ytdlpVideoImportMaxDurationSeconds) || 0);
         const concurrency = Math.max(1, Number(state.capabilities.ytdlpVideoImportConcurrency) || 1);
         const maxQueue = Math.max(1, Number(state.capabilities.ytdlpVideoImportMaxQueue) || 1);
+        const ytDlpVersion = String(state.capabilities.ytdlpVideoImportYtDlpVersion || '').trim();
         if (elements.ytdlpVideoImportInput) {
           elements.ytdlpVideoImportInput.checked = state.ytdlpVideoImportEnabled === true;
           elements.ytdlpVideoImportInput.disabled = !videoImportAvailable;
@@ -50524,7 +50792,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
           const sizeLabel = serverMaxBytes ? `hard final-file ceiling ${formatBytes(serverMaxBytes)}` : 'administrator file ceiling';
           elements.ytdlpVideoImportHint.textContent = !videoImportAvailable
             ? '/yt is unavailable because the server yt-dlp/FFmpeg runtime is not ready or the server feature gate is disabled.'
-            : `${state.ytdlpVideoImportEnabled ? 'On' : 'Off'} · /yt <URL> downloads video with audio through a site-specific yt-dlp extractor. X/Twitter auto-selects the best quality that fits the server/storage ceiling; YouTube, Odysee and other supported sites show the qualities reported for that item. ${sizeLabel}; ${durationLabel}; ${concurrency} concurrent download${concurrency === 1 ? '' : 's'}; shared queue ${maxQueue}.`;
+            : `${state.ytdlpVideoImportEnabled ? 'On' : 'Off'} · /yt <URL> downloads video with audio through a site-specific yt-dlp extractor${ytDlpVersion ? ` (server yt-dlp ${ytDlpVersion})` : ''}. X/Twitter auto-selects the best quality that fits the server/storage ceiling; YouTube, Odysee and other supported sites show the qualities reported for that item. ${sizeLabel}; ${durationLabel}; ${concurrency} concurrent download${concurrency === 1 ? '' : 's'}; shared queue ${maxQueue}.`;
         }
       }
 
@@ -51674,6 +51942,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       applyComposerBorderPreference({ persist: false });
       if (elements.mediaDisplaySelect) elements.mediaDisplaySelect.value = state.mediaDisplayMode;
       if (elements.mediaViewerModeSelect) elements.mediaViewerModeSelect.value = state.mediaStoryMode;
+      renderTextAttachmentPreviewSetting();
       renderVideoTranscodeSettings();
       applyRoomRailVisibility();
       applyUiTheme();
@@ -52101,10 +52370,31 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     };
 
     let nativeShareSessionFingerprint = '';
+    let rantlistNativeSharePort = null;
     function nativeShareBridgeHandler() {
-      const handler = window.webkit?.messageHandlers?.rantlistShare;
-      return handler && typeof handler.postMessage === 'function' ? handler : null;
+      const apple = window.webkit?.messageHandlers?.rantlistShare;
+      if (apple && typeof apple.postMessage === 'function') {
+        return { kind: 'apple', postMessage(payload) { apple.postMessage(payload); } };
+      }
+      if (rantlistNativeSharePort) {
+        return { kind: 'android', postMessage(payload) { rantlistNativeSharePort.postMessage(JSON.stringify(payload)); } };
+      }
+      return null;
     }
+    window.addEventListener('message', (event) => {
+      if (event.data !== 'rantlist-native-share-channel-v1' || !event.ports?.[0]) return;
+      try { rantlistNativeSharePort?.close?.(); } catch {}
+      rantlistNativeSharePort = event.ports[0];
+      rantlistNativeSharePort.onmessage = (messageEvent) => {
+        let payload = null;
+        try { payload = JSON.parse(String(messageEvent.data || '{}')); } catch { return; }
+        if (payload?.type === 'groups') window.rantlistNativeSharedItems?.(payload.groups);
+        else if (payload?.type === 'fileChunk') window.rantlistNativeSharedFileChunk?.(payload.requestId, payload.index, payload.total, payload.base64, payload.mime, payload.name);
+        else if (payload?.type === 'fileError') window.rantlistNativeSharedFileError?.(payload.requestId, payload.message);
+      };
+      rantlistNativeSharePort.start?.();
+      try { rantlistNativeSharePort.postMessage(JSON.stringify({ action: 'ready' })); } catch {}
+    });
     function nativeShareProfileMetadata() {
       const metadata = state.selfUser?.metadata || state.desiredProfile?.metadata || {};
       const result = {};
@@ -52231,7 +52521,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if (!Number.isInteger(index) || !Number.isInteger(total) || index < 0 || total < 1 || index >= total || total > 8192) {
         clearTimeout(request.timer);
         nativeSharedFileRequests.delete(requestId);
-        request.reject(new Error('The iOS shared-file transfer returned invalid chunk metadata.'));
+        request.reject(new Error('The native shared-file transfer returned invalid chunk metadata.'));
         return false;
       }
       if (request.total == null) {
@@ -52242,7 +52532,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       } else if (request.total !== total) {
         clearTimeout(request.timer);
         nativeSharedFileRequests.delete(requestId);
-        request.reject(new Error('The iOS shared-file transfer changed size while reading.'));
+        request.reject(new Error('The native shared-file transfer changed size while reading.'));
         return false;
       }
       try {
@@ -52253,7 +52543,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       } catch {
         clearTimeout(request.timer);
         nativeSharedFileRequests.delete(requestId);
-        request.reject(new Error('The iOS shared-file transfer could not decode a chunk.'));
+        request.reject(new Error('The native shared-file transfer could not decode a chunk.'));
         return false;
       }
       if (request.received !== request.total) return true;
@@ -52276,13 +52566,13 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if (!request) return false;
       clearTimeout(request.timer);
       nativeSharedFileRequests.delete(requestId);
-      request.reject(new Error(String(rawMessage || 'The shared file is no longer available on this iPhone.')));
+      request.reject(new Error(String(rawMessage || 'The shared file is no longer available on this device.')));
       return true;
     };
 
     async function readNativeSharedFile(item) {
-      const handler = window.webkit?.messageHandlers?.rantlistShare;
-      if (item?.nativeRead === true && handler && typeof handler.postMessage === 'function' && item?.shareId && item?.id) {
+      const handler = nativeShareBridgeHandler();
+      if (item?.nativeRead === true && handler && item?.shareId && item?.id) {
         return await new Promise((resolve, reject) => {
           const requestId = nativeSharedFileRequestId();
           const request = {
@@ -52297,7 +52587,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
           };
           request.timer = setTimeout(() => {
             nativeSharedFileRequests.delete(requestId);
-            reject(new Error(`Timed out reading ${request.name} from the iOS Share Extension.`));
+            reject(new Error(`Timed out reading ${request.name} from the native share source.`));
           }, 60000);
           nativeSharedFileRequests.set(requestId, request);
           try {
@@ -52311,11 +52601,11 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       }
       if (item?.nativeURL) {
         const response = await fetch(item.nativeURL, { cache: 'no-store' });
-        if (!response.ok) throw new Error(`Could not read ${item.name || 'shared file'} from iOS.`);
+        if (!response.ok) throw new Error(`Could not read ${item.name || 'shared file'} from the native app.`);
         const blob = await response.blob();
         return new File([blob], item.name || 'Shared file', { type: item.mime || blob.type || 'application/octet-stream', lastModified: Date.now() });
       }
-      throw new Error(`${item?.name || 'The shared file'} is no longer available on this iPhone.`);
+      throw new Error(`${item?.name || 'The shared file'} is no longer available on this device.`);
     }
 
     function renderNativeSharePendingBar() {
@@ -52337,8 +52627,8 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     }
 
     function consumeNativeSharedGroups(ids) {
-      const handler = window.webkit?.messageHandlers?.rantlistShare;
-      if (!handler || typeof handler.postMessage !== 'function') return;
+      const handler = nativeShareBridgeHandler();
+      if (!handler) return;
       try { handler.postMessage({ action: 'consume', ids }); } catch {}
     }
 
@@ -52389,7 +52679,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         const message = String(error?.message || '').trim();
         addSystemMessage(
           !message || message === 'Load failed'
-            ? 'The iOS shared item could not be read. It remains queued; reopen Rantlist and try Send again or discard it.'
+            ? 'The native shared item could not be read. It remains queued; reopen Rantlist and try Send again or discard it.'
             : message,
           true
         );
@@ -52849,6 +53139,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if (elements.appIconBadgeSelect) elements.appIconBadgeSelect.value = state.appIconBadgeMode;
       if (elements.mobileRoomRailToggleInput) elements.mobileRoomRailToggleInput.checked = state.mobileRoomRailToggle;
       elements.mediaDisplaySelect.value = state.mediaDisplayMode;
+      renderTextAttachmentPreviewSetting();
       renderMediaAiSettings();
       elements.mediaViewerModeSelect.value = state.mediaStoryMode;
       elements.channelMemberPositionSelect.value = state.channelMemberPosition;
@@ -54810,6 +55101,10 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
 
     function isRantlistIOSApp() {
       return String(navigator.userAgent || '').includes('Rantlist-iOS');
+    }
+
+    function isRantlistAndroidApp() {
+      return String(navigator.userAgent || '').includes('Rantlist-Android');
     }
 
     function keepFocusedControlVisible(node = document.activeElement) {

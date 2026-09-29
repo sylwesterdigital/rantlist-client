@@ -1,8 +1,8 @@
-# Rantlist client 0.1.236
+# Rantlist client 0.1.237
 
-Synchronized source: **9.6.407 / rantlist-deploy-r435**
-Released: **2026-09-29T11:22:27+01:00**
+Synchronized source: **9.6.421 / rantlist-deploy-r449**
+Released: **2026-09-29**
 
-This client carries the synchronized r435 browser core. The participant-count bubble keeps its original top-right offset; the room rail now reserves the clipping gutter instead of moving that bubble over the room icon. The selected room keeps a real 2px border inside the fixed badge size and remains circular so the border and badge have the same shape.
+This client fixes native mobile interaction around reactions, PDF documents and Android sharing. Mobile reaction picking remains open while adding multiple emoji and preserves the message timeline position. iOS opens Rantlist PDFs in a dismissible native document view with an explicit Done action. Android routes authenticated Rantlist PDF previews through DownloadManager and the system PDF viewer without storage permission, and registers Rantlist as an Android share target for text, links, single files and multiple files using an origin-scoped WebMessagePort bridge.
 
-Stage, Engineer, vehicle, native wrapper, protocol 70 and Stage schema 1266 behavior are unchanged from the preceding client runtime.
+The synchronized browser core also retains the r448 YouTube recovery and safe TXT preview/open behavior. Protocol 70 and Stage schema 1266 are unchanged.
