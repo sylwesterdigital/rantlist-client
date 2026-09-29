@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.385">
+  <meta name="chat-ui-version" content="9.6.400">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17747,7 +17747,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.385</small>
+          <small id="serverBrandVersion">v9.6.400</small>
         </span>
       </button>
     </div>
@@ -17806,7 +17806,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.385</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.400</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -22947,6 +22947,10 @@
       elements.expiryButton.addEventListener('click', () => openExpiryModal(null));
 
 
+      document.addEventListener('paste', (event) => {
+        void handleComposerClipboardPaste(event);
+      }, { capture: true });
+
       elements.photoInput.addEventListener('change', async () => {
         const files = [...elements.photoInput.files];
         elements.photoInput.value = '';
@@ -24125,7 +24129,7 @@
         case 'stage.physics.stale':
           // The next authoritative channel scene refresh resolves this revision.
           stagePhysicsObjects.clear();postToStage('physics-reset');
-          if(message.revision!==state.stageRevision&&stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.join'});
+          if(message.revision!==state.stageRevision&&stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});
           break;
         case 'stage.activity.presence':
           if(message.room===stageRoomKey()){
@@ -24153,9 +24157,21 @@
         case 'stage.edit.presence.reject':handleStageServerMessage(message);break;
         case 'stage.world.edit':
           if(message.room===stageRoomKey()){
-            if(message.revision!==state.stageRevision+1){sendJson({type:'stage.world.join'});break;}
+            // engineering.sync is a self-contained chassis + linked-parts graph.
+            // Forward it to the live iframe before consulting the parent's cached
+            // scene so visible wheels/build progress are not dropped merely because
+            // this shell missed an unrelated revision or has not cached a baseline.
+            const directEngineerSync=message.edit?.op==='engineering.sync';
+            if(directEngineerSync)postToStage('edit',{edit:message.edit});
+            if(message.revision!==state.stageRevision+1){
+              if(directEngineerSync)stageStatus('Engineer assembly received; refreshing channel revision in the background.',true);
+              sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});break;
+            }
             const next=applyEditToCachedStage(state.stageWorldSnapshot,message.edit);
-            if(!next){sendJson({type:'stage.world.join'});break;}
+            if(!next){
+              if(directEngineerSync)stageStatus('Engineer assembly displayed; rebuilding the local Stage cache.',true);
+              sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});break;
+            }
             state.stageWorldSnapshot=next;state.stageRevision=message.revision;
             if(message.edit.op==='paint.layer'){
               if(message.edit.paintLayer)state.stagePaintLayers.set(message.edit.id,message.edit.paintLayer);
@@ -24176,7 +24192,7 @@
             }
             if(next?.stageSparse){state.stageSparseBaseline=true;state.stageCutBootstrap=null;}
             if(!['style','paint.layer','frame.update'].includes(message.edit?.op)){stagePhysicsObjects.clear();postToStage('physics-reset');}
-            postToStage('edit',{edit:message.edit});
+            if(!directEngineerSync)postToStage('edit',{edit:message.edit});
           }
           break;
         case 'stage.world.paint.state':
@@ -29622,6 +29638,62 @@
       elements.videoTranscodeModal.hidden = false;
       setTimeout(() => elements.videoTranscodeProfileSelect?.focus(), 0);
       return new Promise((resolve) => { state.videoTranscodePromptResolve = resolve; });
+    }
+
+    function clipboardFileWithUsefulName(file, index = 0) {
+      if (!(file instanceof Blob)) return null;
+      const type = String(file.type || 'application/octet-stream').toLowerCase();
+      const existing = String(file.name || '').trim();
+      if (existing && !/^(?:image|pasted image|blob)(?:\.[a-z0-9]+)?$/i.test(existing)) return file;
+      const ext = type === 'image/png' ? 'png'
+        : type === 'image/jpeg' ? 'jpg'
+        : type === 'image/webp' ? 'webp'
+        : type === 'image/gif' ? 'gif'
+        : 'bin';
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      return new File([file], `clipboard-${stamp}${index ? `-${index + 1}` : ''}.${ext}`, { type, lastModified: Date.now() });
+    }
+
+    function insertClipboardTextIntoComposer(text) {
+      const input = elements.messageInput;
+      if (!input || input.disabled) return false;
+      const value = String(text || '');
+      if (!value) return false;
+      const start = Number.isInteger(input.selectionStart) ? input.selectionStart : input.value.length;
+      const end = Number.isInteger(input.selectionEnd) ? input.selectionEnd : start;
+      input.setRangeText(value, start, end, 'end');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.focus();
+      return true;
+    }
+
+    async function handleComposerClipboardPaste(event) {
+      const data = event?.clipboardData;
+      if (!data || !canSend()) return;
+      const target = event.target;
+      const editable = target?.matches?.('input,textarea,select,[contenteditable="true"]');
+      const files = [];
+      for (const item of [...(data.items || [])]) {
+        if (item.kind !== 'file') continue;
+        const file = item.getAsFile?.();
+        if (file) files.push(clipboardFileWithUsefulName(file, files.length));
+      }
+      if (!files.length) {
+        for (const file of [...(data.files || [])]) {
+          const normalized = clipboardFileWithUsefulName(file, files.length);
+          if (normalized) files.push(normalized);
+        }
+      }
+      if (files.length) {
+        event.preventDefault();
+        await sendComposerFiles(files, { source: 'clipboard' });
+        return;
+      }
+      if (target === elements.messageInput || editable) return;
+      const text = data.getData('text/plain');
+      if (!text) return;
+      event.preventDefault();
+      insertClipboardTextIntoComposer(text);
     }
 
     async function sendComposerFiles(files, options = {}) {
@@ -46177,7 +46249,7 @@
         }
         scheduleStageFeed();
         if (!state.stageIsJoined && stageRoomKey() && state.socket?.readyState===WebSocket.OPEN) {
-          state.stageIsJoined=sendJson({type:'stage.world.join',...(state.stageLastLocalPoseRoom===stageRoomKey()?{resumePose:state.stageLastLocalPose}:{})});
+          state.stageIsJoined=sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1'],...(state.stageLastLocalPoseRoom===stageRoomKey()?{resumePose:state.stageLastLocalPose}:{})});
         }
       }
     }
@@ -46207,6 +46279,17 @@
       if(edit.op==='add'){
         if(!edit.record||objects.some(item=>item.id===edit.record.id))return snapshot;
         objects.push(edit.record);
+      }else if(edit.op==='engineering.sync'){
+        const chassisIndex=objects.findIndex(item=>item.id===edit.chassisId);if(chassisIndex<0)return null;
+        objects[chassisIndex]={...objects[chassisIndex],...(edit.chassis||{}),engineering:edit.chassis?.engineering};
+        const removed=new Set(edit.removed||[]);
+        for(let i=objects.length-1;i>=0;i--)if(removed.has(objects[i].id))objects.splice(i,1);
+        for(const part of edit.parts||[]){
+          const index=objects.findIndex(item=>item.id===part.id);
+          const patch={...(part.record||{}),id:part.id,worldCell:part.worldCell||null,engineeringComponent:part.engineeringComponent,
+            position:part.position,quaternion:part.quaternion,scale:part.scale};
+          if(index<0){if(!part.record)return null;objects.push(patch);}else objects[index]={...objects[index],...patch};
+        }
       }else if(edit.op==='frame.update'){
         const index=objects.findIndex(item=>item.id===edit.id);if(index<0)return null;
         objects[index]={...objects[index],surfaceFrame:edit.frame};
@@ -46268,7 +46351,7 @@
       // A complete snapshot already includes any queued local edits. Do not let
       // both commit paths wait for each other when a complex edit follows a clone.
       if(state.stagePendingSnapshot){
-        if(['add','style','paint.layer','frame.update'].includes(state.stageEditQueue[0]?.op)){
+        if(['add','style','paint.layer','frame.update','engineering.sync'].includes(state.stageEditQueue[0]?.op)){
           // Publish the event first; preserve any pending complex-scene snapshot.
           // Merge the ACK into that pending baseline before it can be committed.
         }else if(state.stageEditQueue[0]?.op==='opening.cut'){
@@ -46525,7 +46608,7 @@
         if(state.stageEditQueue.length>=64){stageStatus('Stage event backlog full; keep the channel open while earlier actions finish saving.',true);}
         else{state.stageEditQueue.push(data.edit);flushStageEditQueue();}
       } else if(data.event==='resync' && state.chatStageWorldOpen && state.socket?.readyState===WebSocket.OPEN){
-        sendJson({type:'stage.world.join'});
+        sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});
       } else if(data.event==='snapshot' && state.chatStageWorldOpen && data.snapshot && stageRoomKey()===state.stageWorldRoom) {
         // Remote previews move local display meshes but must never leak into an
         // unrelated full-scene commit. Restore the latest acknowledged versions
@@ -46612,7 +46695,7 @@
             state.stageEditAwaitingAck=false;
             stageStatus('Unacknowledged Stage commit: resynchronising channel revision.',true);
           }
-          if(message.snapshot){postToStage('world',{snapshot:message.snapshot});
+          if(message.snapshot){postToStage('world',{snapshot:message.snapshot,revision:message.revision,force:true});
             if(state.stageEditQueue.length)postToStage('reapply-local-edits',{edits:state.stageEditQueue});}
           else if(message.cutBootstrap)postToStage('cut-bootstrap',message.cutBootstrap);
           else if(state.stageReady && elements.chatStageStatus) {
@@ -46658,7 +46741,7 @@
             }else if(applied?.op==='remove')state.stagePaintLayers.delete(applied.id);
             else if(applied?.op==='clone'&&state.stagePaintLayers.has(applied.sourceId))
               state.stagePaintLayers.set(applied.id,state.stagePaintLayers.get(applied.sourceId));
-            if(state.stagePendingSnapshot&&['add','style','paint.layer','frame.update'].includes(applied?.op))
+            if(state.stagePendingSnapshot&&['add','style','paint.layer','frame.update','engineering.sync'].includes(applied?.op))
               state.stagePendingSnapshot=applyEditToCachedStage(state.stagePendingSnapshot,applied)||state.stagePendingSnapshot;
             if(!state.stageWorldSnapshot?.objects?.length&&applied?.op==='opening.cut')
               stageStatus('Cut acknowledged, but the shared source recipe could not be cached.',true);
@@ -46675,10 +46758,19 @@
             state.stageEditRetryTimer=setTimeout(flushStageEditQueue,Math.max(600,Math.min(3000,Number(message.retryAfterMs)||1000)));
           }else{
             const rejected=state.stageEditQueue[0];
-            postToStage('edit-rejected',{edit:rejected,reason:message.reason});
+            postToStage('edit-rejected',{edit:rejected,reason:message.reason,detail:message.detail});
             const cut=state.stageEditQueue.some(edit=>edit.op==='opening.cut');
+            const rejectedEngineer=rejected?.op==='engineering.sync';
             state.stageEditQueue.length=0;
-            if(cut)stageStatus('Opening cut was not shared: '+String(message.reason||'server rejected event')+
+            if(rejectedEngineer){
+              // Never let a rejected locally-built vehicle masquerade as shared state.
+              // Drop any local snapshot fallback and immediately hydrate the exact
+              // authoritative room revision that every connected peer is using.
+              state.stagePendingSnapshot=null;state.stageSnapshotInFlight=null;state.stagePendingPaintAfterSnapshot=[];
+              state.stageAwaitingAck=false;clearTimeout(state.stageSnapshotRetryTimer);state.stageSnapshotRetryAfter=0;state.stageSnapshotRetryAttempts=0;
+              sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});
+              stageStatus('Engineer edit was rejected: '+String(message.detail||message.reason||'server rejected event')+'. Reloading authoritative channel vehicle state.',true);
+            }else if(cut)stageStatus('Opening cut was not shared: '+String(message.reason||'server rejected event')+
               (message.detail?' ('+String(message.detail).slice(0,60)+')':'')+'. No mesh or scene snapshot was sent.',true);
             else if(['stage_baseline_required','invalid_stage_edit'].includes(message.reason))
               stageStatus('Stage event rejected: '+String(message.reason)+(message.detail?' ('+String(message.detail).slice(0,64)+')':'')+'. Geometry was not saved.',true);
@@ -46719,7 +46811,7 @@
           state.stagePendingSnapshot=null;
           state.stagePendingPaintAfterSnapshot=[];
           state.stageEditAwaitingAck=false;
-          const retryable=state.stageEditQueue.length&&state.stageEditQueue.every(edit=>['add','style','paint.layer','frame.update'].includes(edit.op));
+          const retryable=state.stageEditQueue.length&&state.stageEditQueue.every(edit=>['add','style','paint.layer','frame.update','engineering.sync'].includes(edit.op));
           if(!retryable)state.stageEditQueue.length=0;
           if(message.snapshot){postToStage('world',{snapshot:message.snapshot});
             if(retryable)postToStage('reapply-local-edits',{edits:state.stageEditQueue});}
