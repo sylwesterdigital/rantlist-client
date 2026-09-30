@@ -28,6 +28,7 @@ for script in "$ROOT"/scripts/*.sh; do
 done
 "$ROOT/scripts/verify_github_release_transaction.sh"
 node "$ROOT/scripts/security_scan.js" "$ROOT"
+node "$ROOT/scripts/verify_source_whitespace.js"
 node "$ROOT/scripts/verify_support_choices.js"
 node "$ROOT/scripts/verify_stage_speech_r395.js"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }

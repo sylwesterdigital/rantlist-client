@@ -1,12 +1,13 @@
-# Rantlist client 0.1.237
+# Rantlist client 0.1.239
 
-Synchronized source: **9.6.421 / rantlist-deploy-r449**
-Released: **2026-09-29**
+Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
+Released: **2026-09-30**
 
-- Keep the mobile reaction picker open for successive emoji reactions and preserve the message scroll anchor while reaction chips change height.
-- Open PDFs on iOS in a separate native document view with an explicit Done action so chat is never replaced.
-- Open authenticated Rantlist PDFs on Android through DownloadManager and a system PDF viewer, without broad storage permission.
-- Register Android `ACTION_SEND` and `ACTION_SEND_MULTIPLE` so Rantlist appears in the system share sheet for text, URLs and files.
-- Transfer Android shared files to the existing Rantlist pending-share flow through an origin-scoped WebMessagePort channel.
-- Synchronize browser source 9.6.421 / rantlist-deploy-r449, including r448 TXT and YouTube fixes.
+- Remove trailing Markdown whitespace from `README.md` and `RELEASE.md` that caused the native release preflight `git diff --check` to reject the otherwise valid 0.1.238 package after Stage synchronization.
+- Add `scripts/verify_source_whitespace.js` to `verify_client_repo.sh`, so the same non-web trailing-whitespace class is rejected during the watcher verification step, before signing/build/release begins.
+- Fix `scripts/verify_mobile_native_r449.js` so the historical r449 regression accepts synchronized **r449-or-later** server/browser releases instead of hard-coding exactly `9.6.421 / rantlist-deploy-r449`.
+- Keep the r449 native/mobile assertions themselves unchanged: reaction-picker stability, iOS native PDF return, Android authenticated PDF handoff, and Android share target/WebMessagePort behavior are still verified.
+- Keep `PACKAGE_VERSION.txt` as the independent watcher package version (`0.1.239`).
+- Keep `VERSION.txt` as the synchronized application version authority; `scripts/sync_from_stage.sh` continues replacing it together with `web/` from the current `stage/chat` source before native release verification/build.
+- This prevents a valid server update such as `9.6.436 / rantlist-deploy-r464` from failing solely because a historical client verifier expected the original r449 release number.
 - Protocol 70 and Stage schema 1266 are unchanged.

@@ -11,9 +11,27 @@ const manifest = read('mobile', 'android', 'app', 'src', 'main', 'AndroidManifes
 const ios = read('mobile', 'ios', 'Rantlist', 'RantlistApp.swift');
 const source = JSON.parse(read('web', 'client-source.json'));
 
-assert.equal(read('PACKAGE_VERSION.txt').trim(), '0.1.237');
-assert.equal(source.sourceVersion, '9.6.421');
-assert.equal(source.sourceRevision, 'rantlist-deploy-r449');
+const versionAtLeast = (actual, minimum) => {
+  const a = String(actual || '').trim().split('.').map(Number);
+  const b = String(minimum || '').trim().split('.').map(Number);
+  if (a.length !== 3 || b.length !== 3 || a.some((n) => !Number.isInteger(n) || n < 0) || b.some((n) => !Number.isInteger(n) || n < 0)) return false;
+  for (let i = 0; i < 3; i += 1) {
+    if (a[i] > b[i]) return true;
+    if (a[i] < b[i]) return false;
+  }
+  return true;
+};
+const revisionAtLeast = (actual, minimum) => {
+  const match = String(actual || '').trim().match(/^rantlist-deploy-r(\d+)$/);
+  return Boolean(match && Number(match[1]) >= minimum);
+};
+
+assert(versionAtLeast(read('PACKAGE_VERSION.txt').trim(), '0.1.237'),
+  'client package predates the r449 native/mobile feature baseline');
+assert(versionAtLeast(source.sourceVersion, '9.6.421'),
+  'synchronized browser source predates the r449 feature baseline');
+assert(revisionAtLeast(source.sourceRevision, 449),
+  'synchronized deployment revision predates r449');
 
 assert.match(web, /function sendReaction\(messageId, emoji\)[\s\S]*?const keepOpen = window\.matchMedia\('\(max-width: 850px\)'\)\.matches[\s\S]*?if \(!keepOpen\) closeReactionPickers\(\);/,
   'mobile reaction picker does not remain open for successive emoji');
@@ -62,4 +80,4 @@ assert.match(android, /rantlist-native-share-channel-v1/,
 assert.doesNotMatch(android, /addJavascriptInterface/,
   'Android native share must not expose an all-frame JavaScript interface');
 
-console.log('PASS client 0.1.237 mobile reactions, iOS PDF return, Android PDF handoff and Android share target.');
+console.log(`PASS client ${read('PACKAGE_VERSION.txt').trim()} mobile reactions, iOS PDF return, Android PDF handoff and Android share target (r449+ source-compatible).`);
