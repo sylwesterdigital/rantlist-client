@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const android = fs.readFileSync(path.join(root,'mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java'),'utf8');
+const build = fs.readFileSync(path.join(root,'scripts/build_android_release.sh'),'utf8');
+const release = fs.readFileSync(path.join(root,'scripts/release_and_deploy_homepage.sh'),'utf8');
+assert.match(android, /boolean isLikelyXrHeadset\(\)/, 'native headset detector missing');
+assert.match(android, /android\.hardware\.vr\.high_performance/, 'Android VR high-performance feature probe missing');
+assert.match(android, /android\.hardware\.vr\.headtracking/, 'Android VR headtracking feature probe missing');
+assert.match(android, /manufacturer\.contains\("oculus"\)/, 'Oculus manufacturer fallback missing');
+assert.match(android, /manufacturer\.contains\("meta"\)/, 'Meta manufacturer fallback missing');
+assert.match(android, /model\.contains\("quest"\)/, 'Quest model fallback missing');
+assert.match(android, /Rantlist-XR-Headset/, 'Quest/Horizon UA marker missing');
+assert.match(android, /Rantlist-Android/, 'generic Android UA marker regressed');
+assert.match(build, /assembleRelease bundleRelease/, 'Android APK+AAB release build missing');
+assert.match(release, /macos android ios/, 'multi-platform release script no longer supports Android');
+console.log('PASS client native Quest/Horizon XR marker and Android APK+AAB release path.');

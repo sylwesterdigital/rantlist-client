@@ -16,6 +16,7 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 import android.os.Bundle;
+import android.os.Build;
 import android.os.Environment;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
@@ -89,6 +90,18 @@ public final class MainActivity extends Activity {
     private final ExecutorService nativeShareExecutor = Executors.newSingleThreadExecutor();
     private final Map<String, NativeShareGroup> nativeShareGroups = new LinkedHashMap<>();
 
+
+    private boolean isLikelyXrHeadset() {
+        PackageManager pm = getPackageManager();
+        boolean vrFeature = pm != null && (
+            pm.hasSystemFeature("android.hardware.vr.high_performance") ||
+            pm.hasSystemFeature("android.hardware.vr.headtracking")
+        );
+        String manufacturer = String.valueOf(Build.MANUFACTURER).toLowerCase(java.util.Locale.ROOT);
+        String model = String.valueOf(Build.MODEL).toLowerCase(java.util.Locale.ROOT);
+        return vrFeature || manufacturer.contains("oculus") || manufacturer.contains("meta") || model.contains("quest");
+    }
+
     private boolean isTrusted(Uri uri) {
         if (uri == null || !"https".equalsIgnoreCase(uri.getScheme())) return false;
         String host = uri.getHost();
@@ -134,7 +147,10 @@ public final class MainActivity extends Activity {
         settings.setMixedContentMode(WebSettings.MIXED_CONTENT_NEVER_ALLOW);
         String nativeUserAgent = settings.getUserAgentString();
         if (nativeUserAgent == null) nativeUserAgent = "";
-        if (!nativeUserAgent.contains("Rantlist-Android")) settings.setUserAgentString((nativeUserAgent + " Rantlist-Android").trim());
+        StringBuilder rantlistUserAgent = new StringBuilder(nativeUserAgent);
+        if (!nativeUserAgent.contains("Rantlist-Android")) rantlistUserAgent.append(" Rantlist-Android");
+        if (isLikelyXrHeadset() && !nativeUserAgent.contains("Rantlist-XR-Headset")) rantlistUserAgent.append(" Rantlist-XR-Headset");
+        settings.setUserAgentString(rantlistUserAgent.toString().trim());
 
         CookieManager.getInstance().setAcceptCookie(true);
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);

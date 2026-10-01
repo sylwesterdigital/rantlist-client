@@ -1,3 +1,14 @@
+# Rantlist client 0.1.240
+
+Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
+Released: **2026-10-01**
+
+- Detect Quest/Horizon-class Android hardware using Android VR system features plus Quest/Oculus/Meta manufacturer/model signals.
+- Append `Rantlist-XR-Headset` alongside `Rantlist-Android` only on those devices.
+- Keep actual immersive capability fail-closed and runtime-driven; the UA marker never fabricates `navigator.xr`.
+- Add a client regression check for the headset marker and Android APK/AAB build path.
+- Keep the standalone bundled web snapshot at the r449 baseline; automatic native release still synchronizes current verified server web content before build.
+
 # Rantlist client 0.1.239
 
 Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**

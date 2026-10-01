@@ -1,7 +1,11 @@
-# Rantlist client 0.1.239
+# Rantlist client 0.1.240
 
 Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
-Released: **2026-09-30**
+Released: **2026-10-01**
+
+This native-client release marks Quest/Horizon-class Android hardware with the bounded `Rantlist-XR-Headset` user-agent token in addition to the existing `Rantlist-Android` marker. Detection uses Android VR system features plus Quest/Oculus/Meta manufacturer/model signals. The marker only helps the Stage rendering/device classifier; WebXR availability itself remains determined by the browser runtime's `navigator.xr.isSessionSupported('immersive-vr')`.
+
+The package also verifies that the Android release path remains present. Server release `9.6.440 / rantlist-deploy-r468` restores the active Downloads watcher default to `macos,android,ios`, so future automatic client releases again build/publish APK + AAB along with macOS and iOS.
 
 This maintenance package fixes the native-client verification contract used by the automatic release workflow. The client repository deliberately synchronizes `web/`, `VERSION.txt`, and `web/client-source.json` from the currently deployed `stage/chat` server immediately before verification/build. Historical r449 verification therefore validates **r449-or-later compatibility** instead of requiring the synchronized source to remain exactly 9.6.421 / r449.
 
