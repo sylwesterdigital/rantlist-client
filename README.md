@@ -1,3 +1,12 @@
+# Rantlist client 0.1.242
+
+Bundled browser baseline: **9.6.442 / rantlist-deploy-r470**
+Released: **2026-10-01**
+
+This client release synchronizes the browser shell with the corrected r470 server package. r470 preserves the r469 authoritative blank-world channel behavior and fixes the server-side Development-note syntax error that prevented r469 from passing real startup verification. Native wrappers remain unchanged, including Quest/Horizon WebXR marking and automatic Android APK/AAB release support.
+
+The existing r469 client regression remains release-forward and verifies the `empty-world` handoff after synchronization. Automatic release still re-synchronizes `web/`, `VERSION.txt`, and `web/client-source.json` from the deployed verified Stage/chat source before native builds.
+
 # Rantlist client 0.1.241
 
 Bundled browser baseline: **9.6.441 / rantlist-deploy-r469**

@@ -1,3 +1,12 @@
+# Rantlist client 0.1.242
+
+Bundled browser baseline: **9.6.442 / rantlist-deploy-r470**
+Released: **2026-10-01**
+
+- Synchronize the bundled browser core with server `9.6.442 / rantlist-deploy-r470`.
+- Preserve the r469 authoritative fresh-channel blank-world behavior and its release-forward client verification.
+- No native wrapper behavior changes; Quest WebXR support and Android APK/AAB release support remain intact.
+
 # Rantlist client 0.1.241
 
 Bundled browser baseline: **9.6.441 / rantlist-deploy-r469**
