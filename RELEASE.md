@@ -1,3 +1,13 @@
+# Rantlist client 0.1.241
+
+Bundled browser baseline: **9.6.441 / rantlist-deploy-r469**
+Released: **2026-10-01**
+
+- Synchronize the native/browser shell with the r469 authoritative blank-world channel fix.
+- Verify that r469-or-later synchronized browser cores explicitly clear fresh channel Stage state through the `empty-world` handoff, including the iframe-ready race path.
+- Preserve the 0.1.240 Quest/Horizon marker and Android APK+AAB release path unchanged.
+- Keep release-time synchronization from the deployed Stage/chat source as the version authority.
+
 # Rantlist client 0.1.240
 
 Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**

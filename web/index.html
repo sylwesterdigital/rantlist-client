@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.440">
+  <meta name="chat-ui-version" content="9.6.442">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17805,7 +17805,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.440</small>
+          <small id="serverBrandVersion">v9.6.442</small>
         </span>
       </button>
     </div>
@@ -17864,7 +17864,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.440</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.442</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -47022,7 +47022,11 @@
         for(const [id,paintLayer] of state.stagePaintLayers)
           postToStage('edit',{edit:{op:'paint.layer',id,paintLayer}});
         if(state.stageOwnAppearance||state.stageOwnPose)postToStage('profile',{appearance:state.stageOwnAppearance,pose:state.stageOwnPose});
-        if(state.stageIsJoined){postToStage('joined');if(state.stageCutBootstrap)postToStage('cut-bootstrap',state.stageCutBootstrap);}
+        if(state.stageIsJoined){
+          postToStage('joined');
+          if(state.stageCutBootstrap)postToStage('cut-bootstrap',state.stageCutBootstrap);
+          else if(!state.stageWorldSnapshot)postToStage('empty-world',{room:state.stageWorldRoom,revision:state.stageRevision});
+        }
         // Join and presence packets can arrive before the heavy iframe loads.
         postToStage('peers',{players:[...state.stagePeerPlayers.values()]});
         postToStage('vehicle-snapshot',{vehicles:state.stageLiveVehicles||[]});
@@ -47197,10 +47201,16 @@
           if(message.snapshot){postToStage('world',{snapshot:message.snapshot,revision:message.revision,force:true});
             if(state.stageEditQueue.length)postToStage('reapply-local-edits',{edits:state.stageEditQueue});}
           else if(message.cutBootstrap)postToStage('cut-bootstrap',message.cutBootstrap);
-          else if(state.stageReady && elements.chatStageStatus) {
-            // Fresh channel: its built-in empty/default Stage is already ready.
-            elements.chatStageStatus.textContent='Stage ready · new channel world';
-            setTimeout(()=>{if(state.chatStageWorldOpen && state.stageWorldRoom===message.room)elements.chatStageStatus.hidden=true;},2200);
+          else {
+            // A missing snapshot is not a local fallback. It is the server's
+            // authoritative declaration that this channel has a fresh blank
+            // world. Explicitly clear the retained iframe so a personal default
+            // preset or the previous channel can never leak into this room.
+            postToStage('empty-world',{room:message.room,revision:message.revision});
+            if(state.stageReady && elements.chatStageStatus) {
+              elements.chatStageStatus.textContent='Stage ready · new blank channel world';
+              setTimeout(()=>{if(state.chatStageWorldOpen && state.stageWorldRoom===message.room)elements.chatStageStatus.hidden=true;},2200);
+            }
           }
           if(Array.isArray(message.physics)){
             stagePhysicsObjects.clear();

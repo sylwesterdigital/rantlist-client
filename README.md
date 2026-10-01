@@ -1,3 +1,12 @@
+# Rantlist client 0.1.241
+
+Bundled browser baseline: **9.6.441 / rantlist-deploy-r469**
+Released: **2026-10-01**
+
+This client release synchronizes the browser shell with server r469 so a fresh channel cannot inherit a personal/default Stage World or retained geometry from another channel. The native wrappers themselves are unchanged; Android still includes the Quest/Horizon `Rantlist-XR-Headset` marker and APK/AAB release path from 0.1.240.
+
+A paired client regression now checks the r469 `empty-world` handoff whenever the synchronized source is r469 or later. Automatic release still re-synchronizes `web/`, `VERSION.txt`, and `web/client-source.json` from the currently deployed verified Stage/chat source immediately before native builds.
+
 # Rantlist client 0.1.240
 
 Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
