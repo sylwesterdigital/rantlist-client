@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(process.argv[2] || '.');
-const ignoredDirs = new Set(['.git', '.macos-build', '.android-build', '.ios-build', '.gradle', 'build', 'release', 'node_modules', '__pycache__']);
+const ignoredDirs = new Set(['.git', '.macos-build', '.android-build', '.ios-build', '.desktop-build', '.gradle', 'build', 'release', 'node_modules', '__pycache__']);
 const forbiddenBasenames = new Set([
   'server.js', 'deploy.sh', 'request-security.js', '.env',
   'id_rsa', 'id_ed25519', 'authorized_keys'

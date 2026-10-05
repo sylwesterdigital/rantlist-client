@@ -33,3 +33,7 @@ mobile/android/**/build/
 *.ipa
 *.apk
 *.aab
+
+# Windows/Linux desktop build output
+desktop/node_modules/
+.desktop-build/

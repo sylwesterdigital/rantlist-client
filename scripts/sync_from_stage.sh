@@ -55,6 +55,9 @@ mv "$TARGET_WEB.next" "$TARGET_WEB"
 # VERSION.txt is not an independent client version. It mirrors the verified
 # source application version and is consumed by the macOS bundle/release builder.
 printf '%s\n' "$SOURCE_VERSION" > "$REPO_ROOT/VERSION.txt"
+if [[ -x "$REPO_ROOT/scripts/sync_desktop_version.js" ]]; then
+  node "$REPO_ROOT/scripts/sync_desktop_version.js"
+fi
 
 log "Client snapshot synchronized"
 printf 'Source UI/version: %s\nSource revision: %s\nClient release version: %s (mirrors stage/chat)\n' \

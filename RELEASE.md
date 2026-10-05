@@ -1,43 +1,60 @@
-# Rantlist client 0.1.242
+## 0.1.271 / server 9.6.495 / r523
 
-Bundled browser baseline: **9.6.442 / rantlist-deploy-r470**
-Released: **2026-10-01**
+Five-platform release preflight hotfix: preserves the unified macOS/iOS/Android + Ubuntu Windows/Linux release workflow from 0.1.270 and fixes the RELEASE.md trailing-blank-line error that stopped the watcher before any native build began.
 
-- Synchronize the bundled browser core with server `9.6.442 / rantlist-deploy-r470`.
-- Preserve the r469 authoritative fresh-channel blank-world behavior and its release-forward client verification.
-- No native wrapper behavior changes; Quest WebXR support and Android APK/AAB release support remain intact.
+## 0.1.269 / server 9.6.495 / r523
 
-# Rantlist client 0.1.241
+Desktop DEB metadata hotfix: adds the required project homepage, structured author email metadata, and explicit Linux/DEB maintainer metadata for electron-builder 26.15.3. Adds regression checks for the exact FPM/DEB metadata requirements that blocked 0.1.268 after AppImage creation.
 
-Bundled browser baseline: **9.6.441 / rantlist-deploy-r469**
-Released: **2026-10-01**
+## 0.1.268 / server 9.6.495 / r523
 
-- Synchronize the native/browser shell with the r469 authoritative blank-world channel fix.
-- Verify that r469-or-later synchronized browser cores explicitly clear fresh channel Stage state through the `empty-world` handoff, including the iframe-ready race path.
-- Preserve the 0.1.240 Quest/Horizon marker and Android APK+AAB release path unchanged.
-- Keep release-time synchronization from the deployed Stage/chat source as the version authority.
+Desktop build hotfix: electron-builder 26.15.3 Linux desktop metadata now uses the required `linux.desktop.entry` schema; package author/desktopName and explicit Linux/Windows executable names are set. Adds regression checks for the exact builder configuration shape that blocked 0.1.267.
 
-# Rantlist client 0.1.240
+## 0.1.267 / server 9.6.495 / r523
 
-Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
-Released: **2026-10-01**
+Adds Windows/Linux Electron desktop source and isolated Ubuntu build scripts. Linux targets AppImage + DEB; Windows targets x64 portable ZIP + NSIS installer. Build scripts are restricted to the dedicated build workspace and contain no package-manager/service/Docker operations.
 
-- Detect Quest/Horizon-class Android hardware using Android VR system features plus Quest/Oculus/Meta manufacturer/model signals.
-- Append `Rantlist-XR-Headset` alongside `Rantlist-Android` only on those devices.
-- Keep actual immersive capability fail-closed and runtime-driven; the UA marker never fabricates `navigator.xr`.
-- Add a client regression check for the headset marker and Android APK/AAB build path.
-- Keep the standalone bundled web snapshot at the r449 baseline; automatic native release still synchronizes current verified server web content before build.
 
-# Rantlist client 0.1.239
+## 0.1.266 / server 9.6.469 / r497
 
-Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
-Released: **2026-09-30**
+- Avatar Lab compact My Models cards no longer clip their action row.
+- Missing generated/imported model thumbnails are backfilled server-side; Tripo preview is preferred and Blender renders the fallback.
+- Model optimizer drawer is denser; Actions and Prompt & library are collapsible; prompt editor is shorter by default.
+- Main CSP now permits trusted Meshopt WebAssembly compilation.
+- Meshy is labeled optional and is only used for external automatic rigging.
+# Rantlist Client 0.1.266
 
-- Remove trailing Markdown whitespace from `README.md` and `RELEASE.md` that caused the native release preflight `git diff --check` to reject the otherwise valid 0.1.238 package after Stage synchronization.
-- Add `scripts/verify_source_whitespace.js` to `verify_client_repo.sh`, so the same non-web trailing-whitespace class is rejected during the watcher verification step, before signing/build/release begins.
-- Fix `scripts/verify_mobile_native_r449.js` so the historical r449 regression accepts synchronized **r449-or-later** server/browser releases instead of hard-coding exactly `9.6.421 / rantlist-deploy-r449`.
-- Keep the r449 native/mobile assertions themselves unchanged: reaction-picker stability, iOS native PDF return, Android authenticated PDF handoff, and Android share target/WebMessagePort behavior are still verified.
-- Keep `PACKAGE_VERSION.txt` as the independent watcher package version (`0.1.239`).
-- Keep `VERSION.txt` as the synchronized application version authority; `scripts/sync_from_stage.sh` continues replacing it together with `web/` from the current `stage/chat` source before native release verification/build.
-- This prevents a valid server update such as `9.6.436 / rantlist-deploy-r464` from failing solely because a historical client verifier expected the original r449 release number.
-- Protocol 70 and Stage schema 1266 are unchanged.
+Source: `9.6.469` / `rantlist-deploy-r497`
+
+Avatar Lab model cards now keep previews unobstructed; imported models get persistent Blender thumbnails; Model Optimization exposes High/Balanced/Mobile profiles, actual mesh/texture/skin/animation pipeline stages and before/after metrics. Avatar Lab preview supports Meshopt and Draco optimized GLBs.
+
+# Rantlist Client 0.1.264
+
+Source: `9.6.467` / `rantlist-deploy-r495`
+
+- Synchronizes the Avatar Lab historical-verifier deployment recovery.
+- r493 model inspector/optimizer UI and automatic rigging behavior remain unchanged.
+
+# Rantlist Client 0.1.262
+
+Source: `9.6.465` / `rantlist-deploy-r493`
+
+- Unified GLB/FBX import with server-side Blender classification.
+- Separate model inspector and optimization controls with before/after metrics.
+- Working xAI API-key shortcut from Avatar Lab Reference settings.
+- Carries the Meshy automatic rigging flow from r491 while removing the confusing dual import/finger-toggle presentation.
+
+# Rantlist Client 0.1.260
+
+Source: `9.6.463` / `rantlist-deploy-r491`
+
+Avatar Lab automatic rigging now uses Meshy BYOK for programmatic humanoid rigging of generated or imported unrigged GLBs, validates the complete finger chain before local Mixamo action merge, and keeps already-rigged imports on the no-regeneration/no-rerig path. Build-status polling is self-healing and native credential bridges include Meshy.
+
+# Rantlist Client 0.1.259
+
+Source: `9.6.462` / `rantlist-deploy-r490`
+
+- Compact Source → 2D reference action.
+- Normal-sized aligned Stage Avatar Builder checkboxes.
+- Visible Import unrigged GLB/FBX and Import Mixamo-rigged GLB/FBX controls.
+- Live Blender launch/heartbeat/stage diagnostics in Avatar Lab logs.

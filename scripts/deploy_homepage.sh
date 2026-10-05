@@ -73,6 +73,10 @@ def match(asset, kind):
     if kind=='android_apk': return n.endswith('.apk') and 'android' in n
     if kind=='android_aab': return n.endswith('.aab') and 'android' in n
     if kind=='ios': return n.endswith('.ipa') and ('ios' in n or 'iphone' in n)
+    if kind=='windows': return n.endswith('.exe') and 'windows' in n and 'setup' in n
+    if kind=='windows_portable': return n.endswith('.zip') and 'windows' in n and 'portable' in n
+    if kind=='linux_appimage': return n.endswith('.appimage') and 'linux' in n
+    if kind=='linux_deb': return n.endswith('.deb') and 'linux' in n
     return False
 
 def find_in_release(r,kind):
@@ -90,7 +94,7 @@ def resolve(kind):
     return None,None
 
 resolved={}
-for kind in ('macos','android_apk','android_aab','ios'):
+for kind in ('macos','windows','windows_portable','linux_appimage','linux_deb','android_apk','android_aab','ios'):
     r,a=resolve(kind)
     if a:
         resolved[kind]={
@@ -108,6 +112,9 @@ def button(kind,label,primary=False):
     title=f'{label} — {d["tag"]}'
     buttons.append(f'<a class="{cls}" data-rantlist-download="{html.escape(kind)}" title="{html.escape(title)}" href="{html.escape(d["url"],quote=True)}">{html.escape(label)}</a>')
 button('macos','Download for macOS',True)
+button('windows','Windows x64',not buttons)
+button('linux_appimage','Linux AppImage',not buttons)
+button('linux_deb','Linux DEB',not buttons)
 button('android_apk','Android APK',not buttons)
 button('ios','iOS IPA',not buttons)
 

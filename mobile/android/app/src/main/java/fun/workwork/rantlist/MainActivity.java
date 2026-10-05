@@ -595,7 +595,7 @@ public final class MainActivity extends Activity {
             if (!requestId.matches("^[A-Za-z0-9._-]{8,128}$")) return;
             String action = body.optString("action", "");
             String provider = body.optString("provider", "openai").toLowerCase(java.util.Locale.ROOT);
-            if (!("openai".equals(provider) || "tripo".equals(provider) || "xai".equals(provider))) provider = "openai";
+            if (!("openai".equals(provider) || "tripo".equals(provider) || "meshy".equals(provider) || "xai".equals(provider))) provider = "openai";
             response.put("requestId", requestId);
             response.put("provider", provider);
             response.put("ok", true);

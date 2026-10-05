@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(__dirname, '..');
+const html = fs.readFileSync(path.join(root, 'web/index.html'), 'utf8');
+const source = require('../web/client-source.json');
+const pkgVersion = fs.readFileSync(path.join(root, 'PACKAGE_VERSION.txt'), 'utf8').trim();
+assert(/^0\.1\.(?:25[3-9]|2[6-9][0-9]|[3-9][0-9]{2,})$/.test(pkgVersion));
+const [major,minor,patch]=String(source.sourceVersion).split('.').map(Number);assert.equal(major,9);assert.equal(minor,6);assert(patch>=455);
+assert(Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1]||0)>=483);
+assert.match(html, /id="tmdbConfigBlock"/);
+assert.match(html, /<label for="tmdbApiTokenInput">TMDB API Key<\/label>/);
+assert.match(html, /id="tmdbApiTokenSaveButton" type="button">Save key securely<\/button>/);
+assert.match(html, /id="tmdbApiTokenClearButton" type="button">Clear key<\/button>/);
+assert.match(html, /id="tmdbApiKeyHint" class="hint">No key configured\.<\/p>/);
+assert.doesNotMatch(html, /outgoingImdbOptions|providerCredentialForRequest\('tmdb'\)/);
+assert.match(html, /case 'message\.imdb-card':/);
+assert.match(html, /function renderMessageImdbCard\(/);
+assert.match(html, /function renderMessageInternalMedia\(/);
+assert.match(html, /!hlsPlaylistUrl\(text\) && !rantlistMediaUrl\(text\)/);
+assert.match(html, /This product uses the TMDB API but is not endorsed or certified by TMDB\./);
+assert.doesNotMatch(html, /authorization['"]?\s*:\s*[`'"]Bearer/);
+console.log('PASS client r482 synchronized Avatar Lab chat-source release');

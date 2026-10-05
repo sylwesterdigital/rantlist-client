@@ -18,7 +18,8 @@ RESTART=0
 RELEASE_MODE="published"
 PLATFORM_EXPLICIT=0
 REQUESTED_PLATFORMS=""
-WORKFLOW_BUILD_SCHEMA="3-multiplatform-logo"
+WORKFLOW_BUILD_SCHEMA="4-five-platform-remote-desktop"
+RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE="${RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE:-1}"
 
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 ok(){ printf '\033[1;32mOK\033[0m %s\n' "$*"; }
@@ -30,13 +31,25 @@ normalize_platforms(){
   raw="${raw//,/ }"
   for token in $raw; do
     case "$token" in
-      all) raw="macos android ios"; out=""; break ;;
-      macos|android|ios) ;;
+      all) raw="macos android ios windows linux"; out=""; break ;;
+      macos|android|ios|windows|linux) ;;
       '') continue ;;
-      *) die "Unknown platform: $token (use macos, android, ios, or all)" ;;
+      *) die "Unknown platform: $token (use macos, android, ios, windows, linux, or all)" ;;
     esac
   done
-  for token in macos android ios; do
+  # Backwards-compatible watcher integration: the historical general release set
+  # macos+android+ios now gains the two desktop companion targets automatically.
+  # Set RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE=0 only for an intentional
+  # legacy three-platform release.
+  if [[ "$RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE" == 1 ]]; then
+    case " $raw " in *" macos "*) has_macos=1;; *) has_macos=0;; esac
+    case " $raw " in *" android "*) has_android=1;; *) has_android=0;; esac
+    case " $raw " in *" ios "*) has_ios=1;; *) has_ios=0;; esac
+    if [[ "$has_macos$has_android$has_ios" == 111 ]]; then
+      raw="$raw windows linux"
+    fi
+  fi
+  for token in macos android ios windows linux; do
     case " $raw " in *" $token "*) out="${out:+$out }$token";; esac
   done
   [[ -n "$out" ]] || die "No release platform selected."
@@ -45,12 +58,12 @@ normalize_platforms(){
 
 append_requested(){
   PLATFORM_EXPLICIT=1
-  if [[ "$1" == all ]]; then REQUESTED_PLATFORMS="macos android ios"; return; fi
+  if [[ "$1" == all ]]; then REQUESTED_PLATFORMS="macos android ios windows linux"; return; fi
   REQUESTED_PLATFORMS="${REQUESTED_PLATFORMS:+$REQUESTED_PLATFORMS }$1"
 }
 
 has_platform(){ case " $1 " in *" $2 "*) return 0;; *) return 1;; esac; }
-add_platform(){ local list="$1" item="$2"; has_platform "$list" "$item" && { printf '%s\n' "$list"; return; }; normalize_platforms "${list:+$list }$item"; }
+add_platform(){ local list="$1" item="$2"; has_platform "$list" "$item" && { printf '%s\n' "$list"; return; }; printf '%s\n' "${list:+$list }$item"; }
 all_selected_built(){ local p; for p in $PLATFORMS; do has_platform "${BUILT_PLATFORMS:-}" "$p" || return 1; done; return 0; }
 
 usage(){ cat <<'TXT'
@@ -59,6 +72,8 @@ Usage:
   ./scripts/release_and_deploy_homepage.sh --platform macos
   ./scripts/release_and_deploy_homepage.sh --platform android
   ./scripts/release_and_deploy_homepage.sh --platform ios
+  ./scripts/release_and_deploy_homepage.sh --platform windows
+  ./scripts/release_and_deploy_homepage.sh --platform linux
   ./scripts/release_and_deploy_homepage.sh --platform all
   ./scripts/release_and_deploy_homepage.sh --platform macos,android
 
@@ -66,7 +81,9 @@ Shorthand:
   --macos     release macOS only
   --android   release Android APK + AAB only
   --ios       release iOS IPA only
-  --all       release macOS + Android + iOS
+  --windows   release Windows x64 via Ubuntu build worker
+  --linux     release Linux x86_64 via Ubuntu build worker
+  --all       release macOS + Android + iOS + Windows + Linux
 
 Workflow controls:
   --preflight-only
@@ -85,6 +102,8 @@ while [[ $# -gt 0 ]]; do
     --macos) append_requested macos; shift;;
     --android) append_requested android; shift;;
     --ios) append_requested ios; shift;;
+    --windows) append_requested windows; shift;;
+    --linux) append_requested linux; shift;;
     --all) append_requested all; shift;;
     --preflight-only) PREVIEW_ONLY=1; shift;;
     --status) SHOW_STATUS=1; shift;;
@@ -176,7 +195,7 @@ preflight(){
   local p
   log "Preflight ($EFFECTIVE_PLATFORMS)"
   [[ "$(uname -s)" == Darwin ]] || die "Release must run on macOS."
-  for t in git gh node rsync ssh curl shasum; do command -v "$t" >/dev/null 2>&1 || die "Required tool missing: $t"; done
+  for t in git gh node rsync ssh scp tar curl shasum; do command -v "$t" >/dev/null 2>&1 || die "Required tool missing: $t"; done
   [[ -d "$ROOT/.git" ]] || die "$ROOT is not a Git repository."
   [[ "$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)" == "$RELEASE_BRANCH" ]] || die "Release must run on $RELEASE_BRANCH."
   [[ -z "$(git diff --name-only --diff-filter=U)" ]] || die "Resolve Git conflicts first."
@@ -199,13 +218,16 @@ preflight(){
     else die "Local $RELEASE_BRANCH has diverged from origin/$RELEASE_BRANCH."; fi
   fi
   node "$ROOT/scripts/source_release.js" "$SOURCE_PROJECT" >/dev/null
+  local needs_desktop=0
   for p in $EFFECTIVE_PLATFORMS; do
     case "$p" in
       macos) "$ROOT/scripts/check_macos_release_credentials.sh";;
       android) "$ROOT/scripts/check_android_release_credentials.sh";;
       ios) "$ROOT/scripts/check_ios_release_credentials.sh";;
+      windows|linux) needs_desktop=1;;
     esac
   done
+  [[ "$needs_desktop" == 0 ]] || "$ROOT/scripts/check_desktop_build_worker.sh"
   df -Pk "$ROOT" | awk 'NR==2 { if ($4 < 2097152) { print "ERROR: less than 2GB free disk space" > "/dev/stderr"; exit 1 } }'
   ok "Preflight passed"
 }
@@ -285,11 +307,16 @@ validate_platform_artifacts(){
       for f in "${base}-iOS.ipa" "$sha"; do [[ -s "$f" ]] || return 1; done
       (cd "$ROOT/release" && shasum -a 256 -c "$(basename "$sha")") >/dev/null
       ;;
+    linux|windows)
+      "$ROOT/scripts/validate_desktop_remote_artifacts.sh" "$SOURCE_VERSION" "$PLANNED_BUILD" "$RELEASE_TAG" "$p" >/dev/null
+      ;;
   esac
 }
 
 if [[ "$PHASE" == planned ]]; then
-  for platform in $PLATFORMS; do
+  # Apple/Android targets build locally on the Mac exactly as before.
+  for platform in macos android ios; do
+    has_platform "$PLATFORMS" "$platform" || continue
     if has_platform "$BUILT_PLATFORMS" "$platform" && validate_platform_artifacts "$platform"; then
       log "Reusing verified $platform artifacts for $RELEASE_TAG"
       continue
@@ -312,6 +339,28 @@ if [[ "$PHASE" == planned ]]; then
     BUILT_PLATFORMS="$(add_platform "$BUILT_PLATFORMS" "$platform")"
     write_state planned
   done
+
+  # Windows/Linux are one remote build-worker transaction. Nothing is copied
+  # into Downloads; artifacts remain on Ubuntu until GitHub upload staging.
+  desktop_targets=""
+  for platform in windows linux; do
+    has_platform "$PLATFORMS" "$platform" || continue
+    if has_platform "$BUILT_PLATFORMS" "$platform" && validate_platform_artifacts "$platform"; then
+      log "Reusing verified remote $platform artifacts for $RELEASE_TAG"
+    else
+      desktop_targets="${desktop_targets:+$desktop_targets }$platform"
+    fi
+  done
+  if [[ -n "$desktop_targets" ]]; then
+    log "Building remote desktop releases on Ubuntu: $desktop_targets"
+    "$ROOT/scripts/build_desktop_remote.sh" "$SOURCE_VERSION" "$PLANNED_BUILD" "$RELEASE_TAG" "$desktop_targets"
+    for platform in $desktop_targets; do
+      validate_platform_artifacts "$platform" || die "$platform remote build completed without the expected verified artifacts."
+      BUILT_PLATFORMS="$(add_platform "$BUILT_PLATFORMS" "$platform")"
+      write_state planned
+    done
+  fi
+
   all_selected_built || die "Not all selected platforms were built: selected=$PLATFORMS built=$BUILT_PLATFORMS"
   printf '%s\n' "$PLANNED_BUILD" > "$ROOT/BUILD_NUMBER.txt"
   PHASE="built"; write_state built
@@ -321,7 +370,7 @@ load_state
 if [[ "$PHASE" == built ]]; then
   for platform in $PLATFORMS; do validate_platform_artifacts "$platform" || die "Saved built phase is missing/invalid $platform artifacts."; done
   log "Committing and pushing public client release source"
-  git add -- .gitignore README.md SECURITY.md RELEASE.md assets macos mobile scripts homepage web VERSION.txt BUILD_NUMBER.txt
+  git add -- .gitignore README.md SECURITY.md RELEASE.md assets macos mobile desktop scripts homepage web VERSION.txt BUILD_NUMBER.txt
   git diff --cached --check -- . ':(exclude)web/**'
   if ! git diff --cached --quiet; then git commit -m "Release Rantlist ${SOURCE_VERSION} build ${PLANNED_BUILD} (${PLATFORMS// /, })"; fi
   RELEASE_COMMIT="$(git rev-parse HEAD)"
@@ -338,6 +387,9 @@ load_state
 if [[ "$PHASE" == published ]]; then
   log "Deploying Rantlist homepage from exact published tag $RELEASE_TAG"
   "$ROOT/scripts/deploy_homepage.sh" --release-tag "$RELEASE_TAG" --release-channel "$([[ "$RELEASE_MODE" == prerelease ]] && echo prerelease || echo stable)"
+  if has_platform "$PLATFORMS" windows || has_platform "$PLATFORMS" linux; then
+    "$ROOT/scripts/cleanup_desktop_remote_release.sh" "$RELEASE_TAG" || warn "Desktop worker cleanup failed; GitHub/homepage release is already complete."
+  fi
   PHASE="complete"; write_state complete
 fi
 

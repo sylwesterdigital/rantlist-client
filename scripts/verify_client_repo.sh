@@ -9,7 +9,10 @@ for path in \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
   scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
-  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js; do
+  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
+  desktop/package.json desktop/electron-builder.config.cjs desktop/src/main.js desktop/assets/icon.png desktop/assets/icon.ico desktop/installer/windows.nsi \
+  scripts/desktop_build_common.sh scripts/build_linux_release.sh scripts/build_windows_release.sh scripts/build_desktop_releases.sh scripts/sync_desktop_version.js scripts/verify_desktop_client.js \
+  scripts/desktop_remote_common.sh scripts/check_desktop_build_worker.sh scripts/build_desktop_remote.sh scripts/validate_desktop_remote_artifacts.sh scripts/fetch_desktop_remote_artifacts.sh scripts/cleanup_desktop_remote_release.sh; do
   [[ -e "$ROOT/$path" ]] || { echo "Missing $path" >&2; exit 1; }
 done
 [[ -d "$ROOT/web/assets" ]] || { echo "Missing web/assets" >&2; exit 1; }
@@ -30,6 +33,7 @@ done
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 node "$ROOT/scripts/verify_source_whitespace.js"
 node "$ROOT/scripts/verify_support_choices.js"
+node "$ROOT/scripts/verify_desktop_client.js"
 node "$ROOT/scripts/verify_stage_speech_r395.js"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
 grep -q 'id="profileAvatarLab"' "$ROOT/web/index.html" || { echo "Avatar Lab workbench missing from client snapshot" >&2; exit 1; }
@@ -171,12 +175,12 @@ grep -q 'message.frameInfo.isMainFrame' "$ROOT/macos/RantlistApp.swift" || { ech
 grep -q 'import Security' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS Keychain framework missing for OpenAI BYOK" >&2; exit 1; }
 grep -q 'kSecAttrAccessibleWhenUnlockedThisDeviceOnly' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS OpenAI key is not device-only/unlocked Keychain data" >&2; exit 1; }
 grep -q 'name: "rantlistSecrets"' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge missing" >&2; exit 1; }
-grep -q '"openai", "tripo", "xai"' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge is not provider-aware" >&2; exit 1; }
-grep -q '"openai", "tripo", "xai"' "$ROOT/macos/RantlistApp.swift" || { echo "macOS secure credential bridge is not provider-aware" >&2; exit 1; }
+grep -q '"openai", "tripo", "meshy", "xai"' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge is not provider-aware" >&2; exit 1; }
+grep -q '"openai", "tripo", "meshy", "xai"' "$ROOT/macos/RantlistApp.swift" || { echo "macOS secure credential bridge is not provider-aware" >&2; exit 1; }
 grep -q 'message.frameInfo.isMainFrame' "$ROOT/mobile/ios/Rantlist/RantlistApp.swift" || { echo "iOS secure credential bridge is not restricted to the main frame" >&2; exit 1; }
 grep -q 'AndroidKeyStore' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android Keystore-backed OpenAI storage missing" >&2; exit 1; }
 grep -q 'AES/GCM/NoPadding' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android OpenAI ciphertext is not AES-GCM protected" >&2; exit 1; }
-grep -q '"tripo".equals(provider)' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android secure credential bridge is not provider-aware" >&2; exit 1; }
+grep -q '"meshy".equals(provider)' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android secure credential bridge is not provider-aware" >&2; exit 1; }
 grep -q 'createWebMessageChannel' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android origin-scoped secure credential channel missing" >&2; exit 1; }
 ! grep -q 'addJavascriptInterface' "$ROOT/mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java" || { echo "Android secure credential bridge must not use all-frame addJavascriptInterface" >&2; exit 1; }
 ! grep -q "readStorage('chat.ai.openai.apiKey')" "$ROOT/web/index.html" || { echo "OpenAI API key is still read from persistent WebView/browser localStorage" >&2; exit 1; }
@@ -229,4 +233,21 @@ node "$ROOT/scripts/verify_profile_gallery_r388.js"
 node "$ROOT/scripts/verify_stage_focus_r390.js"
 node "$ROOT/scripts/verify_stage_keyboard_r391.js"
 node "$ROOT/scripts/verify_stage_media_r402.js"
+node "$ROOT/scripts/verify_imdb_card_r474.js"
+node "$ROOT/scripts/verify_live_call_r481.js"
+node "$ROOT/scripts/verify_avatar_chat_source_r482.js"
+node "$ROOT/scripts/verify_surface_media_r483.js"
+node "$ROOT/scripts/verify_head_steering_r484.js"
+node "$ROOT/scripts/verify_avatar_builder_r485.js"
+node "$ROOT/scripts/verify_avatar_builder_r487.js"
+node "$ROOT/scripts/verify_avatar_builder_r488.js"
+node "$ROOT/scripts/verify_avatar_builder_r489.js"
+node "$ROOT/scripts/verify_avatar_builder_r490.js"
+node "$ROOT/scripts/verify_avatar_builder_r491.js"
+node "$ROOT/scripts/verify_avatar_builder_r493.js"
 echo "Rantlist public client repository verification passed (source version $REPO_VERSION)."
+node "$ROOT/scripts/verify_avatar_builder_r494.js"
+node "$ROOT/scripts/verify_avatar_builder_r495.js"
+
+node "$ROOT/scripts/verify_avatar_builder_r496.js"
+node "$ROOT/scripts/verify_avatar_builder_r497.js"

@@ -1,35 +1,45 @@
-# Rantlist client 0.1.242
+## 0.1.271 / server 9.6.495 / r523
 
-Bundled browser baseline: **9.6.442 / rantlist-deploy-r470**
-Released: **2026-10-01**
+Five-platform release preflight hotfix: preserves the unified macOS/iOS/Android + Ubuntu Windows/Linux release workflow from 0.1.270 and fixes the release-note whitespace error that stopped the watcher before any native build began.
 
-This client release synchronizes the browser shell with the corrected r470 server package. r470 preserves the r469 authoritative blank-world channel behavior and fixes the server-side Development-note syntax error that prevented r469 from passing real startup verification. Native wrappers remain unchanged, including Quest/Horizon WebXR marking and automatic Android APK/AAB release support.
+## 0.1.269 / server 9.6.495 / r523
 
-The existing r469 client regression remains release-forward and verifies the `empty-world` handoff after synchronization. Automatic release still re-synchronizes `web/`, `VERSION.txt`, and `web/client-source.json` from the deployed verified Stage/chat source before native builds.
+Desktop DEB metadata hotfix: adds the required project homepage, structured author email metadata, and explicit Linux/DEB maintainer metadata for electron-builder 26.15.3. Adds regression checks for the exact FPM/DEB metadata requirements that blocked 0.1.268 after AppImage creation.
 
-# Rantlist client 0.1.241
+## 0.1.268 / server 9.6.495 / r523
 
-Bundled browser baseline: **9.6.441 / rantlist-deploy-r469**
-Released: **2026-10-01**
+Desktop build hotfix: electron-builder 26.15.3 Linux desktop metadata now uses the required `linux.desktop.entry` schema; package author/desktopName and explicit Linux/Windows executable names are set. Adds regression checks for the exact builder configuration shape that blocked 0.1.267.
 
-This client release synchronizes the browser shell with server r469 so a fresh channel cannot inherit a personal/default Stage World or retained geometry from another channel. The native wrappers themselves are unchanged; Android still includes the Quest/Horizon `Rantlist-XR-Headset` marker and APK/AAB release path from 0.1.240.
+## 0.1.267 / server 9.6.495 / r523
 
-A paired client regression now checks the r469 `empty-world` handoff whenever the synchronized source is r469 or later. Automatic release still re-synchronizes `web/`, `VERSION.txt`, and `web/client-source.json` from the currently deployed verified Stage/chat source immediately before native builds.
-
-# Rantlist client 0.1.240
-
-Bundled browser baseline: **9.6.421 / rantlist-deploy-r449**
-Released: **2026-10-01**
-
-This native-client release marks Quest/Horizon-class Android hardware with the bounded `Rantlist-XR-Headset` user-agent token in addition to the existing `Rantlist-Android` marker. Detection uses Android VR system features plus Quest/Oculus/Meta manufacturer/model signals. The marker only helps the Stage rendering/device classifier; WebXR availability itself remains determined by the browser runtime's `navigator.xr.isSessionSupported('immersive-vr')`.
-
-The package also verifies that the Android release path remains present. Server release `9.6.440 / rantlist-deploy-r468` restores the active Downloads watcher default to `macos,android,ios`, so future automatic client releases again build/publish APK + AAB along with macOS and iOS.
-
-This maintenance package fixes the native-client verification contract used by the automatic release workflow. The client repository deliberately synchronizes `web/`, `VERSION.txt`, and `web/client-source.json` from the currently deployed `stage/chat` server immediately before verification/build. Historical r449 verification therefore validates **r449-or-later compatibility** instead of requiring the synchronized source to remain exactly 9.6.421 / r449.
-
-The native behavior introduced by r449 is unchanged: mobile reaction picking remains open while adding multiple emoji and preserves the message timeline position; iOS opens Rantlist PDFs in a dismissible native document view; Android routes authenticated Rantlist PDF previews through DownloadManager/system viewers and accepts Android share-sheet input through the origin-scoped WebMessagePort bridge.
+- Adds the first Rantlist desktop source for Windows x64 and Linux x86_64.
+- Linux builds produce AppImage + DEB; Windows builds produce a portable ZIP + NSIS installer.
+- Desktop builds are designed for the dedicated `/srv/rantlist-build` workspace, refuse root execution, run at low priority, and never install packages, restart services, invoke Docker, or touch production data.
+- The desktop shell loads only the production Rantlist HTTPS origin with Node integration disabled, context isolation enabled and Chromium sandboxing enabled.
 
 
-This maintenance release also fixes the native release preflight itself: the prior 0.1.238 package contained Markdown hard-break trailing spaces in `README.md` and `RELEASE.md`, which `git diff --check` correctly rejected after the browser snapshot was synchronized from Stage. Those trailing spaces are removed, and standalone client verification now runs an equivalent non-web source whitespace check before the release workflow starts.
+## 0.1.266 / server 9.6.469 / r497
 
-The bundled snapshot remains the r449 baseline only so the standalone package is self-verifying before synchronization. During automatic release, `scripts/sync_from_stage.sh` replaces that browser snapshot with the current verified Rantlist server UI/revision. Protocol 70 and Stage schema 1266 remain unchanged.
+- Avatar Lab compact My Models cards no longer clip their action row.
+- Missing generated/imported model thumbnails are backfilled server-side; Tripo preview is preferred and Blender renders the fallback.
+- Model optimizer drawer is denser; Actions and Prompt & library are collapsible; prompt editor is shorter by default.
+- Main CSP now permits trusted Meshopt WebAssembly compilation.
+- Meshy is labeled optional and is only used for external automatic rigging.
+## Client 0.1.266 / source 9.6.469
+Avatar Lab model-library and optimization-studio synchronization: image-first model cards, imported-model thumbnails, aggressive Mobile optimization controls, before/after metrics, Meshopt + Draco preview decoding.
+
+# Rantlist Client 0.1.264
+
+Synchronized browser/native client for server `9.6.467` / `rantlist-deploy-r495`.
+
+- Carries the r493 Avatar Lab cleanup, model inspector and optimizer.
+- Synchronizes the r494 historical-verifier deployment recovery.
+- Keeps strict automatic full-finger validation without restoring the removed confusing checkbox.
+
+# Rantlist Client 0.1.262
+
+Synchronized browser/native client for server `9.6.465` / `rantlist-deploy-r493`.
+
+Avatar Lab now uses one GLB/FBX import that is inspected automatically, exposes a separate model inspector/optimizer with before/after metrics and presets, and provides a working xAI API-key shortcut from Reference settings.
+
+Avatar Lab adds the Stage Avatar Builder controls for selecting the installed local Mixamo FBX animation pack, strict articulated-finger validation, geometry target, base-colour-only output and WebP quality. Generated `-stage.glb` assets are preferred in My Models and Add to Stage.

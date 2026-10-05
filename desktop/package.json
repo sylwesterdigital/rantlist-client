@@ -1,0 +1,24 @@
+{
+  "name": "rantlist-desktop",
+  "version": "9.6.494",
+  "private": true,
+  "description": "Rantlist desktop client for Windows and Linux",
+  "homepage": "https://rantlist.me/",
+  "license": "UNLICENSED",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist:linux": "electron-builder --config electron-builder.config.cjs --linux AppImage deb --x64",
+    "pack:windows": "electron-builder --config electron-builder.config.cjs --win --x64 --dir"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3"
+  },
+  "author": {
+    "name": "Rantlist",
+    "email": "noreply@rantlist.me",
+    "url": "https://rantlist.me/"
+  },
+  "desktopName": "fun.workwork.rantlist"
+}

@@ -1,0 +1,22 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const root=path.resolve(__dirname,'..');
+const html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
+const source=require('../web/client-source.json');
+const pkg=fs.readFileSync(path.join(root,'PACKAGE_VERSION.txt'),'utf8').trim();
+assert(/^0\.1\.(?:25[1-9]|2[6-9][0-9]|[3-9][0-9]{2,})$/.test(pkg));
+const [maj,min,patch]=String(source.sourceVersion).split('.').map(Number);assert.equal(maj,9);assert.equal(min,6);assert(patch>=453);
+assert(Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1]||0)>=481);
+const start=html.indexOf('function getStageLiveCallSources()');
+const end=html.indexOf('window.getRantlistStageLiveCallSources = getStageLiveCallSources;',start);
+assert(start>0&&end>start,'Live Call Stage bridge missing');
+const body=html.slice(start,end+80);
+assert.match(body,/normalChannelCallActive\(\)/);
+assert.match(body,/state\.localCallStream/);
+assert.match(body,/state\.remoteStreams\.get/);
+assert.match(body,/callParticipantStates/);
+assert.doesNotMatch(body,/getUserMedia|new RTCPeerConnection/);
+console.log('PASS client r481 reuses existing channel-call video streams for Stage Live Call');

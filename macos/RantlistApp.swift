@@ -9,7 +9,7 @@ private let allowedHosts: Set<String> = ["rantlist.me", "www.rantlist.me"]
 
 private enum SecureOpenAiCredentialStore {
     private static let account = "user-api-key"
-    private static let allowedProviders: Set<String> = ["openai", "tripo", "xai"]
+    private static let allowedProviders: Set<String> = ["openai", "tripo", "meshy", "xai"]
     private static func service(_ provider: String) -> String {
         let safe = allowedProviders.contains(provider) ? provider : "openai"
         return "fun.workwork.rantlist.\(safe)"
@@ -175,7 +175,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
               let action = body["action"] as? String else { return }
 
         let providerRaw = String((body["provider"] as? String) ?? "openai").lowercased()
-        let provider = ["openai", "tripo", "xai"].contains(providerRaw) ? providerRaw : "openai"
+        let provider = ["openai", "tripo", "meshy", "xai"].contains(providerRaw) ? providerRaw : "openai"
         var response: [String: Any] = ["requestId": requestID, "ok": true, "provider": provider]
         switch action {
         case "status":

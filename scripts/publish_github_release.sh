@@ -30,6 +30,10 @@ die(){ printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
 retry_cmd(){ local attempts="$1" delay="$2"; shift 2; local n=1; until "$@"; do local c=$?; (( n >= attempts )) && return "$c"; warn "Command failed ($n/$attempts); retrying in ${delay}s: $*"; sleep "$delay"; n=$((n+1)); done; }
 has_platform(){ case " $RELEASE_PLATFORMS " in *" $1 "*) return 0;; *) return 1;; esac; }
 
+DESKTOP_STAGE_DIR=""
+cleanup_desktop_stage(){ [[ -z "$DESKTOP_STAGE_DIR" ]] || rm -rf "$DESKTOP_STAGE_DIR"; }
+trap cleanup_desktop_stage EXIT
+
 [[ "$RELEASE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "Invalid RELEASE_VERSION: $RELEASE_VERSION"
 [[ "$BUILD_NUMBER" =~ ^[1-9][0-9]*$ ]] || die "Invalid BUILD_NUMBER: $BUILD_NUMBER"
 case "$RELEASE_MODE" in published|prerelease) ;; *) die "GITHUB_RELEASE_MODE must be published or prerelease" ;; esac
@@ -45,6 +49,14 @@ gh auth status -h github.com >/dev/null 2>&1 || die "GitHub CLI is not authentic
 BASE="$ROOT/release/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}"
 assets=()
 checksums=()
+DESKTOP_PLATFORMS=""
+has_platform windows && DESKTOP_PLATFORMS="windows"
+has_platform linux && DESKTOP_PLATFORMS="${DESKTOP_PLATFORMS:+$DESKTOP_PLATFORMS }linux"
+if [[ -n "$DESKTOP_PLATFORMS" ]]; then
+  DESKTOP_STAGE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/rantlist-desktop-upload.XXXXXX")"
+  log "Fetching verified Ubuntu desktop artifacts into disposable GitHub-upload staging"
+  "$ROOT/scripts/fetch_desktop_remote_artifacts.sh" "$RELEASE_VERSION" "$BUILD_NUMBER" "$RELEASE_TAG" "$DESKTOP_STAGE_DIR" "$DESKTOP_PLATFORMS"
+fi
 if has_platform macos; then
   assets+=("${BASE}-macOS-universal2.dmg" "${BASE}-macOS-universal2.zip")
   checksums+=("${BASE}-SHA256.txt")
@@ -57,9 +69,17 @@ if has_platform ios; then
   assets+=("${BASE}-iOS.ipa")
   checksums+=("${BASE}-iOS-SHA256.txt")
 fi
+if has_platform windows; then
+  assets+=("$DESKTOP_STAGE_DIR/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-windows-x64-Setup.exe" "$DESKTOP_STAGE_DIR/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-windows-x64-portable.zip")
+  checksums+=("$DESKTOP_STAGE_DIR/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-windows-SHA256.txt")
+fi
+if has_platform linux; then
+  assets+=("$DESKTOP_STAGE_DIR/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-linux-x86_64.AppImage" "$DESKTOP_STAGE_DIR/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-linux-amd64.deb")
+  checksums+=("$DESKTOP_STAGE_DIR/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-linux-SHA256.txt")
+fi
 (( ${#assets[@]} > 0 )) || die "No platform artifacts selected."
 for f in "${assets[@]}" "${checksums[@]}"; do [[ -s "$f" ]] || die "Missing release artifact: $f"; done
-for sha in "${checksums[@]}"; do (cd "$ROOT/release" && shasum -a 256 -c "$(basename "$sha")"); done
+for sha in "${checksums[@]}"; do (cd "$(dirname "$sha")" && shasum -a 256 -c "$(basename "$sha")"); done
 
 if [[ -z "$NOTES_FILE" ]]; then
   NOTES_FILE="$ROOT/release/Rantlist-v${RELEASE_VERSION}-b${BUILD_NUMBER}-RELEASE_NOTES.md"
@@ -71,10 +91,14 @@ if [[ -z "$NOTES_FILE" ]]; then
     has_platform macos && printf -- '- macOS: signed and notarized universal2 DMG + ZIP\n'
     has_platform android && printf -- '- Android: signed APK + AAB\n'
     has_platform ios && printf -- '- iOS/iPadOS: signed IPA exported for App Store distribution\n'
+    has_platform windows && printf -- '- Windows: x64 NSIS installer + portable ZIP (unsigned initial desktop release)\n'
+    has_platform linux && printf -- '- Linux: x86_64 AppImage + DEB\n'
     printf '\n## Install\n\n'
     has_platform macos && printf 'macOS: open the DMG and drag **Rantlist** into **Applications**.\n\n'
     has_platform android && printf 'Android: install the APK directly, or use the AAB for Google Play publishing.\n\n'
     has_platform ios && printf 'iOS/iPadOS: the IPA is an App Store distribution artifact; normal public installation should use TestFlight or the App Store.\n\n'
+    has_platform windows && printf 'Windows: run the Setup EXE, or use the portable ZIP without installation.\n\n'
+    has_platform linux && printf 'Linux: run the AppImage directly or install the DEB on Debian/Ubuntu-family distributions.\n\n'
     printf 'All Apple desktop artifacts are Developer ID signed/notarized where applicable. Mobile apps use native camera/microphone permission handling for Rantlist calls.\n\n'
     printf '## Assets\n\n'
     for f in "${assets[@]}" "${checksums[@]}"; do printf -- '- %s\n' "$(basename "$f")"; done

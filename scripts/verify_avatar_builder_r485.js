@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');const root=path.resolve(__dirname,'..');const pkg=fs.readFileSync(path.join(root,'PACKAGE_VERSION.txt'),'utf8').trim();const source=require('../web/client-source.json');const html=fs.readFileSync(path.join(root,'web/index.html'),'utf8');let count=0;const check=(label,fn)=>{fn();count++;console.log('PASS '+label)};
+check('client remains r485-compatible or later',()=>{assert.ok(Number(pkg.split('.').at(-1))>=255);const p=String(source.sourceVersion||'').split('.').map(Number);assert.equal(p[0],9);assert.equal(p[1],6);assert.ok(p[2]>=457);assert.ok(Number(String(source.sourceRevision||'').match(/r(\d+)$/)?.[1])>=485);});
+check('Avatar Lab still exposes local Stage action builder',()=>{for(const id of ['profileAvatar3dAnimationChoices','avatarLabBuilderStatus','avatarLabAddActionsButton'])assert.ok(html.includes(`id="${id}"`),id);assert.match(html,/avatar3d\.builder\.info/);});
+check('builder starts and monitors owner-scoped jobs',()=>{assert.match(html,/avatar3d\.build\.start/);assert.match(html,/avatar3d\.build\.status/);assert.ok(/dataset\.avatarModelAction='build'/.test(html)||(html.includes("dataset.avatarModelAction='actions'")&&html.includes('startAvatar3dBuild(taskId)')&&html.includes('Build GLB with selected actions')),'current Mixamo Stage-build workflow missing');});
+check('finished Stage GLB and finger capability remain surfaced',()=>{assert.match(html,/builtUrl/);assert.match(html,/fingerBoneCount/);assert.match(html,/knownFingers<30/);});
+console.log(`PASS client Avatar Lab Stage builder r485 compatibility (${count} groups)`);
