@@ -1,4 +1,9 @@
-## 0.1.273 / server 9.6.496 / r524
+## 0.1.274 / server 9.6.497 / r525
+
+
+## Avatar Lab r525 Tripo startup diagnostics
+
+This client pairs with Rantlist 9.6.497 / rantlist-deploy-r525. High-resolution Avatar Lab image/multiview starts now use a request-scoped heartbeat and show server-received, payload, credential, upload/retry, and task-creation phases before a Tripo task ID exists. Reconnects query the same start request rather than silently leaving the UI busy.
 
 - Avatar Lab r524: uncropped 2D settings, xAI 2K/quality controls and true source dimensions, Tripo four-view generation and explicit key validation, retained optimized versions, optimized-stage auto-selection, and less brittle local Blender body rigging.
 

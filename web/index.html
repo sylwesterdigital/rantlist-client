@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.496">
+  <meta name="chat-ui-version" content="9.6.497">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -18216,7 +18216,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.496</small>
+          <small id="serverBrandVersion">v9.6.497</small>
         </span>
       </button>
     </div>
@@ -18275,7 +18275,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.496</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.497</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -21605,6 +21605,9 @@
       avatar3dSelectedVariant: '',
       avatar3dPollTimer: null,
       avatar3dPollBusy: false,
+      avatar3dStartRequestId: '',
+      avatar3dStartHeartbeatTimer: null,
+      avatar3dStartProgressSignature: '',
       avatar3dBuildPollTimer: null,
       avatarLabSourceAsReference: false,
       avatar3dImportMode: 'auto',
@@ -24152,6 +24155,11 @@
           if(state.stageIframe?.contentWindow && state.stageReady)sendJson({type:'stage.asset.authorize'});
           sendJson({ type: 'avatar.grok.list' });
           sendJson({ type: 'avatar.source.list' });
+          if(state.avatar3dStartRequestId&&!state.avatar3dActiveTaskId){
+            appendAvatarLabLog('info','3D start reconnect check',`Checking request ${String(state.avatar3dStartRequestId).slice(0,12)}… after WebSocket reconnect. No new paid render is being created.`,'Tripo3D · start');
+            sendJson({type:'avatar3d.tripo.start.status',startRequestId:state.avatar3dStartRequestId});
+            scheduleAvatar3dStartHeartbeat(12000);
+          }
           redeemPendingExternalInvite();
           redeemPendingCalendarInvite();
           openPendingSharedMediaLink();
@@ -24521,6 +24529,8 @@
           { const pending=state.avatar3dItems.find((item)=>item && !item?.url && !['ready','failed','error','banned','expired','cancelled'].includes(String(item.status||'').toLowerCase())); if(pending?.taskId){state.avatar3dActiveTaskId=pending.taskId; scheduleAvatar3dPoll(pending.taskId,700);} }
           setTimeout(()=>void recoverNextAvatarLabThumbnail(),150);
           break;
+        case 'avatar3d.start.progress':
+          handleAvatar3dStartProgress(message); break;
         case 'avatar3d.status':
         case 'avatar3d.ready':
           handleAvatar3dMessage(message); break;
@@ -25454,6 +25464,8 @@
           if (errorCode.startsWith('avatar3d_')) {
             state.avatar3dGenerationPending = false;
             state.avatar3dPollBusy = false;
+            clearTimeout(state.avatar3dStartHeartbeatTimer);
+            if (errorCode !== 'avatar3d_status_failed') state.avatar3dStartRequestId='';
             const activeTask = avatarLabActive3dTask();
             if (errorCode === 'avatar3d_status_failed' && activeTask?.taskId) {
               setAvatarLabActivity('3D status check interrupted', `${avatarErrorMessage} Retrying the existing task; no new paid request will be started.`, 'running', activeTask.progress, 'Tripo3D');
@@ -50587,6 +50599,31 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(!taskId)return;const model=state.avatar3dItems.find(x=>String(x?.taskId||'')===String(taskId)),variant=normalizeAvatarModelVariant(state.avatarModelToolsVariant),entry=avatar3dArtifactEntries().find((candidate)=>candidate.taskId===String(taskId)&&candidate.variant===variant);if(!model||!entry?.url){setAvatarLabError(`The ${variant} GLB is not ready yet. Wait for the current 3D render/import to finish, then run the local rig again.`,'Local rig not started');return;}const currentRigStatus=String(model?.rigStatus||'').toLowerCase();if(['checking','rigging'].includes(currentRigStatus)&&String(model?.rigProvider||'')==='blender'){state.avatar3dActiveTaskId=taskId;state.avatar3dAutoRigTaskId=taskId;setAvatarLabActivity('Automatic local rigging','A local Blender rig is already running for this model. Refreshing its status…','running',model?.rigProgress??5,'Blender · local auto-rig');state.avatar3dPollBusy=false;scheduleAvatar3dPoll(taskId,0);renderAvatarLab();return;}const local=state.avatarBuilderInfo?.localRigging||{};const engine=elements.avatarLabBlenderRigEngine?.value==='addon'?'addon':'builtin';if(!local.builtinAvailable){setAvatarLabError('Local auto-rigging needs Blender on the Rantlist server. Configure CHAT_BLENDER_BIN or install Blender.','Local rig unavailable');return;}if(engine==='addon'&&!local.addonAvailable){setAvatarLabError('The selected server Blender add-on adapter is not configured. Choose the built-in auto armature or configure CHAT_AVATAR_AUTORIG_ADDON_SCRIPT.','Local add-on unavailable');return;}state.avatar3dActiveTaskId=taskId;state.avatar3dAutoRigTaskId=taskId;state.avatar3dPollBusy=true;setAvatarLabActivity('Automatic local rigging',`${engine==='addon'?(local.addonName||'Blender add-on'):'Rantlist Blender auto armature'} · fitting, skinning and validating the ${variant} GLB. No Mixamo upload is required.`,'running',5,'Blender · local auto-rig');renderAvatarLab();sendJson({type:'avatar3d.blender.rig.start',taskId,variant,engine,replace:Boolean(model?.riggedUrl),requireFingers:engine==='addon',sourceName:model?.importedName||''});
     }
 
+    function scheduleAvatar3dStartHeartbeat(delay=12000){
+      clearTimeout(state.avatar3dStartHeartbeatTimer);
+      const requestId=String(state.avatar3dStartRequestId||'').trim();
+      if(!requestId||state.avatar3dActiveTaskId)return;
+      state.avatar3dStartHeartbeatTimer=setTimeout(()=>{
+        if(!state.avatar3dStartRequestId||state.avatar3dActiveTaskId)return;
+        if(state.socket?.readyState!==WebSocket.OPEN){setAvatarLabError('The Rantlist connection closed while Tripo startup was in progress. Reconnect before retrying.','3D start connection lost');state.avatar3dPollBusy=false;state.avatar3dGenerationPending=false;return;}
+        sendJson({type:'avatar3d.tripo.start.status',startRequestId:state.avatar3dStartRequestId});
+        scheduleAvatar3dStartHeartbeat(12000);
+      },delay);
+    }
+    function handleAvatar3dStartProgress(message){
+      const requestId=String(message?.requestId||'').trim();
+      if(state.avatar3dStartRequestId&&requestId&&requestId!==state.avatar3dStartRequestId)return;
+      if(requestId)state.avatar3dStartRequestId=requestId;
+      const phase=String(message?.phase||'starting');const detail=String(message?.detail||'Tripo startup is in progress.');const status=String(message?.status||'running');const progress=Number(message?.progress);
+      const label={received:'Request reached server','payload-ok':'Reference payload accepted',credential:'Checking Tripo key','credential-ok':'Tripo key accepted',uploading:'Uploading reference','upload-retry':'Reference upload retry',uploaded:'Reference uploaded','creating-task':'Creating Tripo task',accepted:'Tripo task accepted',failed:'Tripo start failed'}[phase]||'Starting textured 3D';
+      if(message?.taskId)state.avatar3dActiveTaskId=String(message.taskId);
+      const signature=`${phase}|${detail}|${message?.taskId||''}`;
+      if(signature!==state.avatar3dStartProgressSignature){state.avatar3dStartProgressSignature=signature;appendAvatarLabLog(status==='failed'?'error':'info',label,detail,'Tripo3D · start');}
+      if(status==='failed'){clearTimeout(state.avatar3dStartHeartbeatTimer);state.avatar3dGenerationPending=false;state.avatar3dPollBusy=false;setAvatarLabError(detail,'3D generation failed');state.avatar3dStartRequestId='';}
+      else if(message?.taskId){clearTimeout(state.avatar3dStartHeartbeatTimer);setAvatarLabActivity('Tripo task accepted',detail,'running',Number.isFinite(progress)?progress:68,'Tripo3D');}
+      else {state.avatar3dGenerationPending=true;state.avatar3dPollBusy=true;setAvatarLabActivity(label,detail,'running',Number.isFinite(progress)?progress:32,'Tripo3D');scheduleAvatar3dStartHeartbeat();}
+      renderAvatarLab();
+    }
     function scheduleAvatar3dPoll(taskId,delay=2500){clearTimeout(state.avatar3dPollTimer);state.avatar3dPollTimer=setTimeout(()=>{void pollAvatar3dTask(taskId);},delay);}
     async function pollAvatar3dTask(taskId){
       const id=String(taskId||state.avatar3dActiveTaskId||'').trim();if(!id||state.avatar3dPollBusy)return;
@@ -50602,7 +50639,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         const sourceReference=Boolean(state.avatarLabSourceAsReference&&profileAvatarLabSourcePreview());
         const useGenerated=!forceBaseSource&&!sourceReference&&state.avatarGrokUseAs3dSource&&Boolean(grokItem?.url);
         const sourceLabel=useGenerated?'generated-reference':sourceReference?'source-as-reference':'source';
-        state.avatar3dGenerationPending=true;state.avatar3dActiveTaskId='';state.avatar3dSelectedVariant='';
+        state.avatar3dGenerationPending=true;state.avatar3dActiveTaskId='';state.avatar3dSelectedVariant='';state.avatar3dStartRequestId=(globalThis.crypto?.randomUUID?.()||`start_${Date.now()}_${Math.random().toString(36).slice(2)}`).replace(/[^A-Za-z0-9_-]/g,'').slice(0,120);state.avatar3dStartProgressSignature='';clearTimeout(state.avatar3dStartHeartbeatTimer);
         setAvatarLabActivity('Preparing textured 3D',useGenerated?'Preparing the generated full-body reference for Tripo3D…':sourceReference?'Preparing the exact Source image shown in 2 · Reference for Tripo3D…':'Preparing the original source for Tripo3D…','running',10,'Tripo3D');renderAvatarLab();
         const multiview=Boolean(state.avatarLabMultiviewEnabled);const [apiKey,sourceImage,sourceImages]=await Promise.all([providerCredentialForRequest('tripo'),avatarLabSourceDataUrl(useGenerated),multiview?avatarLabMultiviewDataUrls():Promise.resolve([])]);
         let prompt=String(elements.profileAvatarGrokPrompt?.value||'').trim()||composeAvatarWizardPrompt();
@@ -50610,8 +50647,9 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         if(useGenerated&&grokItem?.kind==='image'&&grokItem?.url){prompt=String(grokItem.prompt||prompt);promptMeta={...promptMeta,...(grokItem.promptMeta||{}),source:'generated-image',sourceRequestId:String(grokItem.requestId||'')};}
         state.avatar3dAutoBuildNext=Boolean(elements.profileAvatar3dAutoRigInput?.checked&&state.avatarBuilderSelectedAnimations.length);
         state.avatar3dPollBusy=true;setAvatarLabActivity('Starting textured 3D','Uploading the selected image and creating a Tripo3D task. Duplicate paid requests are locked.','running',32,'Tripo3D');renderAvatarLab();
-        sendJson({type:'avatar3d.tripo.start',apiKey,sourceImage,sourceImages:multiview?sourceImages:undefined,multiview,sourceName:useGenerated?'Generated reference':sourceReference?`Source reference · ${state.avatarLabSourceName||'Avatar Lab source'}`:(state.avatarLabSourceName||'Avatar Lab source'),prompt,promptMeta:{...promptMeta,source3d:multiview?'multiview-4':sourceLabel},modelVersion:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),textureQuality:String(elements.profileAvatar3dTextureSelect?.value||'detailed'),autoRig:Boolean(elements.profileAvatar3dAutoRigInput?.checked)});
-      }catch(error){state.avatar3dGenerationPending=false;state.avatar3dPollBusy=false;setAvatarLabError(error?.message||'3D generation could not start','3D generation failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'generation could not start'}`,true);}
+        if(!sendJson({type:'avatar3d.tripo.start',startRequestId:state.avatar3dStartRequestId,apiKey,sourceImage,sourceImages:multiview?sourceImages:undefined,multiview,sourceName:useGenerated?'Generated reference':sourceReference?`Source reference · ${state.avatarLabSourceName||'Avatar Lab source'}`:(state.avatarLabSourceName||'Avatar Lab source'),prompt,promptMeta:{...promptMeta,source3d:multiview?'multiview-4':sourceLabel},modelVersion:String(elements.profileAvatar3dModelSelect?.value||'v3.1-20260211'),textureQuality:String(elements.profileAvatar3dTextureSelect?.value||'detailed'),autoRig:Boolean(elements.profileAvatar3dAutoRigInput?.checked)}))throw new Error('The WebSocket connection is not open.');
+        appendAvatarLabLog('info','3D start request sent',`Request ${state.avatar3dStartRequestId.slice(0,12)}… · waiting for server-side credential/upload diagnostics`,'Tripo3D · start');scheduleAvatar3dStartHeartbeat(3500);
+      }catch(error){clearTimeout(state.avatar3dStartHeartbeatTimer);state.avatar3dGenerationPending=false;state.avatar3dPollBusy=false;state.avatar3dStartRequestId='';setAvatarLabError(error?.message||'3D generation could not start','3D generation failed');renderAvatarLab();addSystemMessage(`Avatar Lab: ${error?.message||'generation could not start'}`,true);}
     }
     function mergeAvatar3dItemState(item) {
       if(!item?.taskId)return;
@@ -50623,6 +50661,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const item=message?.item;
       if(Array.isArray(message?.items))reconcileAvatar3dSnapshot(message.items);else mergeAvatar3dItemState(item);
       if (item?.taskId) {
+        clearTimeout(state.avatar3dStartHeartbeatTimer);state.avatar3dStartRequestId='';state.avatar3dStartProgressSignature='';
         state.avatar3dGenerationPending=false;
         state.avatar3dActiveTaskId=item.taskId;
         if(state.avatar3dAutoBuildNext&&item?.autoRig){state.avatar3dAutoBuildTaskId=item.taskId;state.avatar3dAutoBuildNext=false;}
