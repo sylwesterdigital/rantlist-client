@@ -1,3 +1,15 @@
+## 0.1.279 / server 9.6.506 / r534
+
+Quest/headset Stage startup now uses a conservative WebXR profile (no MSAA/preserveDrawingBuffer, DPR <= 1, XR framebuffer scale 0.50) plus a lil-gui safe-session/diagnostic panel. The Quest Android APK is explicitly declared as a supported 2D headset panel and keeps XR actionable through a trusted external-browser handoff when Android WebView has no `navigator.xr`; it does not claim a native immersive renderer. Avatar Lab's Source chooser now always shows icon + text and sizes to the labels.
+
+## 0.1.278 / server 9.6.505 / r533
+
+Homepage showcase content is now operator-owned. Client ZIP updates preserve an existing `homepage/content.json`, ordinary full homepage releases do not upload/delete `content.json` or its compressed variants, and release commits exclude local operator edits. Use `./scripts/deploy_homepage_content.sh` to publish video/gallery changes independently.
+
+## 0.1.277 / server 9.6.502 / r530
+
+This client is synchronized to Rantlist 9.6.502 / rantlist-deploy-r530. Avatar Lab now uses a separate Blender-compatible Stage preview GLB instead of trying to load the Meshopt-compressed runtime Stage artifact, exposes that editable GLB as a Blender download, hides the optional server add-on choice unless configured, and carries the Stage root-motion/private-avatar alignment repair.
+
 ## 0.1.276 / server 9.6.501 / r529
 
 ## Client verifier recovery after r529 synchronization

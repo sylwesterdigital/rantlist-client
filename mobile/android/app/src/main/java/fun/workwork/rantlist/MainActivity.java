@@ -83,6 +83,7 @@ public final class MainActivity extends Activity {
     private boolean mainFrameLoadFailed = false;
     private WebMessagePort secretPort;
     private WebMessagePort sharePort;
+    private WebMessagePort xrPort;
     private SecureOpenAiStore secureOpenAiStore;
     private DownloadManager downloadManager;
     private final Set<Long> pendingPdfDownloads = new HashSet<>();
@@ -184,6 +185,7 @@ public final class MainActivity extends Activity {
                 uiLoaded = true;
                 installSecretChannel(view);
                 installShareChannel(view);
+                installXrChannel(view);
                 showReady();
             }
 
@@ -562,6 +564,62 @@ public final class MainActivity extends Activity {
 
 
 
+    private void installXrChannel(WebView view) {
+        if (view == null) return;
+        try { if (xrPort != null) xrPort.close(); } catch (Exception ignored) {}
+        try {
+            WebMessagePort[] ports = view.createWebMessageChannel();
+            xrPort = ports[0];
+            xrPort.setWebMessageCallback(new WebMessagePort.WebMessageCallback() {
+                @Override
+                public void onMessage(WebMessagePort port, WebMessage message) {
+                    handleXrMessage(port, message == null ? null : message.getData());
+                }
+            });
+            Uri current = Uri.parse(view.getUrl() == null ? APP_URL : view.getUrl());
+            if (!isTrusted(current)) throw new IllegalStateException("Untrusted WebView origin.");
+            Uri origin = Uri.parse(current.getScheme() + "://" + current.getHost());
+            view.postWebMessage(new WebMessage("rantlist-native-xr-channel-v1", new WebMessagePort[]{ports[1]}), origin);
+        } catch (Exception ignored) {
+            xrPort = null;
+        }
+    }
+
+    private void handleXrMessage(WebMessagePort port, String raw) {
+        JSONObject response = new JSONObject();
+        String requestId = "";
+        try {
+            JSONObject body = new JSONObject(raw == null ? "{}" : raw);
+            requestId = body.optString("requestId", "");
+            if (!requestId.matches("^[A-Za-z0-9._-]{8,128}$")) return;
+            String action = body.optString("action", "");
+            response.put("requestId", requestId);
+            response.put("headset", isLikelyXrHeadset());
+            response.put("nativeImmersive", false);
+            if ("status".equals(action)) {
+                response.put("ok", true);
+                response.put("mode", "2d-webview");
+            } else if ("openBrowser".equals(action)) {
+                Uri target = Uri.parse(body.optString("url", APP_URL));
+                if (!isTrusted(target)) throw new SecurityException("XR browser target is not a trusted Rantlist URL.");
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, target);
+                browserIntent.addCategory(Intent.CATEGORY_BROWSABLE);
+                startActivity(browserIntent);
+                response.put("ok", true);
+                response.put("mode", "external-webxr-browser");
+            } else {
+                throw new IllegalArgumentException("Unsupported XR bridge action.");
+            }
+        } catch (Exception error) {
+            try {
+                response.put("requestId", requestId);
+                response.put("ok", false);
+                response.put("error", error.getMessage() == null ? "Native XR operation failed." : error.getMessage());
+            } catch (Exception ignored) {}
+        }
+        try { port.postMessage(new WebMessage(response.toString())); } catch (Exception ignored) {}
+    }
+
     private void installSecretChannel(WebView view) {
         if (view == null) return;
         try { if (secretPort != null) secretPort.close(); } catch (Exception ignored) {}
@@ -846,6 +904,7 @@ public final class MainActivity extends Activity {
         }
         try { if (secretPort != null) secretPort.close(); } catch (Exception ignored) {}
         try { if (sharePort != null) sharePort.close(); } catch (Exception ignored) {}
+        try { if (xrPort != null) xrPort.close(); } catch (Exception ignored) {}
         if (downloadReceiver != null) { try { unregisterReceiver(downloadReceiver); } catch (Exception ignored) {} }
         nativeShareExecutor.shutdownNow();
         super.onDestroy();

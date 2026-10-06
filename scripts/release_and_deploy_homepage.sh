@@ -199,7 +199,7 @@ preflight(){
   [[ -d "$ROOT/.git" ]] || die "$ROOT is not a Git repository."
   [[ "$(git symbolic-ref --quiet --short HEAD 2>/dev/null || true)" == "$RELEASE_BRANCH" ]] || die "Release must run on $RELEASE_BRANCH."
   [[ -z "$(git diff --name-only --diff-filter=U)" ]] || die "Resolve Git conflicts first."
-  if ! git diff --check -- . ':(exclude)web/**'; then
+  if ! git diff --check -- . ':(exclude)web/**' ':(exclude)homepage/content.json'; then
     die "Fix source whitespace errors before building the release."
   fi
   gh auth status -h github.com >/dev/null 2>&1 || die "GitHub CLI is not authenticated."
@@ -213,7 +213,7 @@ preflight(){
     if [[ "$local_head" == "$remote_head" ]]; then :
     elif [[ "$base_head" == "$remote_head" ]]; then log "Local $RELEASE_BRANCH is ahead of origin; local commits will be included."
     elif [[ "$base_head" == "$local_head" ]]; then
-      [[ -z "$(git status --porcelain)" ]] || die "Local branch is behind origin and has local changes. Synchronize Git first."
+      [[ -z "$(git status --porcelain -- . ':(exclude)homepage/content.json')" ]] || die "Local branch is behind origin and has release-source changes. Synchronize Git first."
       git merge --ff-only "origin/$RELEASE_BRANCH"
     else die "Local $RELEASE_BRANCH has diverged from origin/$RELEASE_BRANCH."; fi
   fi
@@ -370,8 +370,8 @@ load_state
 if [[ "$PHASE" == built ]]; then
   for platform in $PLATFORMS; do validate_platform_artifacts "$platform" || die "Saved built phase is missing/invalid $platform artifacts."; done
   log "Committing and pushing public client release source"
-  git add -- .gitignore README.md SECURITY.md RELEASE.md assets macos mobile desktop scripts homepage web VERSION.txt BUILD_NUMBER.txt
-  git diff --cached --check -- . ':(exclude)web/**'
+  git add -- .gitignore README.md SECURITY.md RELEASE.md assets macos mobile desktop scripts homepage web VERSION.txt BUILD_NUMBER.txt ':(exclude)homepage/content.json'
+  git diff --cached --check -- . ':(exclude)web/**' ':(exclude)homepage/content.json'
   if ! git diff --cached --quiet; then git commit -m "Release Rantlist ${SOURCE_VERSION} build ${PLANNED_BUILD} (${PLATFORMS// /, })"; fi
   RELEASE_COMMIT="$(git rev-parse HEAD)"
   git push origin "$RELEASE_BRANCH"

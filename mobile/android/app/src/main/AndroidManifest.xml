@@ -5,23 +5,29 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-feature android:name="android.hardware.vr.headtracking" android:required="false" android:version="1" />
 
     <application
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:label="Rantlist"
+        android:hardwareAccelerated="true"
         android:usesCleartextTraffic="false"
         android:theme="@style/AppTheme">
+        <meta-data android:name="com.oculus.supportedDevices" android:value="quest2|questpro|quest3|quest3s|vrglasses" />
         <activity
             android:name=".MainActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|smallestScreenSize|uiMode"
             android:exported="true"
             android:launchMode="singleTop"
+            android:resizeableActivity="true"
             android:screenOrientation="unspecified">
+            <layout android:defaultWidth="1024dp" android:defaultHeight="640dp" android:minWidth="360dp" android:minHeight="225dp" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="com.oculus.intent.category.2D" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />

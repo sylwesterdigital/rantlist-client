@@ -159,7 +159,7 @@ info "Deploying to $REMOTE_URL"
 if [[ "$DO_DRY_RUN" == 0 ]]; then
   retry_cmd 4 8 ssh -o BatchMode=yes -o ConnectTimeout=15 -p "$RANTLIST_REMOTE_PORT" "$RANTLIST_REMOTE_USER@$RANTLIST_REMOTE_HOST" "mkdir -p '$RANTLIST_REMOTE_DIR'"
 fi
-flags=(-avz --human-readable --itemize-changes --chmod="$RANTLIST_REMOTE_CHMOD" --partial --partial-dir=.rsync-partial --delay-updates --delete-delay)
+flags=(-avz --human-readable --itemize-changes --chmod="$RANTLIST_REMOTE_CHMOD" --partial --partial-dir=.rsync-partial --delay-updates --delete-delay --exclude='content.json' --exclude='content.json.gz' --exclude='content.json.br')
 [[ "$DO_DRY_RUN" == 0 ]] || flags+=(--dry-run)
 if rsync --help 2>&1 | grep -q -- '--chown'; then flags+=(--chown="$RANTLIST_REMOTE_OWNER"); fi
 retry_cmd 4 10 rsync "${flags[@]}" -e "ssh -o BatchMode=yes -o ConnectTimeout=15 -p $RANTLIST_REMOTE_PORT" "$BUILD_DIR/" "$RANTLIST_REMOTE_USER@$RANTLIST_REMOTE_HOST:$RANTLIST_REMOTE_DIR/"

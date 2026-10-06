@@ -7,7 +7,7 @@ for path in \
   mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
-  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh scripts/deploy_homepage_content.sh scripts/verify_homepage_content.js \
+  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh scripts/deploy_homepage_content.sh scripts/verify_homepage_content.js scripts/verify_homepage_content_ownership.js scripts/verify_quest_xr_r534.js \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
   scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
   desktop/package.json desktop/electron-builder.config.cjs desktop/src/main.js desktop/assets/icon.png desktop/assets/icon.ico desktop/installer/windows.nsi \
@@ -34,6 +34,7 @@ node "$ROOT/scripts/security_scan.js" "$ROOT"
 node "$ROOT/scripts/verify_source_whitespace.js"
 node "$ROOT/scripts/verify_support_choices.js"
 node "$ROOT/scripts/verify_homepage_content.js"
+node "$ROOT/scripts/verify_homepage_content_ownership.js"
 node "$ROOT/scripts/verify_desktop_client.js"
 node "$ROOT/scripts/verify_stage_speech_r395.js"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
@@ -258,3 +259,5 @@ node "$ROOT/scripts/verify_avatar_builder_r497.js"
 node "$ROOT/scripts/verify_avatar_builder_r524.js"
 node "$ROOT/scripts/verify_avatar_builder_r525.js"
 node "$ROOT/scripts/verify_avatar_builder_r526.js"
+node "$ROOT/scripts/verify_avatar_builder_r530.js"
+node "$ROOT/scripts/verify_quest_xr_r534.js"

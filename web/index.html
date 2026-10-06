@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.501">
+  <meta name="chat-ui-version" content="9.6.507">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -17834,9 +17834,10 @@
     body.stage-focus-mode #chatPanel #composerShell #messageInput {min-height:36px;}
 
 /* r482: Avatar Lab source chooser + current-chat image browser. */
-.avatar-lab-source-menu{position:fixed;z-index:31050;width:190px;display:grid;gap:5px;padding:6px;border:1px solid var(--line);border-radius:11px;background:color-mix(in srgb,var(--panel) 96%,#000);box-shadow:0 16px 46px #000a;color:var(--text);}
+.avatar-lab-source-menu{position:fixed;z-index:31050;width:max-content;min-width:176px;max-width:min(280px,calc(100vw - 16px));display:grid;gap:5px;padding:6px;border:1px solid var(--line);border-radius:11px;background:color-mix(in srgb,var(--panel) 96%,#000);box-shadow:0 16px 46px #000a;color:var(--text);}
 .avatar-lab-source-menu[hidden]{display:none!important;}
-.avatar-lab-source-menu button{width:100%;min-height:34px;display:flex;align-items:center;gap:8px;justify-content:flex-start;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--text);cursor:pointer;text-align:left;}
+.avatar-lab-source-menu button{width:100%;min-width:max-content;min-height:34px;display:flex;align-items:center;gap:8px;justify-content:flex-start;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);color:var(--text);cursor:pointer;text-align:left;font-size:13px!important;white-space:nowrap;}
+.avatar-lab-source-menu button span:not(.icon){display:inline!important;font-size:inherit!important;line-height:1.2!important;opacity:1!important;}
 .avatar-lab-source-menu button:hover,.avatar-lab-source-menu button:focus-visible{outline:2px solid var(--accent);border-color:var(--accent);}
 .avatar-lab-source-menu .icon{width:17px;height:17px;flex:0 0 auto;}
 .avatar-lab-chat-image-picker{position:fixed;inset:0;z-index:31040;background:rgba(4,9,20,.76);display:grid;place-items:center;padding:16px;box-sizing:border-box;color:var(--text);}
@@ -18233,7 +18234,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.501</small>
+          <small id="serverBrandVersion">v9.6.507</small>
         </span>
       </button>
     </div>
@@ -18292,7 +18293,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.501</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.507</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -21962,6 +21963,8 @@
     const PROVIDER_API_KEY_STORAGE_KEYS = Object.freeze({ openai: OPENAI_API_KEY_STORAGE_KEY, tripo: 'chat.ai.tripo.apiKey', meshy: 'chat.ai.meshy.apiKey', xai: 'chat.ai.xai.apiKey' });
     const nativeSecretRequests = new Map();
     let rantlistNativeSecretPort = null;
+    const nativeXrRequests = new Map();
+    let rantlistNativeXrPort = null;
     const providerCredentialInitRunning = new Set();
 
     function validProviderApiKey(value) {
@@ -21992,6 +21995,30 @@
       rantlistNativeSecretPort.start?.();
       initializeAllProviderCredentials().catch(() => {});
     });
+    function settleNativeXrResponse(payload){
+      const requestId=String(payload?.requestId||'');
+      const pending=nativeXrRequests.get(requestId);if(!pending)return;
+      nativeXrRequests.delete(requestId);clearTimeout(pending.timer);
+      if(payload?.ok===false)pending.reject(new Error(String(payload?.error||'Native XR operation failed.')));else pending.resolve(payload||{});
+    }
+    window.addEventListener('message',(event)=>{
+      if(event.data!=='rantlist-native-xr-channel-v1'||!event.ports?.[0])return;
+      try{rantlistNativeXrPort?.close?.();}catch{}
+      rantlistNativeXrPort=event.ports[0];
+      rantlistNativeXrPort.onmessage=(messageEvent)=>{try{settleNativeXrResponse(JSON.parse(String(messageEvent.data||'{}')));}catch{}};
+      rantlistNativeXrPort.start?.();
+    });
+    function nativeXrRequest(action,url=''){
+      if(!rantlistNativeXrPort)return Promise.reject(new Error('Native XR bridge is unavailable.'));
+      const requestId=`xr-${Date.now()}-${Math.random().toString(36).slice(2,12)}`;
+      return new Promise((resolve,reject)=>{
+        const timer=setTimeout(()=>{nativeXrRequests.delete(requestId);reject(new Error('Native XR bridge timed out.'));},5000);
+        nativeXrRequests.set(requestId,{resolve,reject,timer});
+        try{rantlistNativeXrPort.postMessage(JSON.stringify({requestId,action:String(action||''),url:String(url||'')}));}
+        catch(error){clearTimeout(timer);nativeXrRequests.delete(requestId);reject(error);}
+      });
+    }
+
     function nativeSecretRequest(action, key = '', provider = 'openai') {
       const bridge = nativeSecretHandler();
       if (!bridge) return Promise.reject(new Error('Native secure credential storage is unavailable.'));
@@ -25005,20 +25032,7 @@
           break;
 
         case 'history.snapshot':
-          if (sameRoom(message.room, state.currentRoom)) {
-            resetMessagePresentation();
-            elements.messageList.textContent = '';
-            const items = Array.isArray(message.items) ? message.items : [];
-            for (const item of items) renderHistoryItem(item);
-            reflowMessageGroups();
-            scheduleMessageGroupPostLayoutReflow();
-            requestVisibleVoiceTranscripts();
-            if (state.currentRoomSystemRole !== 'development-log') {
-              const joinedLabel = state.currentRoomDirect ? (state.currentRoomDirectLabel || 'Direct channel') : `#${message.room}`;
-              addSystemMessage(`Joined ${joinedLabel} · ${items.length} saved item${items.length === 1 ? '' : 's'} loaded.`);
-              scrollMessages();
-            }
-          }
+          if (sameRoom(message.room, state.currentRoom)) renderHistorySnapshot(message);
           break;
 
         case 'media.story.snapshot':
@@ -25746,6 +25760,97 @@
       if (item.type === 'message.room') renderTextMessage(item, false, true);
       else if (item.type === 'message.file') renderStoredFileMessage({ ...item, history: true });
       else if (item.type === 'message.poll') renderPollMessage(item, item.target === 'user', true);
+    }
+
+    function renderHistoryRecoveryItem(item, error = null) {
+      const messageId = String(item?.id || '').trim();
+      if (!messageId || state.messageNodes.has(messageId) || shouldHideMessage(item) || isBlockedUser(item?.from)) return false;
+      const article = document.createElement('article');
+      article.className = 'message history-recovery-message';
+      article.dataset.messageId = messageId;
+      const head = document.createElement('div');
+      head.className = 'message-head';
+      const author = document.createElement('strong');
+      author.className = 'message-author';
+      author.textContent = isOwnUser(item?.from) ? 'You' : (String(item?.from?.nickname || '').trim() || 'Saved message');
+      const status = document.createElement('span');
+      status.className = 'message-label';
+      status.textContent = item?.type === 'message.file' ? 'saved media · recovery view' : 'saved item · recovery view';
+      const time = document.createElement('span');
+      time.className = 'message-time';
+      time.textContent = formatTime(Number(item?.serverTime) || Date.now());
+      head.append(author, status, time);
+      const body = document.createElement('div');
+      body.className = 'message-text';
+      if (item?.type === 'message.file') {
+        const file = item.file && typeof item.file === 'object' ? item.file : {};
+        const name = String(file.name || 'Saved media');
+        const mime = String(file.mime || '').trim();
+        const size = Math.max(0, Number(file.size) || 0);
+        const copy = document.createElement('span');
+        copy.textContent = `${name}${mime ? ` · ${mime}` : ''}${size ? ` · ${formatBytes(size)}` : ''}`;
+        const link = document.createElement('a');
+        link.className = 'button-like';
+        link.href = String(file.url || `/files/${encodeURIComponent(messageId)}`);
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = 'Open media';
+        const download = document.createElement('a');
+        download.className = 'button-like';
+        download.href = String(file.downloadUrl || `/files/${encodeURIComponent(messageId)}?download=1`);
+        download.download = name;
+        download.textContent = 'Download';
+        body.append(copy, document.createElement('br'), link, document.createTextNode(' '), download);
+      } else {
+        body.textContent = String(item?.text || 'This saved item could not use the normal renderer.');
+      }
+      if (error?.message) article.title = `History renderer: ${String(error.message).slice(0, 240)}`;
+      article.append(head, body);
+      elements.messageList.append(article);
+      state.messageNodes.set(messageId, article);
+      state.messageData.set(messageId, { ...item, id: messageId, messageType: item?.type === 'message.file' ? 'file' : 'text', historyRecovery: true });
+      return true;
+    }
+
+    function renderHistorySnapshot(message) {
+      resetMessagePresentation();
+      elements.messageList.textContent = '';
+      const items = Array.isArray(message?.items) ? message.items : [];
+      const failures = [];
+      for (const item of items) {
+        try {
+          renderHistoryItem(item);
+        } catch (error) {
+          const diagnostic = {
+            id: String(item?.id || ''),
+            type: String(item?.type || 'unknown'),
+            name: String(item?.file?.name || ''),
+            mime: String(item?.file?.mime || ''),
+            error: String(error?.message || error || 'Unknown history renderer error'),
+          };
+          failures.push(diagnostic);
+          console.error(`[history:item:${diagnostic.id || 'unknown'}]`, error, item);
+          debugLog('error', 'history', 'item-render-failed', diagnostic);
+          try { renderHistoryRecoveryItem(item, error); } catch (fallbackError) {
+            console.error(`[history:item:${diagnostic.id || 'unknown'}:fallback]`, fallbackError);
+            debugLog('error', 'history', 'recovery-render-failed', { ...diagnostic, fallbackError: String(fallbackError?.message || fallbackError) });
+          }
+        }
+      }
+      try { reflowMessageGroups(); } catch (error) { debugLog('error', 'history', 'group-reflow-failed', { error }); }
+      try { scheduleMessageGroupPostLayoutReflow(); } catch (error) { debugLog('error', 'history', 'post-layout-reflow-failed', { error }); }
+      try { requestVisibleVoiceTranscripts(); } catch (error) { debugLog('error', 'history', 'voice-replay-failed', { error }); }
+      if (state.currentRoomSystemRole !== 'development-log') {
+        const joinedLabel = state.currentRoomDirect ? (state.currentRoomDirectLabel || 'Direct channel') : `#${message.room}`;
+        addSystemMessage(`Joined ${joinedLabel} · ${items.length} saved item${items.length === 1 ? '' : 's'} loaded.`);
+        if (failures.length) {
+          const first = failures[0];
+          const detail = first.error ? ` First error: ${first.error.slice(0, 180)}` : '';
+          addSystemMessage(`History recovered after ${failures.length} saved item${failures.length === 1 ? '' : 's'} failed rich rendering.${detail}`, true);
+        }
+        scrollMessages();
+      }
+      return failures;
     }
 
     function composerMentionContext() {
@@ -32447,6 +32552,7 @@
     }
 
     function appendFileContent(messageNode, file, options = {}) {
+      if (!messageNode || typeof messageNode.querySelector !== 'function') return null;
       const content = messageNode.querySelector('[data-file-content], .media-preview');
       if (!content) return null;
       const timelineFollowIntent = captureTimelineMediaFollowIntent();
@@ -36340,7 +36446,8 @@
         button.setAttribute('aria-label', isAudio ? 'Pause voice message' : 'Hide preview');
       }
       if (!preview.childNodes.length) {
-        appendFileContent(preview.closest('.message'), file, { autoplay: options.autoplay === true });
+        const previewHost = preview.closest('.message') || preview.closest('.media-placeholder');
+        appendFileContent(previewHost, file, { autoplay: options.autoplay === true });
       } else if (options.autoplay === true) {
         preview.querySelector('audio')?.play().catch((error) => debugLog('error', 'media.audio', 'play-failed', { file, error }));
       }
@@ -47737,9 +47844,18 @@
     }
     function positionAvatarLabSourceMenu(){
       const menu=elements.avatarLabSourceMenu,anchor=elements.avatarLabSourceChooserButton;if(!menu||!anchor||menu.hidden)return;
-      const rect=anchor.getBoundingClientRect(),width=190,gap=6;
-      const left=Math.max(8,Math.min(innerWidth-width-8,rect.left));
-      const top=rect.top>150?Math.max(8,rect.top-126):Math.min(innerHeight-126,rect.bottom+gap);
+      const rect=anchor.getBoundingClientRect(),gap=6,pad=8;
+      // r534: measure the real menu instead of assuming a 190x126 icon-only popup.
+      // Labels stay visible and the popup adapts to localized/longer action text.
+      menu.style.left='0px';menu.style.top='0px';
+      const menuRect=menu.getBoundingClientRect();
+      const width=Math.min(Math.max(menuRect.width,176),Math.max(176,innerWidth-pad*2));
+      const height=Math.min(menuRect.height,Math.max(1,innerHeight-pad*2));
+      const left=Math.max(pad,Math.min(innerWidth-width-pad,rect.left));
+      const roomAbove=rect.top-pad,roomBelow=innerHeight-rect.bottom-pad;
+      const top=roomAbove>=height+gap || roomAbove>roomBelow
+        ? Math.max(pad,rect.top-height-gap)
+        : Math.min(innerHeight-height-pad,rect.bottom+gap);
       menu.style.left=`${Math.round(left)}px`;menu.style.top=`${Math.round(top)}px`;
     }
     function toggleAvatarLabSourceMenu(force){
@@ -47885,6 +48001,14 @@
       if(event.origin!==location.origin || !state.stageIframe || event.source!==state.stageIframe.contentWindow) return;
       const data=event.data;
       if(!data || data.source!=='rantlist.stage.1266') return;
+      if(data.event==='native-xr-open') {
+        const url=String(data.url||'https://rantlist.me/');
+        nativeXrRequest('openBrowser',url).catch(error=>{
+          console.warn('[native-xr-open]',error);
+          postToStage('native-xr-result',{ok:false,message:String(error?.message||error)});
+        });
+        return;
+      }
       if(data.event==='media-picker-open') {
         openStageFrameMediaPicker(String(data.requestId||''));
         return;
@@ -50098,9 +50222,9 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
 
     async function refreshAvatarLabStage() {
       if (!elements.avatarLabModal || elements.avatarLabModal.hidden || !elements.avatarLabStageCanvas) return;
-      const item=selectedAvatar3dItem();const variant=normalizeAvatarModelVariant(state.avatar3dSelectedVariant||'source');const historicalId=variant.startsWith('optimized:')?variant.slice('optimized:'.length):'';const historical=historicalId?(Array.isArray(item?.optimizationVersions)?item.optimizationVersions:[]).find((entry)=>String(entry?.id||'')===historicalId):null;const stageUrl=variant==='source'?item?.url:variant==='rigged'?item?.riggedUrl:variant==='stage'?item?.builtUrl:variant==='optimized'?(item?.optimizedPreviewUrl||item?.optimizedUrl):(historical?.previewUrl||historical?.url)||(item?.optimizedPreviewUrl || item?.previewUrl || item?.builtUrl || item?.riggedUrl || item?.url || '');const url=stageUrl?new URL(stageUrl,location.href).href:'';
+      const item=selectedAvatar3dItem();const variant=normalizeAvatarModelVariant(state.avatar3dSelectedVariant||'source');const historicalId=variant.startsWith('optimized:')?variant.slice('optimized:'.length):'';const historical=historicalId?(Array.isArray(item?.optimizationVersions)?item.optimizationVersions:[]).find((entry)=>String(entry?.id||'')===historicalId):null;const stageUrl=variant==='source'?item?.url:variant==='rigged'?item?.riggedUrl:variant==='stage'?(item?.builtPreviewUrl||(!/meshopt/i.test(String(item?.buildCompression||''))?item?.builtUrl:null)):variant==='optimized'?(item?.optimizedPreviewUrl||item?.optimizedUrl):(historical?.previewUrl||historical?.url)||(item?.optimizedPreviewUrl || item?.previewUrl || item?.builtUrl || item?.riggedUrl || item?.url || '');const url=stageUrl?new URL(stageUrl,location.href).href:'';
       const hasAnyLabData=Boolean(profileAvatarLabSourcePreview()||state.avatarGrokItems.some((entry)=>entry?.url)||url);if(elements.avatarLabStageEmpty)elements.avatarLabStageEmpty.hidden=hasAnyLabData;
-      if(!url){state.avatarLabStageLoadingUrl='';if(state.avatarLabStage){clearAvatarLabStageModel(state.avatarLabStage);resumeAvatarLabStage();}if(state.avatar3dGenerationPending)setAvatarLabStageStatus('Preparing a new 3D model from the current Reference image…',{loading:true});else if(item&&!avatarLabTerminalStatus(item?.status))setAvatarLabStageStatus(`New 3D model ${String(item.status||'processing')}…`,{loading:true});else setAvatarLabStageStatus('',{hidden:true});return;}
+      if(!url){state.avatarLabStageLoadingUrl='';if(state.avatarLabStage){clearAvatarLabStageModel(state.avatarLabStage);resumeAvatarLabStage();}if(state.avatar3dGenerationPending)setAvatarLabStageStatus('Preparing a new 3D model from the current Reference image…',{loading:true});else if(variant==='stage'&&item?.builtUrl&&!item?.builtPreviewUrl)setAvatarLabStageStatus('Preparing Blender-compatible Stage preview…',{loading:true});else if(item&&!avatarLabTerminalStatus(item?.status))setAvatarLabStageStatus(`New 3D model ${String(item.status||'processing')}…`,{loading:true});else setAvatarLabStageStatus('',{hidden:true});return;}
       if(elements.avatarLabStageEmpty)elements.avatarLabStageEmpty.hidden=true;
       let stage;
       try{stage=await ensureAvatarLabStageCore();resumeAvatarLabStage();}catch(error){setAvatarLabStageStatus(`3D preview unavailable: ${error?.message||'WebGL unavailable'}`);return;}
@@ -50512,6 +50636,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const meta=[variantLabel,bytes?avatarModelSize(bytes):'',triangles?`${triangles.toLocaleString()} tris`:'',selected?'On stage':''].filter(Boolean).join(' · ');if(small)small.textContent=meta;if(img)img.alt=`${base} ${variantLabel} preview`;
       if(actions){actions.replaceChildren();
         const download=document.createElement('a');download.className='button-like';download.href=entry.url;download.download='';download.textContent='GLB';download.title=`Download ${variantLabel.toLowerCase()} GLB`;actions.append(download);
+        if(variant==='stage'&&item?.builtPreviewUrl){const editable=document.createElement('a');editable.className='button-like';editable.href=item.builtPreviewUrl;editable.download='';editable.textContent='Blender';editable.title='Download editable Stage GLB without Meshopt and with PNG textures';actions.append(editable);}
         const tools=document.createElement('button');tools.type='button';tools.dataset.avatarModelAction='tools';tools.dataset.taskId=taskId;tools.dataset.variant=variant;tools.textContent='Tools';tools.title='Open model analysis, optimization, rigging and actions';actions.append(tools);
         if(variant==='source'||variant==='optimized'||variant.startsWith('optimized:')){const rig=document.createElement('button');rig.type='button';rig.dataset.avatarModelAction='full-rig';rig.dataset.taskId=taskId;rig.dataset.variant=variant;rig.textContent=item?.riggedUrl?'Re-rig':'Auto Rig';rig.title=`Open integrated Blender auto-rigging for this ${variantLabel.toLowerCase()} GLB and the Mesh2Motion fallback`;actions.append(rig);}
         if(item?.riggedUrl&&['rigged','optimized','stage'].includes(variant)){const a=document.createElement('button');a.type='button';a.dataset.avatarModelAction='actions';a.dataset.taskId=taskId;a.textContent='Actions';a.title='Open the Mixamo action library and build selected actions into a Stage GLB';actions.append(a);}
@@ -50557,7 +50682,7 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.avatarLabModelInspectButton){elements.avatarLabModelInspectButton.disabled=opt.status==='running';elements.avatarLabModelInspectButton.textContent=`Re-scan ${variant}`;}
       if(elements.avatarLabOptimizerPipeline){const stages=['Mesh cleanup','Blender Decimate','Texture resize + WebP','4-weight skin cleanup',state.avatarBuilderInfo?.gltfTransformAvailable?'Prune · dedup · weld':'Prune unavailable',state.avatarBuilderInfo?.gltfTransformAvailable?'Meshopt compression':'Draco compression','Animation key cleanup + resample'];elements.avatarLabOptimizerPipeline.replaceChildren(...stages.map(label=>{const s=document.createElement('span');s.textContent=label;return s;}));}
       if(elements.avatarLabOptimizerComparison){const before=opt.before,after=opt.after;if(opt.status==='ready'&&before&&after){elements.avatarLabOptimizerComparison.hidden=false;const rows=[['File',avatarModelSize(before.fileSize),avatarModelSize(after.fileSize)],['Triangles',Number(before.triangles||0).toLocaleString(),Number(after.triangles||0).toLocaleString()],['Vertices',Number(before.vertices||0).toLocaleString(),Number(after.vertices||0).toLocaleString()],['Draw calls',Number(before.drawCallsEstimate||before.materialSlots||0),Number(after.drawCallsEstimate||after.materialSlots||0)],['Texture max',`${Number(before.maxTexture||0)}px`,`${Number(after.maxTexture||0)}px`],['Texture GPU',avatarModelSize(before.estimatedTextureGpuBytes||0),avatarModelSize(after.estimatedTextureGpuBytes||0)],['Morphs',Number(before.morphTargets||0),Number(after.morphTargets||0)],['Max skin weights',Number(before.maxBoneInfluences||0),Number(after.maxBoneInfluences||0)]];elements.avatarLabOptimizerComparison.innerHTML='<div class="avatar-lab-compare-head"><b>Metric</b><b>Before</b><b>After</b></div>'+rows.map(r=>`<div><span>${escapeHtml(String(r[0]))}</span><strong>${escapeHtml(String(r[1]))}</strong><strong>${escapeHtml(String(r[2]))}</strong></div>`).join('');}else elements.avatarLabOptimizerComparison.hidden=true;}
-      const localRig=state.avatarBuilderInfo?.localRigging||{};if(elements.avatarLabBlenderAutoRig){elements.avatarLabBlenderAutoRig.hidden=false;}if(elements.avatarLabBlenderRigEngine){const addonOption=elements.avatarLabBlenderRigEngine.querySelector('option[value="addon"]');if(addonOption){addonOption.disabled=!localRig.addonAvailable;addonOption.textContent=localRig.addonAvailable?(localRig.addonName||'Server Blender add-on'):'Server Blender add-on · not configured';}if(elements.avatarLabBlenderRigEngine.value==='addon'&&!localRig.addonAvailable)elements.avatarLabBlenderRigEngine.value='builtin';elements.avatarLabBlenderRigEngine.disabled=avatarLabRequestBusy()||!localRig.builtinAvailable||!entry?.url||variant==='rigged';}if(elements.avatarLabBlenderRigStatus){const ra=item.rigAnalysis||{},current=item.rigProvider==='blender',replaceHint=item.riggedUrl&&variant!=='rigged'?` · will replace the existing rigged derivative only after validation`:'';elements.avatarLabBlenderRigStatus.textContent=variant==='rigged'?`This is already the rigged derivative · ${Number(ra.fingerBones??item.fingerBoneCount??0)}/30 finger bones`:localRig.builtinAvailable?`One click · ${variant} GLB · headless Blender · ${localRig.addonAvailable?'built-in or configured add-on':'built-in auto armature'} · no Mixamo round-trip${replaceHint}`:'Local auto-rig unavailable · Blender is not installed/configured on this server';}if(elements.avatarLabBlenderAutoRigButton){const riggable=Boolean(entry?.url)&&variant!=='rigged',localRigBusy=['checking','rigging'].includes(String(item.rigStatus||'').toLowerCase())&&item.rigProvider==='blender';elements.avatarLabBlenderAutoRigButton.hidden=!riggable;elements.avatarLabBlenderAutoRigButton.disabled=!localRig.builtinAvailable||!riggable||localRigBusy;elements.avatarLabBlenderAutoRigButton.textContent=localRigBusy?'Rigging locally…':item.riggedUrl?`Re-rig ${variant} locally`:`Auto rig ${variant} locally`;}if(elements.avatarLabMesh2MotionRig){elements.avatarLabMesh2MotionRig.hidden=false;}if(elements.avatarLabMesh2MotionStatus){const ra=item.rigAnalysis||{};elements.avatarLabMesh2MotionStatus.textContent=item.riggedUrl?`${item.rigProvider==='mesh2motion'?'Mesh2Motion':'Rig'} · ${Number(ra.fingerBones??item.fingerBoneCount??0)}/30 finger bones${item.rigProvider==='mesh2motion'?' · ready for local actions':''}`:'Open-source interactive fallback · Human → All Fingers → fit joints → export GLB with Mixamo bone names';}if(elements.avatarLabMesh2MotionDownloadButton){elements.avatarLabMesh2MotionDownloadButton.disabled=!entry?.url;}if(elements.avatarLabMesh2MotionImportButton){elements.avatarLabMesh2MotionImportButton.disabled=avatarLabRequestBusy();elements.avatarLabMesh2MotionImportButton.textContent=item.rigProvider==='mesh2motion'?'Replace full-hand GLB':'3 · Import full-hand GLB';}if(elements.avatarLabRigFromToolsButton){elements.avatarLabRigFromToolsButton.hidden=Boolean(item.riggedUrl);elements.avatarLabRigFromToolsButton.disabled=avatarLabRequestBusy();elements.avatarLabRigFromToolsButton.textContent=state.tripoApiKeyConfigured?'Alternative provider rig · Tripo':'Optional Tripo body rig · set key';elements.avatarLabRigFromToolsButton.title='Optional provider auto-rig. Blender above is the integrated local path; Mesh2Motion remains the open-source interactive fallback.';}if(elements.avatarLabAddActionsButton){elements.avatarLabAddActionsButton.disabled=!item.riggedUrl||!state.avatarBuilderSelectedAnimations.length||!state.avatarBuilderInfo?.blenderAvailable;elements.avatarLabAddActionsButton.textContent=!item.riggedUrl?'Rig first':!state.avatarBuilderSelectedAnimations.length?'Select actions below':'Build GLB with selected actions';elements.avatarLabAddActionsButton.title=!item.riggedUrl?'Rig the model first':!state.avatarBuilderSelectedAnimations.length?'Tick one or more Mixamo actions in this section first':'Build a new Stage GLB containing the selected local Mixamo FBX actions';}
+      const localRig=state.avatarBuilderInfo?.localRigging||{};if(elements.avatarLabBlenderAutoRig){elements.avatarLabBlenderAutoRig.hidden=false;}if(elements.avatarLabBlenderRigEngine){const addonOption=elements.avatarLabBlenderRigEngine.querySelector('option[value="addon"]');if(addonOption){addonOption.hidden=!localRig.addonAvailable;addonOption.disabled=!localRig.addonAvailable;addonOption.textContent=localRig.addonName||'Server Blender add-on';}if(elements.avatarLabBlenderRigEngine.value==='addon'&&!localRig.addonAvailable)elements.avatarLabBlenderRigEngine.value='builtin';elements.avatarLabBlenderRigEngine.disabled=avatarLabRequestBusy()||!localRig.builtinAvailable||!entry?.url||variant==='rigged';}if(elements.avatarLabBlenderRigStatus){const ra=item.rigAnalysis||{},current=item.rigProvider==='blender',replaceHint=item.riggedUrl&&variant!=='rigged'?` · will replace the existing rigged derivative only after validation`:'';elements.avatarLabBlenderRigStatus.textContent=variant==='rigged'?`This is already the rigged derivative · ${Number(ra.fingerBones??item.fingerBoneCount??0)}/30 finger bones`:localRig.builtinAvailable?`One click · ${variant} GLB · headless Blender · ${localRig.addonAvailable?'built-in or configured add-on':'built-in auto armature'} · no Mixamo round-trip${replaceHint}`:'Local auto-rig unavailable · Blender is not installed/configured on this server';}if(elements.avatarLabBlenderAutoRigButton){const riggable=Boolean(entry?.url)&&variant!=='rigged',localRigBusy=['checking','rigging'].includes(String(item.rigStatus||'').toLowerCase())&&item.rigProvider==='blender';elements.avatarLabBlenderAutoRigButton.hidden=!riggable;elements.avatarLabBlenderAutoRigButton.disabled=!localRig.builtinAvailable||!riggable||localRigBusy;elements.avatarLabBlenderAutoRigButton.textContent=localRigBusy?'Rigging locally…':item.riggedUrl?`Re-rig ${variant} locally`:`Auto rig ${variant} locally`;}if(elements.avatarLabMesh2MotionRig){elements.avatarLabMesh2MotionRig.hidden=false;}if(elements.avatarLabMesh2MotionStatus){const ra=item.rigAnalysis||{};elements.avatarLabMesh2MotionStatus.textContent=item.riggedUrl?`${item.rigProvider==='mesh2motion'?'Mesh2Motion':'Rig'} · ${Number(ra.fingerBones??item.fingerBoneCount??0)}/30 finger bones${item.rigProvider==='mesh2motion'?' · ready for local actions':''}`:'Open-source interactive fallback · Human → All Fingers → fit joints → export GLB with Mixamo bone names';}if(elements.avatarLabMesh2MotionDownloadButton){elements.avatarLabMesh2MotionDownloadButton.disabled=!entry?.url;}if(elements.avatarLabMesh2MotionImportButton){elements.avatarLabMesh2MotionImportButton.disabled=avatarLabRequestBusy();elements.avatarLabMesh2MotionImportButton.textContent=item.rigProvider==='mesh2motion'?'Replace full-hand GLB':'3 · Import full-hand GLB';}if(elements.avatarLabRigFromToolsButton){elements.avatarLabRigFromToolsButton.hidden=Boolean(item.riggedUrl);elements.avatarLabRigFromToolsButton.disabled=avatarLabRequestBusy();elements.avatarLabRigFromToolsButton.textContent=state.tripoApiKeyConfigured?'Alternative provider rig · Tripo':'Optional Tripo body rig · set key';elements.avatarLabRigFromToolsButton.title='Optional provider auto-rig. Blender above is the integrated local path; Mesh2Motion remains the open-source interactive fallback.';}if(elements.avatarLabAddActionsButton){elements.avatarLabAddActionsButton.disabled=!item.riggedUrl||!state.avatarBuilderSelectedAnimations.length||!state.avatarBuilderInfo?.blenderAvailable;elements.avatarLabAddActionsButton.textContent=!item.riggedUrl?'Rig first':!state.avatarBuilderSelectedAnimations.length?'Select actions below':'Build GLB with selected actions';elements.avatarLabAddActionsButton.title=!item.riggedUrl?'Rig the model first':!state.avatarBuilderSelectedAnimations.length?'Tick one or more Mixamo actions in this section first':'Build a new Stage GLB containing the selected local Mixamo FBX actions';}
       document.querySelectorAll('[data-avatar-opt-preset]').forEach(btn=>btn.classList.toggle('active',btn.dataset.avatarOptPreset===String(elements.avatarLabOptimizerPreset?.value||'balanced')));
       if(opt.status==='running')scheduleAvatarModelOptimizePoll(item.taskId);renderAvatarLabEmbeddedActions();
     }
