@@ -255,3 +255,4 @@ node "$ROOT/scripts/verify_avatar_builder_r495.js"
 
 node "$ROOT/scripts/verify_avatar_builder_r496.js"
 node "$ROOT/scripts/verify_avatar_builder_r497.js"
+node "$ROOT/scripts/verify_avatar_builder_r524.js"
