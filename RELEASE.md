@@ -1,3 +1,15 @@
+## 0.1.276 / server 9.6.501 / r529
+
+## Client verifier recovery after r529 synchronization
+
+This client is synchronized to Rantlist 9.6.501 / rantlist-deploy-r529 and fixes the r526 regression verifier so it accepts later compatible server/client releases instead of requiring the historical version to remain exactly 9.6.498. The r526 Avatar Lab UI and four-view behavior are unchanged.
+
+## 0.1.275 / server 9.6.498 / r526
+
+## Avatar Lab four-view picker and compact UI repair
+
+This client pairs with Rantlist 9.6.498 / rantlist-deploy-r526. Four-view mode now starts empty and explicit: clicking any My Images card assigns that exact image to the selected Front/Left/Back/Right slot. The selected slot drives the Reference preview. Source/Reference headers are shorter, the redundant Source metadata ribbon is removed, minimized My Models keeps its controls visible, and Prompt & library uses a clear rotating SVG chevron.
+
 ## 0.1.274 / server 9.6.497 / r525
 
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.497">
+  <meta name="chat-ui-version" content="9.6.501">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -18204,6 +18204,23 @@
   #avatarLabModelsPanel.avatar-lab-models-panel.is-full .avatar-lab-model-card{grid-template-rows:auto clamp(148px,24dvh,220px) auto auto!important;min-height:auto!important}
 }
 </style>
+
+  <style id="avatar-lab-r526">
+    /* r526: compact image-card headers, explicit four-view picking, restored collapsed My Models controls, and a visible prompt chevron. */
+    .avatar-lab-prompt-details>summary::after{content:none!important;}
+    .avatar-lab-prompt-chevron{margin-left:auto;display:inline-grid;place-items:center;width:20px;height:20px;min-width:20px;color:var(--muted);transform:rotate(180deg);transition:transform .18s ease,color .18s ease;}
+    .avatar-lab-prompt-details[open] .avatar-lab-prompt-chevron{transform:rotate(0deg);color:var(--text);}
+    .avatar-lab-prompt-chevron svg{display:block;width:18px;height:18px;fill:currentColor;}
+    @media (prefers-reduced-motion:reduce){.avatar-lab-prompt-chevron{transition:none;}}
+    @media (min-width:1100px){
+      .avatar-lab-source-card>header,.avatar-lab-generated-card>header{padding:7px 8px 18px!important;line-height:1.08!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-collapsed{width:max-content!important;min-width:250px!important;max-width:calc(100% - 24px)!important;overflow:visible!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-collapsed>.avatar-lab-models-handle{display:flex!important;align-items:center!important;gap:6px!important;overflow:visible!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-collapsed #avatarLabModelsMeta{display:none!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-collapsed .avatar-lab-models-header-actions{display:flex!important;visibility:visible!important;opacity:1!important;margin-left:10px!important;flex:0 0 auto!important;}
+      #avatarLabModelsPanel.avatar-lab-models-panel.is-collapsed .avatar-lab-models-header-actions button{display:inline-flex!important;visibility:visible!important;opacity:1!important;}
+    }
+  </style>
 </head>
 <body>
   <header class="topbar">
@@ -18216,7 +18233,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.497</small>
+          <small id="serverBrandVersion">v9.6.501</small>
         </span>
       </button>
     </div>
@@ -18275,7 +18292,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.497</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.501</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -19335,7 +19352,6 @@
               <header class="avatar-lab-float-handle" title="Drag source window"><strong>1 · Source</strong><small>Identity reference</small></header>
               <button id="avatarLabSourceFullscreenButton" class="avatar-lab-image-view-button" type="button" title="Preview source fullscreen" aria-label="Preview source image fullscreen"><span class="icon icon-fullscreen" aria-hidden="true"></span></button>
               <img id="profileAvatarSuiteSourcePreview" class="profile-avatar-suite-source" alt="Avatar Lab source preview" hidden>
-              <div class="avatar-lab-source-meta"><small id="profileAvatarSuitePreviewMeta">No source selected yet.</small></div>
               <div class="avatar-lab-card-actions">
                 <button id="avatarLabSourceChooserButton" type="button" title="Choose source image" aria-haspopup="menu" aria-expanded="false"><span class="icon icon-photo" aria-hidden="true"></span><span>Image</span></button>
                 <button id="avatarLabSourceResetButton" type="button" title="Use current profile photo">Profile</button>
@@ -19443,7 +19459,7 @@
 
           <div class="avatar-lab-prompt-deck">
             <details class="avatar-lab-prompt-details" open>
-              <summary>Prompt &amp; library</summary>
+              <summary><span>Prompt &amp; library</span><span class="avatar-lab-prompt-chevron" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 7C12.2652 7 12.5196 7.10536 12.7071 7.29289L19.7071 14.2929C20.0976 14.6834 20.0976 15.3166 19.7071 15.7071C19.3166 16.0976 18.6834 16.0976 18.2929 15.7071L12 9.41421L5.70711 15.7071C5.31658 16.0976 4.68342 16.0976 4.29289 15.7071C3.90237 15.3166 3.90237 14.6834 4.29289 14.2929L11.2929 7.29289C11.4804 7.10536 11.7348 7 12 7Z"></path></svg></span></summary>
               <section class="avatar-lab-primary" aria-label="Reference image generation prompt">
               <div class="avatar-lab-prompt-toolbar">
                 <div class="field"><label for="profileAvatarPromptPreset">Prompt</label><select id="profileAvatarPromptPreset"><option value="rig-a-pose" selected>Rig-ready A-pose</option><option value="full-body">Full-body concept</option><option value="headshot">Headshot refine</option><option value="texture-reference">3D texture reference</option><option value="custom">Custom only</option></select></div>
@@ -23192,7 +23208,7 @@
       elements.profileAvatarGrokUseProfileButton?.addEventListener('click', () => { void useGrokImageAsProfile(); });
       elements.profileAvatarGrokUse3dButton?.addEventListener('click', () => { if(state.avatarLabSourceAsReference){state.avatarGrokUseAs3dSource=false;}else{state.avatarGrokUseAs3dSource=true;} setAvatarLabActivity('Reference selected for 3D', state.avatarLabSourceAsReference?'The current Source image is the exact image that will be sent to Tripo3D.':'The generated full-body reference is the exact image that will be sent to Tripo3D when you render.', 'success', 100); renderAvatarLab(); });
       elements.avatarLabSourceUseReferenceButton?.addEventListener('click',()=>{const source=profileAvatarLabSourcePreview();if(!source)return;state.avatarLabSourceAsReference=true;state.avatarGrokUseAs3dSource=false;setAvatarLabActivity('Source copied to reference','No second image generation is needed. This exact Source image is now the 2 · Reference image and direct 3D input.','success',100);renderAvatarLab();});
-      elements.avatarLabMultiviewToggle?.addEventListener('click',()=>{state.avatarLabMultiviewEnabled=!state.avatarLabMultiviewEnabled;if(state.avatarLabMultiviewEnabled&&!state.avatarLabMultiview.front){const current=String(selectedAvatarGrokItem()?.url||profileAvatarLabSourcePreview()||'').trim();if(current)state.avatarLabMultiview.front=current;}renderAvatarLab();});
+      elements.avatarLabMultiviewToggle?.addEventListener('click',()=>{state.avatarLabMultiviewEnabled=!state.avatarLabMultiviewEnabled;renderAvatarLab();});
       elements.avatarLabMultiview?.addEventListener('click',(event)=>{const button=event.target.closest?.('[data-avatar-view]');if(!button)return;state.avatarLabMultiviewSelected=String(button.dataset.avatarView||'front');renderAvatarLab();});
       elements.avatarLabMultiviewCopyButton?.addEventListener('click',()=>{const slot=String(state.avatarLabMultiviewSelected||'front'),source=String(profileAvatarLabSourcePreview()||'').trim();if(!source){setAvatarLabError('Choose an image in 1 · Source first.','Four-view source missing');renderAvatarLab();return;}state.avatarLabMultiview[slot]=source;setAvatarLabActivity(`${slot[0].toUpperCase()+slot.slice(1)} view set`,'Copied the current Source image into the selected Tripo view.','success',100,'Tripo3D · multiview');renderAvatarLab();});
       elements.avatarLabMultiviewAiButton?.addEventListener('click',()=>{void runProfileAvatarGrok({multiviewSlot:String(state.avatarLabMultiviewSelected||'front')});});
@@ -49304,7 +49320,8 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
     function openAvatarLabImageViewer(kind='source', explicitUrl='') {
       const selected=selectedAvatarGrokItem();
       const reference=(selected?.kind==='image'&&selected?.url)?selected:state.avatarGrokItems.find((entry)=>entry?.kind==='image'&&entry?.url)||null;
-      const src=String(explicitUrl||'').trim() || (kind==='reference' ? (state.avatarLabSourceAsReference?profileAvatarLabSourcePreview():String(reference?.url||'')) : profileAvatarLabSourcePreview());
+      const multiviewReference=state.avatarLabMultiviewEnabled?String(state.avatarLabMultiview?.[String(state.avatarLabMultiviewSelected||'front')]||'').trim():'';
+      const src=String(explicitUrl||'').trim() || (kind==='reference' ? (multiviewReference||(state.avatarLabSourceAsReference?profileAvatarLabSourcePreview():String(reference?.url||''))) : profileAvatarLabSourcePreview());
       if(!src||!elements.avatarLabImageViewer||!elements.avatarLabImageViewerImage)return;
       state.avatarLabImageViewerReturnFocus=document.activeElement instanceof HTMLElement?document.activeElement:null;
       elements.avatarLabImageViewerImage.src=src;
@@ -49832,11 +49849,11 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(!state.avatarLabImagesOpen)return;
       if(!items.length){const empty=document.createElement('div');empty.className='avatar-lab-log-empty';empty.textContent='Source snapshots and generated reference images used by Avatar Lab will appear here.';grid.append(empty);return;}
       for(const item of items){
-        const card=document.createElement('article');card.className='avatar-lab-image-library-card';card.tabIndex=0;card.setAttribute('role','button');card.title=item.libraryKind==='source'?'Use this saved image as the current Source':'Use this generated image as the current Reference';
+        const card=document.createElement('article');card.className='avatar-lab-image-library-card';card.tabIndex=0;card.setAttribute('role','button');card.title=state.avatarLabMultiviewEnabled?`Load this image into the selected ${String(state.avatarLabMultiviewSelected||'front')} four-view slot`:(item.libraryKind==='source'?'Use this saved image as the current Source':'Use this generated image as the current Reference');
         const img=document.createElement('img');img.alt=item.libraryKind==='source'?'Saved Avatar Lab source':'Saved generated reference';img.loading='lazy';img.decoding='async';observeAvatarLabLibraryImage(img,item);
         const meta=document.createElement('div');meta.className='avatar-lab-image-library-meta';const strong=document.createElement('strong');strong.textContent=item.libraryKind==='source'?'Source':'Reference';const small=document.createElement('small');const when=item.libraryAt?new Date(item.libraryAt).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';small.textContent=[when,item.libraryKind==='reference'&&item.costUsd?formatAvatarLabUsd(item.costUsd):'',item.origin||''].filter(Boolean).join(' · ');meta.append(strong,small);
         const view=document.createElement('button');view.type='button';view.className='avatar-lab-image-library-view';view.title='Fullscreen preview';view.setAttribute('aria-label','Fullscreen preview');view.innerHTML='<span class="icon icon-fullscreen" aria-hidden="true"></span>';
-        const use=()=>{if(item.libraryKind==='source'){state.avatarLabSourceImage=String(item.url||'');state.avatarLabSourceName='Saved source';state.avatarLabSourceOrigin='saved';state.avatarGrokUseAs3dSource=false;state.avatarLabSourceAsReference=false;setAvatarLabActivity('Saved source selected','This saved image is now the current Avatar Lab source.','success',100);}else{state.avatarGrokActiveRequestId=String(item.requestId||'');state.avatarGrokUseAs3dSource=true;setAvatarLabActivity('Saved reference selected','This generated image is now the current reference and 3D source.','success',100);}renderAvatarLab();};
+        const use=()=>{if(state.avatarLabMultiviewEnabled){const slot=['front','left','back','right'].includes(String(state.avatarLabMultiviewSelected))?String(state.avatarLabMultiviewSelected):'front';state.avatarLabMultiview[slot]=String(item.url||'');setAvatarLabActivity(`${slot[0].toUpperCase()+slot.slice(1)} view set`,`Loaded the clicked My Images item into the selected ${slot} slot. Other four-view slots were left unchanged.`,'success',100,'Tripo3D · multiview');}else if(item.libraryKind==='source'){state.avatarLabSourceImage=String(item.url||'');state.avatarLabSourceName='Saved source';state.avatarLabSourceOrigin='saved';state.avatarGrokUseAs3dSource=false;state.avatarLabSourceAsReference=false;setAvatarLabActivity('Saved source selected','This saved image is now the current Avatar Lab source.','success',100);}else{state.avatarGrokActiveRequestId=String(item.requestId||'');state.avatarGrokUseAs3dSource=true;setAvatarLabActivity('Saved reference selected','This generated image is now the current reference and 3D source.','success',100);}renderAvatarLab();};
         card.addEventListener('click',(event)=>{if(event.target.closest('button,a'))return;use();});card.addEventListener('keydown',(event)=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();use();}});view.addEventListener('click',(event)=>{event.stopPropagation();openAvatarLabImageViewer(item.libraryKind==='reference'?'reference':'source',item.url);});
         card.append(img,meta,view);grid.append(card);
       }
@@ -50175,9 +50192,15 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const grokActive=avatarLabActiveGrokTask();
       const baseSource=profileAvatarLabSourcePreview();
       const sourceReference=Boolean(state.avatarLabSourceAsReference&&baseSource);
-      const imageReady=Boolean(referenceImageItem?.url||sourceReference);
+      const multiviewEnabled=Boolean(state.avatarLabMultiviewEnabled);
+      const multiviewSlots=['front','left','back','right'];
+      const multiviewReadyCount=multiviewSlots.reduce((count,slot)=>count+(String(state.avatarLabMultiview?.[slot]||'').trim()?1:0),0);
+      const multiviewFrontReady=Boolean(String(state.avatarLabMultiview?.front||'').trim());
+      const multiviewSelectedSlot=multiviewSlots.includes(String(state.avatarLabMultiviewSelected))?String(state.avatarLabMultiviewSelected):'front';
+      const multiviewSelectedUrl=multiviewEnabled?String(state.avatarLabMultiview?.[multiviewSelectedSlot]||'').trim():'';
+      const imageReady=multiviewEnabled?(multiviewFrontReady&&multiviewReadyCount>=2):Boolean(referenceImageItem?.url||sourceReference);
       if(elements.avatarLabSourceFullscreenButton) elements.avatarLabSourceFullscreenButton.hidden=!baseSource;
-      if(elements.avatarLabReferenceFullscreenButton) elements.avatarLabReferenceFullscreenButton.hidden=!imageReady;
+      if(elements.avatarLabReferenceFullscreenButton) elements.avatarLabReferenceFullscreenButton.hidden=multiviewEnabled?!multiviewSelectedUrl:!imageReady;
       const generatedSourceAvailable=Boolean(state.avatarGrokUseAs3dSource&&imageReady);
       const sourceAvailable=Boolean(baseSource||generatedSourceAvailable);
       const busy=avatarLabRequestBusy();
@@ -50195,6 +50218,8 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       const tripoReason=!state.registered?'Sign in with a normal profile to render 3D.'
         : state.isAdmin?'Administrator sessions do not start paid Avatar Lab renders.'
         : !state.tripoApiKeyConfigured?'Add your Tripo3D API key in Config before rendering 3D.'
+        : multiviewEnabled&&!multiviewFrontReady?'Set the Front image in four-view mode first.'
+        : multiviewEnabled&&multiviewReadyCount<2?'Set at least one additional Left, Back or Right image.'
         : !imageReady?'Create a reference image first.'
         : busy?'Another Avatar Lab provider request is still running.'
         : '';
@@ -50210,11 +50235,6 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.profileAvatarSuiteSourcePreview){
         elements.profileAvatarSuiteSourcePreview.hidden=!baseSource;
         if(baseSource)setAvatarLabDisplayImage(elements.profileAvatarSuiteSourcePreview,avatarLabSourceDisplayUrl(baseSource),baseSource);else elements.profileAvatarSuiteSourcePreview.removeAttribute('src');
-      }
-      if(elements.profileAvatarSuitePreviewMeta){
-        const sourcePrefix=state.avatarLabSourceOrigin==='chat'?'Chat image':state.avatarLabSourceOrigin==='camera'?'Camera source':state.avatarLabSourceOrigin==='saved'?'Saved source':'Uploaded source';
-        const label=state.avatarLabSourceImage?`${sourcePrefix}${state.avatarLabSourceName?` · ${state.avatarLabSourceName}`:''}`:baseSource?'Current profile photo':'No source selected yet.';
-        elements.profileAvatarSuitePreviewMeta.textContent=state.avatarGrokUseAs3dSource&&imageReady?`${label} · reference selected for 3D`:label;
       }
       if(elements.avatarLabSourceChooserButton) elements.avatarLabSourceChooserButton.disabled=busy;
       if(elements.avatarLabSourceUploadButton) elements.avatarLabSourceUploadButton.disabled=busy;
@@ -50251,9 +50271,9 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
 
       if(elements.profileAvatarGrokStatus){elements.profileAvatarGrokStatus.textContent=grokReason||'';}
       if(elements.profileAvatarGrokResult){elements.profileAvatarGrokResult.hidden=false;elements.profileAvatarGrokResult.classList.toggle('style-mode',styleMode);}
-      const stylePreviewOriginal=sourceReference?baseSource:(referenceImageItem?.url || (styleMode?baseSource:''));
-      const stylePreviewUrl=sourceReference?avatarLabSourceDisplayUrl(baseSource):(referenceImageItem?.url ? avatarLabDisplayUrl(referenceImageItem) : (styleMode?avatarLabSourceDisplayUrl(baseSource):''));
-      const showVideo=!styleMode&&grokItem?.kind==='video'&&grokItem?.url;
+      const stylePreviewOriginal=multiviewEnabled ? multiviewSelectedUrl : (sourceReference ? baseSource : (referenceImageItem?.url || (styleMode?baseSource:'')));
+      const stylePreviewUrl=multiviewEnabled ? (multiviewSelectedUrl?(avatarLabSourceDisplayUrl(multiviewSelectedUrl)||avatarLabDisplayUrl({url:multiviewSelectedUrl})):'') : sourceReference?avatarLabSourceDisplayUrl(baseSource):(referenceImageItem?.url ? avatarLabDisplayUrl(referenceImageItem) : (styleMode?avatarLabSourceDisplayUrl(baseSource):''));
+      const showVideo=!multiviewEnabled&&!styleMode&&grokItem?.kind==='video'&&grokItem?.url;
       if(elements.profileAvatarGrokEmpty)elements.profileAvatarGrokEmpty.hidden=Boolean(stylePreviewUrl||showVideo);
       if(elements.profileAvatarGrokImage){const show=Boolean(stylePreviewUrl)&&!showVideo;elements.profileAvatarGrokImage.hidden=!show;if(show)setAvatarLabDisplayImage(elements.profileAvatarGrokImage,stylePreviewUrl,stylePreviewOriginal);else elements.profileAvatarGrokImage.removeAttribute('src');}
       if(elements.profileAvatarGrokVideo)configureAvatarLabGeneratedVideo(elements.profileAvatarGrokVideo,grokItem,Boolean(showVideo));
@@ -50264,9 +50284,10 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       if(elements.avatarLabMultiviewCopyButton)elements.avatarLabMultiviewCopyButton.disabled=busy||!baseSource;
       if(elements.avatarLabMultiviewAiButton)elements.avatarLabMultiviewAiButton.disabled=busy||!baseSource||!state.xaiApiKeyConfigured;
       if(elements.profileAvatarGrokUseProfileButton){elements.profileAvatarGrokUseProfileButton.hidden=!referenceImageItem?.url;elements.profileAvatarGrokUseProfileButton.disabled=busy;}
-      if(elements.profileAvatarGrokUse3dButton){elements.profileAvatarGrokUse3dButton.hidden=!imageReady;elements.profileAvatarGrokUse3dButton.disabled=busy;elements.profileAvatarGrokUse3dButton.textContent=sourceReference?'Source reference':state.avatarGrokUseAs3dSource?'Selected for 3D':'Use for 3D';}
+      if(elements.profileAvatarGrokUse3dButton){elements.profileAvatarGrokUse3dButton.hidden=multiviewEnabled||!imageReady;elements.profileAvatarGrokUse3dButton.disabled=busy;elements.profileAvatarGrokUse3dButton.textContent=sourceReference?'Source reference':state.avatarGrokUseAs3dSource?'Selected for 3D':'Use for 3D';}
       if(elements.profileAvatarGrokResultMeta){
-        if(sourceReference) elements.profileAvatarGrokResultMeta.textContent='Source image · direct A-pose reference';
+        if(multiviewEnabled) elements.profileAvatarGrokResultMeta.textContent=`4-view · ${multiviewSelectedSlot[0].toUpperCase()+multiviewSelectedSlot.slice(1)} · ${multiviewReadyCount}/4`;
+        else if(sourceReference) elements.profileAvatarGrokResultMeta.textContent='Source image · direct A-pose reference';
         else {const metaItem=styleMode&&referenceImageItem?.url?referenceImageItem:grokItem;
           if(metaItem?.url){
             const pixelSize=metaItem.kind==='image'&&metaItem.originalWidth&&metaItem.originalHeight?`${metaItem.originalWidth}×${metaItem.originalHeight}`:'';
