@@ -1,6 +1,6 @@
-## 0.1.271 / server 9.6.495 / r523
+## 0.1.272 / server 9.6.495 / r523
 
-Five-platform release preflight hotfix: preserves the unified macOS/iOS/Android + Ubuntu Windows/Linux release workflow from 0.1.270 and fixes the RELEASE.md trailing-blank-line error that stopped the watcher before any native build began.
+Homepage showcase update: uses the real Rantlist app icon, displays the semantic app version separately from the release build tag, adds a JSON-driven HLS video carousel with centered/peeked slides, drag/swipe navigation and clickable dots, and adds a content-only deployment script so future video/gallery edits do not create a native client release.
 
 ## 0.1.269 / server 9.6.495 / r523
 

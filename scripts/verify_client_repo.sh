@@ -2,12 +2,12 @@
 set -Eeuo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 for path in \
-  DEVELOPMENT-SAFETY.md NOTES-AVATAR-LAB.md web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html assets/rantlist-logo.svg \
+  DEVELOPMENT-SAFETY.md NOTES-AVATAR-LAB.md web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html homepage/content.json homepage/showcase.js homepage/assets/rantlist-app-icon.png assets/rantlist-logo.svg \
   mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
   mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
-  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh \
+  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh scripts/deploy_homepage_content.sh scripts/verify_homepage_content.js \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
   scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
   desktop/package.json desktop/electron-builder.config.cjs desktop/src/main.js desktop/assets/icon.png desktop/assets/icon.ico desktop/installer/windows.nsi \
@@ -33,6 +33,7 @@ done
 node "$ROOT/scripts/security_scan.js" "$ROOT"
 node "$ROOT/scripts/verify_source_whitespace.js"
 node "$ROOT/scripts/verify_support_choices.js"
+node "$ROOT/scripts/verify_homepage_content.js"
 node "$ROOT/scripts/verify_desktop_client.js"
 node "$ROOT/scripts/verify_stage_speech_r395.js"
 grep -q 'rantlist-public-client-snapshot' "$ROOT/web/index.html" || { echo "web/index.html is not sanitized" >&2; exit 1; }
@@ -220,6 +221,9 @@ SOURCE_VERSION="$(node -e 'const p=require(process.argv[1]); process.stdout.writ
 [[ "$REPO_VERSION" == "$SOURCE_VERSION" ]] || { echo "VERSION.txt ($REPO_VERSION) does not match synchronized source version ($SOURCE_VERSION). Run scripts/sync_from_stage.sh." >&2; exit 1; }
 [[ "$REPO_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "Invalid synchronized version: $REPO_VERSION" >&2; exit 1; }
 grep -q 'https://mojoworks.xyz/labs/rantlist/' "$ROOT/homepage/index.html" || { echo "Rantlist homepage target missing" >&2; exit 1; }
+grep -q '__LATEST_VERSION__' "$ROOT/homepage/index.html" || { echo "Rantlist homepage version placeholder missing" >&2; exit 1; }
+grep -q 'id="showcase"' "$ROOT/homepage/index.html" || { echo "Rantlist homepage video showcase missing" >&2; exit 1; }
+grep -q 'rantlist-app-icon.png' "$ROOT/homepage/index.html" || { echo "Rantlist homepage does not use the app icon" >&2; exit 1; }
 if grep -RInE 'RANTLIST_REMOTE_PORT=.*[0-9]{2,5}' "$ROOT/scripts" >/dev/null 2>&1; then
   echo "Public repository contains a hard-coded SSH deployment port." >&2
   exit 1

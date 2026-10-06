@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "showcase": {
+    "enabled": true,
+    "eyebrow": "Rantlist in motion",
+    "heading": "See Rantlist in action.",
+    "description": "Drag or swipe through the clips. Use the dots to jump directly to any video.",
+    "videos": [
+      {
+        "title": "Rantlist promo 01",
+        "hls": "https://rantlist.me/media/149bd82d-8266-49c6-9d01-3cbbd08f0096/index.m3u8"
+      },
+      {
+        "title": "Rantlist promo 02",
+        "hls": "https://rantlist.me/media/149bd82d-8266-49c6-9d01-3cbbd08f0096/index.m3u8"
+      },
+      {
+        "title": "Rantlist promo 03",
+        "hls": "https://rantlist.me/media/149bd82d-8266-49c6-9d01-3cbbd08f0096/index.m3u8"
+      },
+      {
+        "title": "Rantlist promo 04",
+        "hls": "https://rantlist.me/media/149bd82d-8266-49c6-9d01-3cbbd08f0096/index.m3u8"
+      },
+      {
+        "title": "Rantlist promo 05",
+        "hls": "https://rantlist.me/media/149bd82d-8266-49c6-9d01-3cbbd08f0096/index.m3u8"
+      },
+      {
+        "title": "Rantlist promo 06",
+        "hls": "https://rantlist.me/media/149bd82d-8266-49c6-9d01-3cbbd08f0096/index.m3u8"
+      }
+    ]
+  }
+}

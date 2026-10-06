@@ -29,7 +29,7 @@ while [[ $# -gt 0 ]]; do case "$1" in
 esac; done
 [[ -n "$EXPECTED_RELEASE_TAG" ]] || die "--release-tag is required; homepage deployment must be pinned to the release just published."
 [[ -d "$PROJECT_DIR" && -f "$PROJECT_DIR/index.html" ]] || die "Homepage source is missing: $PROJECT_DIR/index.html"
-for t in gh python3 rsync ssh curl gzip; do command -v "$t" >/dev/null 2>&1 || die "Required tool missing: $t"; done
+for t in gh python3 rsync ssh curl gzip node; do command -v "$t" >/dev/null 2>&1 || die "Required tool missing: $t"; done
 rantlist_load_release_profile || die "Unable to load local Rantlist website deployment profile."
 
 STAMP="$(date +%Y%m%d%H%M%S)"
@@ -41,6 +41,12 @@ trap cleanup EXIT
 
 info "Copying isolated homepage build"
 rsync -a --delete --exclude '.deploy_build/' --exclude '.DS_Store' "$PROJECT_DIR/" "$BUILD_DIR/"
+
+APP_ICON_SOURCE="$ROOT/mobile/ios/Rantlist/Assets.xcassets/AppIcon.appiconset/Icon-1024.png"
+[[ -s "$APP_ICON_SOURCE" ]] || die "Rantlist app icon source is missing: $APP_ICON_SOURCE"
+mkdir -p "$BUILD_DIR/assets"
+cp "$APP_ICON_SOURCE" "$BUILD_DIR/assets/rantlist-app-icon.png"
+"$ROOT/scripts/verify_homepage_content.js"
 
 info "Resolving pinned GitHub release $EXPECTED_RELEASE_TAG and platform downloads"
 PINNED_JSON="$BUILD_DIR/.pinned-release.json"
@@ -54,6 +60,10 @@ root=Path(os.environ['BUILD_DIR'])
 pinned=json.loads(Path(os.environ['PINNED_JSON']).read_text())
 releases=json.loads(Path(os.environ['RELEASES_JSON']).read_text())
 tag=os.environ['EXPECTED_RELEASE_TAG']; channel=os.environ['RELEASE_CHANNEL']; repo=os.environ['GITHUB_REPO']
+import re
+tag_match=re.fullmatch(r'v(\d+\.\d+\.\d+)-b(\d+)', tag)
+if not tag_match: raise SystemExit(f'Pinned release tag has unexpected format: {tag}')
+version=tag_match.group(1); build=tag_match.group(2)
 if pinned.get('draft'): raise SystemExit(f'Pinned release {tag} is still a draft')
 if pinned.get('tag_name') != tag: raise SystemExit(f'GitHub returned {pinned.get("tag_name")!r}, expected {tag!r}')
 if channel == 'stable' and pinned.get('prerelease'): raise SystemExit(f'{tag} is prerelease, not stable')
@@ -124,11 +134,13 @@ for old,new in {
  '__LATEST_RELEASE_TAG__':tag,
  '__LATEST_RELEASE_NAME__':str(pinned.get('name') or tag),
  '__LATEST_RELEASE_URL__':release_url,
+ '__LATEST_VERSION__':version,
+ '__LATEST_BUILD__':build,
  '__PLATFORM_DOWNLOAD_BUTTONS__':'\n        '.join(buttons),
 }.items(): doc=doc.replace(old,new)
 page.write_text(doc)
 (root/'release.json').write_text(json.dumps({
- 'product':'Rantlist','repository':repo,'tag':tag,'release_url':release_url,
+ 'product':'Rantlist','repository':repo,'version':version,'build':int(build),'tag':tag,'release_url':release_url,
  'published_at':pinned.get('published_at') or pinned.get('created_at'),
  'downloads':resolved,'deployment_url':os.environ['REMOTE_URL']
 },indent=2)+'\n')
@@ -158,6 +170,7 @@ if [[ "$DO_DRY_RUN" == 0 ]]; then
   retry_cmd 4 8 curl --fail --silent --show-error --location "${REMOTE_URL%/}/?deploy=$STAMP" -o "$tmp"
   grep -qi '<title[^>]*>Rantlist' "$tmp" || die "Public page is reachable but Rantlist title verification failed."
   grep -F "$EXPECTED_RELEASE_TAG" "$tmp" >/dev/null || die "Public page does not contain pinned release $EXPECTED_RELEASE_TAG."
+  grep -F 'id="showcase"' "$tmp" >/dev/null || die "Public page does not contain the Rantlist video showcase."
   rm -f "$tmp"
   ok "Deployed and verified $REMOTE_URL"
 else
