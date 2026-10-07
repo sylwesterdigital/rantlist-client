@@ -36,7 +36,7 @@
   "enableSiteSettingsShortcut": false,
   "isChromeOSOnly": false,
   "isMetaQuest": true,
-  "horizonOSAppMode": "2D",
+  "horizonOSAppMode": "immersive",
   "fullScopeUrl": "https://rantlist.me/",
   "minSdkVersion": 23,
   "orientation": "landscape",

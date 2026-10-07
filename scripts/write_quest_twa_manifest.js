@@ -20,7 +20,7 @@ manifest.startUrl='/?rantlistPwa=1';
 manifest.display='standalone';
 manifest.orientation='landscape';
 manifest.isMetaQuest=true;
-manifest.horizonOSAppMode='2D';
+manifest.horizonOSAppMode='immersive';
 fs.mkdirSync(path.dirname(path.resolve(args.output)),{recursive:true});
 fs.writeFileSync(path.resolve(args.output),JSON.stringify(manifest,null,2)+'\n');
 console.log(`Quest Bubblewrap manifest: ${manifest.packageId} ${manifest.appVersion} (${manifest.appVersionCode}) ${manifest.horizonOSAppMode}`);
