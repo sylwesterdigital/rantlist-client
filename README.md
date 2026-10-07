@@ -1,3 +1,11 @@
+## 0.1.282 / release integration
+
+Android phone and Meta Quest remain separate artifacts, and the release transaction now understands both. `--platform android,quest` builds, verifies, publishes both APK/AAB pairs to the same GitHub release, then deploys homepage download links including a dedicated Meta Quest APK button. The normal general release now includes Quest alongside macOS, Android, iOS, Windows and Linux; Android/Quest/iOS build before the potentially slow macOS notarization step.
+
+## 0.1.280 / server 9.6.508 / r536
+
+Quest now runs the normal Rantlist 2D app surface as a verified Trusted Web Activity backed by Meta Quest Browser rather than Android WebView. The Stage `Open XR` action therefore calls WebXR directly inside the installed app and no longer launches a visible standalone Browser window. Ordinary Android phones keep the existing native WebView, secure credential, share-target and download bridges. The paired r536 server publishes Digital Asset Links for `fun.workwork.rantlist`; r534 Quest low-memory rendering and the r535 Stage startup-order fix are retained.
+
 ## 0.1.279 / server 9.6.506 / r534
 
 Quest/headset Stage startup now uses a conservative WebXR profile (no MSAA/preserveDrawingBuffer, DPR <= 1, XR framebuffer scale 0.50) plus a lil-gui safe-session/diagnostic panel. The Quest Android APK is explicitly declared as a supported 2D headset panel and keeps XR actionable through a trusted external-browser handoff when Android WebView has no `navigator.xr`; it does not claim a native immersive renderer. Avatar Lab's Source chooser now always shows icon + text and sizes to the labels.

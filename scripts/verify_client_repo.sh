@@ -3,13 +3,14 @@ set -Eeuo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 for path in \
   DEVELOPMENT-SAFETY.md NOTES-AVATAR-LAB.md web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html homepage/content.json homepage/showcase.js homepage/assets/rantlist-app-icon.png assets/rantlist-logo.svg \
-  mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
+  mobile/android/app/build.gradle mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
+  mobile/quest/build.gradle mobile/quest/settings.gradle mobile/quest/gradle.properties mobile/quest/app/build.gradle mobile/quest/app/src/main/AndroidManifest.xml mobile/quest/app/src/main/res/values/strings.xml \
   mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
-  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh scripts/deploy_homepage_content.sh scripts/verify_homepage_content.js scripts/verify_homepage_content_ownership.js scripts/verify_quest_xr_r534.js \
+  scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh scripts/deploy_homepage_content.sh scripts/verify_homepage_content.js scripts/verify_homepage_content_ownership.js scripts/verify_quest_xr_r534.js scripts/verify_quest_twa_r536.js \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
-  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
+  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_quest_release.sh scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
   desktop/package.json desktop/electron-builder.config.cjs desktop/src/main.js desktop/assets/icon.png desktop/assets/icon.ico desktop/installer/windows.nsi \
   scripts/desktop_build_common.sh scripts/build_linux_release.sh scripts/build_windows_release.sh scripts/build_desktop_releases.sh scripts/sync_desktop_version.js scripts/verify_desktop_client.js \
   scripts/desktop_remote_common.sh scripts/check_desktop_build_worker.sh scripts/build_desktop_remote.sh scripts/validate_desktop_remote_artifacts.sh scripts/fetch_desktop_remote_artifacts.sh scripts/cleanup_desktop_remote_release.sh; do
@@ -261,3 +262,4 @@ node "$ROOT/scripts/verify_avatar_builder_r525.js"
 node "$ROOT/scripts/verify_avatar_builder_r526.js"
 node "$ROOT/scripts/verify_avatar_builder_r530.js"
 node "$ROOT/scripts/verify_quest_xr_r534.js"
+node "$ROOT/scripts/verify_quest_twa_r536.js"

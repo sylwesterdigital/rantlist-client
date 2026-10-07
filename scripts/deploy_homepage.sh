@@ -82,6 +82,8 @@ def match(asset, kind):
     if kind=='macos': return n.endswith('.dmg') and 'macos' in n
     if kind=='android_apk': return n.endswith('.apk') and 'android' in n
     if kind=='android_aab': return n.endswith('.aab') and 'android' in n
+    if kind=='quest_apk': return n.endswith('.apk') and 'quest' in n
+    if kind=='quest_aab': return n.endswith('.aab') and 'quest' in n
     if kind=='ios': return n.endswith('.ipa') and ('ios' in n or 'iphone' in n)
     if kind=='windows': return n.endswith('.exe') and 'windows' in n and 'setup' in n
     if kind=='windows_portable': return n.endswith('.zip') and 'windows' in n and 'portable' in n
@@ -104,7 +106,7 @@ def resolve(kind):
     return None,None
 
 resolved={}
-for kind in ('macos','windows','windows_portable','linux_appimage','linux_deb','android_apk','android_aab','ios'):
+for kind in ('macos','windows','windows_portable','linux_appimage','linux_deb','android_apk','android_aab','quest_apk','quest_aab','ios'):
     r,a=resolve(kind)
     if a:
         resolved[kind]={
@@ -126,6 +128,7 @@ button('windows','Windows x64',not buttons)
 button('linux_appimage','Linux AppImage',not buttons)
 button('linux_deb','Linux DEB',not buttons)
 button('android_apk','Android APK',not buttons)
+button('quest_apk','Meta Quest APK',not buttons)
 button('ios','iOS IPA',not buttons)
 
 release_url=str(pinned.get('html_url') or f'https://github.com/{repo}/releases/tag/{tag}')

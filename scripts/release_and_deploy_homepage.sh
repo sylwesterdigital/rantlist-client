@@ -18,7 +18,7 @@ RESTART=0
 RELEASE_MODE="published"
 PLATFORM_EXPLICIT=0
 REQUESTED_PLATFORMS=""
-WORKFLOW_BUILD_SCHEMA="4-five-platform-remote-desktop"
+WORKFLOW_BUILD_SCHEMA="5-six-platform-quest"
 RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE="${RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE:-1}"
 
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
@@ -31,10 +31,10 @@ normalize_platforms(){
   raw="${raw//,/ }"
   for token in $raw; do
     case "$token" in
-      all) raw="macos android ios windows linux"; out=""; break ;;
-      macos|android|ios|windows|linux) ;;
+      all) raw="macos android quest ios windows linux"; out=""; break ;;
+      macos|android|quest|ios|windows|linux) ;;
       '') continue ;;
-      *) die "Unknown platform: $token (use macos, android, ios, windows, linux, or all)" ;;
+      *) die "Unknown platform: $token (use macos, android, quest, ios, windows, linux, or all)" ;;
     esac
   done
   # Backwards-compatible watcher integration: the historical general release set
@@ -46,10 +46,10 @@ normalize_platforms(){
     case " $raw " in *" android "*) has_android=1;; *) has_android=0;; esac
     case " $raw " in *" ios "*) has_ios=1;; *) has_ios=0;; esac
     if [[ "$has_macos$has_android$has_ios" == 111 ]]; then
-      raw="$raw windows linux"
+      raw="$raw quest windows linux"
     fi
   fi
-  for token in macos android ios windows linux; do
+  for token in macos android quest ios windows linux; do
     case " $raw " in *" $token "*) out="${out:+$out }$token";; esac
   done
   [[ -n "$out" ]] || die "No release platform selected."
@@ -58,7 +58,7 @@ normalize_platforms(){
 
 append_requested(){
   PLATFORM_EXPLICIT=1
-  if [[ "$1" == all ]]; then REQUESTED_PLATFORMS="macos android ios windows linux"; return; fi
+  if [[ "$1" == all ]]; then REQUESTED_PLATFORMS="macos android quest ios windows linux"; return; fi
   REQUESTED_PLATFORMS="${REQUESTED_PLATFORMS:+$REQUESTED_PLATFORMS }$1"
 }
 
@@ -71,6 +71,7 @@ Usage:
   ./scripts/release_and_deploy_homepage.sh
   ./scripts/release_and_deploy_homepage.sh --platform macos
   ./scripts/release_and_deploy_homepage.sh --platform android
+  ./scripts/release_and_deploy_homepage.sh --platform quest
   ./scripts/release_and_deploy_homepage.sh --platform ios
   ./scripts/release_and_deploy_homepage.sh --platform windows
   ./scripts/release_and_deploy_homepage.sh --platform linux
@@ -80,10 +81,11 @@ Usage:
 Shorthand:
   --macos     release macOS only
   --android   release Android APK + AAB only
+  --quest     release Meta Quest APK + AAB only
   --ios       release iOS IPA only
   --windows   release Windows x64 via Ubuntu build worker
   --linux     release Linux x86_64 via Ubuntu build worker
-  --all       release macOS + Android + iOS + Windows + Linux
+  --all       release macOS + Android + Quest + iOS + Windows + Linux
 
 Workflow controls:
   --preflight-only
@@ -101,6 +103,7 @@ while [[ $# -gt 0 ]]; do
     --platform) [[ $# -ge 2 ]] || die "--platform requires a value"; append_requested "$2"; shift 2;;
     --macos) append_requested macos; shift;;
     --android) append_requested android; shift;;
+    --quest) append_requested quest; shift;;
     --ios) append_requested ios; shift;;
     --windows) append_requested windows; shift;;
     --linux) append_requested linux; shift;;
@@ -222,7 +225,7 @@ preflight(){
   for p in $EFFECTIVE_PLATFORMS; do
     case "$p" in
       macos) "$ROOT/scripts/check_macos_release_credentials.sh";;
-      android) "$ROOT/scripts/check_android_release_credentials.sh";;
+      android|quest) "$ROOT/scripts/check_android_release_credentials.sh";;
       ios) "$ROOT/scripts/check_ios_release_credentials.sh";;
       windows|linux) needs_desktop=1;;
     esac
@@ -302,6 +305,11 @@ validate_platform_artifacts(){
       for f in "${base}-android.apk" "${base}-android.aab" "$sha"; do [[ -s "$f" ]] || return 1; done
       (cd "$ROOT/release" && shasum -a 256 -c "$(basename "$sha")") >/dev/null
       ;;
+    quest)
+      local sha="${base}-quest-SHA256.txt"
+      for f in "${base}-quest.apk" "${base}-quest.aab" "$sha"; do [[ -s "$f" ]] || return 1; done
+      (cd "$ROOT/release" && shasum -a 256 -c "$(basename "$sha")") >/dev/null
+      ;;
     ios)
       local sha="${base}-iOS-SHA256.txt"
       for f in "${base}-iOS.ipa" "$sha"; do [[ -s "$f" ]] || return 1; done
@@ -315,7 +323,7 @@ validate_platform_artifacts(){
 
 if [[ "$PHASE" == planned ]]; then
   # Apple/Android targets build locally on the Mac exactly as before.
-  for platform in macos android ios; do
+  for platform in android quest ios macos; do
     has_platform "$PLATFORMS" "$platform" || continue
     if has_platform "$BUILT_PLATFORMS" "$platform" && validate_platform_artifacts "$platform"; then
       log "Reusing verified $platform artifacts for $RELEASE_TAG"
@@ -329,6 +337,10 @@ if [[ "$PHASE" == planned ]]; then
       android)
         log "Building signed Android APK + AAB"
         BUILD_NUMBER_OVERRIDE="$PLANNED_BUILD" PERSIST_BUILD_NUMBER=0 "$ROOT/scripts/build_android_release.sh"
+        ;;
+      quest)
+        log "Building signed Meta Quest APK + AAB"
+        BUILD_NUMBER_OVERRIDE="$PLANNED_BUILD" PERSIST_BUILD_NUMBER=0 "$ROOT/scripts/build_quest_release.sh"
         ;;
       ios)
         log "Building signed iOS IPA"
