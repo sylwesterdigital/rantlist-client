@@ -38,7 +38,7 @@ android {
 }
 
 dependencies {
-    // Meta Quest fork used by the Quest PWA/Bubblewrap stack. Keep it isolated
-    // from mobile/android so the normal phone APK remains a native WebView app.
-    implementation 'com.meta.androidbrowserhelper:androidbrowserhelper:2.5.0'
+    // Standard Android Browser Helper provides the LauncherActivity declared below.
+    // Keep it isolated from mobile/android so the normal phone APK remains a native WebView app.
+    implementation 'com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'
 }

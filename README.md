@@ -1,3 +1,15 @@
+## 0.1.297 / server 9.6.516 / r544
+
+- Fixes the Quest APK launch-class verification itself: the previous `grep -q` pipeline ran under `pipefail`, so a valid match could still be reported as failure when upstream received SIGPIPE.
+- Quest APK verification now inspects every `classes*.dex` entry without an early-closing pipeline and still fails closed if `LauncherActivity` is genuinely absent.
+- Keeps the standard Android Browser Helper 2.5.0 Quest TWA change from 0.1.296; normal Android remains separate.
+
+## 0.1.296 / server 9.6.516 / r544
+
+- Quest launch repair: use the Android Browser Helper artifact that actually packages `com.google.androidbrowserhelper.trusted.LauncherActivity`.
+- Quest release now inspects the built APK DEX and refuses publication if the launcher class is missing.
+- Keeps the Quest app as a 2D TWA so Stage can request `immersive-vr` directly from the browser-backed session.
+
 ## 0.1.295 / server 9.6.516 / r544
 
 - Release storage checks now print explicit red low-storage/stop banners with the exact location, available space, and required minimum.

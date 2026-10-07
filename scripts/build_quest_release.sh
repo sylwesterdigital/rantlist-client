@@ -58,6 +58,21 @@ APK_SRC="$ANDROID_DIR/app/build/outputs/apk/release/app-release.apk"
 AAB_SRC="$ANDROID_DIR/app/build/outputs/bundle/release/app-release.aab"
 [[ -s "$APK_SRC" ]] || die "Android APK was not produced."
 [[ -s "$AAB_SRC" ]] || die "Android AAB was not produced."
+
+# Do not publish a Quest APK whose manifest names LauncherActivity but whose DEX omits it.
+# Avoid `grep -q` in a pipe under `set -o pipefail`: early grep exit can SIGPIPE unzip/strings
+# and falsely report a valid APK as missing the class. Inspect each DEX to completion instead.
+launcher_descriptor='Lcom/google/androidbrowserhelper/trusted/LauncherActivity;'
+launcher_found=0
+while IFS= read -r dex_entry; do
+  [[ -n "$dex_entry" ]] || continue
+  if unzip -p "$APK_SRC" "$dex_entry" 2>/dev/null | strings | grep -F "$launcher_descriptor" >/dev/null; then
+    launcher_found=1
+    break
+  fi
+done < <(unzip -Z1 "$APK_SRC" 2>/dev/null | grep -E '^classes([0-9]+)?[.]dex$' || true)
+[[ "$launcher_found" == 1 ]] || die "Quest APK is missing com.google.androidbrowserhelper.trusted.LauncherActivity; refusing to publish a non-launchable APK."
+log "Quest APK launch class verified: com.google.androidbrowserhelper.trusted.LauncherActivity"
 APK="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-quest.apk"
 AAB="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-quest.aab"
 SHA="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-quest-SHA256.txt"

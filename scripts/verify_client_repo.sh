@@ -271,6 +271,7 @@ node "$ROOT/scripts/verify_quest_r540.js"
 node "$ROOT/scripts/verify_quest_r541.js"
 node "$ROOT/scripts/verify_quest_r542.js"
 node "$ROOT/scripts/verify_quest_r544.js"
+node "$ROOT/scripts/verify_quest_launch_r544.js"
 node "$ROOT/scripts/verify_release_storage_r544.js"
 
 node "$ROOT/scripts/verify_homepage_r543.js"
