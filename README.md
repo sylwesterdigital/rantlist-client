@@ -1,3 +1,9 @@
+## 0.1.300 / server 9.6.516 / r544
+
+- Fixes Quest USB detection in the automatic installer: the release script previously disabled space splitting globally, then parsed `adb devices` output with space-separated fields, so an attached Quest could be incorrectly reported as absent.
+- Quest auto-install now parses native tab-delimited `adb devices -l` output, recognizes Meta/Oculus/Quest metadata, reinstalls the APK, and launches the declared TWA activity explicitly.
+- Connected-but-unauthorised or unrecognized USB devices now produce explicit red errors instead of a generic warning.
+
 ## 0.1.299 / server 9.6.516 / r544
 
 - Fixes the Quest auto-install function declaration: 0.1.298 accidentally shipped a literal `\n` before `install_connected_quest_devices`, so the build succeeded but the install function was never defined.

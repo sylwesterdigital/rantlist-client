@@ -33,32 +33,53 @@ install_connected_quest_devices() {
     return 0
   fi
 
-  local found=0 serial manufacturer model brand identity
-  while read -r serial state _; do
-    [[ "$state" == "device" && -n "$serial" ]] || continue
+  local found=0 seen_usb=0 unauthorized=0 line serial details state manufacturer model brand identity
+  while IFS= read -r line; do
+    [[ "$line" == *$'\t'* ]] || continue
+    serial="${line%%$'\t'*}"
+    details="${line#*$'\t'}"
+    state="${details%% *}"
+    [[ -n "$serial" && -n "$state" ]] || continue
+    seen_usb=1
+
+    if [[ "$state" == "unauthorized" ]]; then
+      unauthorized=1
+      printf '\033[1;31mERROR:\033[0m ADB device %s is connected but USB debugging is not authorised. Approve the USB debugging prompt inside the Quest.\n' "$serial" >&2
+      continue
+    fi
+    [[ "$state" == "device" ]] || continue
+
     manufacturer="$($adb_bin -s "$serial" shell getprop ro.product.manufacturer 2>/dev/null | tr -d '\r')"
     model="$($adb_bin -s "$serial" shell getprop ro.product.model 2>/dev/null | tr -d '\r')"
     brand="$($adb_bin -s "$serial" shell getprop ro.product.brand 2>/dev/null | tr -d '\r')"
-    identity="${manufacturer} ${model} ${brand}"
-    if ! printf '%s' "$identity" | grep -Eiq '(^|[[:space:]_-])(meta|oculus|quest)([[:space:]_-]|$)'; then
+    identity="${manufacturer} ${model} ${brand} ${details}"
+    if ! printf '%s' "$identity" | grep -Eiq '(meta|oculus|quest)'; then
       continue
     fi
+
     found=1
     log "Installing Rantlist $APP_VERSION build $BUILD_NUMBER on connected Quest: ${model:-$serial} ($serial)"
     if "$adb_bin" -s "$serial" install -r "$APK"; then
       log "Installed Rantlist on ${model:-Quest}"
-      if "$adb_bin" -s "$serial" shell monkey -p fun.workwork.rantlist -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; then
+      "$adb_bin" -s "$serial" shell am force-stop fun.workwork.rantlist >/dev/null 2>&1 || true
+      if "$adb_bin" -s "$serial" shell am start -W -n fun.workwork.rantlist/com.google.androidbrowserhelper.trusted.LauncherActivity >/dev/null 2>&1; then
         log "Launched Rantlist on ${model:-Quest}"
       else
         printf '\033[1;33mWARNING:\033[0m Rantlist installed on %s but could not be launched automatically.\n' "${model:-Quest}" >&2
       fi
     else
-      printf '\033[1;33mWARNING:\033[0m Could not install Rantlist on %s; Quest release will continue.\n' "${model:-Quest}" >&2
+      printf '\033[1;31mERROR:\033[0m Could not install Rantlist on %s; Quest release will continue.\n' "${model:-Quest}" >&2
     fi
-  done < <("$adb_bin" devices | awk 'NR>1 && NF>=2 {print $1, $2}')
+  done < <("$adb_bin" devices -l)
 
   if [[ "$found" == 0 ]]; then
-    printf '\033[1;33mWARNING:\033[0m No connected/authorised Meta Quest found; APK was built but not installed. Connect Quest by USB and approve USB debugging before the next release to install automatically.\n' >&2
+    if [[ "$unauthorized" == 1 ]]; then
+      printf '\033[1;31mERROR:\033[0m Quest APK was built but not installed because the connected USB device is not authorised for ADB.\n' >&2
+    elif [[ "$seen_usb" == 1 ]]; then
+      printf '\033[1;31mERROR:\033[0m USB/ADB device is connected, but it was not identified as Meta/Oculus/Quest; Quest APK was not installed.\n' >&2
+    else
+      printf '\033[1;31mERROR:\033[0m No ADB USB device is visible. Quest APK was built but not installed. Keep Quest connected and enable/authorise USB debugging.\n' >&2
+    fi
   fi
 }
 [[ "$(uname -s)" == Darwin ]] || die "Android release builder currently runs from the macOS release host."
