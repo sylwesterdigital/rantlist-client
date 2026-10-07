@@ -1,3 +1,7 @@
+## 0.1.303 / server 9.6.516 / r544
+
+Quest XR runtime repair: restore `com.meta.androidbrowserhelper:androidbrowserhelper:2.5.0`, the Meta Quest TWA helper used by the known-good 0.1.282/r536 client. Keep the 2D Horizon app mode, the `com.google.androidbrowserhelper.trusted.LauncherActivity` manifest entry supplied by the fork, Quest-only watcher release targeting, automatic ADB reinstall, and automatic launch. The generic Google helper introduced during the launch-hotfix sequence is removed so the installed Quest app again uses Meta's Quest-specific TWA runtime for in-page WebXR.
+
 ## 0.1.301 / server 9.6.516 / r544
 
 - Quest-only hotfix releases no longer build Android, iOS, macOS, Windows, or Linux when the watcher invokes the general `--platform all` workflow; this package carries a one-package Quest release target and the release workflow narrows to Quest automatically.

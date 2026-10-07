@@ -1,9 +1,5 @@
 #!/usr/bin/env node
-'use strict';const fs=require('fs'),path=require('path'),assert=require('assert');const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');let n=0;function check(x,f){f();n++;console.log('PASS '+x)}const pkg=read('PACKAGE_VERSION.txt').trim(),source=JSON.parse(read('web/client-source.json')),html=read('web/index.html'),manifest=read('mobile/android/app/src/main/AndroidManifest.xml'),android=read('mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java'),quest=read('mobile/quest/app/src/main/AndroidManifest.xml');
-check('client r534 metadata is current or later',()=>{const p=pkg.split('.').map(Number),s=source.sourceVersion.split('.').map(Number),r=Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1]);assert(p[2]>=279&&s[2]>=506&&r>=534)});
-check('Quest packaging remains separate from normal Android',()=>{assert(!manifest.includes('com.oculus.supportedDevices'));assert(quest.includes('com.oculus.supportedDevices'));assert(quest.includes('com.oculus.intent.category.2D'))});
-check('normal Android secure/XR browser fallback remains unchanged',()=>{assert(android.includes('installXrChannel(view)'));assert(android.includes('rantlist-native-xr-channel-v1'));assert(android.includes('response.put("nativeImmersive", false)'))});
-check('Quest web client no longer routes Enter VR through same-package XRBridgeActivity',()=>{assert(!html.includes('fun.workwork.rantlist/.XRBridgeActivity'));assert(!html.includes('scheme=rantlistxr'))});
-check('Avatar Lab source chooser keeps icon labels',()=>{assert(html.includes('.avatar-lab-source-menu button span:not(.icon){display:inline!important'));assert(html.includes('const menuRect=menu.getBoundingClientRect()'))});
-check('r533 content ownership verifier remains release-forward',()=>assert(read('scripts/verify_homepage_content_ownership.js').includes('content-ownership release or later')));
-console.log(`Client Quest XR + source chooser r534: ${n} regression groups passed.`);
+'use strict';
+const {spawnSync}=require('child_process'),path=require('path');
+const r=spawnSync(process.execPath,[path.join(__dirname,'verify_quest_packaging_current.js')],{stdio:'inherit'});
+process.exit(r.status===null?1:r.status);

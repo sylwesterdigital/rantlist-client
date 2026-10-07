@@ -1,8 +1,5 @@
 #!/usr/bin/env node
-'use strict';const fs=require('fs'),path=require('path'),assert=require('assert');const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');let n=0;function check(x,f){f();n++;console.log('PASS '+x)}const pkg=read('PACKAGE_VERSION.txt').trim(),source=JSON.parse(read('web/client-source.json')),phone=read('mobile/android/app/src/main/AndroidManifest.xml'),qgradle=read('mobile/quest/app/build.gradle'),qmanifest=read('mobile/quest/app/src/main/AndroidManifest.xml'),build=read('scripts/build_quest_release.sh'),release=read('scripts/release_and_deploy_homepage.sh'),github=read('scripts/publish_github_release.sh'),home=read('scripts/deploy_homepage.sh');
-check('client r537 metadata is current or later',()=>{const p=pkg.split('.').map(Number),s=source.sourceVersion.split('.').map(Number),r=Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1]);assert(p[2]>=283&&s[2]>=509&&r>=537)});
-check('Android phone APK carries no Quest launcher metadata',()=>{assert(!phone.includes('com.oculus.supportedDevices'));assert(!phone.includes('com.oculus.intent.category.2D'))});
-check('later Quest release intentionally restores proven hand-written TWA',()=>{assert(qgradle.includes('com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'));assert(qmanifest.includes('com.google.androidbrowserhelper.trusted.LauncherActivity'));assert(qmanifest.includes('com.oculus.intent.category.2D'));assert(!fs.existsSync(path.join(root,'mobile/quest/twa-manifest.template.json')))});
-check('Quest build uses isolated Gradle project and existing signing identity',()=>{assert(build.includes('mobile/quest'));assert(build.includes('RANTLIST_ANDROID_KEYSTORE'));assert(build.includes('assembleRelease bundleRelease'));assert(!build.includes('@meta-quest/bubblewrap-cli'))});
-check('release publishing keeps separate Android and Quest artifacts',()=>{assert(release.includes('build_android_release.sh'));assert(release.includes('build_quest_release.sh'));assert(github.includes('${BASE}-quest.apk'));assert(home.includes("button('quest_apk','Meta Quest APK'"))});
-console.log(`Client Quest packaging compatibility after r537: ${n} regression groups passed.`);
+'use strict';
+const {spawnSync}=require('child_process'),path=require('path');
+const r=spawnSync(process.execPath,[path.join(__dirname,'verify_quest_packaging_current.js')],{stdio:'inherit'});
+process.exit(r.status===null?1:r.status);

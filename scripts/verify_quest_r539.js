@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-'use strict';const fs=require('fs'),path=require('path'),assert=require('assert');const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');let n=0;function check(x,f){f();n++;console.log('PASS '+x)}const pkg=read('PACKAGE_VERSION.txt').trim(),src=JSON.parse(read('web/client-source.json')),build=read('scripts/build_quest_release.sh'),gradle=read('mobile/quest/app/build.gradle'),manifest=read('mobile/quest/app/src/main/AndroidManifest.xml'),web=read('web/index.html');
-check('client r539 metadata remains compatible',()=>{const p=pkg.split('.').map(Number),s=src.sourceVersion.split('.').map(Number),r=Number(String(src.sourceRevision).match(/r(\d+)$/)?.[1]||0);assert(p[2]>=288&&s[2]>=511&&r>=539)});
-check('Quest build is restored direct TWA',()=>{assert(gradle.includes('com.google.androidbrowserhelper:androidbrowserhelper:2.5.0'));assert(manifest.includes('com.google.androidbrowserhelper.trusted.LauncherActivity'));assert(manifest.includes('com.oculus.intent.category.2D'));assert(build.includes('assembleRelease bundleRelease'));assert(!build.includes('inject_quest_xr_bridge.js'))});
-check('retired same-package XR bridge is absent from active web path',()=>{assert(!web.includes('fun.workwork.rantlist/.XRBridgeActivity'));assert(!web.includes('scheme=rantlistxr'))});
-console.log(`Client r539 Quest direct-TWA compatibility: ${n} regression groups passed.`);
+'use strict';
+const {spawnSync}=require('child_process'),path=require('path');
+const r=spawnSync(process.execPath,[path.join(__dirname,'verify_quest_packaging_current.js')],{stdio:'inherit'});
+process.exit(r.status===null?1:r.status);
