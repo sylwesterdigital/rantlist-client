@@ -37,7 +37,18 @@ assert_desktop_build_host(){
   local free_kb
   free_kb="$(df -Pk "$SAFE_BASE" | awk 'NR==2{print $4}')"
   [[ "$free_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space."
-  (( free_kb >= 5*1024*1024 )) || die "Less than 5 GB free under $SAFE_BASE; refusing to start a desktop build."
+  if (( free_kb < 5*1024*1024 )); then
+    local free_human
+    free_human="$(awk -v kb="$free_kb" 'BEGIN { if (kb >= 1048576) printf "%.2f GiB", kb/1048576; else printf "%.0f MiB", kb/1024 }')"
+    printf '\033[1;31m============================================================\n' >&2
+    printf 'DESKTOP BUILD STOPPED — NOT ENOUGH STORAGE\n' >&2
+    printf 'Worker build root: %s\n' "$SAFE_BASE" >&2
+    printf 'Available: %s\n' "$free_human" >&2
+    printf 'Required minimum: 5.00 GiB\n' >&2
+    printf 'Free space on the Ubuntu build worker before retrying.\n' >&2
+    printf '============================================================\033[0m\n' >&2
+    exit 1
+  fi
 
   mkdir -p "$BUILD_ROOT/tmp" "$CACHE_ROOT/npm" "$CACHE_ROOT/electron" "$CACHE_ROOT/electron-builder" "$RELEASE_ROOT"
   export TMPDIR="$BUILD_ROOT/tmp"

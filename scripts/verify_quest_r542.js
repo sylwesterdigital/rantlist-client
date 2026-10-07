@@ -1,8 +1,6 @@
 #!/usr/bin/env node
-'use strict';
-const fs=require('fs'),path=require('path'),assert=require('assert');const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');let n=0;function check(x,f){f();n++;console.log('PASS '+x)}
-const pkg=read('PACKAGE_VERSION.txt').trim(),src=JSON.parse(read('web/client-source.json')),build=read('scripts/build_quest_release.sh'),inj=read('scripts/inject_quest_xr_bridge.js');
-check('client r542 metadata is current',()=>{assert.equal(pkg,'0.1.291');assert.equal(src.sourceVersion,'9.6.514');assert.equal(src.sourceRevision,'rantlist-deploy-r542')});
-check('Quest build remains Bubblewrap plus XR bridge injection',()=>{assert(build.includes('@meta-quest/bubblewrap-cli'));assert(build.includes('update --skipVersionUpgrade'));assert(build.includes('inject_quest_xr_bridge.js'));assert(build.indexOf('update --skipVersionUpgrade')<build.indexOf('inject_quest_xr_bridge.js'))});
-check('Quest bridge runtime remains unchanged',()=>{assert(inj.includes('WebXRCustomTabActivity'));assert(inj.includes('rantlistxr'));assert(inj.includes('https://rantlist.me/stage/?rantlistImmersive=1'))});
-console.log(`Client r542 Quest bridge compatibility: ${n} regression groups passed.`);
+'use strict';const fs=require('fs'),path=require('path'),assert=require('assert');const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');let n=0;function check(x,f){f();n++;console.log('PASS '+x)}const pkg=read('PACKAGE_VERSION.txt').trim(),src=JSON.parse(read('web/client-source.json')),build=read('scripts/build_quest_release.sh'),gradle=read('mobile/quest/app/build.gradle'),manifest=read('mobile/quest/app/src/main/AndroidManifest.xml'),web=read('web/index.html');
+check('client r542 metadata remains compatible',()=>{const p=pkg.split('.').map(Number),s=src.sourceVersion.split('.').map(Number),r=Number(String(src.sourceRevision).match(/r(\d+)$/)?.[1]||0);assert(p[2]>=291&&s[2]>=514&&r>=542)});
+check('Quest build is restored direct TWA',()=>{assert(gradle.includes('com.meta.androidbrowserhelper:androidbrowserhelper:2.5.0'));assert(manifest.includes('com.google.androidbrowserhelper.trusted.LauncherActivity'));assert(manifest.includes('com.oculus.intent.category.2D'));assert(build.includes('assembleRelease bundleRelease'));assert(!build.includes('inject_quest_xr_bridge.js'))});
+check('retired same-package XR bridge is absent from active web path',()=>{assert(!web.includes('fun.workwork.rantlist/.XRBridgeActivity'));assert(!web.includes('scheme=rantlistxr'))});
+console.log(`Client r542 Quest direct-TWA compatibility: ${n} regression groups passed.`);

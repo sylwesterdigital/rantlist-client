@@ -1,3 +1,10 @@
+## 0.1.292 / server 9.6.515 / r543
+
+- Preserves operator-edited `homepage/content.json` across client ZIP synchronization and normal release preparation.
+- Normal homepage releases now publish that exact local operator file and verify the public copy matches it.
+- Homepage release notes are generated from the same server `DEVELOPMENT_RELEASES` chain used by Rantlist `#development`.
+- Packaged showcase bootstrap content is disabled and empty, so a fresh checkout cannot replace operator media with a fake default clip.
+
 ## 0.1.291 / server 9.6.514 / r542
 
 - Pairs with server r542.
@@ -42,7 +49,7 @@ Quest/headset Stage startup now uses a conservative WebXR profile (no MSAA/prese
 
 ## 0.1.278 / server 9.6.505 / r533
 
-Homepage showcase content is now operator-owned. Client ZIP updates preserve an existing `homepage/content.json`, ordinary full homepage releases do not upload/delete `content.json` or its compressed variants, and release commits exclude local operator edits. Use `./scripts/deploy_homepage_content.sh` to publish video/gallery changes independently.
+Homepage showcase content is operator-owned. Client ZIP updates preserve an existing `homepage/content.json`, release commits exclude local operator edits, and normal homepage releases publish the exact current local `content.json` and verify the public copy matches it. Use `./scripts/deploy_homepage_content.sh` when only video/gallery content needs publishing. Homepage release notes are generated from the same `DEVELOPMENT_RELEASES` chain used by Rantlist `#development`.
 
 ## 0.1.277 / server 9.6.502 / r530
 

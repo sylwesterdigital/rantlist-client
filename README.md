@@ -1,3 +1,30 @@
+## 0.1.295 / server 9.6.516 / r544
+
+- Release storage checks now print explicit red low-storage/stop banners with the exact location, available space, and required minimum.
+- Local macOS storage is checked before remote desktop-worker preflight so a local shortage is immediately identifiable.
+- Ubuntu desktop-worker storage failures now report the worker build root, available space, and 5 GiB requirement in red.
+
+## 0.1.294 / server 9.6.516 / r544
+
+- Release preflight now clears only stale project-local build intermediates before judging local disk space.
+- The old unconditional 2 GB preflight stop is replaced by a hard 512 MB safety floor plus a warning below 2 GB; each local platform build cleans its own temporary output after verified artifacts are copied to `release/`.
+- The r544 Quest verifier is release-forward for later client package hotfixes.
+
+## 0.1.293 / server 9.6.516 / r544
+
+- Restores the proven hand-written Meta Quest 2D Trusted Web Activity from the working 0.1.282 architecture.
+- Quest uses `com.meta.androidbrowserhelper:androidbrowserhelper:2.5.0` and `LauncherActivity`; Enter VR stays inside the Quest Browser-backed app and calls WebXR directly.
+- Removes the Bubblewrap XR bridge/custom-tab build path from the active Quest release.
+- Normal Android phone/tablet remains the existing native WebView app.
+- Homepage verification now accepts operator-owned showcase content instead of requiring the packaged empty bootstrap file.
+
+## 0.1.292 / server 9.6.515 / r543
+
+- Preserves operator-edited `homepage/content.json` across client ZIP synchronization and normal release preparation.
+- Normal homepage releases now publish that exact local operator file and verify the public copy matches it.
+- Homepage release notes are generated from the same server `DEVELOPMENT_RELEASES` chain used by Rantlist `#development`.
+- Packaged showcase bootstrap content is disabled and empty, so a fresh checkout cannot replace operator media with a fake default clip.
+
 ## 0.1.291 / server 9.6.514 / r542
 
 - Pairs with server r542.
@@ -42,7 +69,7 @@ Quest/headset Stage startup now uses a conservative WebXR profile (no MSAA/prese
 
 ## 0.1.278 / server 9.6.505 / r533
 
-Homepage showcase content is now operator-owned. Client ZIP updates preserve an existing `homepage/content.json`, ordinary full homepage releases do not upload/delete `content.json` or its compressed variants, and release commits exclude local operator edits. Use `./scripts/deploy_homepage_content.sh` to publish video/gallery changes independently.
+Homepage showcase content is operator-owned. Client ZIP updates preserve an existing `homepage/content.json`, release commits exclude local operator edits, and normal homepage releases publish the exact current local `content.json` and verify the public copy matches it. Use `./scripts/deploy_homepage_content.sh` when only video/gallery content needs publishing. Homepage release notes are generated from the same `DEVELOPMENT_RELEASES` chain used by Rantlist `#development`.
 
 ## 0.1.277 / server 9.6.502 / r530
 

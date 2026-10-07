@@ -1,9 +1,5 @@
 #!/usr/bin/env node
-'use strict';
-const fs=require('fs'),path=require('path'),assert=require('assert');
-const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');
-const pkg=read('PACKAGE_VERSION.txt').trim().split('.').map(Number),source=JSON.parse(read('web/client-source.json'));let n=0;
-function check(name,fn){fn();n++;console.log('PASS '+name);}
-check('client r536 metadata is current or later',()=>{const s=source.sourceVersion.split('.').map(Number),r=Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1]);assert.ok(pkg[2]>=280);assert.ok(s[2]>=508);assert.ok(r>=536);});
-check('Quest TWA contract is release-forward',()=>{if(pkg[2]>=283){const t=JSON.parse(read('mobile/quest/twa-manifest.template.json'));assert.equal(t.isMetaQuest,true);assert.equal(t.horizonOSAppMode,'2D');assert(read('scripts/build_quest_release.sh').includes('@meta-quest/bubblewrap-cli'));}else{assert(fs.existsSync(path.join(root,'mobile/quest/app/build.gradle')));}});
+'use strict';const fs=require('fs'),path=require('path'),assert=require('assert');const root=path.resolve(__dirname,'..'),read=n=>fs.readFileSync(path.join(root,n),'utf8');const pkg=read('PACKAGE_VERSION.txt').trim().split('.').map(Number),source=JSON.parse(read('web/client-source.json'));let n=0;function check(x,f){f();n++;console.log('PASS '+x)}
+check('client r536 metadata is current or later',()=>{const s=source.sourceVersion.split('.').map(Number),r=Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1]);assert(pkg[2]>=280&&s[2]>=508&&r>=536)});
+check('Quest TWA contract is release-forward',()=>{const gradle=read('mobile/quest/app/build.gradle'),manifest=read('mobile/quest/app/src/main/AndroidManifest.xml'),build=read('scripts/build_quest_release.sh');assert(gradle.includes('com.meta.androidbrowserhelper:androidbrowserhelper:2.5.0'));assert(manifest.includes('com.google.androidbrowserhelper.trusted.LauncherActivity'));assert(manifest.includes('horizonos.pwa.APP_MODE'));assert(manifest.includes('android:value="2D"'));assert(build.includes('Building signed Meta Quest APK and AAB'))});
 console.log(`Client Quest TWA r536 compatibility: ${n} regression groups passed.`);

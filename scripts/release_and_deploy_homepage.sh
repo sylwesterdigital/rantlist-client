@@ -12,6 +12,25 @@ RELEASE_BRANCH="${RELEASE_BRANCH:-main}"
 STATE_DIR="$ROOT/release"
 STATE_FILE="$STATE_DIR/.release-workflow-state.env"
 LAST_STATE_FILE="$STATE_DIR/.last-release-workflow-state.env"
+OPERATOR_CONTENT="$ROOT/homepage/content.json"
+OPERATOR_CONTENT_BACKUP=""
+
+protect_operator_content(){
+  [[ -f "$OPERATOR_CONTENT" ]] || return 0
+  OPERATOR_CONTENT_BACKUP="$(mktemp /tmp/rantlist-homepage-content.XXXXXX)"
+  cp "$OPERATOR_CONTENT" "$OPERATOR_CONTENT_BACKUP"
+}
+restore_operator_content(){
+  [[ -n "$OPERATOR_CONTENT_BACKUP" && -f "$OPERATOR_CONTENT_BACKUP" ]] || return 0
+  mkdir -p "$(dirname "$OPERATOR_CONTENT")"
+  cp "$OPERATOR_CONTENT_BACKUP" "$OPERATOR_CONTENT"
+}
+cleanup_operator_content(){
+  restore_operator_content || true
+  [[ -z "$OPERATOR_CONTENT_BACKUP" ]] || rm -f "$OPERATOR_CONTENT_BACKUP"
+}
+protect_operator_content
+trap cleanup_operator_content EXIT
 PREVIEW_ONLY=0
 SHOW_STATUS=0
 RESTART=0
@@ -25,6 +44,8 @@ log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 ok(){ printf '\033[1;32mOK\033[0m %s\n' "$*"; }
 warn(){ printf '\033[1;33mWARNING:\033[0m %s\n' "$*" >&2; }
 die(){ printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
+storage_red(){ printf '\033[1;31m%s\033[0m\n' "$*" >&2; }
+human_kb(){ awk -v kb="$1" 'BEGIN { if (kb >= 1048576) printf "%.2f GiB", kb/1048576; else printf "%.0f MiB", kb/1024 }'; }
 
 normalize_platforms(){
   local raw="$1" token out=""
@@ -65,6 +86,72 @@ append_requested(){
 has_platform(){ case " $1 " in *" $2 "*) return 0;; *) return 1;; esac; }
 add_platform(){ local list="$1" item="$2"; has_platform "$list" "$item" && { printf '%s\n' "$list"; return; }; printf '%s\n' "${list:+$list }$item"; }
 all_selected_built(){ local p; for p in $PLATFORMS; do has_platform "${BUILT_PLATFORMS:-}" "$p" || return 1; done; return 0; }
+
+local_free_kb(){
+  df -Pk "$ROOT" | awk 'NR==2 { print $4 }'
+}
+
+cleanup_local_build_space(){
+  # Only generated files inside this checkout. Never touches system caches,
+  # user documents, SDKs, Keychain data or background/system configuration.
+  local p
+  for p in \
+    "$ROOT/.macos-build" \
+    "$ROOT/.ios-build" \
+    "$ROOT/mobile/android/app/build" \
+    "$ROOT/mobile/android/.gradle" \
+    "$ROOT/mobile/quest/app/build" \
+    "$ROOT/mobile/quest/.gradle"; do
+    [[ ! -e "$p" ]] || rm -rf -- "$p"
+  done
+}
+
+cleanup_after_local_platform(){
+  case "$1" in
+    android) rm -rf -- "$ROOT/mobile/android/app/build" "$ROOT/mobile/android/.gradle";;
+    quest) rm -rf -- "$ROOT/mobile/quest/app/build" "$ROOT/mobile/quest/.gradle";;
+    ios) rm -rf -- "$ROOT/.ios-build";;
+    macos) rm -rf -- "$ROOT/.macos-build";;
+  esac
+}
+
+check_local_release_space(){
+  local free_kb free_human
+  log "Checking local release storage: $ROOT"
+  free_kb="$(local_free_kb)"
+  [[ "$free_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space for $ROOT."
+  free_human="$(human_kb "$free_kb")"
+  printf '    Available: %s (%s KB)\n' "$free_human" "$free_kb"
+  printf '    Recommended before release: 2.00 GiB\n'
+  printf '    Absolute minimum: 512 MiB\n'
+  if (( free_kb < 2*1024*1024 )); then
+    storage_red "============================================================"
+    storage_red "LOW DISK SPACE: only $free_human free on the local release volume."
+    storage_red "Attempting safe cleanup of Rantlist project-local build files only."
+    storage_red "============================================================"
+    cleanup_local_build_space
+    free_kb="$(local_free_kb)"
+    [[ "$free_kb" =~ ^[0-9]+$ ]] || die "Could not determine free disk space after cleanup."
+    free_human="$(human_kb "$free_kb")"
+    storage_red "After cleanup: $free_human free."
+  fi
+  if (( free_kb < 512*1024 )); then
+    storage_red "============================================================"
+    storage_red "RELEASE STOPPED — NOT ENOUGH STORAGE"
+    storage_red "Location: $ROOT"
+    storage_red "Available: $free_human"
+    storage_red "Required minimum: 512 MiB"
+    storage_red "Recommended: 2.00 GiB or more"
+    storage_red "Free disk space, then leave the watcher running; it will retry when a newer package appears."
+    storage_red "============================================================"
+    exit 1
+  fi
+  if (( free_kb < 2*1024*1024 )); then
+    storage_red "LOW DISK SPACE WARNING: release is continuing with only $free_human free."
+  else
+    ok "Local storage: $free_human free"
+  fi
+}
 
 usage(){ cat <<'TXT'
 Usage:
@@ -218,6 +305,7 @@ preflight(){
     elif [[ "$base_head" == "$local_head" ]]; then
       [[ -z "$(git status --porcelain -- . ':(exclude)homepage/content.json')" ]] || die "Local branch is behind origin and has release-source changes. Synchronize Git first."
       git merge --ff-only "origin/$RELEASE_BRANCH"
+      restore_operator_content
     else die "Local $RELEASE_BRANCH has diverged from origin/$RELEASE_BRANCH."; fi
   fi
   node "$ROOT/scripts/source_release.js" "$SOURCE_PROJECT" >/dev/null
@@ -230,8 +318,8 @@ preflight(){
       windows|linux) needs_desktop=1;;
     esac
   done
+  check_local_release_space
   [[ "$needs_desktop" == 0 ]] || "$ROOT/scripts/check_desktop_build_worker.sh"
-  df -Pk "$ROOT" | awk 'NR==2 { if ($4 < 2097152) { print "ERROR: less than 2GB free disk space" > "/dev/stderr"; exit 1 } }'
   ok "Preflight passed"
 }
 
@@ -266,6 +354,8 @@ if [[ -f "$STATE_FILE" ]]; then
 else
   log "Synchronizing verified Rantlist client core from $SOURCE_PROJECT"
   SOURCE_PROJECT="$SOURCE_PROJECT" "$ROOT/scripts/sync_from_stage.sh"
+  restore_operator_content
+  node "$ROOT/scripts/sync_homepage_development.js" "$SOURCE_PROJECT"
   "$ROOT/scripts/verify_client_repo.sh"
   node "$ROOT/scripts/security_scan.js" "$ROOT"
   SOURCE_VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION.txt")"
@@ -350,6 +440,7 @@ if [[ "$PHASE" == planned ]]; then
     validate_platform_artifacts "$platform" || die "$platform build completed without the expected verified artifacts."
     BUILT_PLATFORMS="$(add_platform "$BUILT_PLATFORMS" "$platform")"
     write_state planned
+    cleanup_after_local_platform "$platform"
   done
 
   # Windows/Linux are one remote build-worker transaction. Nothing is copied

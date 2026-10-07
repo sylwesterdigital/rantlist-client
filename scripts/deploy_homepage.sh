@@ -154,6 +154,8 @@ rm -f "$PINNED_JSON" "$RELEASES_JSON"
 
 grep -q "$EXPECTED_RELEASE_TAG" "$BUILD_DIR/index.html" || die "Pinned release tag was not inserted into homepage."
 if grep -R "__LATEST_\|__PLATFORM_" "$BUILD_DIR" >/dev/null 2>&1; then die "Unresolved release placeholder remains in homepage build."; fi
+[[ -f "$PROJECT_DIR/content.json" ]] || die "Local operator homepage content.json is missing."
+cmp -s "$PROJECT_DIR/content.json" "$BUILD_DIR/content.json" || die "Isolated homepage build does not contain the exact local operator content.json."
 
 info "Precompressing homepage"
 find "$BUILD_DIR" -type f \( -name '*.html' -o -name '*.json' -o -name '*.css' -o -name '*.js' \) -print0 | while IFS= read -r -d '' f; do gzip -9 -kf "$f"; command -v brotli >/dev/null 2>&1 && brotli -f -q 11 "$f" || true; done
@@ -162,7 +164,7 @@ info "Deploying to $REMOTE_URL"
 if [[ "$DO_DRY_RUN" == 0 ]]; then
   retry_cmd 4 8 ssh -o BatchMode=yes -o ConnectTimeout=15 -p "$RANTLIST_REMOTE_PORT" "$RANTLIST_REMOTE_USER@$RANTLIST_REMOTE_HOST" "mkdir -p '$RANTLIST_REMOTE_DIR'"
 fi
-flags=(-avz --human-readable --itemize-changes --chmod="$RANTLIST_REMOTE_CHMOD" --partial --partial-dir=.rsync-partial --delay-updates --delete-delay --exclude='content.json' --exclude='content.json.gz' --exclude='content.json.br')
+flags=(-avz --human-readable --itemize-changes --chmod="$RANTLIST_REMOTE_CHMOD" --partial --partial-dir=.rsync-partial --delay-updates --delete-delay)
 [[ "$DO_DRY_RUN" == 0 ]] || flags+=(--dry-run)
 if rsync --help 2>&1 | grep -q -- '--chown'; then flags+=(--chown="$RANTLIST_REMOTE_OWNER"); fi
 retry_cmd 4 10 rsync "${flags[@]}" -e "ssh -o BatchMode=yes -o ConnectTimeout=15 -p $RANTLIST_REMOTE_PORT" "$BUILD_DIR/" "$RANTLIST_REMOTE_USER@$RANTLIST_REMOTE_HOST:$RANTLIST_REMOTE_DIR/"
@@ -175,7 +177,13 @@ if [[ "$DO_DRY_RUN" == 0 ]]; then
   grep -F "$EXPECTED_RELEASE_TAG" "$tmp" >/dev/null || die "Public page does not contain pinned release $EXPECTED_RELEASE_TAG."
   grep -F 'id="showcase"' "$tmp" >/dev/null || die "Public page does not contain the Rantlist video showcase."
   rm -f "$tmp"
-  ok "Deployed and verified $REMOTE_URL"
+  local_content_sha="$(shasum -a 256 "$PROJECT_DIR/content.json" | awk '{print $1}')"
+  public_content_tmp="$(mktemp)"
+  retry_cmd 4 8 curl --fail --silent --show-error --location "${REMOTE_URL%/}/content.json?deploy=$STAMP" -o "$public_content_tmp"
+  public_content_sha="$(shasum -a 256 "$public_content_tmp" | awk '{print $1}')"
+  rm -f "$public_content_tmp"
+  [[ "$local_content_sha" == "$public_content_sha" ]] || die "Public content.json does not match the local operator content after homepage deployment."
+  ok "Deployed and verified $REMOTE_URL (including operator content.json)"
 else
   ok "Homepage dry run completed"
 fi
