@@ -1,3 +1,9 @@
+## 0.1.301 / server 9.6.516 / r544
+
+- Quest-only hotfix releases no longer build Android, iOS, macOS, Windows, or Linux when the watcher invokes the general `--platform all` workflow; this package carries a one-package Quest release target and the release workflow narrows to Quest automatically.
+- Fixes Quest ADB discovery for real `adb devices -l` output that may use spaces rather than a tab between serial and state.
+- A connected authorised Quest is reinstalled and launched immediately after the Quest APK is verified.
+
 ## 0.1.300 / server 9.6.516 / r544
 
 - Fixes Quest USB detection in the automatic installer: the release script previously disabled space splitting globally, then parsed `adb devices` output with space-separated fields, so an attached Quest could be incorrectly reported as absent.

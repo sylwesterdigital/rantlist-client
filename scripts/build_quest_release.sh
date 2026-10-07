@@ -35,10 +35,13 @@ install_connected_quest_devices() {
 
   local found=0 seen_usb=0 unauthorized=0 line serial details state manufacturer model brand identity
   while IFS= read -r line; do
-    [[ "$line" == *$'\t'* ]] || continue
-    serial="${line%%$'\t'*}"
-    details="${line#*$'\t'}"
-    state="${details%% *}"
+    [[ -n "$line" && "$line" != "List of devices attached" && "$line" != \** ]] || continue
+    # `adb devices -l` is not consistent about using a literal tab here; real
+    # platform-tools commonly align the serial/state columns with spaces. Parse
+    # the first two whitespace-delimited fields without relying on the shell IFS.
+    serial="$(awk '{print $1}' <<<"$line")"
+    state="$(awk '{print $2}' <<<"$line")"
+    details="$(awk '{$1=$2=""; sub(/^[[:space:]]+/, ""); print}' <<<"$line")"
     [[ -n "$serial" && -n "$state" ]] || continue
     seen_usb=1
 

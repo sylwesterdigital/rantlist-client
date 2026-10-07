@@ -39,6 +39,7 @@ PLATFORM_EXPLICIT=0
 REQUESTED_PLATFORMS=""
 WORKFLOW_BUILD_SCHEMA="5-six-platform-quest"
 RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE="${RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE:-1}"
+PACKAGE_RELEASE_TARGET_FILE="${RANTLIST_PACKAGE_RELEASE_TARGET_FILE:-$ROOT/.watch-release-platform}"
 
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 ok(){ printf '\033[1;32mOK\033[0m %s\n' "$*"; }
@@ -203,6 +204,22 @@ while [[ $# -gt 0 ]]; do
     *) die "Unknown option: $1";;
   esac
 done
+
+# A watcher package may intentionally target one platform. This only narrows an
+# explicit general/all request; a caller that asks for a specific platform keeps
+# exactly what it requested. The next client ZIP replaces/removes this hint.
+if [[ "$PLATFORM_EXPLICIT" == 1 && -f "$PACKAGE_RELEASE_TARGET_FILE" ]]; then
+  package_target="$(tr -d '[:space:]' < "$PACKAGE_RELEASE_TARGET_FILE")"
+  case "$package_target" in
+    macos|android|quest|ios|windows|linux) ;;
+    '') package_target='' ;;
+    *) die "Invalid package release target: $package_target" ;;
+  esac
+  if [[ -n "$package_target" && "$REQUESTED_PLATFORMS" == "macos android quest ios windows linux" ]]; then
+    REQUESTED_PLATFORMS="$package_target"
+    log "Package release target: $package_target only; skipping unrelated platform builds."
+  fi
+fi
 
 if [[ "$PLATFORM_EXPLICIT" == 1 ]]; then
   REQUESTED_PLATFORMS="$(normalize_platforms "$REQUESTED_PLATFORMS")"
