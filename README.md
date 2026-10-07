@@ -1,4 +1,10 @@
-## 0.1.297 / server 9.6.516 / r544
+## 0.1.299 / server 9.6.516 / r544
+
+- Fixes the Quest auto-install function declaration: 0.1.298 accidentally shipped a literal `\n` before `install_connected_quest_devices`, so the build succeeded but the install function was never defined.
+- The normal Quest release now reaches the connected-device install/launch step after APK/AAB verification.
+- Adds a regression test that executes the extracted install function with installation disabled, catching malformed function declarations that `bash -n` alone does not catch.
+
+## 0.1.298 / server 9.6.516 / r544
 
 - Fixes the Quest APK launch-class verification itself: the previous `grep -q` pipeline ran under `pipefail`, so a valid match could still be reported as failure when upstream received SIGPIPE.
 - Quest APK verification now inspects every `classes*.dex` entry without an early-closing pipeline and still fails closed if `LauncherActivity` is genuinely absent.

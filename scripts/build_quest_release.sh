@@ -12,6 +12,7 @@ VERSION_FILE="$ROOT/VERSION.txt"
 BUILD_NUMBER_FILE="$ROOT/BUILD_NUMBER.txt"
 BUILD_NUMBER_OVERRIDE="${BUILD_NUMBER_OVERRIDE:-}"
 PERSIST_BUILD_NUMBER="${PERSIST_BUILD_NUMBER:-1}"
+INSTALL_CONNECTED="${RANTLIST_QUEST_INSTALL_CONNECTED:-1}"
 GRADLE_VERSION="${RANTLIST_GRADLE_VERSION:-8.9}"
 KEYSTORE_PATH="${RANTLIST_ANDROID_KEYSTORE:-$HOME/.config/workwork/rantlist-android-release.keystore}"
 KEY_ALIAS="${RANTLIST_ANDROID_KEY_ALIAS:-rantlist}"
@@ -19,6 +20,47 @@ KEYCHAIN_SERVICE="${RANTLIST_ANDROID_KEYCHAIN_SERVICE:-workwork.rantlist.android
 KEYCHAIN_ACCOUNT="${RANTLIST_ANDROID_KEYCHAIN_ACCOUNT:-rantlist}"
 log(){ printf '\033[1;36m==>\033[0m %s\n' "$*"; }
 die(){ printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
+install_connected_quest_devices() {
+  [[ "$INSTALL_CONNECTED" == "1" ]] || { log "Connected Quest install disabled (RANTLIST_QUEST_INSTALL_CONNECTED=$INSTALL_CONNECTED)"; return 0; }
+
+  local adb_bin=""
+  if [[ -x "$SDK_ROOT/platform-tools/adb" ]]; then
+    adb_bin="$SDK_ROOT/platform-tools/adb"
+  elif command -v adb >/dev/null 2>&1; then
+    adb_bin="$(command -v adb)"
+  else
+    printf '\033[1;33mWARNING:\033[0m adb is unavailable; Quest APK was built but not installed.\n' >&2
+    return 0
+  fi
+
+  local found=0 serial manufacturer model brand identity
+  while read -r serial state _; do
+    [[ "$state" == "device" && -n "$serial" ]] || continue
+    manufacturer="$($adb_bin -s "$serial" shell getprop ro.product.manufacturer 2>/dev/null | tr -d '\r')"
+    model="$($adb_bin -s "$serial" shell getprop ro.product.model 2>/dev/null | tr -d '\r')"
+    brand="$($adb_bin -s "$serial" shell getprop ro.product.brand 2>/dev/null | tr -d '\r')"
+    identity="${manufacturer} ${model} ${brand}"
+    if ! printf '%s' "$identity" | grep -Eiq '(^|[[:space:]_-])(meta|oculus|quest)([[:space:]_-]|$)'; then
+      continue
+    fi
+    found=1
+    log "Installing Rantlist $APP_VERSION build $BUILD_NUMBER on connected Quest: ${model:-$serial} ($serial)"
+    if "$adb_bin" -s "$serial" install -r "$APK"; then
+      log "Installed Rantlist on ${model:-Quest}"
+      if "$adb_bin" -s "$serial" shell monkey -p fun.workwork.rantlist -c android.intent.category.LAUNCHER 1 >/dev/null 2>&1; then
+        log "Launched Rantlist on ${model:-Quest}"
+      else
+        printf '\033[1;33mWARNING:\033[0m Rantlist installed on %s but could not be launched automatically.\n' "${model:-Quest}" >&2
+      fi
+    else
+      printf '\033[1;33mWARNING:\033[0m Could not install Rantlist on %s; Quest release will continue.\n' "${model:-Quest}" >&2
+    fi
+  done < <("$adb_bin" devices | awk 'NR>1 && NF>=2 {print $1, $2}')
+
+  if [[ "$found" == 0 ]]; then
+    printf '\033[1;33mWARNING:\033[0m No connected/authorised Meta Quest found; APK was built but not installed. Connect Quest by USB and approve USB debugging before the next release to install automatically.\n' >&2
+  fi
+}
 [[ "$(uname -s)" == Darwin ]] || die "Android release builder currently runs from the macOS release host."
 "$ROOT/scripts/check_android_release_credentials.sh" >/dev/null
 # check_android_release_credentials.sh runs in a child process, so reselect and
@@ -78,5 +120,6 @@ AAB="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-quest.aab"
 SHA="$RELEASE_DIR/Rantlist-v${APP_VERSION}-b${BUILD_NUMBER}-quest-SHA256.txt"
 cp "$APK_SRC" "$APK"; cp "$AAB_SRC" "$AAB"
 ( cd "$RELEASE_DIR"; shasum -a 256 "$(basename "$APK")" "$(basename "$AAB")" > "$(basename "$SHA")"; shasum -a 256 -c "$(basename "$SHA")" )
+install_connected_quest_devices
 [[ "$PERSIST_BUILD_NUMBER" == 1 ]] && printf '%s\n' "$BUILD_NUMBER" > "$BUILD_NUMBER_FILE"
 printf '\nRantlist Quest release complete.\nAPK: %s\nAAB: %s\nSHA: %s\n' "$APK" "$AAB" "$SHA"
