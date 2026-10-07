@@ -1,3 +1,33 @@
+## 0.1.291 / server 9.6.514 / r542
+
+- Pairs with server r542.
+- Quest XR bridge runtime is unchanged; this client bump aligns release metadata with the historical verifier-only server repair.
+
+## 0.1.290 / server 9.6.513 / r541
+
+- Pairs with server r541.
+- Quest XR bridge behavior is unchanged from 0.1.289; this client bump keeps release metadata aligned with the verifier-only server repair.
+
+## 0.1.289 / server 9.6.512 / r540
+
+- Pairs with server r540; Quest bridge behavior is unchanged from 0.1.288.
+- Release metadata advances so the one-shot watcher processes this client after the r539 server verification failure.
+
+## 0.1.288 / server 9.6.511 / r539
+
+- Quest Bubblewrap immersive bridge remains the r538 implementation.
+- Release metadata is synchronized with server 9.6.511 / rantlist-deploy-r539.
+- Manual updater use can now rely on server watcher `--once`; no Ctrl-C is required after successful processing.
+
+## 0.1.287 / server 9.6.510 / r538
+
+Quest keeps the Bubblewrap 2D PWA as the normal launch surface. The generated Quest project now receives a same-package `XRBridgeActivity`; Stage Enter VR uses that bridge when the 2D PWA reports `immersive-vr` unsupported, opening only validated `rantlist.me/stage` URLs through Meta Browser `WebXRCustomTabActivity`. Ordinary Android remains unchanged.
+
+## 0.1.286 / server 9.6.509 / r537
+
+Quest Bubblewrap now uses the synthetic SDK layout that Meta Bubblewrap 1.24.1 accepts, while also making that exact same path the sole Gradle SDK root. ANDROID_SDK_ROOT is removed and ANDROID_HOME is pinned to the Bubblewrap SDK before generation/build. This fixes both prior failures: 0.1.284 reached Gradle with conflicting SDK roots, while 0.1.285 pointed Bubblewrap at an Android Studio SDK layout that its own validator rejected.
+Meta Quest is now built by the published `@meta-quest/bubblewrap-cli` from `https://rantlist.me/manifest.webmanifest`; the retired hand-written Quest Gradle/TWA wrapper is removed. Android phones keep the native WebView APK. Quest remains a separate APK/AAB and the release transaction publishes dedicated Android and Meta Quest downloads. Generated Bubblewrap output is isolated under `.quest-bubblewrap-build` so it cannot contaminate later ZIP synchronization.
+
 ## 0.1.282 / release integration
 
 Android phone and Meta Quest remain separate artifacts, and the release transaction now understands both. `--platform android,quest` builds, verifies, publishes both APK/AAB pairs to the same GitHub release, then deploys homepage download links including a dedicated Meta Quest APK button. The normal general release now includes Quest alongside macOS, Android, iOS, Windows and Linux; Android/Quest/iOS build before the potentially slow macOS notarization step.

@@ -5,7 +5,8 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.resolve(__dirname, '..');
-const ignoredTop = new Set(['.git', 'web']);
+const ignoredTop = new Set(['.git', 'web', 'release', '.macos-build', '.ios-build', '.android-build', '.quest-bubblewrap-build']);
+const ignoredDirectoryNames = new Set(['build', '.gradle', 'node_modules']);
 const textExtensions = new Set([
   '.md', '.txt', '.sh', '.js', '.json', '.swift', '.java', '.kt', '.kts',
   '.xml', '.plist', '.entitlements', '.pbxproj', '.properties', '.gradle',
@@ -25,6 +26,7 @@ function walk(dir) {
     const full = path.join(dir, entry.name);
     if (entry.isSymbolicLink()) continue;
     if (entry.isDirectory()) {
+      if (ignoredDirectoryNames.has(entry.name)) continue;
       walk(full);
       continue;
     }

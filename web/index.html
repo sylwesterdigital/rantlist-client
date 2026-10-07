@@ -4,11 +4,15 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.508">
+  <meta name="chat-ui-version" content="9.6.514">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
   <link id="serverFavicon" rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <script>
+    if ('serviceWorker' in navigator) addEventListener('load', () => { navigator.serviceWorker.register('/pwa-sw.js', { scope: '/' }).catch(() => {}); }, { once: true });
+  </script>
   <script>
     try {
       const root = document.documentElement;
@@ -18234,7 +18238,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.508</small>
+          <small id="serverBrandVersion">v9.6.514</small>
         </span>
       </button>
     </div>
@@ -18293,7 +18297,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.508</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.514</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -22017,6 +22021,26 @@
         try{rantlistNativeXrPort.postMessage(JSON.stringify({requestId,action:String(action||''),url:String(url||'')}));}
         catch(error){clearTimeout(timer);nativeXrRequests.delete(requestId);reject(error);}
       });
+    }
+    function isQuestPwaPanel(){
+      const ua=String(navigator.userAgent||'');
+      return new URLSearchParams(location.search).get('rantlistPwa')==='1' && /OculusBrowser|Meta Quest|Quest Browser|Quest\b/i.test(ua);
+    }
+    function questImmersiveStageUrl(url=''){
+      let target;
+      try{target=new URL(String(url||'/stage/'),location.origin);}catch(_){target=new URL('/stage/',location.origin);}
+      if(target.origin!==location.origin)target=new URL('/stage/',location.origin);
+      if(!/^\/stage\/?$/i.test(target.pathname))target.pathname='/stage/';
+      target.searchParams.delete('rantlistEmbedded');
+      target.searchParams.set('rantlistImmersive','1');
+      return target.href;
+    }
+    function openQuestPwaImmersive(url=''){
+      if(!isQuestPwaPanel())return false;
+      const target=questImmersiveStageUrl(url);
+      const intentUrl=`intent://open?url=${encodeURIComponent(target)}#Intent;scheme=rantlistxr;package=fun.workwork.rantlist;component=fun.workwork.rantlist/.XRBridgeActivity;end`;
+      location.href=intentUrl;
+      return true;
     }
 
     function nativeSecretRequest(action, key = '', provider = 'openai') {
@@ -48002,7 +48026,11 @@
       const data=event.data;
       if(!data || data.source!=='rantlist.stage.1266') return;
       if(data.event==='native-xr-open') {
-        const url=String(data.url||'https://rantlist.me/');
+        const url=String(data.url||'https://rantlist.me/stage/?rantlistImmersive=1');
+        if(openQuestPwaImmersive(url)){
+          postToStage('native-xr-result',{ok:true,mode:'quest-pwa-bridge'});
+          return;
+        }
         nativeXrRequest('openBrowser',url).catch(error=>{
           console.warn('[native-xr-open]',error);
           postToStage('native-xr-result',{ok:false,message:String(error?.message||error)});
@@ -54126,7 +54154,13 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
         : (count === 1 ? 'Send item' : `Send ${count} items`);
     }
 
+    const pwaShareObjectUrlsByGroup = new Map();
     function consumeNativeSharedGroups(ids) {
+      for (const id of Array.isArray(ids) ? ids : []) {
+        const urls = pwaShareObjectUrlsByGroup.get(id) || [];
+        for (const url of urls) { try { URL.revokeObjectURL(url); } catch {} }
+        pwaShareObjectUrlsByGroup.delete(id);
+      }
       const handler = nativeShareBridgeHandler();
       if (!handler) return;
       try { handler.postMessage({ action: 'consume', ids }); } catch {}
@@ -54199,6 +54233,48 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
       renderNativeSharePendingBar();
       return true;
     };
+
+    async function importPendingPwaShareTarget() {
+      const params = new URLSearchParams(location.search);
+      const id = String(params.get('pwaShare') || '').trim();
+      if (!id || !('serviceWorker' in navigator)) return false;
+      try {
+        const registration = await navigator.serviceWorker.ready;
+        const worker = navigator.serviceWorker.controller || registration.active;
+        if (!worker) return false;
+        const result = await new Promise((resolve, reject) => {
+          const channel = new MessageChannel();
+          const timer = setTimeout(() => reject(new Error('Shared media handoff timed out.')), 15000);
+          channel.port1.onmessage = (event) => { clearTimeout(timer); resolve(event.data || {}); };
+          worker.postMessage({ type: 'rantlist-pwa-share-take', id }, [channel.port2]);
+        });
+        const share = result?.share;
+        if (!result?.ok || !share) throw new Error(result?.error || 'Shared media is no longer available.');
+        const groupId = `pwa-${id}`;
+        const objectUrls = [];
+        const items = [];
+        const text = [share.title, share.text].map((value) => String(value || '').trim()).filter(Boolean).join('\n').slice(0, 12000);
+        if (text) items.push({ id: `${groupId}-text`, kind: 'text', text, name: 'Shared text', mime: 'text/plain' });
+        const sharedUrl = String(share.url || '').trim();
+        if (sharedUrl) items.push({ id: `${groupId}-url`, kind: 'url', url: sharedUrl, name: 'Shared link', mime: 'text/uri-list' });
+        for (const [index, file] of (Array.isArray(share.files) ? share.files : []).entries()) {
+          if (!(file instanceof File)) continue;
+          const nativeURL = URL.createObjectURL(file);
+          objectUrls.push(nativeURL);
+          items.push({ id: `${groupId}-file-${index}`, kind: 'file', name: file.name || `Shared file ${index + 1}`, mime: file.type || 'application/octet-stream', nativeURL });
+        }
+        if (objectUrls.length) pwaShareObjectUrlsByGroup.set(groupId, objectUrls);
+        if (items.length) window.rantlistNativeSharedItems?.([{ id: groupId, createdAt: Date.now() / 1000, items }]);
+        params.delete('pwaShare');
+        const query = params.toString();
+        history.replaceState(history.state, '', `${location.pathname}${query ? `?${query}` : ''}${location.hash}`);
+        return items.length > 0;
+      } catch (error) {
+        addSystemMessage(String(error?.message || 'Shared media could not be imported into Rantlist.'), true);
+        return false;
+      }
+    }
+    void importPendingPwaShareTarget();
 
     window.rantlistNativeOpenRoom = (roomKeyOrName) => {
       const key = String(roomKeyOrName || '').trim();

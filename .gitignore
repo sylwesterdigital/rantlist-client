@@ -37,3 +37,7 @@ mobile/android/**/build/
 # Windows/Linux desktop build output
 desktop/node_modules/
 .desktop-build/
+
+.quest-bubblewrap-build/
+mobile/quest/**/build/
+mobile/quest/.gradle/
