@@ -4,13 +4,13 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 for path in \
   DEVELOPMENT-SAFETY.md NOTES-AVATAR-LAB.md web/index.html web/client-source.json macos/RantlistApp.swift homepage/index.html homepage/content.json homepage/showcase.js homepage/assets/rantlist-app-icon.png scripts/sync_homepage_development.js scripts/verify_homepage_development_sync.js assets/rantlist-logo.svg \
   mobile/android/app/build.gradle mobile/android/app/src/main/AndroidManifest.xml mobile/android/app/src/main/java/fun/workwork/rantlist/MainActivity.java \
-  mobile/quest/twa-manifest.template.json \
+  mobile/quest/twa-manifest.template.json mobile/pico/webapp-release.json mobile/pico/README.md \
   mobile/ios/Rantlist/RantlistApp.swift mobile/ios/Rantlist/Info.plist mobile/ios/Rantlist/Rantlist.entitlements mobile/ios/Rantlist.xcodeproj/project.pbxproj \
   mobile/ios/RantlistShare/ShareViewController.swift mobile/ios/RantlistShare/Info.plist mobile/ios/RantlistShare/RantlistShare.entitlements \
   scripts/source_release.js scripts/publish_macos_release.sh scripts/release_and_deploy_homepage.sh \
   scripts/release_signed.sh scripts/publish_github_release.sh scripts/verify_github_release_transaction.sh scripts/deploy_homepage.sh scripts/deploy_homepage_content.sh scripts/verify_homepage_content.js scripts/verify_homepage_content_ownership.js scripts/verify_quest_packaging_current.js scripts/verify_quest_xr_r534.js scripts/verify_quest_twa_r536.js scripts/verify_quest_bubblewrap_r537.js scripts/verify_quest_r544.js scripts/verify_release_storage_r544.js \
   scripts/check_macos_release_credentials.sh scripts/check_android_release_credentials.sh scripts/check_ios_release_credentials.sh \
-  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_quest_release.sh scripts/write_quest_twa_manifest.js scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
+  scripts/android_sdk.sh scripts/setup_android_release.sh scripts/build_android_release.sh scripts/build_quest_release.sh scripts/write_quest_twa_manifest.js scripts/build_pico_release.sh scripts/verify_pico_webapp.js scripts/build_ios_release.sh scripts/make_ios_push_only_project.js \
   desktop/package.json desktop/electron-builder.config.cjs desktop/src/main.js desktop/assets/icon.png desktop/assets/icon.ico desktop/installer/windows.nsi \
   scripts/desktop_build_common.sh scripts/build_linux_release.sh scripts/build_windows_release.sh scripts/build_desktop_releases.sh scripts/sync_desktop_version.js scripts/verify_desktop_client.js \
   scripts/desktop_remote_common.sh scripts/check_desktop_build_worker.sh scripts/build_desktop_remote.sh scripts/validate_desktop_remote_artifacts.sh scripts/fetch_desktop_remote_artifacts.sh scripts/cleanup_desktop_remote_release.sh; do
@@ -272,6 +272,7 @@ node "$ROOT/scripts/verify_quest_r541.js"
 node "$ROOT/scripts/verify_quest_r542.js"
 node "$ROOT/scripts/verify_quest_r544.js"
 node "$ROOT/scripts/verify_quest_launch_r544.js"
+node "$ROOT/scripts/verify_pico_webapp.js"
 node "$ROOT/scripts/verify_release_storage_r544.js"
 
 node "$ROOT/scripts/verify_homepage_r543.js"

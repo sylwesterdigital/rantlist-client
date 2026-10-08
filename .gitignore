@@ -41,3 +41,5 @@ desktop/node_modules/
 .quest-bubblewrap-build/
 mobile/quest/**/build/
 mobile/quest/.gradle/
+
+.pico-webapp-build/

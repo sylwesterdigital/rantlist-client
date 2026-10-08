@@ -69,6 +69,10 @@ if has_platform quest; then
   assets+=("${BASE}-quest.apk" "${BASE}-quest.aab")
   checksums+=("${BASE}-quest-SHA256.txt")
 fi
+if has_platform pico; then
+  assets+=("${BASE}-pico-webapp.zip")
+  checksums+=("${BASE}-pico-SHA256.txt")
+fi
 if has_platform ios; then
   assets+=("${BASE}-iOS.ipa")
   checksums+=("${BASE}-iOS-SHA256.txt")
@@ -95,6 +99,7 @@ if [[ -z "$NOTES_FILE" ]]; then
     has_platform macos && printf -- '- macOS: signed and notarized universal2 DMG + ZIP\n'
     has_platform android && printf -- '- Android: signed phone/tablet APK + AAB\n'
     has_platform quest && printf -- '- Meta Quest: signed standalone TWA APK + AAB\n'
+    has_platform pico && printf -- '- PICO: Web App URL/manifest submission bundle (no APK/AAB)\n'
     has_platform ios && printf -- '- iOS/iPadOS: signed IPA exported for App Store distribution\n'
     has_platform windows && printf -- '- Windows: x64 NSIS installer + portable ZIP (unsigned initial desktop release)\n'
     has_platform linux && printf -- '- Linux: x86_64 AppImage + DEB\n'
@@ -102,6 +107,7 @@ if [[ -z "$NOTES_FILE" ]]; then
     has_platform macos && printf 'macOS: open the DMG and drag **Rantlist** into **Applications**.\n\n'
     has_platform android && printf 'Android: install the phone/tablet APK directly, or use the AAB for Google Play publishing.\n\n'
     has_platform quest && printf 'Meta Quest: sideload the Quest APK, or use the Quest AAB for the Meta/Horizon distribution workflow.\n\n'
+    has_platform pico && printf 'PICO: Rantlist is distributed as a PICO Web App pointing at https://rantlist.me/; the GitHub ZIP is the validated release/submission snapshot, not an installer.\n\n'
     has_platform ios && printf 'iOS/iPadOS: the IPA is an App Store distribution artifact; normal public installation should use TestFlight or the App Store.\n\n'
     has_platform windows && printf 'Windows: run the Setup EXE, or use the portable ZIP without installation.\n\n'
     has_platform linux && printf 'Linux: run the AppImage directly or install the DEB on Debian/Ubuntu-family distributions.\n\n'

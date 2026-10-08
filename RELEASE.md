@@ -1,3 +1,7 @@
+## PICO Web App release integration — client 0.1.306
+
+PICO is now a first-class Rantlist release target. `--platform pico` validates the hosted `https://rantlist.me/` PWA and manifest, creates a versioned PICO Web App submission/audit bundle for GitHub Releases, and updates the project homepage with a **PICO Web App** entry. PICO's store path is URL-based Web App/PWA distribution rather than an APK/AAB build, so the PICO target deliberately does not reuse the Meta Quest Bubblewrap package. `--platform all` now covers macOS, Android, Meta Quest, PICO, iOS, Windows and Linux. This integration package targets only PICO through the watcher so existing native clients are not rebuilt unnecessarily.
+
 ## 0.1.303 / server 9.6.516 / r544
 
 Quest XR runtime repair: restore `com.meta.androidbrowserhelper:androidbrowserhelper:2.5.0`, the Meta Quest TWA helper used by the known-good 0.1.282/r536 client. Keep the 2D Horizon app mode, the `com.google.androidbrowserhelper.trusted.LauncherActivity` manifest entry supplied by the fork, Quest-only watcher release targeting, automatic ADB reinstall, and automatic launch. The generic Google helper introduced during the launch-hotfix sequence is removed so the installed Quest app again uses Meta's Quest-specific TWA runtime for in-page WebXR.

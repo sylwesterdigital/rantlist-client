@@ -37,7 +37,7 @@ RESTART=0
 RELEASE_MODE="published"
 PLATFORM_EXPLICIT=0
 REQUESTED_PLATFORMS=""
-WORKFLOW_BUILD_SCHEMA="5-six-platform-quest"
+WORKFLOW_BUILD_SCHEMA="6-seven-platform-pico"
 RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE="${RANTLIST_INCLUDE_DESKTOP_WITH_GENERAL_RELEASE:-1}"
 PACKAGE_RELEASE_TARGET_FILE="${RANTLIST_PACKAGE_RELEASE_TARGET_FILE:-$ROOT/.watch-release-platform}"
 
@@ -53,10 +53,10 @@ normalize_platforms(){
   raw="${raw//,/ }"
   for token in $raw; do
     case "$token" in
-      all) raw="macos android quest ios windows linux"; out=""; break ;;
-      macos|android|quest|ios|windows|linux) ;;
+      all) raw="macos android quest pico ios windows linux"; out=""; break ;;
+      macos|android|quest|pico|ios|windows|linux) ;;
       '') continue ;;
-      *) die "Unknown platform: $token (use macos, android, quest, ios, windows, linux, or all)" ;;
+      *) die "Unknown platform: $token (use macos, android, quest, pico, ios, windows, linux, or all)" ;;
     esac
   done
   # Backwards-compatible watcher integration: the historical general release set
@@ -68,10 +68,10 @@ normalize_platforms(){
     case " $raw " in *" android "*) has_android=1;; *) has_android=0;; esac
     case " $raw " in *" ios "*) has_ios=1;; *) has_ios=0;; esac
     if [[ "$has_macos$has_android$has_ios" == 111 ]]; then
-      raw="$raw quest windows linux"
+      raw="$raw quest pico windows linux"
     fi
   fi
-  for token in macos android quest ios windows linux; do
+  for token in macos android quest pico ios windows linux; do
     case " $raw " in *" $token "*) out="${out:+$out }$token";; esac
   done
   [[ -n "$out" ]] || die "No release platform selected."
@@ -80,7 +80,7 @@ normalize_platforms(){
 
 append_requested(){
   PLATFORM_EXPLICIT=1
-  if [[ "$1" == all ]]; then REQUESTED_PLATFORMS="macos android quest ios windows linux"; return; fi
+  if [[ "$1" == all ]]; then REQUESTED_PLATFORMS="macos android quest pico ios windows linux"; return; fi
   REQUESTED_PLATFORMS="${REQUESTED_PLATFORMS:+$REQUESTED_PLATFORMS }$1"
 }
 
@@ -102,7 +102,8 @@ cleanup_local_build_space(){
     "$ROOT/mobile/android/app/build" \
     "$ROOT/mobile/android/.gradle" \
     "$ROOT/mobile/quest/app/build" \
-    "$ROOT/mobile/quest/.gradle"; do
+    "$ROOT/mobile/quest/.gradle" \
+    "$ROOT/.pico-webapp-build"; do
     [[ ! -e "$p" ]] || rm -rf -- "$p"
   done
 }
@@ -111,6 +112,7 @@ cleanup_after_local_platform(){
   case "$1" in
     android) rm -rf -- "$ROOT/mobile/android/app/build" "$ROOT/mobile/android/.gradle";;
     quest) rm -rf -- "$ROOT/mobile/quest/app/build" "$ROOT/mobile/quest/.gradle";;
+    pico) rm -rf -- "$ROOT/.pico-webapp-build";;
     ios) rm -rf -- "$ROOT/.ios-build";;
     macos) rm -rf -- "$ROOT/.macos-build";;
   esac
@@ -160,6 +162,7 @@ Usage:
   ./scripts/release_and_deploy_homepage.sh --platform macos
   ./scripts/release_and_deploy_homepage.sh --platform android
   ./scripts/release_and_deploy_homepage.sh --platform quest
+  ./scripts/release_and_deploy_homepage.sh --platform pico
   ./scripts/release_and_deploy_homepage.sh --platform ios
   ./scripts/release_and_deploy_homepage.sh --platform windows
   ./scripts/release_and_deploy_homepage.sh --platform linux
@@ -170,10 +173,11 @@ Shorthand:
   --macos     release macOS only
   --android   release Android APK + AAB only
   --quest     release Meta Quest APK + AAB only
+  --pico      release PICO Web App validation/submission bundle only
   --ios       release iOS IPA only
   --windows   release Windows x64 via Ubuntu build worker
   --linux     release Linux x86_64 via Ubuntu build worker
-  --all       release macOS + Android + Quest + iOS + Windows + Linux
+  --all       release macOS + Android + Quest + PICO + iOS + Windows + Linux
 
 Workflow controls:
   --preflight-only
@@ -192,6 +196,7 @@ while [[ $# -gt 0 ]]; do
     --macos) append_requested macos; shift;;
     --android) append_requested android; shift;;
     --quest) append_requested quest; shift;;
+    --pico) append_requested pico; shift;;
     --ios) append_requested ios; shift;;
     --windows) append_requested windows; shift;;
     --linux) append_requested linux; shift;;
@@ -211,11 +216,11 @@ done
 if [[ "$PLATFORM_EXPLICIT" == 1 && -f "$PACKAGE_RELEASE_TARGET_FILE" ]]; then
   package_target="$(tr -d '[:space:]' < "$PACKAGE_RELEASE_TARGET_FILE")"
   case "$package_target" in
-    macos|android|quest|ios|windows|linux) ;;
+    macos|android|quest|pico|ios|windows|linux) ;;
     '') package_target='' ;;
     *) die "Invalid package release target: $package_target" ;;
   esac
-  if [[ -n "$package_target" && "$REQUESTED_PLATFORMS" == "macos android quest ios windows linux" ]]; then
+  if [[ -n "$package_target" && "$REQUESTED_PLATFORMS" == "macos android quest pico ios windows linux" ]]; then
     REQUESTED_PLATFORMS="$package_target"
     log "Package release target: $package_target only; skipping unrelated platform builds."
   fi
@@ -331,6 +336,7 @@ preflight(){
     case "$p" in
       macos) "$ROOT/scripts/check_macos_release_credentials.sh";;
       android|quest) "$ROOT/scripts/check_android_release_credentials.sh";;
+      pico) :;;
       ios) "$ROOT/scripts/check_ios_release_credentials.sh";;
       windows|linux) needs_desktop=1;;
     esac
@@ -417,6 +423,11 @@ validate_platform_artifacts(){
       for f in "${base}-quest.apk" "${base}-quest.aab" "$sha"; do [[ -s "$f" ]] || return 1; done
       (cd "$ROOT/release" && shasum -a 256 -c "$(basename "$sha")") >/dev/null
       ;;
+    pico)
+      local sha="${base}-pico-SHA256.txt"
+      for f in "${base}-pico-webapp.zip" "$sha"; do [[ -s "$f" ]] || return 1; done
+      (cd "$ROOT/release" && shasum -a 256 -c "$(basename "$sha")") >/dev/null
+      ;;
     ios)
       local sha="${base}-iOS-SHA256.txt"
       for f in "${base}-iOS.ipa" "$sha"; do [[ -s "$f" ]] || return 1; done
@@ -430,7 +441,7 @@ validate_platform_artifacts(){
 
 if [[ "$PHASE" == planned ]]; then
   # Apple/Android targets build locally on the Mac exactly as before.
-  for platform in android quest ios macos; do
+  for platform in android quest pico ios macos; do
     has_platform "$PLATFORMS" "$platform" || continue
     if has_platform "$BUILT_PLATFORMS" "$platform" && validate_platform_artifacts "$platform"; then
       log "Reusing verified $platform artifacts for $RELEASE_TAG"
@@ -448,6 +459,10 @@ if [[ "$PHASE" == planned ]]; then
       quest)
         log "Building signed Meta Quest APK + AAB"
         BUILD_NUMBER_OVERRIDE="$PLANNED_BUILD" PERSIST_BUILD_NUMBER=0 "$ROOT/scripts/build_quest_release.sh"
+        ;;
+      pico)
+        log "Preparing validated PICO Web App release bundle"
+        BUILD_NUMBER_OVERRIDE="$PLANNED_BUILD" PERSIST_BUILD_NUMBER=0 "$ROOT/scripts/build_pico_release.sh"
         ;;
       ios)
         log "Building signed iOS IPA"

@@ -52,7 +52,7 @@ assert(win.includes('BUILD_NUMBER_OVERRIDE'), 'Windows remote release names incl
 const linuxBuild = read('scripts/build_linux_release.sh');
 assert(linuxBuild.includes('BUILD_NUMBER_OVERRIDE'), 'Linux remote release names include the shared release build number');
 const workflow = read('scripts/release_and_deploy_homepage.sh');
-assert(workflow.includes('macos android quest ios windows linux'), 'general release expands to all six platforms including Quest');
+assert(workflow.includes('macos android quest pico ios windows linux'), 'general release expands to all seven platforms including Quest and PICO');
 assert(workflow.includes('build_desktop_remote.sh'), 'main release workflow delegates Windows/Linux builds to Ubuntu');
 assert(workflow.includes('cleanup_desktop_remote_release.sh'), 'main release workflow cleans remote build artifacts only after completed release');
 const publisher = read('scripts/publish_github_release.sh');

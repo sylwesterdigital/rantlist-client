@@ -16,5 +16,5 @@ assert.match(android, /model\.contains\("quest"\)/, 'Quest model fallback missin
 assert.match(android, /Rantlist-XR-Headset/, 'Quest/Horizon UA marker missing');
 assert.match(android, /Rantlist-Android/, 'generic Android UA marker regressed');
 assert.match(build, /assembleRelease bundleRelease/, 'Android APK+AAB release build missing');
-assert.match(release, /macos android quest ios/, 'multi-platform release script no longer supports Android/Quest');
+assert.match(release, /macos android quest(?: pico)? ios/, 'multi-platform release script no longer supports Android/Quest');
 console.log('PASS client native Quest/Horizon XR marker and Android APK+AAB release path.');

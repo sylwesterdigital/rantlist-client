@@ -1,0 +1,19 @@
+{
+  "platform": "pico",
+  "kind": "web-app",
+  "appName": "Rantlist",
+  "appUrl": "https://rantlist.me/",
+  "manifestUrl": "https://rantlist.me/manifest.webmanifest",
+  "expected": {
+    "name": "Rantlist",
+    "short_name": "Rantlist",
+    "start_url": "/?rantlistPwa=1",
+    "scope": "/",
+    "display": "standalone"
+  },
+  "distribution": {
+    "developerPortalType": "Web App",
+    "submission": "URL",
+    "binaryRequired": false
+  }
+}
