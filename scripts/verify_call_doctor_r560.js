@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+'use strict';
+const assert=require('node:assert/strict');
+const fs=require('node:fs');
+const path=require('node:path');
+const vm=require('node:vm');
+const root=path.resolve(__dirname,'..');
+const read=(...parts)=>fs.readFileSync(path.join(root,...parts),'utf8');
+const html=read('web','index.html');
+const source=JSON.parse(read('web','client-source.json'));
+const pkg=read('PACKAGE_VERSION.txt').trim();
+let n=0;const check=(name,fn)=>{fn();n++;console.log('PASS '+name);};
+check('client r560 release metadata or later',()=>{const pm=pkg.match(/^0\.1\.(\d+)$/);assert(pm&&Number(pm[1])>=316);const sv=source.sourceVersion.split('.').map(Number);assert(sv[0]===9&&sv[1]===6&&sv[2]>=532);assert(Number(String(source.sourceRevision).match(/r(\d+)$/)?.[1])>=560);});
+check('Doctor is full-screen and above call stage',()=>{for(const token of ['#callDoctorModal { z-index: 920','width: 100vw; height: 100dvh'])assert(html.includes(token),token);assert(/call-doctor-(?:main|workspace)/.test(html),'full-screen Doctor workspace');});
+check('Doctor includes live participant media wall',()=>{for(const token of ['id="callDoctorMediaWall"','function renderCallDoctorMediaWall()','data-doctor-peer'])assert(html.includes(token),token);});
+check('diagnostic calls remain docked below Doctor',()=>{for(const token of ['openCallStage(options.diagnostic === true ? false : true)','openCallStage(incoming.diagnostic === true ? false : true)'])assert(html.includes(token),token);});
+check('Doctor preserves last call stats and verbose log',()=>{for(const token of ['callDoctorPeerHistory: null','10 * 60_000','Verbose connection log','slice(-100)'])assert(html.includes(token),token);});
+check('Doctor interprets recovered permissions and nonblocking ICE candidate failures',()=>{for(const token of ['recovered permission event','Non-blocking ICE attempt failed','A relay candidate/selected relay path succeeded','problems first'])assert(html.includes(token),token);});
+check('browser snapshot stays syntactically valid',()=>{const start=html.indexOf("  <script>\n    'use strict';");assert(start>=0);const bodyStart=start+'  <script>\n'.length;const end=html.indexOf('</script>',bodyStart);new vm.Script(html.slice(bodyStart,end));});
+console.log(`Client Call Doctor r560: ${n} checks passed.`);

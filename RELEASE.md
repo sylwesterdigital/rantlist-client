@@ -1,3 +1,15 @@
+## Call Doctor live-state reconciliation — client 0.1.318 / server 9.6.534 / r562
+
+Doctor now reconciles stale peer media snapshots with live incoming tracks, automatically re-probes connected peers, reports bitrate only after a real RTCStats interval, and separates browser playback AbortError events from TURN/ICE failures.
+
+## Video-first Call Doctor + shareable diagnosis — client 0.1.317 / server 9.6.533 / r561
+
+Uncropped diagnostic video, vertical problem/log column, Copy diagnosis, Copy JSON, and sanitized .txt diagnosis sharing to the current channel.
+
+## Full-screen Call Doctor workspace — client 0.1.316 / server 9.6.532 / r560
+
+## Call Doctor authoritative roster + actionable TURN diagnosis — client 0.1.315 / server 9.6.531 / r559
+
 ## Call Doctor media diagnostics — client 0.1.314 / server 9.6.530 / r558
 
 ## Watcher all-platform release target fix — client 0.1.313 / server 9.6.529 / r557
