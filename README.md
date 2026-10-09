@@ -1,3 +1,19 @@
+## Watcher all-platform release target fix — client 0.1.313 / server 9.6.529 / r557
+
+The selected-vehicle controls now use stable UI drafts and merge each changed field into the current authoritative vehicle state. Continuous tuning, effects, audio, condition and related controls are coalesced before a compact shared update, so controls such as sample ground colour no longer reset unrelated dust settings and the final values propagate consistently to connected clients.
+
+## Stage permission roster, player capacity + mobile hydration — client 0.1.309 / server 9.6.523 / r551
+
+Channel World permissions now show profile avatars without exposed UUIDs, owners can set a per-channel Stage capacity (8 players by default), permission changes are surfaced to affected users, and view-only edit attempts identify the owner to ask for access. Mobile/WebView Stage entry now waits for an authoritative server join response and retries instead of treating a sent join packet as a completed join, preventing blank private-looking Stage sessions after an early join race.
+
+## Channel-owned authoritative Stage realms — client 0.1.308 / server 9.6.522 / r550
+
+Each Rantlist channel now exposes one server-authoritative Stage realm. Channel creators are Full Ownership by default; non-owners are view-only until granted Can Edit or Full Ownership. Channel World checkpoints, restore/export, permission controls, realm-generation reconnect safety, and viewer fail-closed resynchronization are included in the bundled web client. Personal preset imports remain local copies until an authorized owner explicitly restores one into the channel.
+
+## Stage bookmark capture + chat teleport — client 0.1.307 / server 9.6.519 / r547
+
+The bundled web client renders shared Stage bookmark screenshots with a compact `Teleport` action and carries the r547 bookmark payload/camera pose contract. Native packaging is otherwise unchanged.
+
 ## PICO Web App release integration — client 0.1.306
 
 PICO is now a first-class Rantlist release target. `--platform pico` validates the hosted `https://rantlist.me/` PWA and manifest, creates a versioned PICO Web App submission/audit bundle for GitHub Releases, and updates the project homepage with a **PICO Web App** entry. PICO's store path is URL-based Web App/PWA distribution rather than an APK/AAB build, so the PICO target deliberately does not reuse the Meta Quest Bubblewrap package. `--platform all` now covers macOS, Android, Meta Quest, PICO, iOS, Windows and Linux. This integration package targets only PICO through the watcher so existing native clients are not rebuilt unnecessarily.

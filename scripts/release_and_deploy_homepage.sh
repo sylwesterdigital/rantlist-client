@@ -216,11 +216,14 @@ done
 if [[ "$PLATFORM_EXPLICIT" == 1 && -f "$PACKAGE_RELEASE_TARGET_FILE" ]]; then
   package_target="$(tr -d '[:space:]' < "$PACKAGE_RELEASE_TARGET_FILE")"
   case "$package_target" in
-    macos|android|quest|pico|ios|windows|linux) ;;
+    macos|android|quest|pico|ios|windows|linux|all) ;;
     '') package_target='' ;;
     *) die "Invalid package release target: $package_target" ;;
   esac
-  if [[ -n "$package_target" && "$REQUESTED_PLATFORMS" == "macos android quest pico ios windows linux" ]]; then
+  if [[ "$package_target" == "all" && "$REQUESTED_PLATFORMS" == "macos android quest pico ios windows linux" ]]; then
+    REQUESTED_PLATFORMS="macos android quest pico ios windows linux"
+    log "Package release target: all supported platforms."
+  elif [[ -n "$package_target" && "$REQUESTED_PLATFORMS" == "macos android quest pico ios windows linux" ]]; then
     REQUESTED_PLATFORMS="$package_target"
     log "Package release target: $package_target only; skipping unrelated platform builds."
   fi

@@ -15,5 +15,5 @@ check('PICO build validates live app and manifest and creates GitHub artifact',(
 check('PICO is a first-class release platform',()=>{assert(release.includes('macos android quest pico ios windows linux'));assert(release.includes('--pico'));assert(release.includes('build_pico_release.sh'));assert(release.includes('pico-SHA256.txt'))});
 check('GitHub publisher carries PICO Web App bundle',()=>{assert(publish.includes('-pico-webapp.zip'));assert(publish.includes('-pico-SHA256.txt'));assert(publish.includes('PICO: Web App'))});
 check('homepage resolves PICO release and exposes PICO Web App button',()=>{assert(homepage.includes("kind=='pico_webapp'"));assert(homepage.includes("PICO Web App"));assert(homepage.includes("https://rantlist.me/"))});
-check('watcher package targets PICO only for this integration release',()=>assert.equal(read('.watch-release-platform').trim(),'pico'));
+check('watcher release target includes PICO',()=>assert(['pico','all'].includes(read('.watch-release-platform').trim())));
 console.log(`PICO Web App release integration: ${n} checks passed.`);

@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.518">
+  <meta name="chat-ui-version" content="9.6.529">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -6894,6 +6894,34 @@
     }
     .media-inline-caption.is-source-caption > a:hover,
     .media-inline-caption.is-source-caption > a:focus-visible { opacity: 1; text-decoration: underline; text-underline-offset: 2px; }
+    .stage-bookmark-chat-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 7px 0 2px;
+      padding: 7px 9px;
+      border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--line));
+      border-radius: 9px;
+      background: color-mix(in srgb, var(--panel-2) 92%, var(--accent) 8%);
+    }
+    .stage-bookmark-chat-copy { min-width: 0; display: grid; gap: 2px; }
+    .stage-bookmark-chat-copy strong { font-size: 12px; line-height: 1.2; overflow-wrap: anywhere; }
+    .stage-bookmark-chat-copy small { color: var(--muted); font-size: 10px; line-height: 1.25; }
+    .stage-bookmark-chat-action button {
+      border: 0;
+      background: transparent;
+      color: var(--accent);
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 5px 2px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .stage-bookmark-chat-action button:disabled { opacity: .55; cursor: default; }
+
 
     .media-viewer {
       position: fixed;
@@ -18238,7 +18266,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.518</small>
+          <small id="serverBrandVersion">v9.6.529</small>
         </span>
       </button>
     </div>
@@ -18297,7 +18325,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.518</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.529</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -21595,8 +21623,8 @@
       chatStageWorldHideTimer: 0,
       stageIframe: null, stageReady: false, stageAwaitingAck: false, stagePendingSnapshot: null,
       stageEditQueue: [],stagePendingPaintAfterSnapshot:[],stageEditAwaitingAck: false,stageEditRetryTimer: 0,stageSnapshotInFlight:null,stageSnapshotRetryTimer:0,stageSnapshotRetryAfter:0,stageSnapshotRetryAttempts:0,stageEditing:[],stageActivities:[],
-      stageRevision: 0, stageWorldSnapshot: null, stagePaintLayers:new Map(), stageWorldRoom: '', stageFeedObserver: null,
-      stageFeedTimer: 0, stageOverlayVisible: false, stageFocusMode: false, stageFeedMode: 'parallel', stageIsJoined: false, stageMotionSeq: 0, stagePeerPlayers: new Map(), stageLiveVehicles: [],
+      stageRevision: 0, stageWorldSnapshot: null, stagePaintLayers:new Map(), stageWorldRoom: '', stageWorldAccess:{role:'viewer',canEdit:false,canManage:false,canSaveState:false,canRestore:false,ownerNames:[],playerLimit:8,connectedPlayers:0,users:[]}, stageWorldLibrary:[], stageRealm:{generation:1,activeWorldId:null}, stageFeedObserver: null,
+      stageFeedTimer: 0, stageOverlayVisible: false, stageFocusMode: false, stageFeedMode: 'parallel', stageIsJoined: false, stageJoinPending:false, stageJoinRetryTimer:0, stageJoinAttemptAt:0, stageMotionSeq: 0, stagePeerPlayers: new Map(), stageLiveVehicles: [],
       stageFrameLoadTimer: 0, stageFrameLoadNonce: 0, stageOwnAppearance: null,stageOwnPose:null,stageLastLocalPose:null,stageLastLocalPoseRoom:'',stageRetainedRoom:'',stageAppearanceSignature:'',stageAppearanceDesired:null,stageAppearanceSeq:0,stageAppearancePendingSeq:0,stageAppearanceSendAt:0,stageAppearanceRetryTimer:0,stageActionSeq:0,
       mediaEditor: null,
       uiButtonPresentationObserver: null,
@@ -24008,7 +24036,7 @@
       });
 
       socket.addEventListener('close', (event) => {
-        if(state.chatStageWorldOpen){state.stageRetainedRoom=state.currentRoom||state.stageWorldRoom;state.stageIsJoined=false;state.stageAwaitingAck=false;stageStatus('Stage connection lost; preserving your avatar and position while reconnecting.',true);}
+        if(state.chatStageWorldOpen){state.stageRetainedRoom=state.currentRoom||state.stageWorldRoom;state.stageIsJoined=false;state.stageJoinPending=false;clearTimeout(state.stageJoinRetryTimer);state.stageJoinRetryTimer=0;state.stageAwaitingAck=false;stageStatus('Stage connection lost; preserving your avatar and position while reconnecting.',true);}
         state.stageAssetAccess=null;
         postToStage('personal-assets-disconnected');
         state.registered = false;
@@ -24929,7 +24957,7 @@
         case 'stage.physics.stale':
           // The next authoritative channel scene refresh resolves this revision.
           stagePhysicsObjects.clear();postToStage('physics-reset');
-          if(message.revision!==state.stageRevision&&stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});
+          if(message.revision!==state.stageRevision&&stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN)requestStageWorldJoin({force:true});
           break;
         case 'stage.activity.presence':
           if(message.room===stageRoomKey()){
@@ -24961,22 +24989,23 @@
             // Forward it to the live iframe before consulting the parent's cached
             // scene so visible wheels/build progress are not dropped merely because
             // this shell missed an unrelated revision or has not cached a baseline.
-            const directEngineerSync=message.edit?.op==='engineering.sync';
+            const directEngineerSync=['engineering.sync','engineering.remove'].includes(message.edit?.op);
             if(directEngineerSync)postToStage('edit',{edit:message.edit});
             if(message.revision!==state.stageRevision+1){
               if(directEngineerSync)stageStatus('Engineer assembly received; refreshing channel revision in the background.',true);
-              sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});break;
+              requestStageWorldJoin({force:true});break;
             }
             const next=applyEditToCachedStage(state.stageWorldSnapshot,message.edit);
             if(!next){
               if(directEngineerSync)stageStatus('Engineer assembly displayed; rebuilding the local Stage cache.',true);
-              sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});break;
+              requestStageWorldJoin({force:true});break;
             }
             state.stageWorldSnapshot=next;state.stageRevision=message.revision;
             if(message.edit.op==='paint.layer'){
               if(message.edit.paintLayer)state.stagePaintLayers.set(message.edit.id,message.edit.paintLayer);
               else state.stagePaintLayers.delete(message.edit.id);
             }else if(message.edit.op==='remove')state.stagePaintLayers.delete(message.edit.id);
+            else if(message.edit.op==='engineering.remove')for(const id of message.edit.removed||[])state.stagePaintLayers.delete(id);
             else if(message.edit.op==='clone'&&state.stagePaintLayers.has(message.edit.sourceId))
               state.stagePaintLayers.set(message.edit.id,state.stagePaintLayers.get(message.edit.sourceId));
             // A pending complex-asset snapshot may have been captured before this
@@ -24991,7 +25020,7 @@
               }
             }
             if(next?.stageSparse){state.stageSparseBaseline=true;state.stageCutBootstrap=null;}
-            if(!['style','paint.layer','frame.update'].includes(message.edit?.op)){stagePhysicsObjects.clear();postToStage('physics-reset');}
+            if(!['style','paint.layer','frame.update','fog.settings'].includes(message.edit?.op)){stagePhysicsObjects.clear();postToStage('physics-reset');}
             if(!directEngineerSync)postToStage('edit',{edit:message.edit});
           }
           break;
@@ -25005,6 +25034,9 @@
         case 'stage.world.edit.ack':
         case 'stage.world.edit.reject':
         case 'stage.world.state':
+        case 'stage.world.library':
+        case 'stage.world.snapshot.saved':
+        case 'stage.world.snapshot.data':
         case 'stage.world.ack':
         case 'stage.world.conflict':
         case 'stage.world.appearance.ack':
@@ -25487,6 +25519,13 @@
         case 'error': {
           debugLog('error', 'server', message.code || 'error', message);
           const errorCode = String(message.code || '');
+          if(['stage_room_required','stage_room_forbidden','stage_profile_unavailable','stage_world_unavailable'].includes(errorCode)){
+            state.stageIsJoined=false;state.stageJoinPending=false;clearTimeout(state.stageJoinRetryTimer);state.stageJoinRetryTimer=0;
+            if(state.chatStageWorldOpen)scheduleStageJoinRetry(errorCode==='stage_room_forbidden'?2200:1400);
+          }else if(errorCode==='stage_room_full'){
+            state.stageIsJoined=false;state.stageJoinPending=false;clearTimeout(state.stageJoinRetryTimer);state.stageJoinRetryTimer=0;
+            postToStage('permission-notice',{title:'STAGE FULL',message:String(message.message||'This Channel World is at its player limit.').slice(0,180)});
+          }
           if(errorCode.startsWith('stage_asset_') || errorCode==='registration_required')
             postToStage('personal-assets-error',{message:String(message.message||errorCode).slice(0,220)});
           if(state.chatStageWorldOpen && (errorCode.startsWith('stage_') || ['snapshot_too_large','invalid_stage_schema','invalid_snapshot'].includes(errorCode))) {
@@ -25508,6 +25547,10 @@
                 // queued edit intact so it can be published once corrected.
                 stageStatus('Stage NOT SAVED: '+String(message.message||errorCode).slice(0,140),true);
               } else stageStatus('Stage: '+String(message.message||errorCode).slice(0,160),true);
+              if(['stage_world_view_only','stage_world_owner_required','stage_permission_invalid','stage_permission_creator_locked'].includes(errorCode)){
+                state.stageEditQueue.length=0;state.stagePendingSnapshot=null;state.stageSnapshotInFlight=null;state.stageEditAwaitingAck=false;state.stageAwaitingAck=false;
+                if(stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN){sendJson({type:'stage.world.library.request'});requestStageWorldJoin({force:true});}
+              }
             }
           }
           const avatarErrorMessage = String(message.message || 'Avatar Lab request failed.');
@@ -31446,6 +31489,164 @@
       }
     }
 
+    const STAGE_BOOKMARK_CHAT_CAPTION_PREFIX = '[[RANTLIST_STAGE_BOOKMARK_V1:';
+    const STAGE_BOOKMARK_CHAT_CAPTION_SUFFIX = ']]';
+
+    function stageBookmarkBase64UrlEncode(value) {
+      const bytes = new TextEncoder().encode(String(value || ''));
+      let binary = '';
+      const chunk = 0x8000;
+      for (let index = 0; index < bytes.length; index += chunk) {
+        binary += String.fromCharCode(...bytes.subarray(index, Math.min(bytes.length, index + chunk)));
+      }
+      return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    }
+
+    function stageBookmarkBase64UrlDecode(value) {
+      const safe = String(value || '').replace(/-/g, '+').replace(/_/g, '/');
+      const padded = safe + '='.repeat((4 - safe.length % 4) % 4);
+      const binary = atob(padded);
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      return new TextDecoder().decode(bytes);
+    }
+
+    function sanitizeStageBookmarkVector(input, fallback = null) {
+      if (!input || typeof input !== 'object') return fallback;
+      const values = ['x','y','z'].map((key) => Number(input[key]));
+      if (!values.every(Number.isFinite)) return fallback;
+      return {
+        x: Math.max(-1000000, Math.min(1000000, values[0])),
+        y: Math.max(-1000000, Math.min(1000000, values[1])),
+        z: Math.max(-1000000, Math.min(1000000, values[2]))
+      };
+    }
+
+    function sanitizeStageBookmarkQuaternion(input) {
+      if (!input || typeof input !== 'object') return null;
+      const values = ['x','y','z','w'].map((key) => Number(input[key]));
+      if (!values.every(Number.isFinite)) return null;
+      const length = Math.hypot(...values);
+      if (length < 0.000001) return null;
+      return { x: values[0]/length, y: values[1]/length, z: values[2]/length, w: values[3]/length };
+    }
+
+    function sanitizeStageBookmarkChatPayload(input) {
+      if (!input || typeof input !== 'object' || Number(input.version) !== 1) return null;
+      const rawBookmark = input.bookmark;
+      if (!rawBookmark || typeof rawBookmark !== 'object') return null;
+      const position = sanitizeStageBookmarkVector(rawBookmark.position);
+      const worldCellRaw = rawBookmark.worldCell;
+      if (!position || !worldCellRaw || typeof worldCellRaw !== 'object') return null;
+      const cellX = Math.trunc(Number(worldCellRaw.x));
+      const cellZ = Math.trunc(Number(worldCellRaw.z));
+      if (!Number.isSafeInteger(cellX) || !Number.isSafeInteger(cellZ) || Math.abs(cellX)>1000000 || Math.abs(cellZ)>1000000) return null;
+      const bookmark = {
+        id: String(rawBookmark.id || '').slice(0, 180),
+        name: String(rawBookmark.name || 'Bookmark').trim().slice(0, 80) || 'Bookmark',
+        description: String(rawBookmark.description || '').trim().slice(0, 240),
+        position,
+        worldCell: { x: cellX, z: cellZ },
+        rotation: sanitizeStageBookmarkQuaternion(rawBookmark.rotation),
+        heading: sanitizeStageBookmarkVector(rawBookmark.heading, {x:0,y:0,z:-1}),
+        viewPosition: sanitizeStageBookmarkVector(rawBookmark.viewPosition),
+        viewQuaternion: sanitizeStageBookmarkQuaternion(rawBookmark.viewQuaternion),
+        cameraTarget: sanitizeStageBookmarkVector(rawBookmark.cameraTarget),
+        cameraFollow: rawBookmark.cameraFollow === true,
+        cameraMode: String(rawBookmark.cameraMode || '').slice(0, 40),
+        createdAt: String(rawBookmark.createdAt || '').slice(0, 40),
+        updatedAt: String(rawBookmark.updatedAt || '').slice(0, 40)
+      };
+      return {
+        version: 1,
+        room: String(input.room || '').slice(0, 150),
+        preset: {
+          id: String(input.preset?.id || '').slice(0, 180),
+          name: String(input.preset?.name || '').slice(0, 120)
+        },
+        bookmark
+      };
+    }
+
+    function buildStageBookmarkChatCaption(payload) {
+      const clean = sanitizeStageBookmarkChatPayload(payload);
+      if (!clean) throw new Error('Invalid Stage bookmark payload.');
+      const encoded = stageBookmarkBase64UrlEncode(JSON.stringify(clean));
+      const note = String(clean.bookmark.description || '').trim();
+      return `${STAGE_BOOKMARK_CHAT_CAPTION_PREFIX}${encoded}${STAGE_BOOKMARK_CHAT_CAPTION_SUFFIX}${note ? `\n${note}` : ''}`;
+    }
+
+    function parseStageBookmarkChatCaption(value) {
+      const caption = String(value || '').trim();
+      if (!caption.startsWith(STAGE_BOOKMARK_CHAT_CAPTION_PREFIX)) return null;
+      const end = caption.indexOf(STAGE_BOOKMARK_CHAT_CAPTION_SUFFIX, STAGE_BOOKMARK_CHAT_CAPTION_PREFIX.length);
+      if (end < 0) return null;
+      const encoded = caption.slice(STAGE_BOOKMARK_CHAT_CAPTION_PREFIX.length, end);
+      if (!encoded || encoded.length > 7000) return null;
+      try {
+        const parsed = JSON.parse(stageBookmarkBase64UrlDecode(encoded));
+        const payload = sanitizeStageBookmarkChatPayload(parsed);
+        if (!payload) return null;
+        const note = caption.slice(end + STAGE_BOOKMARK_CHAT_CAPTION_SUFFIX.length).trim().slice(0, 240);
+        return { payload, note };
+      } catch {
+        return null;
+      }
+    }
+
+    function formatStageBookmarkChatLocation(bookmark) {
+      const p = bookmark?.position || {x:0,y:0,z:0};
+      const cell = bookmark?.worldCell || {x:0,z:0};
+      return `Cell ${cell.x},${cell.z} · ${Number(p.x).toFixed(1)}, ${Number(p.y).toFixed(1)}, ${Number(p.z).toFixed(1)}`;
+    }
+
+    async function teleportToStageBookmarkFromChat(payload, button = null) {
+      const clean = sanitizeStageBookmarkChatPayload(payload);
+      if (!clean) {
+        addSystemMessage('This Stage bookmark is invalid.', true);
+        return false;
+      }
+      const room = stageRoomKey();
+      if (!room || !sameRoom(clean.room, room)) {
+        addSystemMessage('Open the channel where this Stage bookmark was shared before teleporting.', true);
+        return false;
+      }
+      if (button) button.disabled = true;
+      try {
+        await setChatStageWorldOpen(true);
+        const deadline = Date.now() + 12000;
+        while ((!state.stageReady || !state.stageIsJoined) && Date.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+        }
+        if (!state.stageReady || !state.stageIframe?.contentWindow) throw new Error('Stage is still loading.');
+        postToStage('bookmark-teleport', { bookmark: clean.bookmark });
+        return true;
+      } catch (error) {
+        addSystemMessage(error?.message || 'Could not open this Stage bookmark.', true);
+        return false;
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
+
+    function createStageBookmarkChatAction(parsed) {
+      const wrap = document.createElement('div');
+      wrap.className = 'stage-bookmark-chat-action';
+      const copy = document.createElement('div');
+      copy.className = 'stage-bookmark-chat-copy';
+      const title = document.createElement('strong');
+      title.textContent = parsed.payload.bookmark.name || 'Stage bookmark';
+      const meta = document.createElement('small');
+      meta.textContent = formatStageBookmarkChatLocation(parsed.payload.bookmark);
+      copy.append(title, meta);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = 'Teleport';
+      button.addEventListener('click', () => { void teleportToStageBookmarkFromChat(parsed.payload, button); });
+      wrap.append(copy, button);
+      return wrap;
+    }
+
     function appendMediaPlaceholder(article, file, options = {}) {
       const messageId = options.messageId || file.messageId || null;
       if (isHelenaPaintProjectFile(file)) return appendHelenaPaintProjectCard(article, file, { ...options, messageId });
@@ -31504,8 +31705,10 @@
       const caption = document.createElement('p');
       caption.className = 'media-inline-caption';
       const captionText = String(file.caption || '').trim();
+      const stageBookmarkCaption = parseStageBookmarkChatCaption(captionText);
+      const visibleCaptionText = stageBookmarkCaption ? stageBookmarkCaption.note : captionText;
       const importedSourceMatch = /^Source:\s*(https?:\/\/\S+)\s*$/i.exec(captionText);
-      if (importedSourceMatch) {
+      if (importedSourceMatch && !stageBookmarkCaption) {
         caption.classList.add('is-source-caption');
         const sourceLink = document.createElement('a');
         sourceLink.href = importedSourceMatch[1];
@@ -31516,9 +31719,9 @@
         sourceLink.setAttribute('aria-label', `Open source: ${importedSourceMatch[1]}`);
         caption.append(sourceLink);
       } else {
-        caption.textContent = captionText;
+        caption.textContent = visibleCaptionText;
       }
-      caption.hidden = !captionText;
+      caption.hidden = !visibleCaptionText;
 
       const binding = { preview, file, button: mainAction, isAudio, isVoice };
       placeholder.mediaPreviewBinding = binding;
@@ -31536,6 +31739,7 @@
       else if (isAudio) placeholder.append(preview, caption, transcript, aiAnalysis);
       else if (mainAction) placeholder.append(mainAction, info, preview, caption, transcript, aiAnalysis);
       else placeholder.append(info, preview, caption, transcript, aiAnalysis);
+      if (stageBookmarkCaption) placeholder.append(createStageBookmarkChatAction(stageBookmarkCaption));
       article.append(placeholder);
       if (isAudio || isDocumentPreview) {
         appendFileContent(article, file, { autoplay: false });
@@ -47648,6 +47852,8 @@
       state.stageFeedObserver?.disconnect();state.stageFeedObserver=null;
       clearTimeout(state.stageFeedTimer);
       state.stageIsJoined=false;
+      state.stageJoinPending=false;
+      clearTimeout(state.stageJoinRetryTimer);state.stageJoinRetryTimer=0;
       state.stagePeerPlayers.clear();
       state.stageLiveVehicles=[];postToStage('vehicle-snapshot',{vehicles:[]});
       state.stageEditing=[];state.stageActivities=[];
@@ -47655,6 +47861,26 @@
       clearTimeout(state.stageEditRetryTimer);
       postToStage('peers',{players:[]});
       if (state.socket?.readyState===WebSocket.OPEN) sendJson({type:'stage.world.leave'});
+    }
+    function scheduleStageJoinRetry(delay=1400) {
+      clearTimeout(state.stageJoinRetryTimer);
+      state.stageJoinRetryTimer=setTimeout(()=>{
+        state.stageJoinRetryTimer=0;
+        if(!state.chatStageWorldOpen||state.stageIsJoined)return;
+        state.stageJoinPending=false;
+        requestStageWorldJoin();
+      },Math.max(500,Math.min(5000,Number(delay)||1400)));
+    }
+    function requestStageWorldJoin(options={}) {
+      if(!state.chatStageWorldOpen||!stageRoomKey()||state.socket?.readyState!==WebSocket.OPEN)return false;
+      const force=options.force===true;
+      if(!force&&(state.stageIsJoined||state.stageJoinPending))return false;
+      const payload={type:'stage.world.join',capabilities:['engineering-sync-v1'],realmGeneration:state.stageRealm.generation,...(!force&&state.stageLastLocalPoseRoom===stageRoomKey()?{resumePose:state.stageLastLocalPose}:{})};
+      const sent=sendJson(payload);
+      if(!sent){if(!force)state.stageJoinPending=false;return false;}
+      state.stageJoinAttemptAt=Date.now();
+      if(!force){state.stageJoinPending=true;scheduleStageJoinRetry(1800);}
+      return true;
     }
     function startChatStageWorldAnimation() {
       if (!state.chatStageWorldOpen || document.hidden) return;
@@ -47665,9 +47891,7 @@
           state.stageFeedObserver.observe(elements.messageList,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['src']});
         }
         scheduleStageFeed();
-        if (!state.stageIsJoined && stageRoomKey() && state.socket?.readyState===WebSocket.OPEN) {
-          state.stageIsJoined=sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1'],...(state.stageLastLocalPoseRoom===stageRoomKey()?{resumePose:state.stageLastLocalPose}:{})});
-        }
+        requestStageWorldJoin();
       }
     }
     function destroyStageFrame() {
@@ -47686,7 +47910,7 @@
     }
     function applyEditToCachedStage(snapshot,edit){
       if(!edit)return snapshot;
-      if(!snapshot&&['opening.cut','add','floor.settings'].includes(edit.op))snapshot={schemaVersion:1266,objects:[],playerBalls:[],stageCutEvents:[],stageSparse:true};
+      if(!snapshot&&['opening.cut','add','floor.settings','fog.settings'].includes(edit.op))snapshot={schemaVersion:1266,objects:[],playerBalls:[],stageCutEvents:[],stageSparse:true};
       if(!snapshot||!Array.isArray(snapshot.objects))return snapshot;
       if(edit.op==='floor.settings'){
         const floor={...(snapshot.floor||{}),...(edit.floor||{})};
@@ -47694,6 +47918,9 @@
         if(Number.isFinite(edit.floor?.sizeX))worldCell.parcelSizeX=edit.floor.sizeX;
         if(Number.isFinite(edit.floor?.sizeZ))worldCell.parcelSizeZ=edit.floor.sizeZ;
         return {...snapshot,floor,worldCell};
+      }
+      if(edit.op==='fog.settings'){
+        return {...snapshot,fog:{...(snapshot.fog||{}),...(edit.fog||{})}};
       }
       if(edit.op==='opening.cut'){
         const fresh=(edit.targets||[]).filter(row=>row.seed&&!snapshot.objects.some(obj=>obj.id===row.id)).map(row=>row.seed);
@@ -47704,8 +47931,12 @@
         if(!edit.record||objects.some(item=>item.id===edit.record.id))return snapshot;
         objects.push(edit.record);
       }else if(edit.op==='engineering.sync'){
-        const chassisIndex=objects.findIndex(item=>item.id===edit.chassisId);if(chassisIndex<0)return null;
-        objects[chassisIndex]={...objects[chassisIndex],...(edit.chassis||{}),engineering:edit.chassis?.engineering};
+        let chassisIndex=objects.findIndex(item=>item.id===edit.chassisId);
+        if(chassisIndex<0){
+          if(!edit.chassis?.record)return null;
+          const seed={...edit.chassis.record,...edit.chassis,record:undefined,engineering:edit.chassis?.engineering};delete seed.record;
+          objects.push(seed);chassisIndex=objects.length-1;
+        }else objects[chassisIndex]={...objects[chassisIndex],...(edit.chassis||{}),record:undefined,engineering:edit.chassis?.engineering};
         const removed=new Set(edit.removed||[]);
         for(let i=objects.length-1;i>=0;i--)if(removed.has(objects[i].id))objects.splice(i,1);
         for(const part of edit.parts||[]){
@@ -47714,6 +47945,10 @@
             position:part.position,quaternion:part.quaternion,scale:part.scale};
           if(index<0){if(!part.record)return null;objects.push(patch);}else objects[index]={...objects[index],...patch};
         }
+      }else if(edit.op==='engineering.remove'){
+        const removed=new Set(edit.removed||[]);if(!removed.size&&edit.chassisId)removed.add(edit.chassisId);
+        for(let i=objects.length-1;i>=0;i--)if(removed.has(objects[i].id))objects.splice(i,1);
+        return {...snapshot,objects,stageCutEvents:(snapshot.stageCutEvents||[]).map(event=>({...event,targets:event.targets.filter(target=>!removed.has(target.id))})).filter(event=>event.targets.length)};
       }else if(edit.op==='frame.update'){
         const index=objects.findIndex(item=>item.id===edit.id);if(index<0)return null;
         objects[index]={...objects[index],surfaceFrame:edit.frame};
@@ -47776,7 +48011,7 @@
       // A complete snapshot already includes any queued local edits. Do not let
       // both commit paths wait for each other when a complex edit follows a clone.
       if(state.stagePendingSnapshot){
-        if(['add','style','paint.layer','frame.update','engineering.sync','floor.settings'].includes(state.stageEditQueue[0]?.op)){
+        if(['add','style','paint.layer','frame.update','engineering.sync','engineering.remove','floor.settings','fog.settings'].includes(state.stageEditQueue[0]?.op)){
           // Publish the event first; preserve any pending complex-scene snapshot.
           // Merge the ACK into that pending baseline before it can be committed.
         }else if(state.stageEditQueue[0]?.op==='opening.cut'){
@@ -47797,7 +48032,7 @@
       }
       if(!state.stageIsJoined||state.socket?.readyState!==WebSocket.OPEN)return;
       if(!state.stageWorldSnapshot){
-        if(['opening.cut','add','floor.settings'].includes(state.stageEditQueue[0]?.op)){
+        if(['opening.cut','add','floor.settings','fog.settings'].includes(state.stageEditQueue[0]?.op)){
           const cut=state.stageEditQueue[0];
           if(cut.op==='opening.cut'&&!cut.targets?.every(target=>target.seed)){
             state.stageEditQueue.shift();stageStatus('Cut not shared: this custom mesh has no common channel source. Share its initial geometry once, then send subsequent cuts as compact events.',true);return;
@@ -48017,6 +48252,39 @@
       search.addEventListener('input',render);close.addEventListener('click',()=>closeStageFrameMediaPicker(null));root.addEventListener('click',event=>{if(event.target===root)closeStageFrameMediaPicker(null);});
       document.addEventListener('keydown',onKey,true);render();requestAnimationFrame(()=>search.focus());
     }
+    function stageBookmarkFileFromDataUrl(dataUrl) {
+      const match = /^data:(image\/(?:webp|png|jpeg));base64,([A-Za-z0-9+/=]+)$/.exec(String(dataUrl || ''));
+      if (!match) throw new Error('Stage bookmark screenshot is invalid.');
+      const binary = atob(match[2]);
+      if (!binary.length || binary.length > 4 * 1024 * 1024) throw new Error('Stage bookmark screenshot is too large.');
+      const bytes = new Uint8Array(binary.length);
+      for (let index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+      const ext = match[1] === 'image/jpeg' ? 'jpg' : match[1].split('/')[1];
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      return new File([bytes], `stage-bookmark-${stamp}.${ext}`, { type: match[1], lastModified: Date.now() });
+    }
+
+    async function publishStageBookmarkFromFrame(data) {
+      try {
+        if (!state.registered || state.socket?.readyState !== WebSocket.OPEN) throw new Error('Rantlist is reconnecting.');
+        const room = stageRoomKey();
+        if (!room) throw new Error('Join a channel before sharing a Stage bookmark.');
+        const payload = sanitizeStageBookmarkChatPayload({ ...(data.payload || {}), room });
+        if (!payload) throw new Error('Stage bookmark data is invalid.');
+        const file = stageBookmarkFileFromDataUrl(data.thumbnail);
+        const caption = buildStageBookmarkChatCaption(payload);
+        const sent = await sendFiles([file], { caption, targetOverride: 'room' });
+        if (!sent) throw new Error('The screenshot could not be uploaded.');
+        postToStage('bookmark-share-result', { ok: true });
+        return true;
+      } catch (error) {
+        const message = String(error?.message || error || 'Bookmark share failed').slice(0, 160);
+        postToStage('bookmark-share-result', { ok: false, message });
+        addSystemMessage(message, true);
+        return false;
+      }
+    }
+
     function handleStageFrameMessage(event) {
       if(event.origin!==location.origin || !state.stageIframe || event.source!==state.stageIframe.contentWindow) return;
       const data=event.data;
@@ -48035,6 +48303,38 @@
       }
       if(data.event==='media-picker-open') {
         openStageFrameMediaPicker(String(data.requestId||''));
+        return;
+      }
+      if(data.event==='bookmark-share') {
+        void publishStageBookmarkFromFrame(data);
+        return;
+      }
+      if(data.event==='channel-world-save') {
+        if(state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.snapshot.save',name:String(data.name||'').slice(0,80),description:String(data.description||'').slice(0,500),thumbnail:String(data.thumbnail||'').slice(0,80000)});
+        return;
+      }
+      if(data.event==='channel-world-restore') {
+        if(state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.snapshot.restore',worldId:String(data.worldId||'').slice(0,96)});
+        return;
+      }
+      if(data.event==='channel-world-restore-local') {
+        if(state.socket?.readyState===WebSocket.OPEN&&data.snapshot&&typeof data.snapshot==='object')sendJson({type:'stage.world.snapshot.restore_local',name:String(data.name||'').slice(0,80),description:String(data.description||'').slice(0,500),thumbnail:String(data.thumbnail||'').slice(0,80000),snapshot:data.snapshot});
+        return;
+      }
+      if(data.event==='channel-world-export') {
+        if(state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.snapshot.get',worldId:String(data.worldId||'').slice(0,96)});
+        return;
+      }
+      if(data.event==='channel-world-permission') {
+        if(state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.permission.set',identityId:String(data.identityId||'').slice(0,180),role:String(data.role||'').slice(0,16)});
+        return;
+      }
+      if(data.event==='channel-world-player-limit') {
+        if(state.socket?.readyState===WebSocket.OPEN)sendJson({type:'stage.world.player_limit.set',limit:Math.max(1,Math.min(36,Math.round(Number(data.limit)||8)))});
+        return;
+      }
+      if(data.event==='world-resync-request') {
+        if(stageRoomKey()&&state.socket?.readyState===WebSocket.OPEN)requestStageWorldJoin({force:true});
         return;
       }
       if(data.event==='personal-assets-authorize') {
@@ -48081,6 +48381,7 @@
         postToStage('physics-snapshot',{objects:[...stagePhysicsObjects.values()]});
         postToStage('layout',{layout:state.stageFeedMode});
         postToStage('focus-mode-state',{active:state.stageFocusMode});
+        postToStage('channel-world-state',{access:state.stageWorldAccess,worlds:state.stageWorldLibrary,realm:state.stageRealm});
         if(state.registered && state.socket?.readyState===WebSocket.OPEN){
           if(state.stageAssetAccess?.expiresAt>Date.now()+30_000)postToStage('personal-assets-access',state.stageAssetAccess);
           else sendJson({type:'stage.asset.authorize'});
@@ -48145,18 +48446,18 @@
             else state.stageEditQueue.push(data.edit);
           }
           flushStageEditQueue();
-        }else if(data.edit.op==='floor.settings'){
-          // Floor settings are also complete current state. Coalesce GUI slider
-          // motion instead of persisting obsolete parcel/material values.
+        }else if(data.edit.op==='floor.settings'||data.edit.op==='fog.settings'){
+          // Scene settings are complete current state. Coalesce GUI slider motion
+          // instead of persisting obsolete intermediate values.
           const firstUnsent=state.stageEditAwaitingAck?1:0;
           let replaced=false;
-          for(let i=state.stageEditQueue.length-1;i>=firstUnsent;i--){if(state.stageEditQueue[i]?.op==='floor.settings'){state.stageEditQueue[i]=data.edit;replaced=true;break;}}
+          for(let i=state.stageEditQueue.length-1;i>=firstUnsent;i--){if(state.stageEditQueue[i]?.op===data.edit.op){state.stageEditQueue[i]=data.edit;replaced=true;break;}}
           if(!replaced){if(state.stageEditQueue.length>=64)stageStatus('Stage event backlog full; keep the channel open while earlier actions finish saving.',true);else state.stageEditQueue.push(data.edit);}
           flushStageEditQueue();
         }else if(state.stageEditQueue.length>=64){stageStatus('Stage event backlog full; keep the channel open while earlier actions finish saving.',true);}
         else{state.stageEditQueue.push(data.edit);flushStageEditQueue();}
       } else if(data.event==='resync' && state.chatStageWorldOpen && state.socket?.readyState===WebSocket.OPEN){
-        sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});
+        requestStageWorldJoin({force:true});
       } else if(data.event==='snapshot' && state.chatStageWorldOpen && data.snapshot && stageRoomKey()===state.stageWorldRoom) {
         // Remote previews move local display meshes but must never leak into an
         // unrelated full-scene commit. Restore the latest acknowledged versions
@@ -48200,6 +48501,10 @@
           state.stageCutBootstrap=message.cutBootstrap||null;
           state.stageSparseBaseline=!!message.snapshot?.stageSparse||!message.snapshot&&!!message.cutBootstrap;
           state.stageWorldSnapshot=message.snapshot||null;
+          if(message.access&&typeof message.access==='object')state.stageWorldAccess=message.access;
+          if(Array.isArray(message.worlds))state.stageWorldLibrary=message.worlds;
+          if(message.realm&&typeof message.realm==='object')state.stageRealm=message.realm;
+          postToStage('channel-world-state',{access:state.stageWorldAccess,worlds:state.stageWorldLibrary,realm:state.stageRealm});
           state.stagePaintLayers.clear();
           if(state.stageSparseBaseline&&!message.snapshot){
             for(const edit of message.cutBootstrap.events||[])state.stageWorldSnapshot=applyEditToCachedStage(state.stageWorldSnapshot,edit);
@@ -48208,6 +48513,7 @@
                 {op:'style',id:target.id,...target.style});
           }
           state.stageIsJoined=true;
+          state.stageJoinPending=false;state.stageJoinRetryTimer=0;
           if(Array.isArray(message.vehicles)){state.stageLiveVehicles=message.vehicles.slice(0,24);postToStage('vehicle-snapshot',{vehicles:state.stageLiveVehicles});}
           if(Array.isArray(message.editing)){state.stageEditing=message.editing.slice(0,48);postToStage('presence-snapshot',{editing:state.stageEditing});}
           if(Array.isArray(message.activities)){state.stageActivities=message.activities.slice(0,48);postToStage('activity-snapshot',{activities:state.stageActivities});}
@@ -48264,6 +48570,37 @@
           }
           flushStageEditQueue();flushStageSnapshot();
           break;
+        case 'stage.world.library':
+          if(message.access&&typeof message.access==='object'){
+            const lostEdit=state.stageWorldAccess?.canEdit===true&&message.access.canEdit!==true;
+            state.stageWorldAccess=message.access;
+            if(lostEdit){state.stageEditQueue.length=0;state.stagePendingSnapshot=null;state.stageSnapshotInFlight=null;state.stageEditAwaitingAck=false;state.stageAwaitingAck=false;}
+          }
+          if(Array.isArray(message.worlds))state.stageWorldLibrary=message.worlds;
+          if(message.realm&&typeof message.realm==='object')state.stageRealm=message.realm;
+          postToStage('channel-world-state',{access:state.stageWorldAccess,worlds:state.stageWorldLibrary,realm:state.stageRealm});
+          break;
+        case 'stage.world.permission.changed': {
+          const roleLabel=String(message.roleLabel||message.role||'updated access').slice(0,40);
+          const byNickname=String(message.byNickname||'A Channel World owner').slice(0,40);
+          const detail=`${byNickname} changed your Channel World access to ${roleLabel}.`;
+          stageStatus(detail,true);
+          postToStage('permission-notice',{title:'WORLD ACCESS',message:detail,role:String(message.role||'')});
+          break;
+        }
+        case 'stage.world.player_limit.changed': {
+          const limit=Math.max(1,Math.min(36,Math.round(Number(message.limit)||8)));
+          const detail=`Stage player limit is now ${limit}.`;
+          stageStatus(detail,true);
+          postToStage('player-limit-notice',{message:detail,limit});
+          break;
+        }
+        case 'stage.world.snapshot.saved':
+          stageStatus('Channel World state saved');
+          break;
+        case 'stage.world.snapshot.data':
+          postToStage('channel-world-export-data',{world:message.world||null});
+          break;
         case 'stage.world.appearance.ack':
           if(message.seq===state.stageAppearancePendingSeq&&message.seq===state.stageAppearanceSeq){
             clearTimeout(state.stageAppearanceRetryTimer);
@@ -48295,16 +48632,17 @@
               if(applied.paintLayer)state.stagePaintLayers.set(applied.id,applied.paintLayer);
               else state.stagePaintLayers.delete(applied.id);
             }else if(applied?.op==='remove')state.stagePaintLayers.delete(applied.id);
+            else if(applied?.op==='engineering.remove')for(const id of applied.removed||[])state.stagePaintLayers.delete(id);
             else if(applied?.op==='clone'&&state.stagePaintLayers.has(applied.sourceId))
               state.stagePaintLayers.set(applied.id,state.stagePaintLayers.get(applied.sourceId));
-            if(state.stagePendingSnapshot&&['add','style','paint.layer','frame.update','engineering.sync','floor.settings'].includes(applied?.op))
+            if(state.stagePendingSnapshot&&['add','style','paint.layer','frame.update','engineering.sync','engineering.remove','floor.settings','fog.settings'].includes(applied?.op))
               state.stagePendingSnapshot=applyEditToCachedStage(state.stagePendingSnapshot,applied)||state.stagePendingSnapshot;
             if(!state.stageWorldSnapshot?.objects?.length&&applied?.op==='opening.cut')
               stageStatus('Cut acknowledged, but the shared source recipe could not be cached.',true);
             if(state.stageWorldSnapshot?.stageSparse){state.stageSparseBaseline=true;state.stageCutBootstrap=null;}
           }
           state.stageEditAwaitingAck=false;
-          if(!['style','paint.layer','frame.update'].includes(message.edit?.op)){stagePhysicsObjects.clear();postToStage('physics-reset');}
+          if(!['style','paint.layer','frame.update','fog.settings'].includes(message.edit?.op)){stagePhysicsObjects.clear();postToStage('physics-reset');}
           flushStageEditQueue();flushStageSnapshot();
           break;
         case 'stage.world.edit.reject':
@@ -48316,7 +48654,7 @@
             const rejected=state.stageEditQueue[0];
             postToStage('edit-rejected',{edit:rejected,reason:message.reason,detail:message.detail,owner:message.owner||null,nickname:message.nickname||null,kind:message.kind||null});
             const cut=state.stageEditQueue.some(edit=>edit.op==='opening.cut');
-            const rejectedEngineer=rejected?.op==='engineering.sync';
+            const rejectedEngineer=['engineering.sync','engineering.remove'].includes(rejected?.op);
             state.stageEditQueue.length=0;
             if(rejectedEngineer){
               // Never let a rejected locally-built vehicle masquerade as shared state.
@@ -48324,7 +48662,7 @@
               // authoritative room revision that every connected peer is using.
               state.stagePendingSnapshot=null;state.stageSnapshotInFlight=null;state.stagePendingPaintAfterSnapshot=[];
               state.stageAwaitingAck=false;clearTimeout(state.stageSnapshotRetryTimer);state.stageSnapshotRetryAfter=0;state.stageSnapshotRetryAttempts=0;
-              sendJson({type:'stage.world.join',capabilities:['engineering-sync-v1']});
+              requestStageWorldJoin({force:true});
               stageStatus('Engineer edit was rejected: '+String(message.detail||message.reason||'server rejected event')+'. Reloading authoritative channel vehicle state.',true);
             }else if(message.reason==='editing_by_other')stageStatus('Geometry locked by '+String(message.nickname||'another participant').slice(0,40),true);
             else if(cut)stageStatus('Opening cut was not shared: '+String(message.reason||'server rejected event')+
@@ -48368,7 +48706,7 @@
           state.stagePendingSnapshot=null;
           state.stagePendingPaintAfterSnapshot=[];
           state.stageEditAwaitingAck=false;
-          const retryable=state.stageEditQueue.length&&state.stageEditQueue.every(edit=>['add','style','paint.layer','frame.update','engineering.sync','floor.settings'].includes(edit.op));
+          const retryable=state.stageEditQueue.length&&state.stageEditQueue.every(edit=>['add','style','paint.layer','frame.update','engineering.sync','engineering.remove','floor.settings','fog.settings'].includes(edit.op));
           if(!retryable)state.stageEditQueue.length=0;
           if(message.snapshot){postToStage('world',{snapshot:message.snapshot});
             if(retryable)postToStage('reapply-local-edits',{edits:state.stageEditQueue});}
