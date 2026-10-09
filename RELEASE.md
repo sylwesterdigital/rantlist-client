@@ -1,3 +1,5 @@
+## Call Doctor media diagnostics — client 0.1.314 / server 9.6.530 / r558
+
 ## Watcher all-platform release target fix — client 0.1.313 / server 9.6.529 / r557
 
 The selected-vehicle controls now use stable UI drafts and merge each changed field into the current authoritative vehicle state. Continuous tuning, effects, audio, condition and related controls are coalesced before a compact shared update, so controls such as sample ground colour no longer reset unrelated dust settings and the final values propagate consistently to connected clients.

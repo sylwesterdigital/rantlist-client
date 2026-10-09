@@ -277,6 +277,7 @@ node "$ROOT/scripts/verify_stage_bookmark_chat_r547.js"
 node "$ROOT/scripts/verify_stage_channel_worlds_r550.js"
 node "$ROOT/scripts/verify_stage_permissions_r551.js"
 node "$ROOT/scripts/verify_stage_assets_r554.js"
+node "$ROOT/scripts/verify_call_doctor_r558.js"
 node "$ROOT/scripts/verify_release_storage_r544.js"
 
 node "$ROOT/scripts/verify_homepage_r543.js"

@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..');
 const version=fs.readFileSync(path.join(root,'PACKAGE_VERSION.txt'),'utf8').trim();
 const web=fs.readFileSync(path.join(root,'web/index.html'),'utf8');
 assert(/^0\.1\.\d+$/.test(version) && Number(version.split('.')[2]) >= 307);
-assert(/content="9\.6\.(?:519|52[0-9]|[6-9][0-9]{2,})"/.test(web));
+assert(Number(web.match(/<meta name="chat-ui-version" content="9\.6\.(\d+)">/)?.[1]||0)>=519);
 assert(web.includes("const STAGE_BOOKMARK_CHAT_CAPTION_PREFIX = '[[RANTLIST_STAGE_BOOKMARK_V1:'"));
 assert(web.includes("button.textContent = 'Teleport'"));
 assert(web.includes("postToStage('bookmark-teleport', { bookmark: clean.bookmark })"));

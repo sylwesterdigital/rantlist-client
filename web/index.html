@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
   <meta name="theme-color" content="#fafafa">
-  <meta name="chat-ui-version" content="9.6.529">
+  <meta name="chat-ui-version" content="9.6.530">
   <meta name="chat-protocol-version" content="70">
   <meta name="chat-ui-hash" content="__CHAT_UI_HASH__">
   <title>Rooms</title>
@@ -7805,6 +7805,34 @@
     .diagnostic-summary strong { color: var(--text); }
     .diagnostic-token-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 5px; }
     .diagnostic-token-row input { min-width: 0; }
+    .call-doctor-card { width: min(980px, calc(100vw - 24px)); max-height: min(88vh, 920px); }
+    .call-doctor-body { display: grid; gap: 10px; overflow: auto; }
+    .call-doctor-intro { margin: 0; color: var(--muted); font-size: 12px; }
+    .call-doctor-launch { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.2fr); gap: 10px; align-items: start; }
+    .call-doctor-user-list { display: grid; gap: 5px; max-height: 230px; overflow: auto; padding-right: 2px; }
+    .call-doctor-user { display: grid; grid-template-columns: 20px 30px minmax(0,1fr); gap: 7px; align-items: center; padding: 5px 6px; border: 1px solid var(--line); border-radius: var(--radius-sm); }
+    .call-doctor-user .avatar { width: 28px; height: 28px; }
+    .call-doctor-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .call-doctor-section { display: grid; gap: 6px; padding: 8px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-2); }
+    .call-doctor-section > h3 { margin: 0; font-size: 13px; }
+    .call-doctor-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(235px, 1fr)); gap: 7px; }
+    .call-doctor-report { display: grid; gap: 4px; padding: 7px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-3); font-size: 11px; }
+    .call-doctor-report-head { display: flex; gap: 7px; align-items: center; min-width: 0; }
+    .call-doctor-report-head .avatar { width: 28px; height: 28px; flex: 0 0 auto; }
+    .call-doctor-report-head strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .call-doctor-quality { margin-left: auto; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--line); font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .call-doctor-quality.good { color: #37c978; }
+    .call-doctor-quality.fair { color: #d9a52a; }
+    .call-doctor-quality.poor { color: var(--danger); }
+    .call-doctor-quality.unknown { color: var(--muted); }
+    .call-doctor-kv { display: grid; grid-template-columns: minmax(82px, auto) minmax(0,1fr); gap: 2px 7px; }
+    .call-doctor-kv dt { color: var(--muted); }
+    .call-doctor-kv dd { margin: 0; overflow-wrap: anywhere; }
+    .call-doctor-issue { padding: 4px 6px; border-radius: var(--radius-sm); background: color-mix(in srgb, var(--panel-3) 85%, var(--danger) 15%); }
+    .call-doctor-issue.warn { background: color-mix(in srgb, var(--panel-3) 88%, #d9a52a 12%); }
+    .call-doctor-issue.ok { background: color-mix(in srgb, var(--panel-3) 88%, #37c978 12%); }
+    .call-doctor-log { max-height: 210px; overflow: auto; margin: 0; padding: 7px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--panel-3); font: 11px/1.4 var(--ui-font-family); white-space: pre-wrap; overflow-wrap: anywhere; user-select: text; }
+    @media (max-width: 720px) { .call-doctor-launch { grid-template-columns: 1fr; } .call-doctor-card { width: calc(100vw - 12px); max-height: calc(100dvh - 12px); } }
 
     .history-controls { display: grid; gap: 8px; }
     .history-stat { color: var(--muted); font-size: 12px; }
@@ -18266,7 +18294,7 @@
         <span id="serverBrandLogo" class="server-brand-logo">RC</span>
         <span class="server-brand-copy">
           <strong id="serverBrandName">Room Chat</strong>
-          <small id="serverBrandVersion">v9.6.529</small>
+          <small id="serverBrandVersion">v9.6.530</small>
         </span>
       </button>
     </div>
@@ -18325,7 +18353,7 @@
           <div class="server-info-identity">
             <span id="serverInfoLogo" class="server-info-logo">RC</span>
             <div class="server-info-copy">
-              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.529</span></div>
+              <div class="server-info-title"><h3 id="serverInfoName">Rantlist</h3><span id="serverInfoVersion" class="server-info-version">v9.6.530</span></div>
               <p id="serverInfoDescription" class="server-info-description">Communicate</p>
             </div>
           </div>
@@ -18848,6 +18876,10 @@
         </section>
         <section class="config-section">
           <h3>Diagnostics</h3>
+          <div class="diagnostic-actions">
+            <button id="callDoctorButton" class="primary" type="button">Call Doctor</button>
+          </div>
+          <p class="hint">Test camera, microphone, browser permissions, WebRTC signaling and live connection quality with one or several people in this channel.</p>
           <div id="diagnosticSummary" class="diagnostic-summary"></div>
           <label class="config-toggle-row" for="diagnosticVerboseInput">
             <span>Verbose diagnostics</span>
@@ -20117,6 +20149,45 @@
   </div>
 
   <div id="messageMenu" class="context-popover" role="menu" hidden></div>
+  <section id="callDoctorModal" class="modal-layer" hidden aria-hidden="true">
+    <button id="callDoctorBackdrop" class="modal-backdrop" type="button" tabindex="-1" aria-label="Close Call Doctor"></button>
+    <section class="modal-card call-doctor-card" role="dialog" aria-modal="true" aria-labelledby="callDoctorTitle">
+      <header class="modal-header"><div><h2 id="callDoctorTitle">Call Doctor</h2><p class="call-doctor-intro">Media permissions, WebRTC path and live connection diagnostics.</p></div><button id="callDoctorCloseButton" class="icon-button" type="button" aria-label="Close"><span class="icon icon-close"></span></button></header>
+      <div class="modal-body call-doctor-body">
+        <div id="callDoctorStatus" class="hint" aria-live="polite">Ready.</div>
+        <div class="call-doctor-launch">
+          <section class="call-doctor-section">
+            <h3>People in this channel</h3>
+            <label class="switch-row"><input id="callDoctorAllInput" type="checkbox"><span>Select everyone available</span></label>
+            <div id="callDoctorUserList" class="call-doctor-user-list"></div>
+            <div class="call-doctor-actions">
+              <button id="callDoctorAudioButton" type="button"><span class="icon icon-phone"></span><span>Test audio</span></button>
+              <button id="callDoctorVideoButton" type="button"><span class="icon icon-video"></span><span>Test video</span></button>
+            </div>
+          </section>
+          <section class="call-doctor-section">
+            <h3>This device</h3>
+            <div id="callDoctorLocal" class="call-doctor-grid"></div>
+            <div class="call-doctor-actions">
+              <button id="callDoctorRefreshButton" type="button">Refresh</button>
+              <button id="callDoctorProbeButton" type="button">Probe connected peers</button>
+              <button id="callDoctorCopyButton" type="button">Copy report</button>
+            </div>
+          </section>
+        </div>
+        <section class="call-doctor-section">
+          <h3>Connections</h3>
+          <div id="callDoctorPeers" class="call-doctor-grid"></div>
+        </section>
+        <section class="call-doctor-section">
+          <h3>Server / signaling</h3>
+          <div id="callDoctorServer" class="call-doctor-grid"></div>
+          <pre id="callDoctorLog" class="call-doctor-log" tabindex="0"></pre>
+        </section>
+      </div>
+    </section>
+  </section>
+
   <div id="userMenu" class="context-popover" role="menu" hidden></div>
 
   <div id="mediaAiModal" class="modal-layer" hidden>
@@ -21221,6 +21292,7 @@
         'chatBackgroundScopeSelect', 'chatBackgroundModeSelect', 'chatBackgroundColorRow', 'chatBackgroundColorInput', 'chatBackgroundGradientRow', 'chatBackgroundGradientSelect', 'chatBackgroundImageRow', 'chatBackgroundImageInput', 'chatBackgroundImageSelectButton', 'chatBackgroundImageName', 'chatBackgroundImageClearButton', 'chatBackgroundPreview', 'chatBackgroundApplyButton', 'chatBackgroundResetButton', 'chatBackgroundStatus',
         'historyLimitSelect', 'clearVisibleHistoryButton', 'historyStatus', 'blockedUsersList',
         'diagnosticSummary', 'diagnosticVerboseInput', 'messageClientInfoInput', 'diagnosticTokenForm', 'diagnosticTokenInput', 'diagnosticServerButton', 'diagnosticRefreshButton', 'diagnosticCopyButton', 'diagnosticDownloadButton', 'diagnosticClearButton', 'diagnosticLog',
+        'callDoctorButton', 'callDoctorModal', 'callDoctorBackdrop', 'callDoctorCloseButton', 'callDoctorStatus', 'callDoctorAllInput', 'callDoctorUserList', 'callDoctorAudioButton', 'callDoctorVideoButton', 'callDoctorLocal', 'callDoctorRefreshButton', 'callDoctorProbeButton', 'callDoctorCopyButton', 'callDoctorPeers', 'callDoctorServer', 'callDoctorLog',
         'reactionPopover', 'reactionCustomForm', 'reactionCustomInput', 'messageMenu', 'userMenu', 'mediaAiModal', 'mediaAiForm', 'mediaAiCloseButton', 'mediaAiCancelButton', 'mediaAiSourcePreview', 'mediaAiSourceImage', 'mediaAiTaskSelect', 'mediaAiAnalyzeFields', 'mediaAiConvertFields', 'mediaAiConvertModelField', 'mediaAiConvertModelSelect', 'mediaAiConvertPresetSelect', 'mediaAiPromptLabel', 'mediaAiPresetSelect', 'mediaAiPromptInput', 'mediaAiCurrent', 'mediaAiStatus', 'mediaAiRunButton', 'transcriptAiModal', 'transcriptAiForm', 'transcriptAiCloseButton', 'transcriptAiCancelButton', 'transcriptAiPresetSelect', 'transcriptAiPromptInput', 'transcriptAiCurrent', 'transcriptAiStatus', 'transcriptAiRunButton',
         'blockModal', 'blockForm', 'blockCloseButton', 'blockCancelButton', 'blockUserName', 'blockDurationSelect', 'blockUntilInput', 'blockReasonInput',
         'expiryModal', 'expiryForm', 'expiryCloseButton', 'expiryCancelButton', 'expiryDurationSelect', 'expiryUntilInput',
@@ -21882,6 +21954,17 @@
       iceRestartTimers: new Map(),
       iceDisconnectTimers: new Map(),
       callIceDiagnostics: new Map(),
+      callDoctorOpen: false,
+      callDoctorSelection: new Set(),
+      callDoctorRemoteReports: new Map(),
+      callDoctorServerReport: null,
+      callDoctorTimer: null,
+      callDoctorLastServerRequestAt: 0,
+      callDoctorLastRequestId: null,
+      callDoctorCallId: null,
+      callDoctorLastStats: new Map(),
+      callDoctorRendering: false,
+      callDoctorRequestedMedia: null,
       callInvitedCount: 0,
       callParticipantCount: 0,
       callWaitingToneTimer: null,
@@ -23086,6 +23169,20 @@
       elements.diagnosticCopyButton.addEventListener('click', copyDiagnosticReport);
       elements.diagnosticDownloadButton.addEventListener('click', downloadDiagnosticReport);
       elements.diagnosticClearButton.addEventListener('click', clearDiagnostics);
+      elements.callDoctorButton?.addEventListener('click', openCallDoctor);
+      elements.callDoctorCloseButton?.addEventListener('click', closeCallDoctor);
+      elements.callDoctorBackdrop?.addEventListener('click', closeCallDoctor);
+      elements.callDoctorAllInput?.addEventListener('change', () => {
+        const users = callDoctorAvailableUsers();
+        state.callDoctorSelection.clear();
+        if (elements.callDoctorAllInput.checked) for (const user of users) state.callDoctorSelection.add(user.id);
+        renderCallDoctorUsers();
+      });
+      elements.callDoctorAudioButton?.addEventListener('click', () => startCallDoctor('audio'));
+      elements.callDoctorVideoButton?.addEventListener('click', () => startCallDoctor('video'));
+      elements.callDoctorRefreshButton?.addEventListener('click', () => refreshCallDoctor(true));
+      elements.callDoctorProbeButton?.addEventListener('click', probeCallDoctorPeers);
+      elements.callDoctorCopyButton?.addEventListener('click', copyCallDoctorReport);
 
       elements.luckyThemeButton.addEventListener('click', generateLuckyTheme);
       elements.saveThemeButton.addEventListener('click', saveCustomTheme);
@@ -25477,6 +25574,15 @@
           break;
         case 'call.signal':
           handleCallSignal(message);
+          break;
+        case 'call.doctor.report':
+          handleCallDoctorServerReport(message);
+          break;
+        case 'call.doctor.probe':
+          void handleCallDoctorProbe(message);
+          break;
+        case 'call.doctor.reply':
+          handleCallDoctorReply(message);
           break;
         case 'call.state':
           handleCallParticipantState(message);
@@ -42243,7 +42349,7 @@
       }
     }
 
-    async function startCallInvite(media, explicitIds = null) {
+    async function startCallInvite(media, explicitIds = null, options = {}) {
       if (!canSend() || state.activeCall) return;
       const allRoom = explicitIds ? false : elements.callAllRoomInput.checked;
       const targets = explicitIds || [...state.callSelection];
@@ -42264,6 +42370,7 @@
           localMedia: acquired.effectiveMedia,
           mediaFallback: acquired.fallback || null,
           pending: true,
+          diagnostic: options.diagnostic === true,
           ownerClientId: state.selfId,
           ownerIdentityId: state.identityId,
         };
@@ -42276,7 +42383,7 @@
         state.callParticipantStates.set(state.selfId, getLocalCallParticipantState());
         openCallStage(true);
         addLocalCallTile();
-        sendJson({ type: 'call.invite', media: acquired.effectiveMedia, to: targets, allRoom });
+        sendJson({ type: 'call.invite', media: acquired.effectiveMedia, to: targets, allRoom, diagnostic: options.diagnostic === true });
         if (acquired.notice) addSystemMessage(acquired.notice, true);
       } catch (error) {
         const diagnostic = error.callMediaDiagnostic || state.lastCallMediaDiagnostic;
@@ -42456,10 +42563,12 @@
         ownerIdentityId: message.ownerIdentityId || state.identityId,
         scheduledEventId: message.scheduledEventId || state.activeCall.scheduledEventId || null,
         channelJoinable: message.channelJoinable === true || state.activeCall.channelJoinable === true,
+        diagnostic: message.diagnostic === true || state.activeCall.diagnostic === true,
       };
       state.callParticipantCount = Number(message.participants) || 1;
       state.callInvitedCount = Number(message.invitedCount) || (Array.isArray(message.invited) ? message.invited.length : 0);
       state.callConnectedSoundPlayed = false;
+      if (state.activeCall.diagnostic === true || state.callDoctorOpen) state.callDoctorCallId = state.activeCall.id;
       if (state.activeCall.channelJoinable) {
         state.currentRoomChannelCall = {
           callId: state.activeCall.id,
@@ -42473,6 +42582,7 @@
       sendLocalCallState();
       renderCallUsers();
       updateAllCallTiles();
+      if (state.callDoctorOpen && state.activeCall.diagnostic) { requestCallDoctorServerReport(true); void renderCallDoctor(); }
     }
 
     function handleIncomingCall(message) {
@@ -42481,7 +42591,7 @@
         return;
       }
       state.incomingCall = message;
-      elements.incomingCallText.textContent = `${message.from?.nickname || 'User'} · ${message.media === 'video' ? 'video' : 'audio'} call`;
+      elements.incomingCallText.textContent = message.diagnostic === true ? `Call Doctor · ${message.from?.nickname || 'User'} · ${message.media === 'video' ? 'video' : 'audio'} test` : `${message.from?.nickname || 'User'} · ${message.media === 'video' ? 'video' : 'audio'} call`;
       elements.incomingCallModal.hidden = false;
       playSound('direct');
     }
@@ -42504,6 +42614,7 @@
           ownerClientId: incoming.ownerClientId || incoming.from?.id || null,
           ownerIdentityId: incoming.ownerIdentityId || incoming.from?.identityId || null,
           channelJoinable: false,
+          diagnostic: incoming.diagnostic === true,
         };
         state.callParticipants.set(state.selfId, state.selfUser || {
           id: state.selfId,
@@ -42519,6 +42630,7 @@
         sendJson({ type: 'call.accept', callId: incoming.callId });
         if (acquired.notice) addSystemMessage(acquired.notice, true);
         renderCallUsers();
+        if (incoming.diagnostic === true) { state.callDoctorCallId = incoming.callId; setTimeout(openCallDoctor, 120); }
       } catch (error) {
         const diagnostic = error.callMediaDiagnostic || state.lastCallMediaDiagnostic;
         addSystemMessage(`Call media unavailable: ${callMediaFailureMessage(error, incoming.media, diagnostic)}`, true);
@@ -42536,6 +42648,7 @@
       state.activeCall.ownerClientId = message.ownerClientId || state.activeCall.ownerClientId;
       state.activeCall.ownerIdentityId = message.ownerIdentityId || state.activeCall.ownerIdentityId;
       state.activeCall.channelJoinable = message.channelJoinable === true || state.activeCall.channelJoinable === true;
+      state.activeCall.diagnostic = message.diagnostic === true || state.activeCall.diagnostic === true;
       state.activeCall.pending = false;
       state.callParticipantCount = Math.max(1, (message.participants || []).length + 1);
       state.callInvitedCount = 0;
@@ -42582,6 +42695,7 @@
       }
       updateAllCallTiles();
       renderChannelUsers();
+      if (state.callDoctorOpen) setTimeout(() => { void probeCallDoctorPeers(); void renderCallDoctor(); }, 250);
     }
 
     async function handleCallSignal(message) {
@@ -56751,6 +56865,424 @@ Head level, eyes forward, neutral expression. Even studio lighting, minimal shad
           ogg: typeSupported('audio/ogg;codecs=opus'),
         },
       };
+    }
+
+    function callDoctorAvailableUsers() {
+      return state.users.filter((user) => !isOwnUser(user) && !isBlockedUser(user) && sameRoom(user.room, state.currentRoom));
+    }
+
+    function renderCallDoctorUsers() {
+      if (!elements.callDoctorUserList) return;
+      const users = callDoctorAvailableUsers();
+      for (const id of [...state.callDoctorSelection]) if (!users.some((user) => user.id === id)) state.callDoctorSelection.delete(id);
+      elements.callDoctorUserList.textContent = '';
+      if (!users.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = state.currentRoom ? 'No other available users in this channel.' : 'Join a channel to run a peer test.';
+        elements.callDoctorUserList.append(empty);
+      }
+      for (const user of users) {
+        const label = document.createElement('label');
+        label.className = 'call-doctor-user';
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.checked = state.callDoctorSelection.has(user.id);
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) state.callDoctorSelection.add(user.id);
+          else state.callDoctorSelection.delete(user.id);
+          if (elements.callDoctorAllInput) elements.callDoctorAllInput.checked = users.length > 0 && users.every((entry) => state.callDoctorSelection.has(entry.id));
+        });
+        const avatar = document.createElement('span');
+        avatar.className = 'avatar';
+        setAvatarContent(avatar, user);
+        const name = document.createElement('span');
+        name.textContent = user.nickname || 'Participant';
+        label.append(checkbox, avatar, name);
+        elements.callDoctorUserList.append(label);
+      }
+      if (elements.callDoctorAllInput) elements.callDoctorAllInput.checked = users.length > 0 && users.every((user) => state.callDoctorSelection.has(user.id));
+      if (elements.callDoctorAudioButton) elements.callDoctorAudioButton.disabled = Boolean(state.activeCall) || !users.length || !state.callDoctorSelection.size || !canSend();
+      if (elements.callDoctorVideoButton) elements.callDoctorVideoButton.disabled = Boolean(state.activeCall) || !users.length || !state.callDoctorSelection.size || !canSend();
+      if (elements.callDoctorProbeButton) elements.callDoctorProbeButton.disabled = !state.activeCall?.id || state.peerConnections.size === 0;
+    }
+
+    async function callDoctorPermissionState(name) {
+      if (!navigator.permissions?.query) return 'unsupported';
+      try {
+        const status = await navigator.permissions.query({ name });
+        return status?.state || 'unknown';
+      } catch {
+        return 'unsupported';
+      }
+    }
+
+    async function collectCallDoctorLocalReport() {
+      const [microphonePermission, cameraPermission, devices] = await Promise.all([
+        callDoctorPermissionState('microphone'),
+        callDoctorPermissionState('camera'),
+        callMediaDeviceSnapshot(),
+      ]);
+      const counts = { audioinput: 0, videoinput: 0, audiooutput: 0, enumerateError: null };
+      for (const device of devices) {
+        if (device.enumerateError) counts.enumerateError = device.enumerateError;
+        else if (Object.prototype.hasOwnProperty.call(counts, device.kind)) counts[device.kind] += 1;
+      }
+      return {
+        time: new Date().toISOString(),
+        secureContext: window.isSecureContext,
+        online: navigator.onLine,
+        userAgent: navigator.userAgent.slice(0, 320),
+        platform: navigator.platform || null,
+        permissions: { microphone: microphonePermission, camera: cameraPermission },
+        devices: counts,
+        mediaDevices: {
+          getUserMedia: Boolean(navigator.mediaDevices?.getUserMedia),
+          enumerateDevices: Boolean(navigator.mediaDevices?.enumerateDevices),
+          getDisplayMedia: Boolean(navigator.mediaDevices?.getDisplayMedia),
+          setSinkId: Boolean(HTMLMediaElement.prototype.setSinkId),
+        },
+        localTracks: callMediaTrackSnapshot(state.localCallStream),
+        audioContextState: state.callAudioContext?.state || null,
+        websocket: { readyState: state.socket?.readyState ?? null, registered: state.registered === true },
+        network: networkSnapshot(),
+        rtc: rtcCapabilitySummary(),
+        activeCall: state.activeCall ? {
+          callId: state.activeCall.id || null,
+          media: state.activeCall.media,
+          requestedMedia: state.activeCall.requestedMedia,
+          localMedia: state.activeCall.localMedia,
+          diagnostic: state.activeCall.diagnostic === true,
+          pending: state.activeCall.pending === true,
+        } : null,
+      };
+    }
+
+    function callDoctorQuality(stats) {
+      if (!stats) return 'unknown';
+      if (stats.connectionState === 'failed' || stats.iceConnectionState === 'failed') return 'poor';
+      if (stats.connectionState === 'disconnected' || stats.iceConnectionState === 'disconnected') return 'poor';
+      const loss = Number(stats.packetLossPercent);
+      const rtt = Number(stats.rttMs);
+      const jitter = Number(stats.jitterMs);
+      if ((Number.isFinite(loss) && loss >= 8) || (Number.isFinite(rtt) && rtt >= 600) || (Number.isFinite(jitter) && jitter >= 100)) return 'poor';
+      if ((Number.isFinite(loss) && loss >= 3) || (Number.isFinite(rtt) && rtt >= 250) || (Number.isFinite(jitter) && jitter >= 50)) return 'fair';
+      if (['connected', 'completed'].includes(stats.iceConnectionState) || stats.connectionState === 'connected') return 'good';
+      return 'unknown';
+    }
+
+    async function collectCallDoctorPeerStats(peerId, peer) {
+      if (!peer) return null;
+      const output = {
+        peerId,
+        connectionState: peer.connectionState,
+        iceConnectionState: peer.iceConnectionState,
+        iceGatheringState: peer.iceGatheringState,
+        signalingState: peer.signalingState,
+        rttMs: null,
+        jitterMs: null,
+        packetLossPercent: null,
+        inboundKbps: null,
+        outboundKbps: null,
+        availableOutgoingKbps: null,
+        candidate: null,
+        inbound: { audio: 0, video: 0 },
+        outbound: { audio: 0, video: 0 },
+        remoteTracks: callMediaTrackSnapshot(state.remoteStreams.get(peerId)),
+      };
+      try {
+        const reports = await peer.getStats();
+        let selectedPair = null;
+        let bytesReceived = 0, bytesSent = 0, packetsLost = 0, packetsReceived = 0, jitterMax = 0;
+        for (const report of reports.values()) {
+          if (report.type === 'transport' && report.selectedCandidatePairId) selectedPair = reports.get(report.selectedCandidatePairId) || selectedPair;
+          if (report.type === 'candidate-pair' && report.state === 'succeeded' && (report.selected || report.nominated)) selectedPair ||= report;
+          if (report.type === 'inbound-rtp' && !report.isRemote) {
+            const kind = report.kind || report.mediaType;
+            if (kind === 'audio' || kind === 'video') output.inbound[kind] += 1;
+            bytesReceived += Number(report.bytesReceived) || 0;
+            packetsLost += Math.max(0, Number(report.packetsLost) || 0);
+            packetsReceived += Math.max(0, Number(report.packetsReceived) || 0);
+            jitterMax = Math.max(jitterMax, Number(report.jitter) || 0);
+          }
+          if (report.type === 'outbound-rtp' && !report.isRemote) {
+            const kind = report.kind || report.mediaType;
+            if (kind === 'audio' || kind === 'video') output.outbound[kind] += 1;
+            bytesSent += Number(report.bytesSent) || 0;
+          }
+          if (report.type === 'remote-inbound-rtp' && Number.isFinite(Number(report.roundTripTime))) {
+            output.rttMs = Math.max(Number(output.rttMs) || 0, Number(report.roundTripTime) * 1000);
+          }
+        }
+        if (selectedPair) {
+          const local = reports.get(selectedPair.localCandidateId);
+          const remote = reports.get(selectedPair.remoteCandidateId);
+          output.rttMs = Number.isFinite(Number(selectedPair.currentRoundTripTime)) ? Number(selectedPair.currentRoundTripTime) * 1000 : output.rttMs;
+          output.availableOutgoingKbps = Number.isFinite(Number(selectedPair.availableOutgoingBitrate)) ? Number(selectedPair.availableOutgoingBitrate) / 1000 : null;
+          output.candidate = {
+            localType: local?.candidateType || null,
+            remoteType: remote?.candidateType || null,
+            protocol: local?.protocol || null,
+            relayProtocol: local?.relayProtocol || null,
+          };
+        }
+        output.jitterMs = jitterMax ? jitterMax * 1000 : 0;
+        output.packetLossPercent = (packetsLost + packetsReceived) > 0 ? packetsLost * 100 / (packetsLost + packetsReceived) : 0;
+        const now = performance.now();
+        const previous = state.callDoctorLastStats.get(peerId);
+        if (previous && now > previous.time) {
+          const seconds = (now - previous.time) / 1000;
+          output.inboundKbps = Math.max(0, (bytesReceived - previous.bytesReceived) * 8 / seconds / 1000);
+          output.outboundKbps = Math.max(0, (bytesSent - previous.bytesSent) * 8 / seconds / 1000);
+        }
+        state.callDoctorLastStats.set(peerId, { time: now, bytesReceived, bytesSent });
+      } catch (error) {
+        output.statsError = callMediaErrorSnapshot(error);
+      }
+      output.quality = callDoctorQuality(output);
+      return output;
+    }
+
+    function callDoctorIssueList(report, peerStats = null) {
+      const issues = [];
+      if (!report) return issues;
+      if (report.secureContext === false) issues.push({ severity: 'error', text: 'Camera/microphone access requires a secure HTTPS context.' });
+      if (report.online === false) issues.push({ severity: 'error', text: 'This device is offline.' });
+      if (report.mediaDevices?.getUserMedia === false) issues.push({ severity: 'error', text: 'This browser/app does not expose getUserMedia().' });
+      if (report.permissions?.microphone === 'denied') issues.push({ severity: 'error', text: 'Microphone permission is blocked. Enable it in browser/app and operating-system privacy settings.' });
+      if (report.permissions?.camera === 'denied' && (report.activeCall?.requestedMedia === 'video' || state.callDoctorRequestedMedia === 'video')) issues.push({ severity: 'error', text: 'Camera permission is blocked. Enable it in browser/app and operating-system privacy settings.' });
+      if (report.devices?.audioinput === 0 && !report.devices?.enumerateError) issues.push({ severity: 'warn', text: 'No microphone input is currently visible to the browser.' });
+      if ((report.activeCall?.requestedMedia === 'video' || state.callDoctorRequestedMedia === 'video') && report.devices?.videoinput === 0 && !report.devices?.enumerateError) issues.push({ severity: 'warn', text: 'No camera input is currently visible to the browser.' });
+      if (report.devices?.enumerateError) issues.push({ severity: 'warn', text: `Device enumeration failed: ${report.devices.enumerateError.name || 'Error'}.` });
+      const audioTrack = report.localTracks?.find((track) => track.kind === 'audio');
+      const videoTrack = report.localTracks?.find((track) => track.kind === 'video');
+      if (report.activeCall && (!audioTrack || audioTrack.readyState !== 'live')) issues.push({ severity: 'error', text: 'The call has no live local microphone track.' });
+      if (report.activeCall?.requestedMedia === 'video' && (!videoTrack || videoTrack.readyState !== 'live')) issues.push({ severity: 'warn', text: 'The requested video call has no live local camera track.' });
+      if (audioTrack?.enabled === false) issues.push({ severity: 'warn', text: 'The local microphone track is disabled/muted.' });
+      if (videoTrack?.enabled === false && report.activeCall?.requestedMedia === 'video') issues.push({ severity: 'warn', text: 'The local camera track is disabled.' });
+      if (report.rtc?.turnConfigured === false) issues.push({ severity: 'warn', text: 'TURN is not configured; restrictive NAT/firewall combinations may prevent peer media.' });
+      if (peerStats) {
+        if (peerStats.connectionState === 'failed' || peerStats.iceConnectionState === 'failed') issues.push({ severity: 'error', text: 'WebRTC negotiation failed for this peer.' });
+        else if (peerStats.connectionState === 'disconnected' || peerStats.iceConnectionState === 'disconnected') issues.push({ severity: 'warn', text: 'The peer connection is currently disconnected.' });
+        if (peerStats.packetLossPercent >= 8) issues.push({ severity: 'error', text: `High packet loss (${peerStats.packetLossPercent.toFixed(1)}%).` });
+        else if (peerStats.packetLossPercent >= 3) issues.push({ severity: 'warn', text: `Elevated packet loss (${peerStats.packetLossPercent.toFixed(1)}%).` });
+        if (peerStats.rttMs >= 600) issues.push({ severity: 'error', text: `Very high round-trip latency (${Math.round(peerStats.rttMs)} ms).` });
+        else if (peerStats.rttMs >= 250) issues.push({ severity: 'warn', text: `High round-trip latency (${Math.round(peerStats.rttMs)} ms).` });
+        if (peerStats.jitterMs >= 100) issues.push({ severity: 'error', text: `Very high media jitter (${Math.round(peerStats.jitterMs)} ms).` });
+        else if (peerStats.jitterMs >= 50) issues.push({ severity: 'warn', text: `High media jitter (${Math.round(peerStats.jitterMs)} ms).` });
+        if (report.activeCall && !peerStats.remoteTracks?.some((track) => track.kind === 'audio' && track.readyState === 'live')) issues.push({ severity: 'error', text: 'No live remote audio track is arriving from this peer.' });
+      }
+      if (!issues.length) issues.push({ severity: 'ok', text: 'No obvious media or permission problem detected.' });
+      return issues;
+    }
+
+    function callDoctorReportCard({ title, user = null, quality = 'unknown', rows = [], issues = [] }) {
+      const card = document.createElement('article');
+      card.className = 'call-doctor-report';
+      const head = document.createElement('div');
+      head.className = 'call-doctor-report-head';
+      if (user) {
+        const avatar = document.createElement('span'); avatar.className = 'avatar'; setAvatarContent(avatar, user); head.append(avatar);
+      }
+      const strong = document.createElement('strong'); strong.textContent = title; head.append(strong);
+      if (quality) { const badge = document.createElement('span'); badge.className = `call-doctor-quality ${quality}`; badge.textContent = quality; head.append(badge); }
+      card.append(head);
+      const dl = document.createElement('dl'); dl.className = 'call-doctor-kv';
+      for (const [key, value] of rows) { const dt = document.createElement('dt'); dt.textContent = key; const dd = document.createElement('dd'); dd.textContent = value == null || value === '' ? '—' : String(value); dl.append(dt, dd); }
+      card.append(dl);
+      for (const issue of issues) { const node = document.createElement('div'); node.className = `call-doctor-issue ${issue.severity === 'warn' ? 'warn' : issue.severity === 'ok' ? 'ok' : ''}`; node.textContent = issue.text; card.append(node); }
+      return card;
+    }
+
+    function fmtDoctorNumber(value, suffix = '', digits = 0) {
+      return Number.isFinite(Number(value)) ? `${Number(value).toFixed(digits)}${suffix}` : '—';
+    }
+
+    async function renderCallDoctor() {
+      if (!state.callDoctorOpen || state.callDoctorRendering || !elements.callDoctorLocal) return;
+      state.callDoctorRendering = true;
+      try {
+        renderCallDoctorUsers();
+        const local = await collectCallDoctorLocalReport();
+        state.callDoctorCurrentLocal = local;
+        const peerStats = [];
+        for (const [peerId, peer] of state.peerConnections) {
+          const stats = await collectCallDoctorPeerStats(peerId, peer);
+          if (stats) peerStats.push(stats);
+        }
+        state.callDoctorCurrentStats = peerStats;
+
+        elements.callDoctorLocal.textContent = '';
+        const localIssues = callDoctorIssueList(local);
+        elements.callDoctorLocal.append(callDoctorReportCard({
+          title: state.selfUser?.nickname ? `${state.selfUser.nickname} · this device` : 'This device',
+          user: state.selfUser || null,
+          quality: localIssues.some((x) => x.severity === 'error') ? 'poor' : localIssues.some((x) => x.severity === 'warn') ? 'fair' : 'good',
+          rows: [
+            ['Microphone permission', local.permissions.microphone],
+            ['Camera permission', local.permissions.camera],
+            ['Inputs', `${local.devices.audioinput} mic · ${local.devices.videoinput} camera`],
+            ['Media tracks', local.localTracks.length ? local.localTracks.map((track) => `${track.kind}:${track.readyState}${track.enabled ? '' : '/off'}`).join(' · ') : 'none'],
+            ['WebSocket', `${local.websocket.registered ? 'registered' : 'not registered'} · state ${local.websocket.readyState}`],
+            ['TURN', local.rtc.turnConfigured ? `configured · ${local.rtc.iceTransportPolicy}` : 'not configured'],
+            ['Network hint', [local.network.effectiveType, local.network.rtt != null ? `${local.network.rtt} ms` : null, local.network.downlink != null ? `${local.network.downlink} Mbps` : null].filter(Boolean).join(' · ') || 'unavailable'],
+          ],
+          issues: localIssues,
+        }));
+
+        elements.callDoctorPeers.textContent = '';
+        if (!peerStats.length) {
+          const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = state.activeCall ? 'Waiting for peer connections…' : 'Start a diagnostic call or open Call Doctor during an existing call.'; elements.callDoctorPeers.append(empty);
+        }
+        for (const stats of peerStats) {
+          const user = state.callParticipants.get(stats.peerId) || state.users.find((entry) => entry.id === stats.peerId) || { nickname: 'Participant', metadata: {} };
+          const remoteEnvelope = state.callDoctorRemoteReports.get(stats.peerId);
+          const remote = remoteEnvelope?.report?.local || null;
+          const issues = callDoctorIssueList(remote || { activeCall: state.activeCall ? { requestedMedia: state.activeCall.requestedMedia } : null }, stats);
+          const candidate = stats.candidate ? `${stats.candidate.localType || '?'} → ${stats.candidate.remoteType || '?'}${stats.candidate.protocol ? ` · ${stats.candidate.protocol}` : ''}` : 'not selected';
+          elements.callDoctorPeers.append(callDoctorReportCard({
+            title: user.nickname || 'Participant', user, quality: stats.quality,
+            rows: [
+              ['Connection', `${stats.connectionState} · ICE ${stats.iceConnectionState}`],
+              ['Path', candidate],
+              ['RTT', fmtDoctorNumber(stats.rttMs, ' ms', 0)],
+              ['Jitter', fmtDoctorNumber(stats.jitterMs, ' ms', 0)],
+              ['Packet loss', fmtDoctorNumber(stats.packetLossPercent, '%', 1)],
+              ['Bitrate', `${fmtDoctorNumber(stats.inboundKbps, ' kbps', 0)} in · ${fmtDoctorNumber(stats.outboundKbps, ' kbps', 0)} out`],
+              ['Remote permission', remote ? `mic ${remote.permissions?.microphone || '?'} · cam ${remote.permissions?.camera || '?'}` : 'probe not returned'],
+              ['Remote devices', remote ? `${remote.devices?.audioinput ?? '?'} mic · ${remote.devices?.videoinput ?? '?'} camera` : '—'],
+              ['Remote tracks', stats.remoteTracks.length ? stats.remoteTracks.map((track) => `${track.kind}:${track.readyState}${track.muted ? '/muted' : ''}`).join(' · ') : 'none'],
+            ], issues,
+          }));
+        }
+
+        elements.callDoctorServer.textContent = '';
+        const server = state.callDoctorServerReport;
+        if (server) {
+          elements.callDoctorServer.append(callDoctorReportCard({
+            title: 'Rantlist signaling server', quality: server.call ? 'good' : 'unknown',
+            rows: [
+              ['Environment', server.rtc?.environment || 'unknown'],
+              ['TURN', server.rtc?.turnConfigured ? 'configured' : 'not configured'],
+              ['ICE policy', server.rtc?.iceTransportPolicy || 'all'],
+              ['Call', server.call ? `${server.call.media} · ${server.call.participants} connected · ${server.call.invited} invited` : 'no active call'],
+              ['Diagnostic mode', server.call?.diagnostic ? 'yes' : 'no'],
+            ],
+            issues: server.rtc?.turnConfigured ? [] : [{ severity: 'warn', text: 'Server reports no TURN relay configuration.' }],
+          }));
+        } else {
+          const empty = document.createElement('div'); empty.className = 'empty'; empty.textContent = state.registered ? 'Waiting for server diagnostic report…' : 'Connect to the server to inspect signaling.'; elements.callDoctorServer.append(empty);
+        }
+
+        const localLogs = state.diagnostics.filter((entry) => /^(call|webrtc|call\.media|server)/.test(entry.scope)).slice(-40).map((entry) => `${entry.time} [CLIENT ${entry.level.toUpperCase()}] ${entry.scope}.${entry.name}${entry.details == null ? '' : ` ${JSON.stringify(entry.details)}`}`);
+        const serverLogs = (server?.events || []).slice(-40).map((entry) => `${entry.time} [SERVER] ${entry.event}${entry.nickname ? ` · ${entry.nickname}` : ''}${entry.details ? ` ${JSON.stringify(entry.details)}` : ''}`);
+        elements.callDoctorLog.textContent = [...serverLogs, ...localLogs].join('\n') || 'No call/signaling events recorded yet.';
+      } finally {
+        state.callDoctorRendering = false;
+      }
+    }
+
+    function requestCallDoctorServerReport(force = false) {
+      if (!state.registered || state.socket?.readyState !== WebSocket.OPEN) return;
+      const now = Date.now();
+      if (!force && now - state.callDoctorLastServerRequestAt < 4500) return;
+      state.callDoctorLastServerRequestAt = now;
+      const requestId = createId();
+      state.callDoctorLastRequestId = requestId;
+      sendJson({ type: 'call.doctor.request', requestId, callId: state.activeCall?.id || state.callDoctorCallId || null });
+    }
+
+    function refreshCallDoctor(forceServer = false) {
+      if (!state.callDoctorOpen) return;
+      requestCallDoctorServerReport(forceServer);
+      void renderCallDoctor();
+    }
+
+    function openCallDoctor() {
+      if (!elements.callDoctorModal) return;
+      if (!elements.configDrawer?.hidden) closeConfig();
+      state.callDoctorOpen = true;
+      if (state.activeCall?.id) state.callDoctorCallId = state.activeCall.id;
+      elements.callDoctorModal.hidden = false;
+      elements.callDoctorModal.setAttribute('aria-hidden', 'false');
+      renderCallDoctorUsers();
+      elements.callDoctorStatus.textContent = state.activeCall ? 'Monitoring the current call.' : 'Select one or more people to start an audio or video diagnostic call.';
+      clearInterval(state.callDoctorTimer);
+      state.callDoctorTimer = setInterval(() => refreshCallDoctor(false), 2000);
+      refreshCallDoctor(true);
+      if (state.activeCall?.id) setTimeout(probeCallDoctorPeers, 250);
+    }
+
+    function closeCallDoctor() {
+      state.callDoctorOpen = false;
+      clearInterval(state.callDoctorTimer); state.callDoctorTimer = null;
+      if (elements.callDoctorModal) { elements.callDoctorModal.hidden = true; elements.callDoctorModal.setAttribute('aria-hidden', 'true'); }
+    }
+
+    async function startCallDoctor(media) {
+      if (state.activeCall) {
+        elements.callDoctorStatus.textContent = 'A call is already active. Call Doctor is monitoring that connection instead.';
+        await probeCallDoctorPeers();
+        return;
+      }
+      const targets = [...state.callDoctorSelection];
+      if (!targets.length) { elements.callDoctorStatus.textContent = 'Select at least one person in this channel.'; return; }
+      state.callDoctorRequestedMedia = media;
+      state.callDoctorRemoteReports.clear();
+      elements.callDoctorStatus.textContent = `Starting ${media} diagnostic call with ${targets.length} participant${targets.length === 1 ? '' : 's'}…`;
+      await startCallInvite(media, targets, { diagnostic: true });
+      if (state.activeCall) elements.callDoctorStatus.textContent = 'Diagnostic call started. Waiting for participants to accept…';
+      refreshCallDoctor(true);
+    }
+
+    async function probeCallDoctorPeers() {
+      if (!state.activeCall?.id || !state.peerConnections.size) {
+        if (elements.callDoctorStatus) elements.callDoctorStatus.textContent = 'No connected peer is available to probe yet.';
+        return;
+      }
+      const requestId = createId();
+      state.callDoctorLastRequestId = requestId;
+      sendJson({ type: 'call.doctor.probe', callId: state.activeCall.id, requestId, to: [...state.peerConnections.keys()] });
+      if (elements.callDoctorStatus) elements.callDoctorStatus.textContent = `Requested browser/media diagnostics from ${state.peerConnections.size} connected peer${state.peerConnections.size === 1 ? '' : 's'}.`;
+      requestCallDoctorServerReport(true);
+    }
+
+    async function handleCallDoctorProbe(message) {
+      if (!state.activeCall?.id || state.activeCall.id !== message.callId || !message.from) return;
+      const local = await collectCallDoctorLocalReport();
+      const peer = state.peerConnections.get(message.from);
+      const peerStats = peer ? await collectCallDoctorPeerStats(message.from, peer) : null;
+      sendJson({ type: 'call.doctor.reply', callId: message.callId, requestId: message.requestId, to: message.from, report: { local, peer: peerStats } });
+      debugLog('info', 'call.doctor', 'probe-replied', { from: message.from }, true);
+    }
+
+    function handleCallDoctorReply(message) {
+      if (!message.from || !message.report) return;
+      state.callDoctorRemoteReports.set(message.from, { report: message.report, user: message.user || null, receivedAt: Date.now(), requestId: message.requestId || null });
+      debugLog('info', 'call.doctor', 'peer-report', { from: message.from, requestId: message.requestId || null }, true);
+      if (state.callDoctorOpen) void renderCallDoctor();
+    }
+
+    function handleCallDoctorServerReport(message) {
+      state.callDoctorServerReport = message;
+      if (state.callDoctorOpen) void renderCallDoctor();
+    }
+
+    async function copyCallDoctorReport() {
+      const report = {
+        generatedAt: new Date().toISOString(),
+        local: state.callDoctorCurrentLocal || await collectCallDoctorLocalReport(),
+        peers: state.callDoctorCurrentStats || [],
+        remoteReports: Object.fromEntries([...state.callDoctorRemoteReports].map(([id, value]) => [id, value])),
+        server: state.callDoctorServerReport,
+        events: state.diagnostics.filter((entry) => /^(call|webrtc|call\.media|server)/.test(entry.scope)).slice(-120),
+      };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(report, null, 2));
+        elements.callDoctorStatus.textContent = 'Call Doctor report copied.';
+      } catch {
+        elements.callDoctorStatus.textContent = 'Clipboard access is unavailable. Use the existing Diagnostics → Download JSON action instead.';
+      }
     }
 
     function buildDiagnosticReport(extra = {}) {
